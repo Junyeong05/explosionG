@@ -1,0 +1,26 @@
+{
+  "name": "explosion-g",
+  "private": true,
+  "version": "0.1.0",
+  "description": "연쇄 폭발 — 세로 화면 탭 연쇄 로그라이트 (프로토 v3 개발 틀)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "autoplay": "tsx tools/autoplay.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
