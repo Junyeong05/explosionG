@@ -51,6 +51,8 @@ export class Renderer {
   private leakFlash = 0;
   private whiteFlash = 0;
   private levelFlash = 0;
+  /** 연쇄 환급 직후 충전 칸이 반짝이는 정도 (1 → 0) */
+  private refundFlash = 0;
   private banner: { text: string; sub: string; color: string; t: number; life: number } | null = null;
   private chainShown = 0;
   private chainPop = 0;
@@ -93,7 +95,7 @@ export class Renderer {
     this.numbers.clear();
     this.bolts.clear();
     this.shake.trauma = 0;
-    this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = 0;
+    this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = 0;
     this.banner = null;
     this.chainShown = this.chainPop = 0;
     this.chainResult = { kills: 0, t: 0 };
@@ -156,6 +158,11 @@ export class Renderer {
         case 'levelUp':
           this.levelFlash = 1;
           break;
+        case 'refund':
+          // 환급을 만든 자리에서 충전색 링 → 아래 충전 칸이 반짝임
+          this.rings.add(e.x, e.y, 6, 34, COLORS.charge, 0.35, 2.5);
+          this.refundFlash = 1;
+          break;
         default:
           break;
       }
@@ -205,6 +212,7 @@ export class Renderer {
     this.leakFlash = Math.max(0, this.leakFlash - dt * 2.5);
     this.whiteFlash = Math.max(0, this.whiteFlash - dt * 3);
     this.levelFlash = Math.max(0, this.levelFlash - dt * 2);
+    this.refundFlash = Math.max(0, this.refundFlash - dt * 2.2);
     this.chainPop = Math.max(0, this.chainPop - dt * 6);
     this.chainResult.t = Math.max(0, this.chainResult.t - dt);
     if (!world) this.ambient(dt);
@@ -575,6 +583,19 @@ export class Renderer {
         ctx.stroke();
       }
       ctx.restore();
+    }
+    if (this.refundFlash > 0) {
+      // 연쇄 환급: 충전 줄 전체가 커지며 사라지는 테두리 + "+1"
+      const f = this.refundFlash;
+      const half = ((n - 1) * gap) / 2 + 16;
+      const grow = (1 - f) * 8;
+      ctx.strokeStyle = rgba(COLORS.charge, f * 0.9);
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(FW / 2 - half - grow, y - 14 - grow, (half + grow) * 2, 28 + grow * 2);
+      ctx.font = `900 12px ${FONT}`;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = rgba(COLORS.charge, f);
+      ctx.fillText('+1', FW / 2 + half + grow + 4, y + 4 - (1 - f) * 10);
     }
     ctx.font = `700 9px ${FONT}`;
     ctx.textAlign = 'center';

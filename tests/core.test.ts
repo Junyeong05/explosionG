@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Rng, dailySeed, deriveSeed, hashString } from '../src/core/rng';
 import { SpatialGrid } from '../src/core/spatial';
-import { enemyHp, runReward, spawnInterval } from '../src/data/balance';
+import { BALANCE, enemyHp, packInterval, packSize, runReward } from '../src/data/balance';
 
 describe('Rng', () => {
   it('같은 시드면 같은 수열', () => {
@@ -41,14 +41,18 @@ describe('SpatialGrid', () => {
 });
 
 describe('기획서 공식', () => {
-  it('웨이브 10 적 체력은 시작의 약 3.8배', () => {
-    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(3.8, 1);
+  it('웨이브 10 적 체력은 시작의 약 5.2배 (기획서 1.16 → 1.2 로 올림)', () => {
+    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(5.2, 1);
     expect(enemyHp(1)).toBe(8);
   });
 
-  it('등장 간격은 0.28초 아래로 내려가지 않는다', () => {
-    expect(spawnInterval(1)).toBeCloseTo(1.03);
-    expect(spawnInterval(50)).toBe(0.28);
+  it('무리 간격은 하한, 무리 크기는 상한을 넘지 않고 웨이브가 오를수록 빡빡해진다', () => {
+    const W = BALANCE.wave;
+    expect(packInterval(1)).toBeCloseTo(W.packIntervalBase - W.packIntervalPerWave);
+    expect(packInterval(10)).toBeLessThan(packInterval(1));
+    expect(packInterval(99)).toBe(W.packIntervalMin);
+    expect(packSize(10)).toBeGreaterThan(packSize(1));
+    expect(packSize(99)).toBe(W.packSizeMax);
   });
 
   it('판 종료 부품 = 웨이브×4 + 처치/6', () => {

@@ -20,7 +20,7 @@
           ┌──────────┬───────┴─────┬───────────┐
           ▼          ▼             ▼           ▼
        Renderer     Sfx         Haptics     SlowMo ──timeScale──▶ GameLoop
-     (그리기·연출) (피치 상승)  (탭·보스)   (20연쇄)
+     (그리기·연출) (피치 상승)  (탭·보스)   (30연쇄)
 ```
 
 - **sim 은 연출을 모른다.** 렌더러·사운드·진동은 sim 상태를 읽거나 이벤트에 반응할 뿐 바꾸지 않는다.
@@ -50,9 +50,18 @@
                   (다음 스텝들) 연쇄 폭발 → 처치 → ...
 ```
 
+- **연쇄 환급**: 한 연쇄에서 `chainRefundKills`(8)마리 처치할 때마다 충전 +1 (`refund` 이벤트). 충전이 가득이면 없음.
 - `Chain.refs` = 아직 안 터진 폭발 + 살아 있는 잔불 지대 수. 0 이 되면 연쇄 종료(`chainEnd` 이벤트, 연쇄 길이 분포 기록).
 - 적 정의의 `deathBlast`(폭발형 1.8배/2배), `indirectDamageTakenMul`(장갑 0.5), `shields`(보호막 1회), `splitInto`(분열)가 연쇄에 다르게 반응한다.
 - 레벨업 선택창은 연쇄가 끝날 때까지(최대 2초) 미룬다. 연쇄 도중 멈추면 손맛이 끊기기 때문.
+
+## 무리
+
+적은 한 마리씩이 아니라 무리(`Pack`)로 나온다 (`World.spawnPack`). 무리 간격·크기는 `packInterval(w)`, `packSize(w)`.
+
+- 구성원 종류는 하나씩 따로 뽑는다 → 폭발형(노릴 곳), 장갑·보호막(연쇄를 끊는 곳)이 무리 안에 섞인다.
+- 구성원은 무리 중심에서의 위치(`packOx/packOy`)를 유지하고, 무리는 가장 느린 구성원 속도로 내려온다.
+- `loner` 가 붙은 적(돌격형)은 무리에 묶이지 않고 자기 속도로 튀어나간다. 분열체·보스 소환물도 혼자 움직인다.
 
 ## 증강
 
@@ -85,6 +94,6 @@
 
 ## 이벤트 (`sim/events.ts`)
 
-`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
+`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `refund`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
 
 새 연출이 필요하면 이벤트를 추가하고 `Renderer.consume` / `Sfx.consume` 에서 받는다. 분석 로그(애널리틱스)도 같은 이벤트 흐름에 붙이면 된다.

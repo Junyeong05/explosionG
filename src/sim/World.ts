@@ -1,7 +1,7 @@
-import { BALANCE, enemyHp, runReward, spawnInterval, xpToNext } from '../data/balance';
+import { BALANCE, enemyHp, packInterval, packSize, runReward, xpToNext } from '../data/balance';
 import type { BossId } from '../data/bosses';
 import { getChapter, type ChapterDef } from '../data/chapters';
-import { REGULAR_ENEMIES, type EnemyKind } from '../data/enemies';
+import { REGULAR_ENEMIES, type EnemyDef, type EnemyKind } from '../data/enemies';
 import { getEnemyDef } from '../data/lookup';
 import { clamp, dist2 } from '../core/math';
 import { Rng, deriveSeed } from '../core/rng';
@@ -22,6 +22,7 @@ import {
   type Mine,
   type Offer,
   type OfferKind,
+  type Pack,
   type Phase,
   type RunConfig,
   type RunResult,
@@ -34,6 +35,10 @@ const MINE_TRIGGER_RADIUS = 14;
 const MINE_ARM_SEC = 0.3;
 /** 보스 등 큰 적까지 격자 질의에 걸리도록 여유 */
 const MAX_ENEMY_RADIUS = 32;
+/** 판 시작 후 첫 무리가 내려오기까지 (초) */
+const FIRST_PACK_SEC = 1;
+/** 무리 구성원끼리 겹치지 않게 자리를 다시 뽑는 횟수 */
+const PACK_PLACE_TRIES = 6;
 
 /**
  * 한 판의 전체 상태와 진행.
@@ -68,12 +73,17 @@ export class World implements SimApi {
   xp = 0;
   kills = 0;
   maxChain = 0;
+  /** 폭발을 만든 탭 수 (헛탭 제외). 탭당 처치 = kills / taps */
+  taps = 0;
+  /** 연쇄 환급으로 돌려받은 충전 수 */
+  refunds = 0;
   rerollsLeft: number;
   bonusParts = 0;
   /** 초신성 모드에서 누르고 있는 중 */
   hold: { x: number; y: number; startedAt: number } | null = null;
 
   readonly enemies: Enemy[] = [];
+  readonly packs: Pack[] = [];
   readonly explosions: Explosion[] = [];
   readonly zones: Zone[] = [];
   readonly mines: Mine[] = [];
@@ -103,6 +113,7 @@ export class World implements SimApi {
     this.charges = this.stats.maxCharges;
     this.rerollsLeft = config.meta.rerolls;
     for (let i = 0; i < config.meta.headStartPicks; i++) this.offerQueue.push('start');
+    this.spawnTimer = packInterval(1) - FIRST_PACK_SEC;
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -207,6 +218,7 @@ export class World implements SimApi {
     const crit = this.rng.chance(s.critChance);
     let damage = s.tapDamage * (free ? BALANCE.prism.infiniteChain.freeTapDamageMul : 1);
     if (crit) damage *= s.critMultiplier;
+    this.taps++;
     this.emit({ type: 'tap', x, y, free });
     this.spawnExplosion({ x, y, radius: s.tapRadius, damage, chainId: this.newChain(), source: 'tap', crit });
   }
@@ -227,6 +239,7 @@ export class World implements SimApi {
     const radius = s.tapRadius * (1 + S.radiusPerCharge * charge) * (1 + S.radiusPerExtraCharge * (n - 1));
     let damage = s.tapDamage * (1 + S.damagePerCharge * charge) * n;
     if (crit) damage *= s.critMultiplier;
+    this.taps++;
     this.emit({ type: 'tap', x: h.x, y: h.y, free: false });
     this.spawnExplosion({ x: h.x, y: h.y, radius, damage, chainId: this.newChain(), source: 'supernova', crit });
   }
@@ -329,20 +342,68 @@ export class World implements SimApi {
     }
 
     this.spawnTimer += dt;
-    const interval = spawnInterval(this.wave);
+    const interval = packInterval(this.wave);
     while (this.spawnTimer >= interval) {
       this.spawnTimer -= interval;
-      this.spawnRegular();
+      this.spawnPack();
     }
   }
 
-  private spawnRegular(): void {
+  /**
+   * 무리 하나를 화면 위 바깥에 내린다. 구성원 종류는 하나씩 따로 뽑아서
+   * 폭발형(노릴 곳)·장갑/보호막(연쇄를 끊는 곳)이 무리 안에 섞인다.
+   */
+  spawnPack(): void {
+    const W = BALANCE.wave;
+    const rng = this.spawnRng;
     const pool = REGULAR_ENEMIES.filter((d) => d.unlockWave <= this.wave);
     const mul = this.chapter.enemyWeightMul as Record<string, number> | undefined;
-    const def = this.spawnRng.weighted(pool, (d) => d.spawnWeight * (mul?.[d.id] ?? 1));
-    if (!def) return;
-    const x = this.spawnRng.range(def.radius + 6, this.field.width - def.radius - 6);
-    this.spawnEnemy(def.id, x, this.field.spawnY);
+    const size = Math.max(1, packSize(this.wave) + rng.int(3) - 1);
+    const spread = W.packSpread;
+    const cx = rng.range(spread + 12, this.field.width - spread - 12);
+    // 무리 전체가 화면 위 바깥에서 시작하도록 아래 끝을 spawnY 에 맞춘다
+    const cy = this.field.spawnY - spread;
+    const pack: Pack = { id: this.nextId++, x: cx, y: cy, speed: Number.POSITIVE_INFINITY, members: 0 };
+
+    const placed: { x: number; y: number; r: number }[] = [];
+    for (let i = 0; i < size; i++) {
+      const def = rng.weighted(pool, (d) => d.spawnWeight * (mul?.[d.id] ?? 1));
+      if (!def) break;
+      const p = this.packSpot(cx, cy, spread, def, placed);
+      placed.push(p);
+      const e = this.spawnEnemy(def.id, p.x, p.y);
+      if (!e || def.loner) continue;
+      // 무리는 가장 느린 구성원 속도로 같이 내려온다
+      e.pack = pack;
+      e.packOx = e.x - cx;
+      e.packOy = e.y - cy;
+      pack.speed = Math.min(pack.speed, e.speed);
+      pack.members++;
+    }
+    if (pack.members > 0) this.packs.push(pack);
+  }
+
+  /** 무리 안 빈자리. 몇 번 뽑아도 겹치면 마지막 자리를 그대로 쓴다 */
+  private packSpot(cx: number, cy: number, spread: number, def: EnemyDef, placed: readonly { x: number; y: number; r: number }[]): { x: number; y: number; r: number } {
+    const rng = this.spawnRng;
+    let x = cx;
+    let y = cy;
+    for (let t = 0; t < PACK_PLACE_TRIES; t++) {
+      const a = rng.range(0, Math.PI * 2);
+      const d = spread * Math.sqrt(rng.next());
+      x = cx + Math.cos(a) * d;
+      y = cy + Math.sin(a) * d;
+      let ok = true;
+      for (const q of placed) {
+        const rr = q.r + def.radius + 3;
+        if (dist2(x, y, q.x, q.y) < rr * rr) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) break;
+    }
+    return { x, y, r: def.radius };
   }
 
   private spawnBoss(id: BossId, final: boolean): void {
@@ -354,9 +415,16 @@ export class World implements SimApi {
 
   private moveEnemies(dt: number): void {
     const line = this.field.defenseLineY;
+    for (const p of this.packs) p.y += p.speed * dt;
     for (const e of this.enemies) {
       if (e.dead) continue;
-      e.y += e.speed * dt;
+      const p = e.pack;
+      if (p) {
+        e.x = p.x + e.packOx;
+        e.y = p.y + e.packOy;
+      } else {
+        e.y += e.speed * dt;
+      }
       if (e.y >= line) {
         e.dead = true;
         // 최종 보스가 방어선을 넘으면 즉시 패배
@@ -440,12 +508,21 @@ export class World implements SimApi {
   }
 
   private compactEnemies(): void {
+    for (const p of this.packs) p.members = 0;
     let write = 0;
     for (let i = 0; i < this.enemies.length; i++) {
       const e = this.enemies[i];
-      if (!e.dead) this.enemies[write++] = e;
+      if (e.dead) continue;
+      this.enemies[write++] = e;
+      if (e.pack) e.pack.members++;
     }
     this.enemies.length = write;
+    let pw = 0;
+    for (let i = 0; i < this.packs.length; i++) {
+      const p = this.packs[i];
+      if (p.members > 0) this.packs[pw++] = p;
+    }
+    this.packs.length = pw;
   }
 
   private sweepChains(): void {
@@ -487,6 +564,14 @@ export class World implements SimApi {
     chain.kills++;
     if (chain.kills > this.maxChain) this.maxChain = chain.kills;
     this.emit({ type: 'kill', x: e.x, y: e.y, kind: e.def.id, chainKills: chain.kills, boss: !!e.def.boss });
+
+    // 연쇄 환급: 한 연쇄에서 N마리마다 충전 +1 (이미 가득이면 없음)
+    const every = this.stats.chainRefundKills;
+    if (every > 0 && chain.kills % every === 0 && this.charges < this.stats.maxCharges) {
+      this.gainCharge(1);
+      this.refunds++;
+      this.emit({ type: 'refund', x: e.x, y: e.y, chainKills: chain.kills });
+    }
 
     // 분열: 자기 연쇄 폭발 반경 안에 떨어뜨려서 "분열체까지 연쇄에 물리기"가 되게
     const split = e.def.splitInto;
@@ -588,11 +673,14 @@ export class World implements SimApi {
       maxHp: hp,
       shield: def.shields ?? 0,
       radius: def.radius,
-      speed: def.speed,
+      speed: def.speed * (def.boss ? 1 : BALANCE.enemy.speedMul),
       dead: false,
       phase: 0,
       lastHitAt: -1,
       isFinalBoss: false,
+      pack: null,
+      packOx: 0,
+      packOy: 0,
     };
     this.enemies.push(e);
     this.grid.insert(e);
@@ -670,6 +758,8 @@ export class World implements SimApi {
       wave: this.wave,
       kills: this.kills,
       maxChain: this.maxChain,
+      taps: this.taps,
+      refunds: this.refunds,
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],

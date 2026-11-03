@@ -2,7 +2,7 @@ import { BALANCE } from '../data/balance';
 import type { SimEvent } from '../sim/events';
 
 /**
- * 20연쇄 이상이면 0.3초 슬로모션 (연쇄 하나당 한 번).
+ * BALANCE.fx.slowmoChain 연쇄 이상이면 0.3초 슬로모션 (연쇄 하나당 한 번).
  * 루프의 timeScale 만 바꾼다 → sim 결과는 슬로모션 유무와 무관.
  */
 export class SlowMo {

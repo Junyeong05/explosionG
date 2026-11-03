@@ -35,6 +35,21 @@ export interface Enemy {
   /** 마지막으로 맞은 sim 시각 (렌더러 피격 깜빡임용) */
   lastHitAt: number;
   isFinalBoss: boolean;
+  /** 묶여 움직이는 무리. null 이면 혼자 움직임 (돌격형·분열체·보스·직접 배치) */
+  pack: Pack | null;
+  /** 무리 중심에서의 위치 */
+  packOx: number;
+  packOy: number;
+}
+
+/** 무리: 구성원이 가장 느린 구성원 속도에 맞춰 대열을 유지하며 내려온다 (World.moveEnemies) */
+export interface Pack {
+  id: number;
+  x: number;
+  y: number;
+  speed: number;
+  /** 살아 있는 구성원 수 (0 이 되면 정리) */
+  members: number;
 }
 
 export interface Explosion {
@@ -128,6 +143,10 @@ export interface RunSummary {
   wave: number;
   kills: number;
   maxChain: number;
+  /** 폭발을 만든 탭 수 (헛탭 제외). 옛 기록에는 없음 */
+  taps?: number;
+  /** 연쇄 환급으로 돌려받은 충전 수. 옛 기록에는 없음 */
+  refunds?: number;
   level: number;
   durationSec: number;
   /** 고른 증강 id (순서대로) */

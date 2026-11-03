@@ -15,7 +15,7 @@ describe('탭 폭발과 충전', () => {
     expect(w.drainEvents().some((e) => e.type === 'dryTap')).toBe(true);
   });
 
-  it('1.1초마다 1칸 회복', () => {
+  it('rechargeSec 마다 1칸 회복', () => {
     const w = sandbox();
     tap(w, 100, 100);
     expect(w.charges).toBe(2);

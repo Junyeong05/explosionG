@@ -38,6 +38,8 @@ export interface EnemyDef {
   shields?: number;
   /** 죽을 때 분열 */
   splitInto?: { kind: EnemyKind; count: number; spread: number };
+  /** 무리에 섞여 나오지만 묶이지 않고 자기 속도로 튀어나감 */
+  loner?: boolean;
   boss?: BossTraits;
 }
 
@@ -59,6 +61,8 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
     id: 'rusher', name: '돌격형', unlockWave: 3, spawnWeight: 3,
     hpMul: 0.5, speed: 78, radius: 9, xp: 1, leak: 1,
     color: '#ffe14d', shape: 'triangle',
+    // 무리에서 먼저 튀어나와 방어선으로 → 따로 처리할 대상
+    loner: true,
   },
   armored: {
     id: 'armored', name: '장갑', unlockWave: 4, spawnWeight: 2.5,

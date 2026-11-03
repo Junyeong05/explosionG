@@ -13,6 +13,8 @@ export type SimEvent =
   | { type: 'shieldBreak'; x: number; y: number }
   | { type: 'kill'; x: number; y: number; kind: string; chainKills: number; boss: boolean }
   | { type: 'chainEnd'; chainId: number; kills: number }
+  /** 연쇄 환급으로 충전 +1. x, y 는 환급을 만든 처치 위치 */
+  | { type: 'refund'; x: number; y: number; chainKills: number }
   | { type: 'leak'; x: number; damage: number }
   | { type: 'wave'; wave: number }
   | { type: 'bossSpawn'; id: string; final: boolean }

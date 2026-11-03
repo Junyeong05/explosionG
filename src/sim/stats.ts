@@ -18,6 +18,8 @@ export interface PlayerStats {
   chainDamageRatio: number;
   chainMultiplierPerKill: number;
   chainDelaySec: number;
+  /** 한 연쇄에서 이 수만큼 처치할 때마다 충전 +1 (0 이면 없음) */
+  chainRefundKills: number;
   maxLife: number;
   /** 프리즘 증강이 조작을 바꾼다: 초신성 = 누르고 떼기 */
   inputMode: InputMode;
@@ -53,6 +55,7 @@ export function baseStats(): PlayerStats {
     chainDamageRatio: B.chain.damageRatio,
     chainMultiplierPerKill: B.chain.multiplierPerKill,
     chainDelaySec: B.chain.delaySec,
+    chainRefundKills: B.chain.refundEveryKills,
     maxLife: B.life.start,
     inputMode: 'tap',
     freeTapDuringChain: false,

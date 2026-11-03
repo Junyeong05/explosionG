@@ -21,8 +21,8 @@ export const BALANCE = {
   tap: {
     /** 충전 3칸 */
     maxCharges: 3,
-    /** 1.1초마다 1칸 회복 */
-    rechargeSec: 1.1,
+    /** ⚠ 2초마다 1칸 회복 (프로토 v2 는 1.1초). 연쇄 환급이 생긴 만큼 기본 회복은 느리게 */
+    rechargeSec: 2,
     /** ⚠ 탭 폭발 반경 R */
     radius: 60,
     /** ⚠ 탭 폭발 피해 D. 웨이브 1 적(HP 8)을 연쇄 피해(D×60%)로 잡을 수 있게 14로 둠 */
@@ -40,6 +40,11 @@ export const BALANCE = {
     multiplierPerKill: 0.05,
     /** ⚠ 처치 → 다음 폭발까지 지연. 0 이면 한 프레임에 다 터져서 "번지는" 느낌이 안 난다 */
     delaySec: 0.07,
+    /**
+     * ⚠ 연쇄 환급: 한 연쇄에서 이 수만큼 처치할 때마다 충전 +1.
+     * 잘 노린 탭은 다음 탭을 벌어오고, 아무 데나 찍은 탭은 충전만 쓴다.
+     */
+    refundEveryKills: 8,
   },
 
   life: {
@@ -50,19 +55,35 @@ export const BALANCE = {
   wave: {
     /** 18초마다 웨이브 +1 */
     durationSec: 18,
-    /** HP(w) = 8 × 1.16^(w-1) */
+    /** ⚠ HP(w) = 8 × 1.2^(w-1). 기획서(프로토 v2)는 1.16 — 적이 무리로 많아져 연쇄가 길어진 만큼 올림 */
     hpBase: 8,
-    hpGrowth: 1.16,
-    /** 등장 간격(w) = max(0.28, 1.1 - 0.07w) 초 */
-    spawnIntervalBase: 1.1,
-    spawnIntervalPerWave: 0.07,
-    spawnIntervalMin: 0.28,
+    hpGrowth: 1.2,
+    /**
+     * ⚠ 무리 스폰: 적이 한 마리씩이 아니라 무리로 내려온다 (프로토 v2 는 한 마리씩, 간격 max(0.28, 1.1 - 0.07w)초).
+     * 무리 간격(w) = max(min, base - perWave × w) 초, 무리 크기(w) = min(max, base + perWave × w) ± 1
+     */
+    packIntervalBase: 3.4,
+    packIntervalPerWave: 0.12,
+    packIntervalMin: 1.5,
+    packSizeBase: 4,
+    packSizePerWave: 0.45,
+    packSizeMax: 12,
+    /** 무리 중심에서 구성원까지 최대 거리. 연쇄가 닿는 거리(46 + 적 반지름) 안쪽이라 무리 하나는 한 번에 번진다 */
+    packSpread: 44,
+  },
+
+  enemy: {
+    /**
+     * ⚠ 보스를 뺀 모든 적의 하강 속도 배율. enemies.ts 의 speed 는 프로토 v2 값 그대로 두고 여기서 줄인다.
+     * 플레이 피드백: 적을 많이, 느리게 내려야 모였을 때 한 번에 터뜨리는 맛이 산다.
+     */
+    speedMul: 0.6,
   },
 
   xp: {
-    /** ⚠ 다음 레벨까지 필요 경험치 = base + perLevel × (레벨 - 1) */
+    /** ⚠ 다음 레벨까지 필요 경험치 = base + perLevel × (레벨 - 1). 적이 많아진 만큼 프로토 v2(6, 8)보다 높게 */
     base: 6,
-    perLevel: 8,
+    perLevel: 11,
   },
 
   reward: {
@@ -108,8 +129,8 @@ export const BALANCE = {
   },
 
   fx: {
-    /** 20연쇄 이상이면 0.3초 슬로모션 + 화면 가장자리 발광 */
-    slowmoChain: 20,
+    /** ⚠ 30연쇄 이상이면 0.3초 슬로모션 + 화면 가장자리 발광 (기획서 20. 무리 스폰 후 20연쇄가 판당 20번 넘게 나와서 올림) */
+    slowmoChain: 30,
     slowmoSec: 0.3,
     slowmoScale: 0.3,
   },
@@ -120,9 +141,15 @@ export function enemyHp(wave: number): number {
   return w.hpBase * Math.pow(w.hpGrowth, wave - 1);
 }
 
-export function spawnInterval(wave: number): number {
+export function packInterval(wave: number): number {
   const w = BALANCE.wave;
-  return Math.max(w.spawnIntervalMin, w.spawnIntervalBase - w.spawnIntervalPerWave * wave);
+  return Math.max(w.packIntervalMin, w.packIntervalBase - w.packIntervalPerWave * wave);
+}
+
+/** 무리 크기의 기준값. 실제 크기는 여기에 ±1 (World 가 spawnRng 로 정함) */
+export function packSize(wave: number): number {
+  const w = BALANCE.wave;
+  return Math.min(w.packSizeMax, Math.round(w.packSizeBase + w.packSizePerWave * wave));
 }
 
 export function xpToNext(level: number): number {

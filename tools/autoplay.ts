@@ -111,6 +111,8 @@ function main(): void {
   console.log(`판 길이(분)     p10 ${fmt(percentile(durations, 0.1))} · 중앙 ${fmt(percentile(durations, 0.5))} · p90 ${fmt(percentile(durations, 0.9))}   (목표 5~8분)`);
   console.log(`도달 웨이브     평균 ${fmt(waves.reduce((a, b) => a + b, 0) / n)} · 최고 ${Math.max(...waves)}`);
   console.log(`판당 최대 연쇄  중앙 ${percentile(maxChains, 0.5)} · p90 ${percentile(maxChains, 0.9)} · 최고 ${maxChains[maxChains.length - 1]}`);
+  const sum = (f: (r: RunSummary) => number) => runs.reduce((a, r) => a + f(r), 0);
+  console.log(`평균 처치       ${fmt(sum((r) => r.kills) / n, 0)} · 탭 ${fmt(sum((r) => r.taps ?? 0) / n, 0)} · 탭당 처치 ${fmt(sum((r) => r.kills) / Math.max(1, sum((r) => r.taps ?? 0)), 2)} · 환급 ${fmt(sum((r) => r.refunds ?? 0) / n, 0)}`);
   console.log(`평균 레벨       ${fmt(runs.reduce((a, r) => a + r.level, 0) / n)}`);
   console.log(`평균 부품       ${fmt(runs.reduce((a, r) => a + r.partsEarned, 0) / n)}`);
 
