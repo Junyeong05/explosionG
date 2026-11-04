@@ -60,6 +60,11 @@ export class Sfx {
           this.burst(0.6, 0.6, 500);
           this.tone(90, 0.6, 'triangle', 0.5, 40);
           break;
+        case 'mult':
+          // 배율 상승: 두 음 올라감
+          this.tone(660, 0.08, 'triangle', 0.1);
+          this.tone(990, 0.12, 'triangle', 0.1, undefined, 0.07);
+          break;
         case 'gaugeFull':
           // 게이지가 가득: 작게 "준비됨"
           this.tone(990, 0.05, 'sine', 0.05);

@@ -23,6 +23,8 @@ export type SimEvent =
   | { type: 'bossSummon'; x: number; y: number }
   | { type: 'bossKill'; x: number; y: number; final: boolean }
   | { type: 'gaugeFull' }
+  /** 피해 배율이 올랐다 (value = 새 배율) */
+  | { type: 'mult'; value: number }
   | { type: 'levelUp'; level: number }
   | { type: 'offer'; kind: OfferKind }
   | { type: 'augment'; id: string; rarity: Rarity }

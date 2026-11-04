@@ -203,6 +203,7 @@ export function resultScreen(p: ResultProps): HTMLElement {
         ...stat('처치', String(s.kills)),
         ...stat('최대 연쇄', String(s.maxChain)),
         ...stat('레벨', String(s.level)),
+        ...(s.damageMult !== undefined ? stat('피해 배율', `×${s.damageMult.toFixed(2)}`) : []),
         ...stat('시간', fmtTime(s.durationSec)),
         ...stat('획득 부품', `+${s.partsEarned}`),
       ),

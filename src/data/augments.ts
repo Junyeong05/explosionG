@@ -124,6 +124,11 @@ export const AUGMENTS: readonly AugmentDef[] = [
     modifyStats: (s) => { s.chainOnAllKills = true; },
   },
   {
+    id: 'overheat_core', name: '과열 코어', rarity: 'rare', archetypes: ['burst'], maxStacks: 3,
+    desc: '피해 배율 ×1.15 (중첩마다 곱해짐)',
+    modifyStats: (s, n) => { s.damageMult *= Math.pow(1.15, n); },
+  },
+  {
     id: 'crit', name: '치명타', rarity: 'rare', archetypes: ['burst'], maxStacks: 3,
     desc: '탭 폭발 15% 확률로 피해 2배 (중첩당 +10%p)',
     modifyStats: (s, n) => { s.critChance += 0.15 + 0.1 * (n - 1); },
@@ -202,6 +207,15 @@ export const AUGMENTS: readonly AugmentDef[] = [
         if (st.kills < 25 - 3 * (n - 1)) return;
         st.kills = 0;
         lightningStrike(api, 5 + (n - 1), api.stats.tapDamage * 1.5, 4);
+      },
+    },
+  },
+  {
+    id: 'resonance', name: '연쇄 공명', rarity: 'epic', archetypes: ['chain'], maxStacks: 1,
+    desc: '한 연쇄에서 10마리 잡을 때마다 판 끝까지 피해 배율 ×1.03',
+    hooks: {
+      onKill(api, k) {
+        if (k.chainKills % 10 === 0) api.multiplyRunMult(1.03);
       },
     },
   },

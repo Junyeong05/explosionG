@@ -41,11 +41,17 @@
 ## 모으는 탭
 
 게이지(`World.gauge`, 1 = 100%)가 `gaugeFillSec`(3초) 동안 차오르고, 탭하면 게이지를 전부 써서 터진다.
-반경 `tapRadiusAt(g)` = R × (0.45 + 0.95g), 피해 `tapDamageAt(g)` = D × 1.8 × g^1.4. 15% 미만이면 헛탭.
+반경 `tapRadiusAt(g)` = R × (0.4 + 0.6g) (꽉 채우면 60), 피해 `tapDamageAt(g)` = D × 1.8 × g^1.4. 15% 미만이면 헛탭.
 피해가 게이지보다 빨리 커지므로 게이지 1%당 피해는 꽉 채울수록 크다 (연타보다 모아 쏘기가 이득).
 탭 폭발은 가장자리로 갈수록 약하다: 피해 × (1 − 0.5 × 거리/(반경 + 적 반지름)) (`Explosion.edgeMul`). 연쇄·증강 폭발은 균일.
 반경이 게이지에 비례하니 넓이는 제곱으로 커진다 → 꽉 채워 쏠수록 무리 처리에 유리.
 초신성은 상한을 250%로 올리고(100% 넘은 뒤 절반 속도), 무한 연쇄는 연쇄 중 탭을 게이지 없이 50% 크기로 쏘게 한다.
+
+## 피해 배율
+
+`stats.damageMult` 는 곱으로 쌓이는 피해 배율이고 `stats.tapDamage`(D)에 이미 곱해져 있다. 그래서 탭·연쇄·증강 폭발이 전부 따라 커진다.
+`computeStats(meta, augments, runMult)` 순서: 기본값 → 영구 강화 → 증강(덧셈 강화, 과열 코어 ×1.15) → × runMult → D 에 곱하기.
+`World.runMult` 는 판 동안 쌓이는 배율(중간 보스 처치 ×1.1, 연쇄 공명)이고 `multiplyRunMult` 로만 바뀐다 (상한 ×4). 오르면 `mult` 이벤트.
 
 ## 연쇄
 
@@ -117,6 +123,6 @@
 
 ## 이벤트 (`sim/events.ts`)
 
-`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `refund`, `gaugeFull`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
+`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `refund`, `gaugeFull`, `mult`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
 
 새 연출이 필요하면 이벤트를 추가하고 `Renderer.consume` / `Sfx.consume` 에서 받는다. 분석 로그(애널리틱스)도 같은 이벤트 흐름에 붙이면 된다.

@@ -71,6 +71,28 @@ describe('증강 효과', () => {
     expect(w.gauge).toBeCloseTo(0.15 + FIXED_DT / BALANCE.tap.gauge.fillSec);
   });
 
+  it('과열 코어: 피해 배율 ×1.15 가 중첩마다 곱해지고, 모든 피해 기준(D)에 반영된다', () => {
+    const w = sandbox();
+    const d0 = w.stats.tapDamage;
+    grant(w, 'overheat_core');
+    grant(w, 'overheat_core');
+    expect(w.stats.damageMult).toBeCloseTo(1.15 * 1.15);
+    expect(w.stats.tapDamage).toBeCloseTo(d0 * 1.15 * 1.15);
+  });
+
+  it('연쇄 공명: 한 연쇄에서 10마리마다 판 배율 ×1.03', () => {
+    const w = sandbox();
+    grant(w, 'resonance');
+    grant(w, 'chain_reaction');
+    for (let i = 0; i < 10; i++) w.spawnEnemy('normal', 20 + i * 30, 200)!.hp = 1;
+    for (const e of w.enemies) e.speed = 0;
+    tap(w, 20, 200);
+    stepFor(w, 1);
+    expect(w.kills).toBe(10);
+    expect(w.runMult).toBeCloseTo(1.03);
+    expect(w.stats.damageMult).toBeCloseTo(1.03);
+  });
+
   it('연쇄 가속: 처치당 배율 +3%p', () => {
     const w = sandbox();
     grant(w, 'chain_accel');

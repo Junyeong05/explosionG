@@ -148,8 +148,10 @@ export interface RunSummary {
   maxChain: number;
   /** 폭발을 만든 탭 수 (헛탭 제외). 옛 기록에는 없음 */
   taps?: number;
-  /** 연쇄 환급으로 돌려받은 충전 수. 옛 기록에는 없음 */
+  /** 연쇄 환급 횟수. 옛 기록에는 없음 */
   refunds?: number;
+  /** 판 끝 피해 배율. 옛 기록에는 없음 */
+  damageMult?: number;
   level: number;
   durationSec: number;
   /** 고른 증강 id (순서대로) */

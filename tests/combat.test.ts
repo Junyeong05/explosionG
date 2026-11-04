@@ -237,6 +237,19 @@ describe('적 종류', () => {
     expect(w.result).toBe('defeat');
   });
 
+  it('중간 보스를 잡으면 판 피해 배율 ×bossKill, 최종 보스는 아님', () => {
+    const w = sandbox();
+    const d0 = w.stats.tapDamage;
+    const boss = w.spawnEnemy('proliferator', 180, 200)!;
+    boss.hp = 1;
+    freeze(w);
+    w.drainEvents();
+    tap(w, 180, 200);
+    expect(w.stats.damageMult).toBeCloseTo(BALANCE.mult.bossKill);
+    expect(w.stats.tapDamage).toBeCloseTo(d0 * BALANCE.mult.bossKill);
+    expect(w.drainEvents().some((e) => e.type === 'mult')).toBe(true);
+  });
+
   it('증식체: 체력 25%마다 돌격형 3마리', () => {
     const w = sandbox();
     const boss = w.spawnEnemy('proliferator', 180, 200)!;

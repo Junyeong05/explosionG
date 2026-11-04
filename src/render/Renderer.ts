@@ -55,6 +55,8 @@ export class Renderer {
   private refundFlash = 0;
   /** 게이지 가득 찼을 때 깜빡임용 시계 */
   private hudTime = 0;
+  /** 피해 배율이 오른 직후 커졌다 돌아오는 정도 (1 → 0) */
+  private multPop = 0;
   private banner: { text: string; sub: string; color: string; t: number; life: number } | null = null;
   private chainShown = 0;
   private chainPop = 0;
@@ -97,7 +99,7 @@ export class Renderer {
     this.numbers.clear();
     this.bolts.clear();
     this.shake.trauma = 0;
-    this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = 0;
+    this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = this.multPop = 0;
     this.banner = null;
     this.chainShown = this.chainPop = 0;
     this.chainResult = { kills: 0, links: 0, t: 0 };
@@ -160,6 +162,9 @@ export class Renderer {
         case 'levelUp':
           this.levelFlash = 1;
           break;
+        case 'mult':
+          this.multPop = 1;
+          break;
         case 'refund':
           // 환급을 만든 자리에서 충전색 링 → 아래 충전 칸이 반짝임
           this.rings.add(e.x, e.y, 6, 34, COLORS.charge, 0.35, 2.5);
@@ -216,6 +221,7 @@ export class Renderer {
     this.whiteFlash = Math.max(0, this.whiteFlash - dt * 3);
     this.levelFlash = Math.max(0, this.levelFlash - dt * 2);
     this.refundFlash = Math.max(0, this.refundFlash - dt * 2.2);
+    this.multPop = Math.max(0, this.multPop - dt * 1.5);
     this.chainPop = Math.max(0, this.chainPop - dt * 6);
     this.chainResult.t = Math.max(0, this.chainResult.t - dt);
     if (!world) this.ambient(dt);
@@ -444,6 +450,18 @@ export class Renderer {
     ctx.fillStyle = COLORS.text;
     ctx.textAlign = 'center';
     ctx.fillText(`LV ${w.level}`, FW / 2, 24);
+    // 피해 배율 (곱연산). 1 보다 클 때만, 오른 직후 잠깐 커짐
+    const m = w.stats.damageMult;
+    if (m > 1.001) {
+      ctx.save();
+      ctx.translate(FW / 2, 50);
+      const sc = 1 + this.multPop * 0.5;
+      ctx.scale(sc, sc);
+      ctx.font = `900 12px ${FONT}`;
+      ctx.fillStyle = COLORS.gold;
+      ctx.fillText(`×${m.toFixed(2)}`, 0, 0);
+      ctx.restore();
+    }
     ctx.textAlign = 'right';
     const waveText = w.finalBossSpawned
       ? 'FINAL'

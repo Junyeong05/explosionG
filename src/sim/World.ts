@@ -77,6 +77,8 @@ export class World implements SimApi {
   taps = 0;
   /** 연쇄 환급 횟수 */
   refunds = 0;
+  /** 판 동안 쌓인 피해 배율 (보스 처치·연쇄 공명). 증강 배율과 곱해져 stats.damageMult 가 된다 */
+  runMult = 1;
   rerollsLeft: number;
   bonusParts = 0;
 
@@ -261,7 +263,9 @@ export class World implements SimApi {
   }
 
   private recomputeStats(): void {
-    this.stats = computeStats(this.config.meta, this.augments.active());
+    const before = this.stats.damageMult;
+    this.stats = computeStats(this.config.meta, this.augments.active(), this.runMult);
+    if (this.stats.damageMult > before + 1e-9) this.emit({ type: 'mult', value: this.stats.damageMult });
     this.gauge = Math.min(this.gauge, this.stats.gaugeMax);
     this.life = Math.min(this.life, this.stats.maxLife);
   }
@@ -596,7 +600,10 @@ export class World implements SimApi {
     if (e.def.boss) {
       this.emit({ type: 'bossKill', x: e.x, y: e.y, final: e.isFinalBoss });
       if (e.isFinalBoss) this.victoryPending = true;
-      else this.queueOffer('boss');
+      else {
+        this.multiplyRunMult(BALANCE.mult.bossKill);
+        this.queueOffer('boss');
+      }
     }
 
     this.augments.onKill(this, { enemy: e, chainId: chain.id, chainKills: chain.kills });
@@ -713,6 +720,13 @@ export class World implements SimApi {
     if (this.gauge >= max) this.emit({ type: 'gaugeFull' });
   }
 
+  multiplyRunMult(factor: number): void {
+    const next = Math.min(BALANCE.mult.runMax, this.runMult * factor);
+    if (next === this.runMult) return;
+    this.runMult = next;
+    this.recomputeStats();
+  }
+
   addBonusParts(amount: number): void {
     this.bonusParts += amount;
   }
@@ -760,6 +774,7 @@ export class World implements SimApi {
       maxChain: this.maxChain,
       taps: this.taps,
       refunds: this.refunds,
+      damageMult: this.stats.damageMult,
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],

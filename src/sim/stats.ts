@@ -13,7 +13,10 @@ export interface PlayerStats {
   /** 발사 후 남는 게이지 */
   gaugeLeftover: number;
   tapRadius: number;
+  /** 최종 기준 피해 D (덧셈 강화 × 피해 배율까지 반영된 값). 모든 폭발 피해의 기준 */
   tapDamage: number;
+  /** 피해 배율 (곱연산, HUD 표시용). tapDamage 에 이미 곱해져 있다 */
+  damageMult: number;
   /** 탭 폭발 가장자리 피해 배율 (1 = 균일) */
   tapEdgeMul: number;
   critChance: number;
@@ -56,6 +59,7 @@ export function baseStats(): PlayerStats {
     gaugeLeftover: 0,
     tapRadius: B.tap.radius,
     tapDamage: B.tap.damage,
+    damageMult: 1,
     tapEdgeMul: B.tap.edgeDamageMul,
     critChance: 0,
     critMultiplier: B.tap.critMultiplier,
@@ -76,10 +80,13 @@ export interface StackedAugment {
   stacks: number;
 }
 
-export function computeStats(meta: Readonly<MetaModifiers>, augments: readonly StackedAugment[]): PlayerStats {
+/** runMult = 판 동안 쌓인 배율 (보스 처치·연쇄 공명). 증강의 배율과 곱해져 tapDamage 에 들어간다 */
+export function computeStats(meta: Readonly<MetaModifiers>, augments: readonly StackedAugment[], runMult = 1): PlayerStats {
   const s = baseStats();
   s.tapDamage *= meta.tapDamageMul;
   s.maxLife += meta.bonusLife;
   for (const a of augments) a.def.modifyStats?.(s, a.stacks);
+  s.damageMult *= runMult;
+  s.tapDamage *= s.damageMult;
   return s;
 }

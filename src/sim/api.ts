@@ -65,6 +65,8 @@ export interface SimApi {
   heal(amount: number): void;
   /** 게이지 증가 (1 = 100%). 상한에서 멈춘다 */
   gainGauge(amount: number): void;
+  /** 판 동안 쌓이는 피해 배율에 factor 를 곱한다 (상한 BALANCE.mult.runMax) */
+  multiplyRunMult(factor: number): void;
   /** 판 종료 정산에 더해지는 부품 */
   addBonusParts(amount: number): void;
   emit(ev: SimEvent): void;
