@@ -1,7 +1,7 @@
 /**
  * 헤드리스 자동 플레이 — 밸런스 검증용.
  *
- *   npm run autoplay -- --runs 200 --mode chapter --upgrades firepower=3,durability=1
+ *   npm run autoplay -- --runs 200 --mode chapter --chapter ch2 --upgrades firepower=3,durability=1
  *   npm run autoplay -- --runs 50 --mode endless --max-min 15 --json autoplay-endless.json
  *
  * 기획서 "프로토 단계에서 볼 것": 판당 최대 연쇄 분포, 많이 고르는 증강, 많이 죽는 웨이브.
@@ -20,6 +20,7 @@ import { CHAIN_BUCKET_LABELS, type RunMode, type RunSummary } from '../src/sim/t
 interface Args {
   runs: number;
   mode: RunMode;
+  chapter: string;
   seed: number;
   maxMin: number;
   pick: PickStrategy;
@@ -29,13 +30,14 @@ interface Args {
 }
 
 function parseArgs(argv: string[]): Args {
-  const a: Args = { runs: 100, mode: 'chapter', seed: 1, maxMin: 20, pick: 'rarity', reaction: 0.3, upgrades: {} };
+  const a: Args = { runs: 100, mode: 'chapter', chapter: 'ch1', seed: 1, maxMin: 20, pick: 'rarity', reaction: 0.3, upgrades: {} };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     const v = argv[i + 1];
     switch (k) {
       case '--runs': a.runs = Number(v); i++; break;
       case '--mode': a.mode = v as RunMode; i++; break;
+      case '--chapter': a.chapter = v; i++; break;
       case '--seed': a.seed = Number(v); i++; break;
       case '--max-min': a.maxMin = Number(v); i++; break;
       case '--pick': a.pick = v as PickStrategy; i++; break;
@@ -64,7 +66,7 @@ function percentile(sorted: number[], p: number): number {
 function runOne(args: Args, seed: number): RunSummary {
   const save = defaultSave();
   save.upgrades = { ...args.upgrades };
-  const config = { ...createRunConfig(save, args.mode, seed), recordEvents: false };
+  const config = { ...createRunConfig(save, args.mode, seed, args.chapter), recordEvents: false };
   const world = new World(config);
   const bot = new Bot({ seed, pick: args.pick, reactionSec: args.reaction });
   const maxSec = args.maxMin * 60;
@@ -104,7 +106,7 @@ function main(): void {
   const fmt = (x: number, d = 1) => x.toFixed(d);
   const bar = (frac: number) => '█'.repeat(Math.round(frac * 30));
 
-  console.log(`\n자동 플레이 ${n}판 (${args.mode}, 시드 ${args.seed}~${args.seed + n - 1}, 픽 ${args.pick}, 반응 ${args.reaction}s) — ${fmt(elapsed, 1)}초`);
+  console.log(`\n자동 플레이 ${n}판 (${args.mode === 'endless' ? 'endless' : args.chapter}, 시드 ${args.seed}~${args.seed + n - 1}, 픽 ${args.pick}, 반응 ${args.reaction}s) — ${fmt(elapsed, 1)}초`);
   if (Object.keys(args.upgrades).length) console.log(`영구 강화: ${JSON.stringify(args.upgrades)}`);
   console.log('');
   console.log(`클리어율        ${fmt((victories / n) * 100)}%`);

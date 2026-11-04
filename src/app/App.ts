@@ -2,7 +2,8 @@ import { Haptics } from '../feedback/Haptics';
 import { Sfx } from '../feedback/Sfx';
 import { SlowMo } from '../feedback/SlowMo';
 import { PointerInput } from '../input/PointerInput';
-import { applyRunResult, buyUpgrade, createDailyRunConfig, createRunConfig } from '../meta/progression';
+import { CHAPTERS } from '../data/chapters';
+import { applyRunResult, buyUpgrade, createDailyRunConfig, createRunConfig, isChapterUnlocked, latestUnlockedChapter } from '../meta/progression';
 import { SaveManager } from '../meta/save';
 import { LocalStore } from '../meta/storage';
 import { Renderer } from '../render/Renderer';
@@ -40,6 +41,8 @@ export class App {
   private paused = false;
   private shownOffer: Offer | null = null;
   private resultIn = -1;
+  /** 타이틀에서 고른 챕터 */
+  private chapterId: string;
 
   constructor(root: HTMLElement) {
     const canvas = root.querySelector<HTMLCanvasElement>('#game');
@@ -53,6 +56,7 @@ export class App {
     this.hud.hidden = true;
     ui.append(this.hud);
 
+    this.chapterId = latestUnlockedChapter(this.saves.data);
     this.slowmo.onTrigger = (kills) => this.renderer.edgeFlash(kills);
     this.applySettings();
 
@@ -169,12 +173,17 @@ export class App {
     const w = this.world;
     if (!w) return;
     const summary = w.summary();
-    applyRunResult(this.saves.data, summary);
+    const save = this.saves.data;
+    const lockedBefore = CHAPTERS.filter((c) => !isChapterUnlocked(save, c.id));
+    applyRunResult(save, summary);
     this.saves.persist();
+    const opened = lockedBefore.find((c) => isChapterUnlocked(save, c.id));
+    if (opened) this.chapterId = opened.id;
     this.overlay.show(
       resultScreen({
         summary,
-        totalParts: this.saves.data.parts,
+        totalParts: save.parts,
+        unlocked: opened?.name,
         onRetry: () => this.makeConfig && this.startRun(this.makeConfig),
         onTitle: () => this.showTitle(),
       }),
@@ -193,7 +202,15 @@ export class App {
       titleScreen({
         save,
         today,
-        onChapter: () => this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed())),
+        chapterId: this.chapterId,
+        onSelectChapter: (id) => {
+          this.chapterId = id;
+          this.showTitle();
+        },
+        onChapter: () => {
+          const id = this.chapterId;
+          this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), id));
+        },
         onEndless: () => this.startRun(() => createRunConfig(this.saves.data, 'endless', randomSeed())),
         onDaily: () => this.startRun(() => createDailyRunConfig(new Date())),
         onUpgrades: () => this.showUpgrades(),

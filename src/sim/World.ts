@@ -1,7 +1,7 @@
 import { BALANCE, enemyHp, packInterval, packSize, runReward, xpToNext } from '../data/balance';
 import type { BossId } from '../data/bosses';
 import { getChapter, type ChapterDef } from '../data/chapters';
-import { REGULAR_ENEMIES, type EnemyDef, type EnemyKind } from '../data/enemies';
+import type { EnemyDef, EnemyKind } from '../data/enemies';
 import { getEnemyDef } from '../data/lookup';
 import { clamp, dist2 } from '../core/math';
 import { Rng, deriveSeed } from '../core/rng';
@@ -61,8 +61,8 @@ export class World implements SimApi {
   result: RunResult | null = null;
   time = 0;
   life: number;
-  charges: number;
-  rechargeTimer = 0;
+  /** 모으는 탭 게이지 (1 = 100%, 상한 stats.gaugeMax) */
+  gauge: number;
   wave = 1;
   waveTimer = 0;
   private spawnTimer = 0;
@@ -75,12 +75,10 @@ export class World implements SimApi {
   maxChain = 0;
   /** 폭발을 만든 탭 수 (헛탭 제외). 탭당 처치 = kills / taps */
   taps = 0;
-  /** 연쇄 환급으로 돌려받은 충전 수 */
+  /** 연쇄 환급 횟수 */
   refunds = 0;
   rerollsLeft: number;
   bonusParts = 0;
-  /** 초신성 모드에서 누르고 있는 중 */
-  hold: { x: number; y: number; startedAt: number } | null = null;
 
   readonly enemies: Enemy[] = [];
   readonly packs: Pack[] = [];
@@ -110,7 +108,7 @@ export class World implements SimApi {
     this.recordEvents = config.recordEvents ?? true;
     this.stats = computeStats(config.meta, []);
     this.life = this.stats.maxLife;
-    this.charges = this.stats.maxCharges;
+    this.gauge = this.stats.gaugeMax;
     this.rerollsLeft = config.meta.rerolls;
     for (let i = 0; i < config.meta.headStartPicks; i++) this.offerQueue.push('start');
     this.spawnTimer = packInterval(1) - FIRST_PACK_SEC;
@@ -134,7 +132,7 @@ export class World implements SimApi {
     }
 
     this.time += dt;
-    this.updateCharges(dt);
+    this.updateGauge(dt);
     if (!this.config.sandbox) this.updateWaves(dt);
     this.moveEnemies(dt);
     this.rebuildGrid();
@@ -163,7 +161,6 @@ export class World implements SimApi {
   private end(result: RunResult): void {
     this.phase = 'ended';
     this.result = result;
-    this.hold = null;
     this.offer = null;
     this.emit({ type: 'runEnd', result });
   }
@@ -178,13 +175,8 @@ export class World implements SimApi {
         if (this.phase === 'playing') this.onPress(c.x, c.y);
         break;
       case 'move':
-        if (this.hold) {
-          this.hold.x = clamp(c.x, 0, this.field.width);
-          this.hold.y = clamp(c.y, 0, this.field.height);
-        }
-        break;
       case 'release':
-        if (this.phase === 'playing') this.onRelease();
+        // 지금 조작은 누르는 순간 터지는 탭 하나뿐. 누르고 떼기 조작이 생기면 여기서 받는다
         break;
       case 'choose':
         if (this.phase === 'choosing') this.choose(c.index);
@@ -195,59 +187,40 @@ export class World implements SimApi {
     }
   }
 
+  /**
+   * 모으는 탭: 게이지를 전부 써서 터진다.
+   * 무한 연쇄: 연쇄가 이어지는 동안에는 게이지를 쓰지 않고 max(게이지, freeTapPower) 크기로 터진다.
+   */
   private onPress(px: number, py: number): void {
     const x = clamp(px, 0, this.field.width);
     const y = clamp(py, 0, this.field.height);
     const s = this.stats;
+    const free = s.freeTapDuringChain && this.explosions.length > 0;
+    const power = free ? Math.max(this.gauge, BALANCE.prism.infiniteChain.freeTapPower) : this.gauge;
 
-    if (s.inputMode === 'supernova') {
-      if (this.charges >= 1 && !this.hold) this.hold = { x, y, startedAt: this.time };
-      else if (this.charges < 1) this.emit({ type: 'dryTap', x, y });
+    if (power < BALANCE.tap.gauge.minFire) {
+      this.emit({ type: 'dryTap', x, y });
       return;
     }
-
-    const free = s.freeTapDuringChain && this.explosions.length > 0;
-    if (!free) {
-      if (this.charges < 1) {
-        this.emit({ type: 'dryTap', x, y });
-        return;
-      }
-      this.charges--;
-    }
+    if (!free) this.gauge = Math.min(power, s.gaugeLeftover);
 
     const crit = this.rng.chance(s.critChance);
-    let damage = s.tapDamage * (free ? BALANCE.prism.infiniteChain.freeTapDamageMul : 1);
+    let damage = this.tapDamageAt(power);
     if (crit) damage *= s.critMultiplier;
     this.taps++;
-    this.emit({ type: 'tap', x, y, free });
-    this.spawnExplosion({ x, y, radius: s.tapRadius, damage, chainId: this.newChain(), source: 'tap', crit });
+    this.emit({ type: 'tap', x, y, free, power });
+    this.spawnExplosion({ x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(), source: 'tap', crit });
   }
 
-  private onRelease(): void {
-    const h = this.hold;
-    if (!h) return;
-    const charge = this.holdCharge();
-    this.hold = null;
-    if (this.charges < 1) return;
-
-    // 남은 충전을 전부 쓴다. 오래 누를수록, 충전이 많을수록 크게
-    const S = BALANCE.prism.supernova;
-    const s = this.stats;
-    const n = Math.floor(this.charges);
-    this.charges -= n;
-    const crit = this.rng.chance(s.critChance);
-    const radius = s.tapRadius * (1 + S.radiusPerCharge * charge) * (1 + S.radiusPerExtraCharge * (n - 1));
-    let damage = s.tapDamage * (1 + S.damagePerCharge * charge) * n;
-    if (crit) damage *= s.critMultiplier;
-    this.taps++;
-    this.emit({ type: 'tap', x: h.x, y: h.y, free: false });
-    this.spawnExplosion({ x: h.x, y: h.y, radius, damage, chainId: this.newChain(), source: 'supernova', crit });
+  /** 게이지 power(1 = 100%)로 쏘면 반경이 얼마인가 (렌더러 미리보기·봇도 씀) */
+  tapRadiusAt(power: number): number {
+    const G = BALANCE.tap.gauge;
+    return this.stats.tapRadius * (G.radiusAt0 + (G.radiusAt1 - G.radiusAt0) * power);
   }
 
-  /** 초신성 충전도 0~1 (렌더러가 링을 그릴 때 사용) */
-  holdCharge(): number {
-    if (!this.hold) return 0;
-    return clamp((this.time - this.hold.startedAt) / BALANCE.prism.supernova.fullChargeSec, 0, 1);
+  tapDamageAt(power: number): number {
+    const G = BALANCE.tap.gauge;
+    return this.stats.tapDamage * (G.damageAt0 + (G.damageAt1 - G.damageAt0) * power);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -262,7 +235,6 @@ export class World implements SimApi {
       this.offer = { kind, choices };
       this.phase = 'choosing';
       this.offerWait = 0;
-      this.hold = null;
       this.emit({ type: 'offer', kind });
       return;
     }
@@ -287,7 +259,7 @@ export class World implements SimApi {
 
   private recomputeStats(): void {
     this.stats = computeStats(this.config.meta, this.augments.active());
-    this.charges = Math.min(this.charges, this.stats.maxCharges);
+    this.gauge = Math.min(this.gauge, this.stats.gaugeMax);
     this.life = Math.min(this.life, this.stats.maxLife);
   }
 
@@ -303,17 +275,12 @@ export class World implements SimApi {
   // 시스템
   // ═══════════════════════════════════════════════════════════
 
-  private updateCharges(dt: number): void {
+  /** 게이지는 100% 까지 fillSec 동안 차고, 100% 를 넘는 구간(초신성)은 overfillRate 배 속도로 찬다 */
+  private updateGauge(dt: number): void {
     const s = this.stats;
-    if (this.charges >= s.maxCharges) {
-      this.rechargeTimer = 0;
-      return;
-    }
-    this.rechargeTimer += dt;
-    while (this.rechargeTimer >= s.rechargeSec && this.charges < s.maxCharges) {
-      this.rechargeTimer -= s.rechargeSec;
-      this.charges++;
-    }
+    if (this.gauge >= s.gaugeMax) return;
+    const rate = (this.gauge < 1 ? 1 : BALANCE.prism.supernova.overfillRate) / s.gaugeFillSec;
+    this.gainGauge(rate * dt);
   }
 
   private updateWaves(dt: number): void {
@@ -356,8 +323,7 @@ export class World implements SimApi {
   spawnPack(): void {
     const W = BALANCE.wave;
     const rng = this.spawnRng;
-    const pool = REGULAR_ENEMIES.filter((d) => d.unlockWave <= this.wave);
-    const mul = this.chapter.enemyWeightMul as Record<string, number> | undefined;
+    const pool = this.chapter.roster.filter((r) => r.fromWave <= this.wave);
     const size = Math.max(1, packSize(this.wave) + rng.int(3) - 1);
     const spread = W.packSpread;
     const cx = rng.range(spread + 12, this.field.width - spread - 12);
@@ -367,8 +333,9 @@ export class World implements SimApi {
 
     const placed: { x: number; y: number; r: number }[] = [];
     for (let i = 0; i < size; i++) {
-      const def = rng.weighted(pool, (d) => d.spawnWeight * (mul?.[d.id] ?? 1));
-      if (!def) break;
+      const entry = rng.weighted(pool, (r) => r.weight ?? getEnemyDef(r.kind).spawnWeight);
+      if (!entry) break;
+      const def = getEnemyDef(entry.kind);
       const p = this.packSpot(cx, cy, spread, def, placed);
       placed.push(p);
       const e = this.spawnEnemy(def.id, p.x, p.y);
@@ -565,10 +532,10 @@ export class World implements SimApi {
     if (chain.kills > this.maxChain) this.maxChain = chain.kills;
     this.emit({ type: 'kill', x: e.x, y: e.y, kind: e.def.id, chainKills: chain.kills, boss: !!e.def.boss });
 
-    // 연쇄 환급: 한 연쇄에서 N마리마다 충전 +1 (이미 가득이면 없음)
+    // 연쇄 환급: 한 연쇄에서 N마리마다 게이지 + (이미 가득이면 없음)
     const every = this.stats.chainRefundKills;
-    if (every > 0 && chain.kills % every === 0 && this.charges < this.stats.maxCharges) {
-      this.gainCharge(1);
+    if (every > 0 && chain.kills % every === 0 && this.gauge < this.stats.gaugeMax) {
+      this.gainGauge(this.stats.chainRefundGauge);
       this.refunds++;
       this.emit({ type: 'refund', x: e.x, y: e.y, chainKills: chain.kills });
     }
@@ -581,19 +548,22 @@ export class World implements SimApi {
       }
     }
 
-    // 연쇄: 처치된 적이 그 자리에서 다시 폭발. 연쇄 배율 = 1 + 처치당 증가 × 지금까지 처치 수
+    // 연쇄: 처치된 적이 그 자리에서 다시 폭발. 기본은 deathBlast 가 있는 적(폭발형·보스)만,
+    // "연쇄 반응" 증강이 있으면 모든 적. 연쇄 배율 = 1 + 처치당 증가 × 지금까지 처치 수
     const s = this.stats;
     const blast = e.def.deathBlast;
-    const mult = 1 + s.chainMultiplierPerKill * chain.kills;
-    this.spawnExplosion({
-      x: e.x,
-      y: e.y,
-      radius: s.chainRadius * (blast?.radiusMul ?? 1),
-      damage: s.tapDamage * s.chainDamageRatio * (blast?.damageMul ?? 1) * mult,
-      chainId: chain.id,
-      source: 'chain',
-      delay: s.chainDelaySec,
-    });
+    if (blast || s.chainOnAllKills) {
+      const mult = 1 + s.chainMultiplierPerKill * chain.kills;
+      this.spawnExplosion({
+        x: e.x,
+        y: e.y,
+        radius: s.chainRadius * (blast?.radiusMul ?? 1),
+        damage: s.tapDamage * s.chainDamageRatio * (blast?.damageMul ?? 1) * mult,
+        chainId: chain.id,
+        source: 'chain',
+        delay: s.chainDelaySec,
+      });
+    }
 
     this.gainXp(e.def.xp);
 
@@ -663,7 +633,7 @@ export class World implements SimApi {
   spawnEnemy(kind: EnemyKind | BossId | string, x: number, y: number, hpMul = 1): Enemy | null {
     if (this.enemies.length >= BALANCE.limits.maxEnemies) return null;
     const def = getEnemyDef(kind);
-    const hp = enemyHp(this.wave) * def.hpMul * hpMul;
+    const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul;
     const e: Enemy = {
       id: this.nextId++,
       def,
@@ -709,8 +679,11 @@ export class World implements SimApi {
     this.life = Math.min(this.stats.maxLife, this.life + amount);
   }
 
-  gainCharge(amount: number): void {
-    this.charges = Math.min(this.stats.maxCharges, this.charges + amount);
+  gainGauge(amount: number): void {
+    const max = this.stats.gaugeMax;
+    if (this.gauge >= max) return;
+    this.gauge = Math.min(max, this.gauge + amount);
+    if (this.gauge >= max) this.emit({ type: 'gaugeFull' });
   }
 
   addBonusParts(amount: number): void {
@@ -777,7 +750,7 @@ export class World implements SimApi {
     mix(this.time);
     mix(this.kills);
     mix(this.life);
-    mix(this.charges);
+    mix(this.gauge);
     mix(this.wave);
     for (const e of this.enemies) {
       mix(e.x);

@@ -51,8 +51,10 @@ export class Renderer {
   private leakFlash = 0;
   private whiteFlash = 0;
   private levelFlash = 0;
-  /** 연쇄 환급 직후 충전 칸이 반짝이는 정도 (1 → 0) */
+  /** 연쇄 환급 직후 게이지가 반짝이는 정도 (1 → 0) */
   private refundFlash = 0;
+  /** 게이지 가득 찼을 때 깜빡임용 시계 */
+  private hudTime = 0;
   private banner: { text: string; sub: string; color: string; t: number; life: number } | null = null;
   private chainShown = 0;
   private chainPop = 0;
@@ -171,7 +173,8 @@ export class Renderer {
 
   private onExplosion(e: Extract<SimEvent, { type: 'explosion' }>): void {
     const s = e.source;
-    const big = s === 'supernova';
+    // 초신성으로 100% 넘게 모아 쏜 탭 = 큰 연출
+    const big = s === 'tap' && e.radius > BALANCE.tap.radius * 1.5;
     const minor = s === 'fission' || s === 'shard' || s === 'lightning';
     const color =
       s === 'tap' ? '#e8fbff'
@@ -239,7 +242,6 @@ export class Renderer {
       this.drawZones(world);
       this.drawMines(world);
       for (const e of world.enemies) if (!e.dead) this.drawEnemy(e, world.time);
-      this.drawHold(world);
     }
 
     ctx.globalCompositeOperation = 'lighter';
@@ -389,33 +391,6 @@ export class Renderer {
     }
   }
 
-  private drawHold(w: World): void {
-    if (!w.hold) return;
-    const ctx = this.ctx;
-    const S = BALANCE.prism.supernova;
-    const c = w.holdCharge();
-    const n = Math.max(1, Math.floor(w.charges));
-    const radius = w.stats.tapRadius * (1 + S.radiusPerCharge * c) * (1 + S.radiusPerExtraCharge * (n - 1));
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.25 + 0.5 * c;
-    const s = radius * 2;
-    ctx.drawImage(this.glow.get('#e8fbff'), w.hold.x - s / 2, w.hold.y - s / 2, s, s);
-    ctx.globalAlpha = 0.8;
-    ctx.strokeStyle = '#e8fbff';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 5]);
-    ctx.beginPath();
-    ctx.arc(w.hold.x, w.hold.y, radius, 0, TAU);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(w.hold.x, w.hold.y, 18, -Math.PI / 2, -Math.PI / 2 + TAU * c);
-    ctx.stroke();
-    ctx.restore();
-  }
-
   private drawScreenFx(): void {
     const ctx = this.ctx;
     if (this.edge > 0) {
@@ -532,7 +507,8 @@ export class Renderer {
       }
     }
 
-    this.drawCharges(w);
+    this.hudTime += dt;
+    this.drawGauge(w);
   }
 
   private drawChainCounter(kills: number, alpha: number, mult: number): void {
@@ -556,55 +532,72 @@ export class Renderer {
     ctx.restore();
   }
 
-  private drawCharges(w: World): void {
+  /**
+   * 모으는 탭 게이지. 막대 + 왼쪽 원(지금 쏘면 터질 크기) + 퍼센트.
+   * 초신성이면 막대가 상한(250%)까지 늘고 100% 넘은 부분은 금색.
+   */
+  private drawGauge(w: World): void {
     const ctx = this.ctx;
-    const n = w.stats.maxCharges;
-    const gap = 28;
-    const x0 = FW / 2 - ((n - 1) * gap) / 2;
-    const y = 600;
-    const full = Math.floor(w.charges);
-    const partial = w.charges < n ? w.rechargeTimer / w.stats.rechargeSec : 0;
-    for (let i = 0; i < n; i++) {
-      const x = x0 + i * gap;
-      ctx.save();
-      ctx.translate(x, y);
-      polygon(ctx, 6, 10, Math.PI / 6);
-      ctx.strokeStyle = rgba(COLORS.charge, i < full ? 1 : 0.35);
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      if (i < full) {
-        ctx.fillStyle = rgba(COLORS.charge, 0.85);
-        ctx.fill();
-      } else if (i === full && partial > 0) {
-        ctx.beginPath();
-        ctx.arc(0, 0, 6, -Math.PI / 2, -Math.PI / 2 + TAU * partial);
-        ctx.strokeStyle = COLORS.charge;
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    const g = w.gauge;
+    const max = w.stats.gaugeMax;
+    const full = g >= max;
+    const width = 150;
+    const x0 = FW / 2 - width / 2 + 10;
+    const y = 598;
+    const pulse = full ? 0.65 + 0.35 * Math.sin(this.hudTime * 8) : 1;
+
+    // 막대
+    ctx.fillStyle = rgba(COLORS.charge, 0.14);
+    ctx.fillRect(x0, y - 3, width, 6);
+    const oneW = width / max;
+    ctx.fillStyle = rgba(COLORS.charge, 0.9 * pulse);
+    ctx.fillRect(x0, y - 3, oneW * Math.min(g, 1), 6);
+    if (max > 1) {
+      if (g > 1) {
+        ctx.fillStyle = rgba(COLORS.gold, 0.9 * pulse);
+        ctx.fillRect(x0 + oneW, y - 3, oneW * (g - 1), 6);
       }
-      ctx.restore();
+      ctx.fillStyle = COLORS.text;
+      ctx.fillRect(x0 + oneW - 0.5, y - 6, 1, 12);
     }
+    // 최소 발사선
+    ctx.fillStyle = rgba(COLORS.text, 0.35);
+    ctx.fillRect(x0 + oneW * BALANCE.tap.gauge.minFire - 0.5, y - 5, 1, 10);
+
+    // 지금 쏘면 터질 크기 (100% 일 때 반지름 11)
+    const cx = x0 - 20;
+    const r = g < BALANCE.tap.gauge.minFire ? 3 : 11 * (w.tapRadiusAt(g) / w.tapRadiusAt(1));
+    ctx.beginPath();
+    ctx.arc(cx, y, Math.max(3, r), 0, TAU);
+    ctx.strokeStyle = rgba(g > 1 ? COLORS.gold : COLORS.charge, pulse);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    if (full) {
+      ctx.fillStyle = rgba(g > 1 ? COLORS.gold : COLORS.charge, 0.35 * pulse);
+      ctx.fill();
+    }
+
     if (this.refundFlash > 0) {
-      // 연쇄 환급: 충전 줄 전체가 커지며 사라지는 테두리 + "+1"
+      // 연쇄 환급: 막대가 커지며 사라지는 테두리 + 늘어난 양
       const f = this.refundFlash;
-      const half = ((n - 1) * gap) / 2 + 16;
       const grow = (1 - f) * 8;
       ctx.strokeStyle = rgba(COLORS.charge, f * 0.9);
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(FW / 2 - half - grow, y - 14 - grow, (half + grow) * 2, 28 + grow * 2);
+      ctx.strokeRect(x0 - 4 - grow, y - 8 - grow, width + 8 + grow * 2, 16 + grow * 2);
       ctx.font = `900 12px ${FONT}`;
       ctx.textAlign = 'left';
       ctx.fillStyle = rgba(COLORS.charge, f);
-      ctx.fillText('+1', FW / 2 + half + grow + 4, y + 4 - (1 - f) * 10);
+      ctx.fillText(`+${Math.round(w.stats.chainRefundGauge * 100)}%`, x0 + width + 8 + grow, y + 4 - (1 - f) * 10);
     }
+
     ctx.font = `700 9px ${FONT}`;
     ctx.textAlign = 'center';
-    ctx.fillStyle = COLORS.dim;
+    ctx.fillStyle = full ? rgba(COLORS.charge, pulse) : COLORS.dim;
     const label =
-      w.stats.inputMode === 'supernova' ? 'HOLD & RELEASE'
-      : w.stats.freeTapDuringChain && w.explosions.length > 0 ? 'FREE TAP'
-      : 'CHARGE';
-    ctx.fillText(label, FW / 2, y + 24);
+      w.stats.freeTapDuringChain && w.explosions.length > 0 ? 'FREE TAP'
+      : full ? `FULL ${Math.round(g * 100)}%`
+      : `CHARGE ${Math.floor(g * 100)}%`;
+    ctx.fillText(label, x0 + width / 2, y + 22);
   }
 
   /** 타이틀 화면 배경: 가끔 연쇄처럼 번지는 폭발 */

@@ -1,15 +1,17 @@
 import { BALANCE } from '../data/balance';
 import type { AugmentDef } from '../data/augments';
 
-export type InputMode = 'tap' | 'supernova';
-
 /**
  * 판 안의 플레이어 능력치. 기본값 → 영구 강화 → 증강 순으로 매번 다시 계산한다.
  * (증강을 얻을 때만 재계산하므로 비용 걱정 없음)
  */
 export interface PlayerStats {
-  maxCharges: number;
-  rechargeSec: number;
+  /** 게이지 0 → 100% 시간 (초) */
+  gaugeFillSec: number;
+  /** 게이지 상한 (1 = 100%. 초신성이면 2.5) */
+  gaugeMax: number;
+  /** 발사 후 남는 게이지 */
+  gaugeLeftover: number;
   tapRadius: number;
   tapDamage: number;
   critChance: number;
@@ -18,12 +20,13 @@ export interface PlayerStats {
   chainDamageRatio: number;
   chainMultiplierPerKill: number;
   chainDelaySec: number;
-  /** 한 연쇄에서 이 수만큼 처치할 때마다 충전 +1 (0 이면 없음) */
+  /** 일반 적도 죽을 때 터지는가 (기본은 deathBlast 가 있는 폭발형·보스만) */
+  chainOnAllKills: boolean;
+  /** 한 연쇄에서 이 수만큼 처치할 때마다 게이지 +chainRefundGauge (0 이면 없음) */
   chainRefundKills: number;
+  chainRefundGauge: number;
   maxLife: number;
-  /** 프리즘 증강이 조작을 바꾼다: 초신성 = 누르고 떼기 */
-  inputMode: InputMode;
-  /** 무한 연쇄: 연쇄가 진행 중이면 탭이 충전을 쓰지 않음 */
+  /** 무한 연쇄: 연쇄가 진행 중이면 탭이 게이지를 쓰지 않음 */
   freeTapDuringChain: boolean;
 }
 
@@ -45,8 +48,9 @@ export const NO_META: Readonly<MetaModifiers> = Object.freeze({
 export function baseStats(): PlayerStats {
   const B = BALANCE;
   return {
-    maxCharges: B.tap.maxCharges,
-    rechargeSec: B.tap.rechargeSec,
+    gaugeFillSec: B.tap.gauge.fillSec,
+    gaugeMax: 1,
+    gaugeLeftover: 0,
     tapRadius: B.tap.radius,
     tapDamage: B.tap.damage,
     critChance: 0,
@@ -55,9 +59,10 @@ export function baseStats(): PlayerStats {
     chainDamageRatio: B.chain.damageRatio,
     chainMultiplierPerKill: B.chain.multiplierPerKill,
     chainDelaySec: B.chain.delaySec,
+    chainOnAllKills: false,
     chainRefundKills: B.chain.refundEveryKills,
+    chainRefundGauge: B.chain.refundGauge,
     maxLife: B.life.start,
-    inputMode: 'tap',
     freeTapDuringChain: false,
   };
 }

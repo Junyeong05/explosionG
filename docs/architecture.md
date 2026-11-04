@@ -38,21 +38,37 @@
 
 `tests/run.test.ts` 의 "같은 시드 + 같은 입력 = 같은 판" 테스트가 이걸 지킨다.
 
+## 모으는 탭
+
+게이지(`World.gauge`, 1 = 100%)가 `gaugeFillSec`(3초) 동안 차오르고, 탭하면 게이지를 전부 써서 터진다.
+반경 `tapRadiusAt(g)` = R × (0.45 + 0.95g), 피해 `tapDamageAt(g)` = D × (0.5 + 1.3g). 15% 미만이면 헛탭.
+반경이 게이지에 비례하니 넓이는 제곱으로 커진다 → 꽉 채워 쏠수록 무리 처리에 유리.
+초신성은 상한을 250%로 올리고(100% 넘은 뒤 절반 속도), 무한 연쇄는 연쇄 중 탭을 게이지 없이 50% 크기로 쏘게 한다.
+
 ## 연쇄
 
 ```
-탭 → newChain() → 폭발(탭, 피해 D)
+탭 → newChain() → 폭발(탭, 피해 tapDamageAt(g))
                      │ 반경 안 적에게 피해
                      ▼
                   처치 → chain.kills++
-                     │   연쇄 폭발 생성: 반경 46, 피해 D×60%×(1 + 5%×kills), 지연 0.07초
+                     │   deathBlast 가 있는 적(폭발형·보스) 또는 "연쇄 반응" 증강이면
+                     │   연쇄 폭발 생성: 반경 46×배율, 피해 D×60%×배율×(1 + 5%×kills), 지연 0.07초
                      ▼
                   (다음 스텝들) 연쇄 폭발 → 처치 → ...
 ```
 
-- **연쇄 환급**: 한 연쇄에서 `chainRefundKills`(8)마리 처치할 때마다 충전 +1 (`refund` 이벤트). 충전이 가득이면 없음.
+- 기본으로는 폭발형만 연쇄를 이어간다. 일반 적까지 터지게 하는 건 레어 증강 "연쇄 반응"(`chainOnAllKills`).
+- **연쇄 환급**: 한 연쇄(탭이 직접 잡은 것 포함)에서 `chainRefundKills`(8)마리 처치할 때마다 게이지 +25% (`refund` 이벤트). 가득이면 없음.
 - `Chain.refs` = 아직 안 터진 폭발 + 살아 있는 잔불 지대 수. 0 이 되면 연쇄 종료(`chainEnd` 이벤트, 연쇄 길이 분포 기록).
 - 적 정의의 `deathBlast`(폭발형 1.8배/2배), `indirectDamageTakenMul`(장갑 0.5), `shields`(보호막 1회), `splitInto`(분열)가 연쇄에 다르게 반응한다.
+
+## 챕터와 적 구성
+
+어떤 적이 몇 웨이브부터 나오는지는 적 정의가 아니라 챕터의 `roster` 가 정한다 (`data/chapters.ts`).
+챕터 1은 일반·폭발형(웨이브 10부터 돌격형)뿐이고, 챕터 2·3·4가 장갑·보호막·분열을 하나씩 더한다.
+챕터별 `hpMul` 이 적 체력에 곱해진다. 엔드리스는 전용 구성(`ENDLESS`)으로 3웨이브마다 종류가 하나씩 는다.
+해금은 `meta/progression.isChapterUnlocked`: 첫 챕터는 항상, 나머지는 바로 앞 챕터를 한 번 깨면 열린다.
 - 레벨업 선택창은 연쇄가 끝날 때까지(최대 2초) 미룬다. 연쇄 도중 멈추면 손맛이 끊기기 때문.
 
 ## 무리
@@ -67,11 +83,11 @@
 
 | 훅 | 호출 시점 | 예 |
 | --- | --- | --- |
-| `modifyStats(s, stacks)` | 증강을 얻을 때마다 능력치 전체 재계산 | 폭발 반경, 충전 +1, 초신성(조작 모드) |
+| `modifyStats(s, stacks)` | 증강을 얻을 때마다 능력치 전체 재계산 | 폭발 반경, 고속 충전, 연쇄 반응, 초신성(게이지 상한) |
 | `onExplosion(api, ex)` | 폭발 하나가 터진 직후 | 잔불, 핵분열 |
 | `onKill(api, kill)` | 적 하나가 죽은 직후 | 파편, 과부하, 유폭 지뢰 |
 | `onTick(api, dt)` | 매 스텝 | (예: 주기형 증강) |
-| `onAcquire(api)` | 얻는 순간 1회 | 충전 +1 즉시 충전, 응급 수리 |
+| `onAcquire(api)` | 얻는 순간 1회 | 응급 수리, 긴급 충전 |
 
 증강별 판 안 상태(카운터 등)는 `state` 객체(숫자만)에 둔다.
 
@@ -94,6 +110,6 @@
 
 ## 이벤트 (`sim/events.ts`)
 
-`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `refund`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
+`tap`, `dryTap`, `explosion`, `hit`, `shieldBreak`, `kill`, `refund`, `gaugeFull`, `chainEnd`, `leak`, `wave`, `bossSpawn`, `bossSummon`, `bossKill`, `levelUp`, `offer`, `augment`, `bolt`, `runEnd`
 
 새 연출이 필요하면 이벤트를 추가하고 `Renderer.consume` / `Sfx.consume` 에서 받는다. 분석 로그(애널리틱스)도 같은 이벤트 흐름에 붙이면 된다.

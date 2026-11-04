@@ -5,7 +5,7 @@ const EMPTY: readonly Command[] = Object.freeze([]);
 /**
  * 포인터(터치·마우스) → sim Command.
  * 탭은 손가락이 닿는 순간(press) 터진다. 떼는 순간까지 기다리면 반응이 늦게 느껴진다.
- * 초신성처럼 누르고 떼기 조작은 sim 이 press/move/release 를 해석한다.
+ * move/release 도 보내 두지만 지금 sim 은 press 만 쓴다 (누르고 떼기 조작이 생기면 sim 이 해석).
  */
 export class PointerInput {
   private queue: Command[] = [];

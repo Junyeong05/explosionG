@@ -33,7 +33,7 @@ describe('판 진행', () => {
     const w = new World(config);
     const bot = new Bot({ seed: 5 });
     const seen = new Set<string>();
-    for (let i = 0; i < 60 * 60 && w.phase !== 'ended'; i++) {
+    for (let i = 0; i < 70 * 60 && w.phase !== 'ended'; i++) {
       w.step(FIXED_DT, bot.think(w, FIXED_DT));
       for (const e of w.drainEvents()) seen.add(e.type);
     }
@@ -69,6 +69,6 @@ describe('판 진행', () => {
     const t = w.time;
     for (let i = 0; i < 60; i++) w.step(FIXED_DT, [{ t: 'press', x: 100, y: 100 }]);
     expect(w.time).toBe(t);
-    expect(w.charges).toBe(3);
+    expect(w.gauge).toBe(1);
   });
 });

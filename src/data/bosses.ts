@@ -10,9 +10,9 @@ export type BossId = 'proliferator';
  */
 export const BOSSES: Record<BossId, EnemyDef> = {
   proliferator: {
-    id: 'proliferator', name: '증식체', unlockWave: 0, spawnWeight: 0,
-    // ⚠ 보스 HP 배율·속도는 임시값
-    hpMul: 25, speed: 12, radius: 28, xp: 15, leak: 3,
+    id: 'proliferator', name: '증식체', spawnWeight: 0,
+    // ⚠ 보스 HP 배율·속도는 임시값. 기본 연쇄가 없어진 뒤 25 → 18 (챕터 1 봇 클리어율 약 90%)
+    hpMul: 18, speed: 12, radius: 28, xp: 15, leak: 3,
     color: '#ff3cc8', shape: 'octagon', mark: 'thick',
     deathBlast: { radiusMul: 2.6, damageMul: 3 },
     boss: {

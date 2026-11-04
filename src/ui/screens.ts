@@ -1,6 +1,8 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
+import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
+import { ENEMIES } from '../data/enemies';
 import { UPGRADES, type UpgradeId } from '../data/upgrades';
-import { canBuy, upgradeCost, upgradeLevel } from '../meta/progression';
+import { canBuy, isChapterUnlocked, upgradeCost, upgradeLevel } from '../meta/progression';
 import type { SaveData } from '../meta/save';
 import type { Offer, RunSummary } from '../sim/types';
 import { h } from './dom';
@@ -31,6 +33,9 @@ function fmtTime(sec: number): string {
 export interface TitleProps {
   save: SaveData;
   today: string;
+  /** 고른 챕터 id */
+  chapterId: string;
+  onSelectChapter(id: string): void;
   onChapter(): void;
   onEndless(): void;
   onDaily(): void;
@@ -40,8 +45,16 @@ export interface TitleProps {
   onExport(): void;
 }
 
+/** 챕터 시작 버튼 아래 한 줄: 웨이브 수 + 이 챕터에서 처음 나오는 적 */
+function chapterLine(id: string): string {
+  const ch = getChapter(id);
+  const fresh = newEnemiesIn(id).map((k) => ENEMIES[k].name);
+  return `${ch.waves}웨이브 + 최종 보스 · ${CHAPTERS[0].id === id ? '적' : '새 적'} ${fresh.join('·')}`;
+}
+
 export function titleScreen(p: TitleProps): HTMLElement {
   const r = p.save.records;
+  const selected = getChapter(p.chapterId);
   return h('div', { class: 'overlay clear' },
     h('div', { class: 'panel' },
       h('h1', { class: 'title', text: '연쇄 폭발' }),
@@ -51,7 +64,20 @@ export function titleScreen(p: TitleProps): HTMLElement {
         h('span', null, '최고 웨이브 ', h('b', { text: String(r.bestWave) })),
         h('span', null, '최고 연쇄 ', h('b', { text: String(r.bestChain) })),
       ),
-      h('button', { class: 'btn primary', onClick: p.onChapter }, '챕터 1', h('small', { text: '15웨이브 + 최종 보스' })),
+      h('div', { class: 'chapters' },
+        ...CHAPTERS.map((c, i) => {
+          const open = isChapterUnlocked(p.save, c.id);
+          const cleared = (r.chapterClears[c.id] ?? 0) > 0;
+          return h('button', {
+            class: `chip${c.id === p.chapterId ? ' on' : ''}${cleared ? ' cleared' : ''}`,
+            disabled: !open,
+            ariaLabel: open ? `${c.name}${cleared ? ' (클리어)' : ''}` : `${c.name}: ${CHAPTERS[i - 1]?.name ?? ''} 클리어 시 열림`,
+            onClick: () => p.onSelectChapter(c.id),
+            text: `챕터 ${i + 1}`,
+          });
+        }),
+      ),
+      h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
       h('button', { class: 'btn', onClick: p.onEndless }, '엔드리스', h('small', { text: '끝없이' })),
       h('button', { class: 'btn', onClick: p.onDaily }, '일일 도전', h('small', { text: `${p.today} · 영구 강화 미적용` })),
       h('button', { class: 'btn', onClick: p.onUpgrades }, '영구 강화', h('small', { class: 'parts', text: `부품 ${p.save.parts}` })),
@@ -160,6 +186,8 @@ export function pauseScreen(p: PauseProps): HTMLElement {
 export interface ResultProps {
   summary: RunSummary;
   totalParts: number;
+  /** 이번 판으로 새로 열린 챕터 이름 */
+  unlocked?: string;
   onRetry(): void;
   onTitle(): void;
 }
@@ -181,6 +209,7 @@ export function resultScreen(p: ResultProps): HTMLElement {
       s.picks.length > 0 &&
         h('div', { class: 'picks' }, ...s.picks.map((id) => h('span', { class: 'pick', dataset: { rarity: getAugment(id).rarity }, text: getAugment(id).name }))),
       h('div', { class: 'center parts', text: `보유 부품 ${p.totalParts}` }),
+      p.unlocked ? h('div', { class: 'center unlocked', text: `${p.unlocked} 열림` }) : null,
       h('div', { class: 'row' },
         h('button', { class: 'btn primary', onClick: p.onRetry, text: '다시' }),
         h('button', { class: 'btn', onClick: p.onTitle, text: '타이틀' }),

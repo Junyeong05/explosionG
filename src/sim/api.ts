@@ -61,7 +61,8 @@ export interface SimApi {
   addZone(spec: ZoneSpec): void;
   addMine(spec: MineSpec): void;
   heal(amount: number): void;
-  gainCharge(amount: number): void;
+  /** 게이지 증가 (1 = 100%). 상한에서 멈춘다 */
+  gainGauge(amount: number): void;
   /** 판 종료 정산에 더해지는 부품 */
   addBonusParts(amount: number): void;
   emit(ev: SimEvent): void;

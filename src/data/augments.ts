@@ -78,8 +78,7 @@ function lightningStrike(api: SimApi, count: number, damage: number, radius: num
   }
 }
 
-const isPrimaryBlast = (ex: Readonly<Explosion>) =>
-  ex.source === 'tap' || ex.source === 'chain' || ex.source === 'supernova';
+const isPrimaryBlast = (ex: Readonly<Explosion>) => ex.source === 'tap' || ex.source === 'chain';
 
 // ─────────────────────────────────────────────────────────────
 // 증강 목록
@@ -103,15 +102,14 @@ export const AUGMENTS: readonly AugmentDef[] = [
     modifyStats: (s, n) => { s.chainDamageRatio += 0.1 * n; },
   },
   {
-    id: 'charge_plus', name: '충전 +1', rarity: 'normal', archetypes: ['rapid'], maxStacks: 3,
-    desc: '최대 충전 +1, 즉시 1칸 충전',
-    modifyStats: (s, n) => { s.maxCharges += n; },
-    onAcquire: (api) => api.gainCharge(1),
+    id: 'leftover', name: '잔여 장약', rarity: 'normal', archetypes: ['rapid'], maxStacks: 3,
+    desc: '탭한 뒤 게이지 15%가 남음 (중첩당 +15%)',
+    modifyStats: (s, n) => { s.gaugeLeftover += 0.15 * n; },
   },
   {
     id: 'fast_charge', name: '고속 충전', rarity: 'normal', archetypes: ['rapid'], maxStacks: 5,
-    desc: '충전 회복 속도 +12%',
-    modifyStats: (s, n) => { s.rechargeSec /= 1 + 0.12 * n; },
+    desc: '게이지 차는 속도 +12%',
+    modifyStats: (s, n) => { s.gaugeFillSec /= 1 + 0.12 * n; },
   },
   {
     id: 'high_explosive', name: '고폭 화약', rarity: 'normal', archetypes: ['burst', 'chain'], maxStacks: 5,
@@ -120,6 +118,11 @@ export const AUGMENTS: readonly AugmentDef[] = [
   },
 
   // ── 레어: 작은 규칙 추가 ─────────────────────────────────
+  {
+    id: 'chain_reaction', name: '연쇄 반응', rarity: 'rare', archetypes: ['chain'], maxStacks: 1,
+    desc: '모든 적이 죽을 때 터진다 (기본은 폭발형만)',
+    modifyStats: (s) => { s.chainOnAllKills = true; },
+  },
   {
     id: 'crit', name: '치명타', rarity: 'rare', archetypes: ['burst'], maxStacks: 3,
     desc: '탭 폭발 15% 확률로 피해 2배 (중첩당 +10%p)',
@@ -216,12 +219,12 @@ export const AUGMENTS: readonly AugmentDef[] = [
   // ── 프리즘: 판의 규칙·조작 변경 (보스 처치 보상에서만, 판당 1개) ──
   {
     id: 'supernova', name: '초신성', rarity: 'prism', archetypes: ['burst'], maxStacks: 1,
-    desc: `조작 변경: 누르고 있다가 떼면 충전을 모두 써서 거대한 폭발 (${BALANCE.prism.supernova.fullChargeSec}초 최대)`,
-    modifyStats: (s) => { s.inputMode = 'supernova'; },
+    desc: `과충전: 게이지가 100%를 넘어 ${BALANCE.prism.supernova.gaugeMax * 100}%까지 찬다 (넘긴 뒤엔 절반 속도). 기다릴수록 끝없이 커지는 폭발`,
+    modifyStats: (s) => { s.gaugeMax = BALANCE.prism.supernova.gaugeMax; },
   },
   {
     id: 'infinite_chain', name: '무한 연쇄', rarity: 'prism', archetypes: ['rapid'], maxStacks: 1,
-    desc: '연쇄가 이어지는 동안 탭이 충전을 쓰지 않음 (그 탭의 피해 60%)',
+    desc: `연쇄가 이어지는 동안 탭하면 게이지를 쓰지 않고 ${BALANCE.prism.infiniteChain.freeTapPower * 100}% 크기로 터짐`,
     modifyStats: (s) => { s.freeTapDuringChain = true; },
   },
 
@@ -251,10 +254,10 @@ export const FALLBACK_AUGMENTS: readonly AugmentDef[] = [
     onAcquire: (api) => api.heal(1),
   },
   {
-    id: 'overcharge', name: '과충전', rarity: 'normal', archetypes: [], maxStacks: Number.POSITIVE_INFINITY,
-    desc: '충전을 모두 채움',
+    id: 'overcharge', name: '긴급 충전', rarity: 'normal', archetypes: [], maxStacks: Number.POSITIVE_INFINITY,
+    desc: '게이지를 가득 채움',
     fallback: true,
-    onAcquire: (api) => api.gainCharge(99),
+    onAcquire: (api) => api.gainGauge(99),
   },
   {
     id: 'salvage', name: '부품 회수', rarity: 'normal', archetypes: [], maxStacks: Number.POSITIVE_INFINITY,

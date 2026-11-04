@@ -18,15 +18,29 @@ export const BALANCE = {
     defenseLineY: 560,
   },
 
+  /**
+   * 모으는 탭 (플레이 피드백으로 프로토 v2 의 "충전 3칸"을 대체).
+   * 게이지 하나가 계속 차오르고, 탭하면 게이지를 전부 써서 터진다. 많이 모을수록 크게 터진다.
+   *   반경 = R × (radiusAt0 + (radiusAt1 - radiusAt0) × 게이지)
+   *   피해 = D × (damageAt0 + (damageAt1 - damageAt0) × 게이지)
+   * 반경이 게이지에 비례하므로 넓이는 제곱으로 커진다 → 반만 모아 두 번 쏘는 것보다 꽉 채워 한 번이 무리에 유리.
+   */
   tap: {
-    /** 충전 3칸 */
-    maxCharges: 3,
-    /** ⚠ 2초마다 1칸 회복 (프로토 v2 는 1.1초). 연쇄 환급이 생긴 만큼 기본 회복은 느리게 */
-    rechargeSec: 2,
-    /** ⚠ 탭 폭발 반경 R */
+    /** ⚠ 탭 폭발 기준 반경 R */
     radius: 60,
-    /** ⚠ 탭 폭발 피해 D. 웨이브 1 적(HP 8)을 연쇄 피해(D×60%)로 잡을 수 있게 14로 둠 */
+    /** ⚠ 탭 폭발 기준 피해 D */
     damage: 14,
+    gauge: {
+      /** ⚠ 0 → 100% 까지 걸리는 시간 (초) */
+      fillSec: 3,
+      /** ⚠ 이보다 적으면 헛탭 */
+      minFire: 0.15,
+      /** ⚠ 게이지 0%·100% 일 때 반경·피해 배율 (100% 를 넘으면 같은 직선으로 계속 커짐) */
+      radiusAt0: 0.45,
+      radiusAt1: 1.4,
+      damageAt0: 0.5,
+      damageAt1: 1.8,
+    },
     /** 치명타 배율 (치명타 증강 획득 전에는 확률 0) */
     critMultiplier: 2,
   },
@@ -41,10 +55,11 @@ export const BALANCE = {
     /** ⚠ 처치 → 다음 폭발까지 지연. 0 이면 한 프레임에 다 터져서 "번지는" 느낌이 안 난다 */
     delaySec: 0.07,
     /**
-     * ⚠ 연쇄 환급: 한 연쇄에서 이 수만큼 처치할 때마다 충전 +1.
-     * 잘 노린 탭은 다음 탭을 벌어오고, 아무 데나 찍은 탭은 충전만 쓴다.
+     * ⚠ 연쇄 환급: 한 연쇄(탭 폭발 직접 처치 포함)에서 이 수만큼 처치할 때마다 게이지 +refundGauge.
+     * 크게 모아 많이 잡은 탭이 다음 탭을 벌어온다.
      */
     refundEveryKills: 8,
+    refundGauge: 0.25,
   },
 
   life: {
@@ -55,9 +70,9 @@ export const BALANCE = {
   wave: {
     /** 18초마다 웨이브 +1 */
     durationSec: 18,
-    /** ⚠ HP(w) = 8 × 1.2^(w-1). 기획서(프로토 v2)는 1.16 — 적이 무리로 많아져 연쇄가 길어진 만큼 올림 */
+    /** HP(w) = 8 × 1.16^(w-1) (기획서 공식). 챕터별 배율은 chapters.ts 의 hpMul */
     hpBase: 8,
-    hpGrowth: 1.2,
+    hpGrowth: 1.16,
     /**
      * ⚠ 무리 스폰: 적이 한 마리씩이 아니라 무리로 내려온다 (프로토 v2 는 한 마리씩, 간격 max(0.28, 1.1 - 0.07w)초).
      * 무리 간격(w) = max(min, base - perWave × w) 초, 무리 크기(w) = min(max, base + perWave × w) ± 1
@@ -106,17 +121,14 @@ export const BALANCE = {
 
   prism: {
     supernova: {
-      /** ⚠ 이 시간 동안 누르고 있으면 최대 충전 */
-      fullChargeSec: 1.2,
-      /** ⚠ 최대 충전 시 반경 +100%, 피해 +250% */
-      radiusPerCharge: 1.0,
-      damagePerCharge: 2.5,
-      /** ⚠ 남은 충전 칸 1개당 반경 +12% (피해는 칸 수만큼 곱) */
-      radiusPerExtraCharge: 0.12,
+      /** ⚠ 초신성(과충전): 게이지 상한 */
+      gaugeMax: 2.5,
+      /** ⚠ 100% 를 넘긴 뒤 차는 속도 배율 */
+      overfillRate: 0.5,
     },
     infiniteChain: {
-      /** ⚠ 연쇄 중 무료 탭의 피해 배율 */
-      freeTapDamageMul: 0.6,
+      /** ⚠ 연쇄 중 무료 탭은 게이지를 쓰지 않고 최소 이 크기로 터진다 */
+      freeTapPower: 0.5,
     },
   },
 

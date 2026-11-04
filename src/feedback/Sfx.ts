@@ -44,7 +44,7 @@ export class Sfx {
     for (const e of events) {
       switch (e.type) {
         case 'explosion':
-          if (e.source === 'tap' || e.source === 'supernova') big = true;
+          if (e.source === 'tap') big = true;
           step = Math.max(step, e.chainKills);
           break;
         case 'shieldBreak':
@@ -59,6 +59,10 @@ export class Sfx {
         case 'bossKill':
           this.burst(0.6, 0.6, 500);
           this.tone(90, 0.6, 'triangle', 0.5, 40);
+          break;
+        case 'gaugeFull':
+          // 게이지가 가득: 작게 "준비됨"
+          this.tone(990, 0.05, 'sine', 0.05);
           break;
         case 'refund':
           // 충전이 돌아오는 짧은 상승음

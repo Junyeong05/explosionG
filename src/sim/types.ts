@@ -7,7 +7,6 @@ import type { MetaModifiers } from './stats';
  */
 export type DamageSource =
   | 'tap'
-  | 'supernova'
   | 'chain'
   | 'fission'
   | 'ember'
@@ -16,7 +15,7 @@ export type DamageSource =
   | 'mine';
 
 export function isDirect(source: DamageSource): boolean {
-  return source === 'tap' || source === 'supernova';
+  return source === 'tap';
 }
 
 export interface Enemy {

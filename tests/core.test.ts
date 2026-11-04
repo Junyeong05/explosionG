@@ -41,8 +41,8 @@ describe('SpatialGrid', () => {
 });
 
 describe('기획서 공식', () => {
-  it('웨이브 10 적 체력은 시작의 약 5.2배 (기획서 1.16 → 1.2 로 올림)', () => {
-    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(5.2, 1);
+  it('웨이브 10 적 체력은 시작의 약 3.8배', () => {
+    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(3.8, 1);
     expect(enemyHp(1)).toBe(8);
   });
 

@@ -1,3 +1,4 @@
+import { CHAPTERS, ENDLESS } from '../data/chapters';
 import { UPGRADES, getUpgrade, type UpgradeId } from '../data/upgrades';
 import { dailySeed } from '../core/rng';
 import { NO_META, type MetaModifiers } from '../sim/stats';
@@ -36,8 +37,24 @@ export function metaModifiers(save: SaveData): MetaModifiers {
   return m;
 }
 
+/** 엔드리스는 챕터와 상관없이 전용 구성(ENDLESS)을 쓴다 */
 export function createRunConfig(save: SaveData, mode: RunMode, seed: number, chapterId = 'ch1'): RunConfig {
-  return { seed, mode, chapterId, meta: metaModifiers(save) };
+  return { seed, mode, chapterId: mode === 'endless' ? ENDLESS.id : chapterId, meta: metaModifiers(save) };
+}
+
+/** 첫 챕터는 항상 열려 있고, 나머지는 바로 앞 챕터를 한 번 깨면 열린다 */
+export function isChapterUnlocked(save: SaveData, id: string): boolean {
+  const i = CHAPTERS.findIndex((c) => c.id === id);
+  if (i < 0) return false;
+  if (i === 0) return true;
+  return (save.records.chapterClears[CHAPTERS[i - 1].id] ?? 0) > 0;
+}
+
+/** 열린 챕터 중 가장 뒤 (타이틀 화면 기본 선택) */
+export function latestUnlockedChapter(save: SaveData): string {
+  let last = CHAPTERS[0].id;
+  for (const c of CHAPTERS) if (isChapterUnlocked(save, c.id)) last = c.id;
+  return last;
 }
 
 /** 일일 도전: 모두 같은 시드·같은 증강 풀, 영구 강화 미적용 (기획서 리텐션 장치) */
