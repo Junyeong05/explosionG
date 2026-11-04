@@ -38,7 +38,7 @@ const MAX_ENEMY_RADIUS = 32;
 /** 판 시작 후 첫 무리가 내려오기까지 (초) */
 const FIRST_PACK_SEC = 1;
 /** 무리 구성원끼리 겹치지 않게 자리를 다시 뽑는 횟수 */
-const PACK_PLACE_TRIES = 6;
+const PACK_PLACE_TRIES = 12;
 
 /**
  * 한 판의 전체 상태와 진행.
@@ -209,7 +209,10 @@ export class World implements SimApi {
     if (crit) damage *= s.critMultiplier;
     this.taps++;
     this.emit({ type: 'tap', x, y, free, power });
-    this.spawnExplosion({ x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(), source: 'tap', crit });
+    this.spawnExplosion({
+      x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(), source: 'tap', crit,
+      edgeMul: s.tapEdgeMul,
+    });
   }
 
   /** 게이지 power(1 = 100%)로 쏘면 반경이 얼마인가 (렌더러 미리보기·봇도 씀) */
@@ -311,6 +314,11 @@ export class World implements SimApi {
     this.spawnTimer += dt;
     const interval = packInterval(this.wave);
     while (this.spawnTimer >= interval) {
+      // 화면 안 적 상한: 무리가 다 들어갈 자리가 없으면 자리가 날 때까지 미룬다
+      if (this.enemies.length + BALANCE.wave.packSizeMax + 1 > BALANCE.limits.maxEnemies) {
+        this.spawnTimer = interval;
+        break;
+      }
       this.spawnTimer -= interval;
       this.spawnPack();
     }
@@ -325,7 +333,7 @@ export class World implements SimApi {
     const rng = this.spawnRng;
     const pool = this.chapter.roster.filter((r) => r.fromWave <= this.wave);
     const size = Math.max(1, packSize(this.wave) + rng.int(3) - 1);
-    const spread = W.packSpread;
+    const spread = W.packSpread * Math.max(1, Math.sqrt(size / W.packSpreadRefSize));
     const cx = rng.range(spread + 12, this.field.width - spread - 12);
     // 무리 전체가 화면 위 바깥에서 시작하도록 아래 끝을 spawnY 에 맞춘다
     const cy = this.field.spawnY - spread;
@@ -430,7 +438,16 @@ export class World implements SimApi {
       chainId: ex.chainId, chainKills: chain?.kills ?? 0, crit: ex.crit,
     });
     const hits = this.collectEnemiesNear(ex.x, ex.y, ex.radius, this.hitBuf);
-    for (const e of hits) this.hitEnemy(e, ex.damage, ex.source, ex.chainId, ex.crit);
+    const edge = ex.edgeMul;
+    for (const e of hits) {
+      let dmg = ex.damage;
+      if (edge < 1) {
+        // 가장자리 감쇠: 적 중심까지 거리 / (반경 + 적 반지름)
+        const t = clamp(Math.sqrt(dist2(ex.x, ex.y, e.x, e.y)) / (ex.radius + e.radius), 0, 1);
+        dmg *= 1 - (1 - edge) * t;
+      }
+      this.hitEnemy(e, dmg, ex.source, ex.chainId, ex.crit);
+    }
     this.augments.onExplosion(this, ex);
     if (chain) chain.refs--;
   }
@@ -627,6 +644,7 @@ export class World implements SimApi {
       source: spec.source,
       delay: spec.delay ?? 0,
       crit: spec.crit ?? false,
+      edgeMul: spec.edgeMul ?? 1,
     });
   }
 

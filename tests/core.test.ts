@@ -43,7 +43,7 @@ describe('SpatialGrid', () => {
 describe('기획서 공식', () => {
   it('웨이브 10 적 체력은 시작의 약 3.8배', () => {
     expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(3.8, 1);
-    expect(enemyHp(1)).toBe(8);
+    expect(enemyHp(1)).toBe(BALANCE.wave.hpBase);
   });
 
   it('무리 간격은 하한, 무리 크기는 상한을 넘지 않고 웨이브가 오를수록 빡빡해진다', () => {

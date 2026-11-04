@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { BALANCE, FIXED_DT, packSize } from '../src/data/balance';
+import { BALANCE, FIXED_DT, packInterval, packSize } from '../src/data/balance';
+import { NO_META } from '../src/sim/stats';
+import { World } from '../src/sim/World';
 import { ENEMIES } from '../src/data/enemies';
 import { freeze, grant, sandbox, stepFor, tap } from './helpers';
 
@@ -42,6 +44,18 @@ describe('무리 스폰', () => {
     expect(boss.speed).toBe(12);
   });
 
+  it('화면 안 적이 상한 근처면 다음 무리는 버리지 않고 자리가 날 때까지 미룬다', () => {
+    const w = new World({ seed: 1, mode: 'chapter', chapterId: 'ch1', meta: { ...NO_META }, recordEvents: false });
+    const room = BALANCE.limits.maxEnemies - BALANCE.wave.packSizeMax;
+    for (let i = 0; i < room; i++) w.spawnEnemy('normal', 20 + (i % 30) * 10, -300);
+    freeze(w);
+    stepFor(w, packInterval(1) * 2);
+    expect(w.enemies.length).toBe(room);
+    for (let i = 0; i < 40; i++) w.enemies[i].dead = true;
+    stepFor(w, FIXED_DT * 2);
+    expect(w.packs.length).toBe(1);
+  });
+
   it('구성원이 다 죽으면 무리도 정리된다', () => {
     const w = sandbox();
     w.spawnPack();
@@ -57,7 +71,7 @@ describe('연쇄 환급', () => {
   function line(count: number) {
     const w = sandbox();
     grant(w, 'chain_reaction');
-    for (let i = 0; i < count; i++) w.spawnEnemy('normal', 30 + i * 30, 200);
+    for (let i = 0; i < count; i++) w.spawnEnemy('normal', 30 + i * 30, 200)!.hp = 1;
     freeze(w);
     w.gauge = 0.3;
     tap(w, 30, 200);

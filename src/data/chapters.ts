@@ -73,7 +73,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     miniBossIntervalSec: 45,
     finalBoss: 'proliferator',
     finalBossHpMul: 2.2,
-    hpMul: 1.6,
+    hpMul: 1.5,
     roster: [
       { kind: 'normal', fromWave: 1 },
       { kind: 'explosive', fromWave: 1 },
@@ -87,10 +87,10 @@ export const CHAPTERS: readonly ChapterDef[] = [
     name: '챕터 4',
     waves: 15,
     miniBoss: 'proliferator',
-    miniBossIntervalSec: 40,
+    miniBossIntervalSec: 45,
     finalBoss: 'proliferator',
     finalBossHpMul: 2.5,
-    hpMul: 2,
+    hpMul: 1.8,
     roster: [
       { kind: 'normal', fromWave: 1 },
       { kind: 'explosive', fromWave: 1 },

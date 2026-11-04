@@ -30,6 +30,11 @@ export const BALANCE = {
     radius: 60,
     /** ⚠ 탭 폭발 기준 피해 D */
     damage: 14,
+    /**
+     * ⚠ 탭 폭발은 가장자리로 갈수록 약하다: 중심 100% → 가장자리 이 비율 (거리에 비례).
+     * 원 안의 적이 다 한 방에 죽지 않게 하고, 무리 한가운데를 노릴 이유를 만든다.
+     */
+    edgeDamageMul: 0.5,
     gauge: {
       /** ⚠ 0 → 100% 까지 걸리는 시간 (초) */
       fillSec: 3,
@@ -70,21 +75,30 @@ export const BALANCE = {
   wave: {
     /** 18초마다 웨이브 +1 */
     durationSec: 18,
-    /** HP(w) = 8 × 1.16^(w-1) (기획서 공식). 챕터별 배율은 chapters.ts 의 hpMul */
-    hpBase: 8,
+    /**
+     * ⚠ HP(w) = 13 × 1.16^(w-1). 증가율은 기획서 값, 시작값은 기획서(8)보다 높임:
+     * 8 이면 꽉 채운 탭이 웨이브 7까지 원 안의 적을 전부 한 방에 잡아서 성장하는 맛이 없었다.
+     * 13 이면 웨이브 1만 거의 한 방이고, 웨이브 2부터 가장자리 적이 살아남기 시작한다.
+     * 챕터별 배율은 chapters.ts 의 hpMul.
+     */
+    hpBase: 13,
     hpGrowth: 1.16,
     /**
      * ⚠ 무리 스폰: 적이 한 마리씩이 아니라 무리로 내려온다 (프로토 v2 는 한 마리씩, 간격 max(0.28, 1.1 - 0.07w)초).
      * 무리 간격(w) = max(min, base - perWave × w) 초, 무리 크기(w) = min(max, base + perWave × w) ± 1
      */
-    packIntervalBase: 3.4,
-    packIntervalPerWave: 0.12,
-    packIntervalMin: 1.5,
-    packSizeBase: 4,
-    packSizePerWave: 0.45,
-    packSizeMax: 12,
-    /** 무리 중심에서 구성원까지 최대 거리. 연쇄가 닿는 거리(46 + 적 반지름) 안쪽이라 무리 하나는 한 번에 번진다 */
+    packIntervalBase: 3,
+    packIntervalPerWave: 0.1,
+    packIntervalMin: 1.3,
+    packSizeBase: 6,
+    packSizePerWave: 0.6,
+    packSizeMax: 18,
+    /**
+     * 무리 중심에서 구성원까지 최대 거리 (packSpreadRefSize 마리 기준). 더 큰 무리는 √(크기/기준) 배로 넓어져서
+     * 구성원끼리 겹치지 않는다. 구성원 간격은 연쇄가 닿는 거리(46 + 적 반지름) 안쪽.
+     */
     packSpread: 44,
+    packSpreadRefSize: 5,
   },
 
   enemy: {
@@ -134,7 +148,8 @@ export const BALANCE = {
 
   /** 성능 상한. 넘치면 새로 만들지 않는다 (기획서: 후반 동시 폭발 수백 개) */
   limits: {
-    maxEnemies: 320,
+    /** ⚠ 화면 안 적 상한. 무리가 들어갈 자리가 없으면 다음 무리는 자리가 날 때까지 미룬다 (버리지 않음) */
+    maxEnemies: 240,
     maxExplosions: 900,
     maxZones: 64,
     maxMines: 24,

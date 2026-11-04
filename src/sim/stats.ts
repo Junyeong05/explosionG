@@ -14,6 +14,8 @@ export interface PlayerStats {
   gaugeLeftover: number;
   tapRadius: number;
   tapDamage: number;
+  /** 탭 폭발 가장자리 피해 배율 (1 = 균일) */
+  tapEdgeMul: number;
   critChance: number;
   critMultiplier: number;
   chainRadius: number;
@@ -53,6 +55,7 @@ export function baseStats(): PlayerStats {
     gaugeLeftover: 0,
     tapRadius: B.tap.radius,
     tapDamage: B.tap.damage,
+    tapEdgeMul: B.tap.edgeDamageMul,
     critChance: 0,
     critMultiplier: B.tap.critMultiplier,
     chainRadius: B.chain.radius,

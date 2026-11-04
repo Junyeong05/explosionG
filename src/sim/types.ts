@@ -62,6 +62,8 @@ export interface Explosion {
   /** 남은 지연 (초). 0 이하가 되는 스텝에 터진다 */
   delay: number;
   crit: boolean;
+  /** 가장자리 피해 배율 (1 = 균일) */
+  edgeMul: number;
 }
 
 /**

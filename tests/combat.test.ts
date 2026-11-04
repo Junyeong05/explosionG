@@ -38,12 +38,14 @@ describe('모으는 탭', () => {
 describe('연쇄', () => {
   /**
    * 게이지 30% 탭(반경 약 44)으로 왼쪽 적만 맞히고, 오른쪽 적은 40px 옆에 둔다.
-   * 오른쪽 적이 죽으면 왼쪽 적이 터져서(연쇄) 잡은 것.
+   * 오른쪽 적이 죽으면 왼쪽 적이 터져서(연쇄) 잡은 것. 체력은 1 로 둬서 거리만 본다.
    */
-  function pair(left: string) {
+  function pair(left: string, augment?: string) {
     const w = sandbox();
-    w.spawnEnemy(left, 100, 200);
+    if (augment) grant(w, augment);
+    const near = w.spawnEnemy(left, 100, 200)!;
     const far = w.spawnEnemy('normal', 140, 200)!;
+    near.hp = far.hp = 1;
     freeze(w);
     w.gauge = 0.3;
     tap(w, 60, 200);
@@ -64,14 +66,7 @@ describe('연쇄', () => {
   });
 
   it('연쇄 반응 증강이 있으면 일반 적도 터진다', () => {
-    const w = sandbox();
-    grant(w, 'chain_reaction');
-    w.spawnEnemy('normal', 100, 200);
-    const far = w.spawnEnemy('normal', 140, 200)!;
-    freeze(w);
-    w.gauge = 0.3;
-    tap(w, 60, 200);
-    stepFor(w, 0.5);
+    const { far } = pair('normal', 'chain_reaction');
     expect(far.dead).toBe(true);
   });
 
@@ -99,6 +94,33 @@ describe('연쇄', () => {
     }
     const end = events.find((e) => e.type === 'chainEnd');
     expect(end).toMatchObject({ type: 'chainEnd', kills: 1 });
+  });
+});
+
+describe('탭 폭발 가장자리 감쇠', () => {
+  it('중심은 100%, 가장자리로 갈수록 edgeDamageMul 까지 줄어든다', () => {
+    const w = sandbox();
+    const r = w.tapRadiusAt(1);
+    const center = w.spawnEnemy('normal', 180, 300)!;
+    const edge = w.spawnEnemy('normal', 180 + r + 11, 300)!; // 적 반지름 11 → 딱 가장자리
+    center.hp = center.maxHp = edge.hp = edge.maxHp = 1000;
+    freeze(w);
+    tap(w, 180, 300);
+    const full = w.tapDamageAt(1);
+    expect(1000 - center.hp).toBeCloseTo(full);
+    expect(1000 - edge.hp).toBeCloseTo(full * BALANCE.tap.edgeDamageMul);
+  });
+
+  it('연쇄 폭발은 감쇠 없이 반경 안 어디서나 같은 피해', () => {
+    const w = sandbox();
+    const a = w.spawnEnemy('normal', 100, 200)!;
+    const b = w.spawnEnemy('normal', 140, 200)!;
+    a.hp = a.maxHp = b.hp = b.maxHp = 1000;
+    freeze(w);
+    w.spawnExplosion({ x: 100, y: 200, radius: 46, damage: 10, chainId: w.newChain(), source: 'chain' });
+    stepFor(w, 1 / 60);
+    expect(1000 - a.hp).toBeCloseTo(10);
+    expect(1000 - b.hp).toBeCloseTo(10);
   });
 });
 

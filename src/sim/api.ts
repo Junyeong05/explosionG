@@ -12,6 +12,8 @@ export interface ExplosionSpec {
   source: DamageSource;
   delay?: number;
   crit?: boolean;
+  /** 가장자리 피해 배율 (중심 1 → 가장자리 이 값, 거리에 비례). 없으면 1 = 어디서나 같은 피해 */
+  edgeMul?: number;
 }
 
 export interface ZoneSpec {
