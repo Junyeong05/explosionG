@@ -4,7 +4,7 @@ import { SlowMo } from '../feedback/SlowMo';
 import { PointerInput } from '../input/PointerInput';
 import { CHAPTERS } from '../data/chapters';
 import { applyRunResult, buyUpgrade, createDailyRunConfig, createRunConfig, isChapterUnlocked, latestUnlockedChapter } from '../meta/progression';
-import { SaveManager } from '../meta/save';
+import { GAME_SPEEDS, SaveManager } from '../meta/save';
 import { LocalStore } from '../meta/storage';
 import { Renderer } from '../render/Renderer';
 import type { Offer, RunConfig } from '../sim/types';
@@ -31,6 +31,7 @@ export class App {
   private readonly input: PointerInput;
   private readonly overlay: Overlay;
   private readonly hud: HTMLElement;
+  private readonly speedBtn: HTMLButtonElement;
   private readonly sfx = new Sfx();
   private readonly haptics = new Haptics();
   private readonly slowmo = new SlowMo();
@@ -52,7 +53,12 @@ export class App {
     this.renderer = new Renderer(canvas);
     this.input = new PointerInput(canvas, (x, y) => this.renderer.toLogical(x, y));
     this.overlay = new Overlay(ui);
-    this.hud = h('div', { class: 'hud' }, h('button', { class: 'pause', ariaLabel: '일시정지', text: 'II', onClick: () => this.pause() }));
+    this.speedBtn = h('button', { class: 'speed', ariaLabel: '게임 배속', onClick: () => this.cycleSpeed() });
+    this.hud = h('div', { class: 'hud' },
+      h('button', { class: 'pause', ariaLabel: '일시정지', text: 'II', onClick: () => this.pause() }),
+      this.speedBtn,
+    );
+    this.showSpeed();
     this.hud.hidden = true;
     ui.append(this.hud);
 
@@ -104,12 +110,14 @@ export class App {
 
   private frame(realDt: number): void {
     const scale = this.slowmo.update(realDt);
-    this.loop.timeScale = this.paused ? 0 : scale;
+    // 배속은 슬로모션 위에 곱한다. sim 은 여전히 FIXED_DT 로만 진행 → 결과는 배속과 무관
+    const speed = this.saves.data.settings.speed;
+    this.loop.timeScale = this.paused ? 0 : scale * speed;
     if (this.resultIn > 0) {
       this.resultIn -= realDt;
       if (this.resultIn <= 0) this.finishRun();
     }
-    this.renderer.draw(this.world, this.paused ? 0 : realDt * (this.world ? scale : 1));
+    this.renderer.draw(this.world, this.paused ? 0 : realDt * (this.world ? scale * speed : 1));
   }
 
   private layout(): void {
@@ -147,6 +155,21 @@ export class App {
         onReroll: () => this.input.push({ t: 'reroll' }),
       }),
     );
+  }
+
+  /** 배속 버튼: ×1 → ×1.5 → ×2 → ×1. 다음 판에도 유지 */
+  private cycleSpeed(): void {
+    const s = this.saves.data.settings;
+    const i = GAME_SPEEDS.indexOf(s.speed);
+    s.speed = GAME_SPEEDS[(i + 1) % GAME_SPEEDS.length];
+    this.saves.persist();
+    this.showSpeed();
+  }
+
+  private showSpeed(): void {
+    const sp = this.saves.data.settings.speed;
+    this.speedBtn.textContent = `×${sp}`;
+    this.speedBtn.classList.toggle('on', sp > 1);
   }
 
   private pause(): void {

@@ -21,7 +21,8 @@ export interface SaveData {
     chapterClears: Record<string, number>;
     dailyBest: Record<string, number>;
   };
-  settings: { sound: boolean; haptics: boolean };
+  /** speed = 게임 배속 (GAME_SPEEDS 중 하나) */
+  settings: { sound: boolean; haptics: boolean; speed: number };
   /** 최근 판 기록 (플레이테스트 지표 추출용). 오래된 것부터 버림 */
   history: RunSummary[];
 }
@@ -32,9 +33,18 @@ export function defaultSave(): SaveData {
     parts: 0,
     upgrades: {},
     records: { runs: 0, bestWave: 0, bestChain: 0, chapterClears: {}, dailyBest: {} },
-    settings: { sound: true, haptics: true },
+    settings: { sound: true, haptics: true, speed: 1 },
     history: [],
   };
+}
+
+/** 고를 수 있는 게임 배속. 배속은 루프 timeScale 만 바꾸므로 sim 결과(결정론)는 그대로 */
+export const GAME_SPEEDS: readonly number[] = [1, 1.5, 2];
+
+function migrateSettings(base: SaveData['settings'], raw: unknown): SaveData['settings'] {
+  const s = { ...base, ...(raw && typeof raw === 'object' ? (raw as Partial<SaveData['settings']>) : {}) };
+  if (!GAME_SPEEDS.includes(s.speed)) s.speed = 1;
+  return s;
 }
 
 /** 깨졌거나 옛 버전인 세이브를 현재 형식으로. 모르는 값은 기본값으로 */
@@ -47,7 +57,7 @@ export function migrate(raw: unknown): SaveData {
     parts: typeof r.parts === 'number' && Number.isFinite(r.parts) ? Math.max(0, Math.floor(r.parts)) : 0,
     upgrades: typeof r.upgrades === 'object' && r.upgrades ? { ...r.upgrades } : {},
     records: { ...base.records, ...(r.records ?? {}) },
-    settings: { ...base.settings, ...(r.settings ?? {}) },
+    settings: migrateSettings(base.settings, r.settings),
     history: Array.isArray(r.history) ? r.history.slice(-HISTORY_LIMIT) : [],
   };
 }

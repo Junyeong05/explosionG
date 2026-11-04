@@ -65,10 +65,16 @@ describe('세이브', () => {
     expect(new SaveManager(store).data.parts).toBe(77);
   });
 
+  it('배속: 옛 세이브엔 없으면 ×1, 모르는 값도 ×1', () => {
+    expect(migrate({ settings: { sound: true, haptics: true } }).settings.speed).toBe(1);
+    expect(migrate({ settings: { speed: 7 } }).settings.speed).toBe(1);
+    expect(migrate({ settings: { speed: 2 } }).settings.speed).toBe(2);
+  });
+
   it('깨진 세이브는 기본값으로', () => {
     expect(migrate(null)).toEqual(defaultSave());
     expect(migrate({ parts: -5, settings: { sound: false } }).parts).toBe(0);
-    expect(migrate({ parts: 3, settings: { sound: false } }).settings).toEqual({ sound: false, haptics: true });
+    expect(migrate({ parts: 3, settings: { sound: false } }).settings).toEqual({ sound: false, haptics: true, speed: 1 });
     const store = new MemoryStore();
     store.set('explosion-g/save', '{not json');
     expect(new SaveManager(store).data).toEqual(defaultSave());
