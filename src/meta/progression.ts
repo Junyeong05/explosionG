@@ -39,7 +39,14 @@ export function metaModifiers(save: SaveData): MetaModifiers {
 
 /** 엔드리스는 챕터와 상관없이 전용 구성(ENDLESS)을 쓴다 */
 export function createRunConfig(save: SaveData, mode: RunMode, seed: number, chapterId = 'ch1'): RunConfig {
-  return { seed, mode, chapterId: mode === 'endless' ? ENDLESS.id : chapterId, meta: metaModifiers(save) };
+  return {
+    seed,
+    mode,
+    chapterId: mode === 'endless' ? ENDLESS.id : chapterId,
+    meta: metaModifiers(save),
+    // 실험 규칙은 챕터·엔드리스에만 (일일 도전은 모두 같은 조건이어야 해서 끔)
+    rules: { ...save.settings.rules },
+  };
 }
 
 /** 첫 챕터는 항상 열려 있고, 나머지는 바로 앞 챕터를 한 번 깨면 열린다 */

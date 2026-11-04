@@ -12,6 +12,7 @@ export class Haptics {
     for (const e of events) {
       if (e.type === 'tap') this.vibrate(8);
       else if (e.type === 'bossKill') this.vibrate([30, 40, 60]);
+      else if (e.type === 'overload') this.vibrate([40, 30, 40]);
       else if (e.type === 'augment' && (e.rarity === 'epic' || e.rarity === 'prism')) this.vibrate([20, 30, 20]);
     }
   }

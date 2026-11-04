@@ -65,6 +65,13 @@ export class Sfx {
           this.tone(660, 0.08, 'triangle', 0.1);
           this.tone(990, 0.12, 'triangle', 0.1, undefined, 0.07);
           break;
+        case 'overload':
+          this.burst(0.35, 0.45, 300);
+          this.tone(110, 0.3, 'sawtooth', 0.25, 50);
+          break;
+        case 'brink':
+          this.tone(1500, 0.04, 'square', 0.05);
+          break;
         case 'gaugeFull':
           // 게이지가 가득: 작게 "준비됨"
           this.tone(990, 0.05, 'sine', 0.05);

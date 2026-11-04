@@ -2,6 +2,7 @@
  * 헤드리스 자동 플레이 — 밸런스 검증용.
  *
  *   npm run autoplay -- --runs 200 --mode chapter --chapter ch2 --upgrades firepower=3,durability=1
+ *   npm run autoplay -- --runs 100 --chapter ch2 --rules overcharge --bot '{"overchargeAt":1.4,"pressDelay":[0.12,0.28]}'
  *   npm run autoplay -- --runs 50 --mode endless --max-min 15 --json autoplay-endless.json
  *
  * 기획서 "프로토 단계에서 볼 것": 판당 최대 연쇄 분포, 많이 고르는 증강, 많이 죽는 웨이브.
@@ -13,9 +14,9 @@ import { UPGRADES, type UpgradeId } from '../src/data/upgrades';
 import { getAugment } from '../src/data/augments';
 import { defaultSave } from '../src/meta/save';
 import { createRunConfig } from '../src/meta/progression';
-import { Bot, type PickStrategy } from '../src/sim/bot';
+import { Bot, type BotOptions, type PickStrategy } from '../src/sim/bot';
 import { World } from '../src/sim/World';
-import { CHAIN_BUCKET_LABELS, type RunMode, type RunSummary } from '../src/sim/types';
+import { CHAIN_BUCKET_LABELS, RULE_IDS, type RuleId, type RunMode, type RunSummary } from '../src/sim/types';
 
 interface Args {
   runs: number;
@@ -26,11 +27,15 @@ interface Args {
   pick: PickStrategy;
   reaction: number;
   upgrades: Partial<Record<UpgradeId, number>>;
+  /** 켤 실험 규칙 */
+  rules: RuleId[];
+  /** 봇 정책 옵션 (JSON) */
+  bot: Partial<BotOptions>;
   json?: string;
 }
 
 function parseArgs(argv: string[]): Args {
-  const a: Args = { runs: 100, mode: 'chapter', chapter: 'ch1', seed: 1, maxMin: 20, pick: 'rarity', reaction: 0.3, upgrades: {} };
+  const a: Args = { runs: 100, mode: 'chapter', chapter: 'ch1', seed: 1, maxMin: 20, pick: 'rarity', reaction: 0.3, upgrades: {}, rules: [], bot: {} };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     const v = argv[i + 1];
@@ -43,6 +48,14 @@ function parseArgs(argv: string[]): Args {
       case '--pick': a.pick = v as PickStrategy; i++; break;
       case '--reaction': a.reaction = Number(v); i++; break;
       case '--json': a.json = v; i++; break;
+      case '--rules':
+        for (const id of (v ?? '').split(',').filter(Boolean)) {
+          if (!RULE_IDS.includes(id as RuleId)) throw new Error(`모르는 실험 규칙: ${id}`);
+          a.rules.push(id as RuleId);
+        }
+        i++;
+        break;
+      case '--bot': a.bot = JSON.parse(v); i++; break;
       case '--upgrades':
         for (const part of (v ?? '').split(',').filter(Boolean)) {
           const [id, lvl] = part.split('=');
@@ -66,9 +79,10 @@ function percentile(sorted: number[], p: number): number {
 function runOne(args: Args, seed: number): RunSummary {
   const save = defaultSave();
   save.upgrades = { ...args.upgrades };
+  for (const id of args.rules) save.settings.rules[id] = true;
   const config = { ...createRunConfig(save, args.mode, seed, args.chapter), recordEvents: false };
   const world = new World(config);
-  const bot = new Bot({ seed, pick: args.pick, reactionSec: args.reaction });
+  const bot = new Bot({ seed, pick: args.pick, reactionSec: args.reaction, ...args.bot });
   const maxSec = args.maxMin * 60;
   let steps = 0;
   const maxSteps = Math.ceil(maxSec / FIXED_DT) * 2;
@@ -108,6 +122,7 @@ function main(): void {
 
   console.log(`\n자동 플레이 ${n}판 (${args.mode === 'endless' ? 'endless' : args.chapter}, 시드 ${args.seed}~${args.seed + n - 1}, 픽 ${args.pick}, 반응 ${args.reaction}s) — ${fmt(elapsed, 1)}초`);
   if (Object.keys(args.upgrades).length) console.log(`영구 강화: ${JSON.stringify(args.upgrades)}`);
+  if (args.rules.length) console.log(`실험 규칙: ${args.rules.join(', ')}  봇: ${JSON.stringify(args.bot)}`);
   console.log('');
   console.log(`클리어율        ${fmt((victories / n) * 100)}%`);
   console.log(`판 길이(분)     p10 ${fmt(percentile(durations, 0.1))} · 중앙 ${fmt(percentile(durations, 0.5))} · p90 ${fmt(percentile(durations, 0.9))}   (목표 5~8분)`);

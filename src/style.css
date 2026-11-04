@@ -103,6 +103,9 @@ html, body {
 .chip.cleared:not(.on) { color: var(--gold); }
 .chapters { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .unlocked { color: var(--accent); font-weight: 800; letter-spacing: 0.04em; }
+.rules { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.rules-label { color: var(--dim); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; margin-right: 2px; }
+.rule-desc { color: var(--dim); font-size: 11px; line-height: 1.4; text-align: center; }
 .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .link { background: none; border: none; padding: 0; color: var(--dim); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .ver { font-size: 10px; color: #4a4f63; }

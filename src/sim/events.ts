@@ -23,6 +23,12 @@ export type SimEvent =
   | { type: 'bossSummon'; x: number; y: number }
   | { type: 'bossKill'; x: number; y: number; final: boolean }
   | { type: 'gaugeFull' }
+  /** 과충전 폭주 (게이지 0, 잠깐 못 쏨) */
+  | { type: 'overload' }
+  /** 벼랑 끝 처치 */
+  | { type: 'brink'; x: number; y: number }
+  /** 연쇄 잇기 콤보가 끊김 (kills = 그 콤보의 처치 수) */
+  | { type: 'comboEnd'; kills: number }
   /** 피해 배율이 올랐다 (value = 새 배율) */
   | { type: 'mult'; value: number }
   | { type: 'levelUp'; level: number }

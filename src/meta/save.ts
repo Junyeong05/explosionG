@@ -1,5 +1,5 @@
 import type { UpgradeId } from '../data/upgrades';
-import type { RunSummary } from '../sim/types';
+import { RULE_IDS, type RuleId, type RunSummary } from '../sim/types';
 import type { KeyValueStore } from './storage';
 
 export const SAVE_KEY = 'explosion-g/save';
@@ -21,8 +21,8 @@ export interface SaveData {
     chapterClears: Record<string, number>;
     dailyBest: Record<string, number>;
   };
-  /** speed = 게임 배속 (GAME_SPEEDS 중 하나) */
-  settings: { sound: boolean; haptics: boolean; speed: number };
+  /** speed = 게임 배속 (GAME_SPEEDS 중 하나), rules = 켜 둔 실험 규칙 */
+  settings: { sound: boolean; haptics: boolean; speed: number; rules: Record<RuleId, boolean> };
   /** 최근 판 기록 (플레이테스트 지표 추출용). 오래된 것부터 버림 */
   history: RunSummary[];
 }
@@ -33,7 +33,7 @@ export function defaultSave(): SaveData {
     parts: 0,
     upgrades: {},
     records: { runs: 0, bestWave: 0, bestChain: 0, chapterClears: {}, dailyBest: {} },
-    settings: { sound: true, haptics: true, speed: 1 },
+    settings: { sound: true, haptics: true, speed: 1, rules: { overcharge: false, combo: false, brink: false } },
     history: [],
   };
 }
@@ -42,8 +42,12 @@ export function defaultSave(): SaveData {
 export const GAME_SPEEDS: readonly number[] = [1, 1.5, 2];
 
 function migrateSettings(base: SaveData['settings'], raw: unknown): SaveData['settings'] {
-  const s = { ...base, ...(raw && typeof raw === 'object' ? (raw as Partial<SaveData['settings']>) : {}) };
+  const r = raw && typeof raw === 'object' ? (raw as Partial<SaveData['settings']>) : {};
+  const s = { ...base, ...r };
   if (!GAME_SPEEDS.includes(s.speed)) s.speed = 1;
+  const rules = { ...base.rules };
+  for (const id of RULE_IDS) rules[id] = r.rules?.[id] === true;
+  s.rules = rules;
   return s;
 }
 

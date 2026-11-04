@@ -119,6 +119,16 @@ export type RunResult = 'victory' | 'defeat' | 'quit';
 export type OfferKind = 'level' | 'boss' | 'start';
 export type Phase = 'playing' | 'choosing' | 'ended';
 
+/**
+ * 실험 규칙 (플레이테스트용, 타이틀에서 켜고 끔). 기본은 전부 꺼짐.
+ *   overcharge: 과충전 — 게이지가 150%까지 차지만 넘기면 폭주
+ *   combo:      연쇄 잇기 — 처치가 끊기지 않으면 콤보 배율이 쌓인다
+ *   brink:      벼랑 끝 — 방어선 가까이서 잡을수록 게이지를 돌려받는다
+ */
+export const RULE_IDS = ['overcharge', 'combo', 'brink'] as const;
+export type RuleId = (typeof RULE_IDS)[number];
+export type RunRules = Partial<Record<RuleId, boolean>>;
+
 export interface RunConfig {
   seed: number;
   mode: RunMode;
@@ -130,6 +140,8 @@ export interface RunConfig {
   recordEvents?: boolean;
   /** true 면 웨이브·스폰·보스를 끈다 (테스트·연출 샌드박스용) */
   sandbox?: boolean;
+  /** 실험 규칙 */
+  rules?: RunRules;
 }
 
 export interface Offer {
@@ -152,6 +164,14 @@ export interface RunSummary {
   refunds?: number;
   /** 판 끝 피해 배율. 옛 기록에는 없음 */
   damageMult?: number;
+  /** 켠 실험 규칙. 옛 기록에는 없음 */
+  rules?: RuleId[];
+  /** 과충전 폭주 횟수 */
+  overloads?: number;
+  /** 판 최고 콤보 (연쇄 잇기) */
+  maxCombo?: number;
+  /** 벼랑 끝 처치 수 */
+  brinkKills?: number;
   level: number;
   durationSec: number;
   /** 고른 증강 id (순서대로) */

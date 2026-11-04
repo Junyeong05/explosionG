@@ -165,6 +165,14 @@ export class Renderer {
         case 'mult':
           this.multPop = 1;
           break;
+        case 'overload':
+          this.shake.add(0.6);
+          this.leakFlash = 1;
+          this.showBanner('폭주!', '과충전 한계를 넘었다', COLORS.life);
+          break;
+        case 'brink':
+          this.rings.add(e.x, e.y, 4, 22, COLORS.charge, 0.3, 2);
+          break;
         case 'refund':
           // 환급을 만든 자리에서 충전색 링 → 아래 충전 칸이 반짝임
           this.rings.add(e.x, e.y, 6, 34, COLORS.charge, 0.35, 2.5);
@@ -245,9 +253,11 @@ export class Renderer {
     this.drawDefenseLine();
 
     if (world) {
+      if (world.rules.brink) this.drawBrinkZone();
       this.drawZones(world);
       this.drawMines(world);
       for (const e of world.enemies) if (!e.dead) this.drawEnemy(e, world.time);
+      this.drawCharging(world);
     }
 
     ctx.globalCompositeOperation = 'lighter';
@@ -300,6 +310,58 @@ export class Renderer {
     g.fillStyle = 'rgba(0, 0, 0, 0.4)';
     g.fillRect(0, LINE_Y, FW, FH - LINE_Y);
     return c;
+  }
+
+  /** 실험 규칙 벼랑 끝: 방어선 위 보상 구역 */
+  private drawBrinkZone(): void {
+    const ctx = this.ctx;
+    const top = LINE_Y - BALANCE.experiment.brink.zone;
+    ctx.fillStyle = rgba(COLORS.charge, 0.04);
+    ctx.fillRect(0, top, FW, LINE_Y - top);
+    ctx.strokeStyle = rgba(COLORS.charge, 0.25);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 6]);
+    ctx.beginPath();
+    ctx.moveTo(0, top);
+    ctx.lineTo(FW, top);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /**
+   * 실험 규칙 과충전: 누르고 있는 동안 손가락 위치에 지금 떼면 터질 원.
+   * 100% → 상한으로 갈수록 충전색 → 빨강, 상한 근처에서 떨림.
+   */
+  private drawCharging(w: World): void {
+    const c = w.charging;
+    if (!c) return;
+    const ctx = this.ctx;
+    const OC = BALANCE.experiment.overcharge;
+    const t = clamp((w.gauge - 1) / (OC.max - 1), 0, 1);
+    const r = w.tapRadiusAt(w.gauge);
+    const color = t > 0.8 ? COLORS.life : t > 0.5 ? COLORS.gold : COLORS.charge;
+    const jitter = t > 0.8 ? (t - 0.8) * 10 : 0;
+    const jx = Math.sin(this.hudTime * 90) * jitter;
+    const jy = Math.cos(this.hudTime * 77) * jitter;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.18 + 0.3 * t;
+    const s = r * 2;
+    ctx.drawImage(this.glow.get(color), c.x + jx - s / 2, c.y + jy - s / 2, s, s);
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5 + t * 1.5;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.arc(c.x + jx, c.y + jy, r, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `900 13px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    // 원 가운데에 퍼센트 (위쪽 HUD 와 겹치지 않게)
+    ctx.fillText(`${Math.round(w.gauge * 100)}%`, c.x + jx, c.y + jy + 5);
+    ctx.restore();
   }
 
   private drawDefenseLine(): void {
@@ -450,6 +512,22 @@ export class Renderer {
     ctx.fillStyle = COLORS.text;
     ctx.textAlign = 'center';
     ctx.fillText(`LV ${w.level}`, FW / 2, 24);
+    // 실험 규칙 연쇄 잇기: 콤보 수·배율·끊기기까지 남은 시간
+    if (w.rules.combo && w.combo.kills > 0) {
+      const C = BALANCE.experiment.combo;
+      const left = clamp(w.combo.timer / C.windowSec, 0, 1);
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.font = `900 13px ${FONT}`;
+      ctx.fillStyle = left < 0.35 ? COLORS.life : COLORS.text;
+      ctx.fillText(`COMBO ${w.combo.kills}  ×${w.comboMult().toFixed(2)}`, FW / 2, 80);
+      ctx.fillStyle = rgba(COLORS.text, 0.15);
+      ctx.fillRect(FW / 2 - 50, 85, 100, 2);
+      ctx.fillStyle = left < 0.35 ? COLORS.life : COLORS.gold;
+      ctx.fillRect(FW / 2 - 50, 85, 100 * left, 2);
+      ctx.restore();
+    }
+
     // 피해 배율 (곱연산). 1 보다 클 때만, 오른 직후 잠깐 커짐
     const m = w.stats.damageMult;
     if (m > 1.001) {
@@ -564,7 +642,8 @@ export class Renderer {
     const ctx = this.ctx;
     const g = w.gauge;
     const max = w.stats.gaugeMax;
-    const full = g >= max;
+    // 과충전 규칙이면 100% 가 "가득" (그 위는 누르고 있을 때만)
+    const full = g >= (w.overloadable ? 1 : max);
     const width = 150;
     const x0 = FW / 2 - width / 2 + 10;
     const y = 598;
@@ -574,6 +653,18 @@ export class Renderer {
     ctx.fillStyle = rgba(COLORS.charge, 0.14);
     ctx.fillRect(x0, y - 3, width, 6);
     const oneW = width / max;
+    if (w.overloadable) {
+      // 과충전 구간: 100% 위로 갈수록 붉게. 폭주 직후 과열 중이면 막대 전체가 붉게 깜빡임
+      const grad = ctx.createLinearGradient(x0 + oneW, 0, x0 + width, 0);
+      grad.addColorStop(0, rgba(COLORS.gold, 0.12));
+      grad.addColorStop(1, rgba(COLORS.life, 0.45));
+      ctx.fillStyle = grad;
+      ctx.fillRect(x0 + oneW, y - 3, width - oneW, 6);
+      if (w.overheat > 0) {
+        ctx.fillStyle = rgba(COLORS.life, 0.25 + 0.25 * Math.sin(this.hudTime * 30));
+        ctx.fillRect(x0 - 2, y - 5, width + 4, 10);
+      }
+    }
     ctx.fillStyle = rgba(COLORS.charge, 0.9 * pulse);
     ctx.fillRect(x0, y - 3, oneW * Math.min(g, 1), 6);
     if (max > 1) {
@@ -618,7 +709,10 @@ export class Renderer {
     ctx.textAlign = 'center';
     ctx.fillStyle = full ? rgba(COLORS.charge, pulse) : COLORS.dim;
     const label =
-      w.stats.freeTapDuringChain && w.explosions.length > 0 ? 'FREE TAP'
+      w.overheat > 0 ? '폭주! 과열 중'
+      : w.charging ? `과충전 ${Math.round(g * 100)}% — 떼면 발사`
+      : w.stats.freeTapDuringChain && w.explosions.length > 0 ? 'FREE TAP'
+      : full && w.overloadable ? 'FULL — 꾹 누르면 과충전'
       : full ? `FULL ${Math.round(g * 100)}%`
       : `CHARGE ${Math.floor(g * 100)}%`;
     ctx.fillText(label, x0 + width / 2, y + 22);

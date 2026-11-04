@@ -11,6 +11,7 @@ import type { ExplosionSpec, MineSpec, SimApi, ZoneSpec } from './api';
 import type { SimEvent } from './events';
 import { computeStats, type PlayerStats } from './stats';
 import {
+  RULE_IDS,
   CHAIN_BUCKETS,
   chainBucket,
   isDirect,
@@ -23,6 +24,7 @@ import {
   type Offer,
   type OfferKind,
   type Pack,
+  type RunRules,
   type Phase,
   type RunConfig,
   type RunResult,
@@ -79,6 +81,17 @@ export class World implements SimApi {
   refunds = 0;
   /** 판 동안 쌓인 피해 배율 (보스 처치·연쇄 공명). 증강 배율과 곱해져 stats.damageMult 가 된다 */
   runMult = 1;
+  /** 실험 규칙 */
+  readonly rules: RunRules;
+  /** 과충전 폭주 뒤 남은 과열 시간 (이 동안 못 쏨) */
+  overheat = 0;
+  /** 과충전 규칙: 100% 에서 누르고 있는 중 (이 동안만 100% 를 넘어 찬다, 떼면 쏨) */
+  charging: { x: number; y: number } | null = null;
+  overloads = 0;
+  /** 연쇄 잇기 콤보: 처치 수와 끊기기까지 남은 시간 */
+  readonly combo = { kills: 0, timer: 0 };
+  maxCombo = 0;
+  brinkKills = 0;
   rerollsLeft: number;
   bonusParts = 0;
 
@@ -108,9 +121,10 @@ export class World implements SimApi {
     this.spawnRng = new Rng(deriveSeed(config.seed, 'spawn'));
     this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')));
     this.recordEvents = config.recordEvents ?? true;
-    this.stats = computeStats(config.meta, []);
+    this.rules = config.rules ?? {};
+    this.stats = this.withRules(computeStats(config.meta, []));
     this.life = this.stats.maxLife;
-    this.gauge = this.stats.gaugeMax;
+    this.gauge = Math.min(1, this.stats.gaugeMax);
     this.rerollsLeft = config.meta.rerolls;
     for (let i = 0; i < config.meta.headStartPicks; i++) this.offerQueue.push('start');
     this.spawnTimer = packInterval(1) - FIRST_PACK_SEC;
@@ -135,6 +149,7 @@ export class World implements SimApi {
 
     this.time += dt;
     this.updateGauge(dt);
+    this.updateCombo(dt);
     if (!this.config.sandbox) this.updateWaves(dt);
     this.moveEnemies(dt);
     this.rebuildGrid();
@@ -177,8 +192,18 @@ export class World implements SimApi {
         if (this.phase === 'playing') this.onPress(c.x, c.y);
         break;
       case 'move':
+        // 과충전 중에는 손가락을 따라 조준이 움직인다
+        if (this.charging) {
+          this.charging.x = clamp(c.x, 0, this.field.width);
+          this.charging.y = clamp(c.y, 0, this.field.height);
+        }
+        break;
       case 'release':
-        // 지금 조작은 누르는 순간 터지는 탭 하나뿐. 누르고 떼기 조작이 생기면 여기서 받는다
+        if (this.charging && this.phase === 'playing') {
+          const at = this.charging;
+          this.charging = null;
+          this.fire(at.x, at.y);
+        }
         break;
       case 'choose':
         if (this.phase === 'choosing') this.choose(c.index);
@@ -196,18 +221,28 @@ export class World implements SimApi {
   private onPress(px: number, py: number): void {
     const x = clamp(px, 0, this.field.width);
     const y = clamp(py, 0, this.field.height);
+    // 과충전 규칙: 100% 가 찬 상태에서 누르면 바로 쏘지 않고 과충전을 시작한다 (떼면 쏨)
+    const free = this.stats.freeTapDuringChain && this.explosions.length > 0;
+    if (this.overloadable && !free && this.gauge >= 1 && this.overheat <= 0 && !this.charging) {
+      this.charging = { x, y };
+      return;
+    }
+    this.fire(x, y);
+  }
+
+  private fire(x: number, y: number): void {
     const s = this.stats;
     const free = s.freeTapDuringChain && this.explosions.length > 0;
     const power = free ? Math.max(this.gauge, BALANCE.prism.infiniteChain.freeTapPower) : this.gauge;
 
-    if (power < BALANCE.tap.gauge.minFire) {
+    if (power < BALANCE.tap.gauge.minFire || this.overheat > 0) {
       this.emit({ type: 'dryTap', x, y });
       return;
     }
     if (!free) this.gauge = Math.min(power, s.gaugeLeftover);
 
     const crit = this.rng.chance(s.critChance);
-    let damage = this.tapDamageAt(power);
+    let damage = this.tapDamageAt(power) * this.comboMult();
     if (crit) damage *= s.critMultiplier;
     this.taps++;
     this.emit({ type: 'tap', x, y, free, power });
@@ -240,6 +275,11 @@ export class World implements SimApi {
       this.offer = { kind, choices };
       this.phase = 'choosing';
       this.offerWait = 0;
+      // 선택창이 뜨면 과충전은 쏘지 않고 취소 (게이지는 100% 로)
+      if (this.charging) {
+        this.charging = null;
+        this.gauge = Math.min(this.gauge, 1);
+      }
       this.emit({ type: 'offer', kind });
       return;
     }
@@ -264,7 +304,7 @@ export class World implements SimApi {
 
   private recomputeStats(): void {
     const before = this.stats.damageMult;
-    this.stats = computeStats(this.config.meta, this.augments.active(), this.runMult);
+    this.stats = this.withRules(computeStats(this.config.meta, this.augments.active(), this.runMult));
     if (this.stats.damageMult > before + 1e-9) this.emit({ type: 'mult', value: this.stats.damageMult });
     this.gauge = Math.min(this.gauge, this.stats.gaugeMax);
     this.life = Math.min(this.life, this.stats.maxLife);
@@ -282,12 +322,75 @@ export class World implements SimApi {
   // 시스템
   // ═══════════════════════════════════════════════════════════
 
-  /** 게이지는 100% 까지 fillSec 동안 차고, 100% 를 넘는 구간(초신성)은 overfillRate 배 속도로 찬다 */
+  /** 실험 규칙이 능력치에 주는 변화 (과충전: 게이지 상한 150%) */
+  private withRules(s: PlayerStats): PlayerStats {
+    if (this.rules.overcharge) s.gaugeMax = Math.max(s.gaugeMax, BALANCE.experiment.overcharge.max);
+    return s;
+  }
+
+  /** 과충전 규칙에서 상한에 닿으면 폭주하는가 (초신성이 상한을 더 올렸으면 폭주 없음) */
+  get overloadable(): boolean {
+    return !!this.rules.overcharge && this.stats.gaugeMax <= BALANCE.experiment.overcharge.max;
+  }
+
+  /**
+   * 게이지는 100% 까지 fillSec 동안 찬다. 100% 를 넘는 구간은
+   *   과충전: 누르고 있는 동안만, 1 → 1 + accel 배로 점점 빨라지다 상한에서 폭주 (떼면 그 크기로 쏨)
+   *   초신성: overfillRate 배 속도로 상한까지
+   */
   private updateGauge(dt: number): void {
+    if (this.overheat > 0) {
+      this.overheat = Math.max(0, this.overheat - dt);
+      return;
+    }
     const s = this.stats;
     if (this.gauge >= s.gaugeMax) return;
-    const rate = (this.gauge < 1 ? 1 : BALANCE.prism.supernova.overfillRate) / s.gaugeFillSec;
-    this.gainGauge(rate * dt);
+    // 과충전 규칙: 100% 넘게는 누르고 있을 때만 찬다
+    if (this.overloadable && this.gauge >= 1 && !this.charging) return;
+    let rate = 1;
+    if (this.gauge >= 1) {
+      if (this.overloadable) {
+        const OC = BALANCE.experiment.overcharge;
+        rate = 1 + (OC.accel * (this.gauge - 1)) / (OC.max - 1);
+      } else rate = BALANCE.prism.supernova.overfillRate;
+    }
+    this.fillGauge((rate / s.gaugeFillSec) * dt);
+    if (this.overloadable && this.gauge >= s.gaugeMax) this.overload();
+  }
+
+  /** 과충전 폭주: 게이지가 날아가고 잠깐 쏠 수 없다 */
+  private overload(): void {
+    this.charging = null;
+    this.gauge = 0;
+    this.overheat = BALANCE.experiment.overcharge.overheatSec;
+    this.overloads++;
+    this.emit({ type: 'overload' });
+  }
+
+  /** 시간으로 차는 게이지 (상한까지). 100% 를 넘는 순간 gaugeFull */
+  private fillGauge(amount: number): void {
+    const before = this.gauge;
+    this.gauge = Math.min(this.stats.gaugeMax, this.gauge + amount);
+    if (before < 1 && this.gauge >= 1) this.emit({ type: 'gaugeFull' });
+  }
+
+  /** 연쇄 잇기: 처치 없이 windowSec 이 지나면 콤보가 끊긴다 */
+  private updateCombo(dt: number): void {
+    const c = this.combo;
+    if (c.timer <= 0) return;
+    c.timer -= dt;
+    if (c.timer <= 0) {
+      if (c.kills > 0) this.emit({ type: 'comboEnd', kills: c.kills });
+      c.kills = 0;
+      c.timer = 0;
+    }
+  }
+
+  /** 연쇄 잇기 콤보 배율 (규칙이 꺼져 있으면 1) */
+  comboMult(): number {
+    if (!this.rules.combo) return 1;
+    const C = BALANCE.experiment.combo;
+    return Math.min(C.maxMult, 1 + C.perKill * this.combo.kills);
   }
 
   private updateWaves(dt: number): void {
@@ -556,6 +659,17 @@ export class World implements SimApi {
     if (chain.kills > this.maxChain) this.maxChain = chain.kills;
     this.emit({ type: 'kill', x: e.x, y: e.y, kind: e.def.id, chainKills: chain.kills, boss: !!e.def.boss });
 
+    if (this.rules.combo) {
+      this.combo.kills++;
+      this.combo.timer = BALANCE.experiment.combo.windowSec;
+      if (this.combo.kills > this.maxCombo) this.maxCombo = this.combo.kills;
+    }
+    if (this.rules.brink && e.y >= this.field.defenseLineY - BALANCE.experiment.brink.zone) {
+      this.brinkKills++;
+      this.gainGauge(BALANCE.experiment.brink.refundPerKill);
+      this.emit({ type: 'brink', x: e.x, y: e.y });
+    }
+
     // 연쇄 환급: 한 연쇄에서 N마리마다 게이지 + (이미 가득이면 없음)
     const every = this.stats.chainRefundKills;
     if (every > 0 && chain.kills % every === 0 && this.gauge < this.stats.gaugeMax) {
@@ -581,7 +695,7 @@ export class World implements SimApi {
     const blast = e.def.deathBlast;
     if (blast || s.chainOnAllKills) {
       const mult = 1 + s.chainMultiplierPerKill * chain.kills;
-      const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult;
+      const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult * this.comboMult();
       if (damage >= BALANCE.chain.minDamage) {
         this.spawnExplosion({
           x: e.x,
@@ -713,11 +827,16 @@ export class World implements SimApi {
     this.life = Math.min(this.stats.maxLife, this.life + amount);
   }
 
+  /**
+   * 환급·증강으로 얻는 게이지. 과충전 규칙에서는 100% 까지만 (환급 때문에 폭주하면 억울하므로).
+   * 이미 그보다 많으면 줄이지 않는다.
+   */
   gainGauge(amount: number): void {
-    const max = this.stats.gaugeMax;
-    if (this.gauge >= max) return;
-    this.gauge = Math.min(max, this.gauge + amount);
-    if (this.gauge >= max) this.emit({ type: 'gaugeFull' });
+    const cap = this.overloadable ? Math.min(1, this.stats.gaugeMax) : this.stats.gaugeMax;
+    if (this.gauge >= cap) return;
+    const before = this.gauge;
+    this.gauge = Math.min(cap, this.gauge + amount);
+    if (before < 1 && this.gauge >= 1) this.emit({ type: 'gaugeFull' });
   }
 
   multiplyRunMult(factor: number): void {
@@ -775,6 +894,10 @@ export class World implements SimApi {
       taps: this.taps,
       refunds: this.refunds,
       damageMult: this.stats.damageMult,
+      rules: RULE_IDS.filter((r) => this.rules[r]),
+      overloads: this.overloads,
+      maxCombo: this.maxCombo,
+      brinkKills: this.brinkKills,
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],

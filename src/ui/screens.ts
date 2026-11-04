@@ -4,7 +4,7 @@ import { ENEMIES } from '../data/enemies';
 import { UPGRADES, type UpgradeId } from '../data/upgrades';
 import { canBuy, isChapterUnlocked, upgradeCost, upgradeLevel } from '../meta/progression';
 import type { SaveData } from '../meta/save';
-import type { Offer, RunSummary } from '../sim/types';
+import { RULE_IDS, type Offer, type RuleId, type RunSummary } from '../sim/types';
 import { h } from './dom';
 
 /**
@@ -30,8 +30,16 @@ function fmtTime(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+/** 실험 규칙 이름과 한 줄 설명 (타이틀 토글) */
+const RULE_INFO: Record<RuleId, { name: string; desc: string }> = {
+  overcharge: { name: '과충전', desc: '100%에서 꾹 누르면 150%까지 더 모인다. 떼면 발사, 끝까지 넘기면 폭주' },
+  combo: { name: '연쇄 잇기', desc: '0.6초 안에 계속 잡으면 콤보 배율이 쌓인다 (처치당 +3%, 최대 ×3)' },
+  brink: { name: '벼랑 끝', desc: '방어선 근처에서 잡으면 게이지 25% 환급 (봇 시험에선 손해였음)' },
+};
+
 export interface TitleProps {
   save: SaveData;
+  onToggleRule(id: RuleId): void;
   today: string;
   /** 고른 챕터 id */
   chapterId: string;
@@ -78,6 +86,16 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
+      h('div', { class: 'rules' },
+        h('span', { class: 'rules-label', text: '실험 규칙' }),
+        ...RULE_IDS.map((id) => h('button', {
+          class: `chip${p.save.settings.rules[id] ? ' on' : ''}`,
+          onClick: () => p.onToggleRule(id),
+          text: RULE_INFO[id].name,
+        })),
+      ),
+      ...RULE_IDS.filter((id) => p.save.settings.rules[id]).map((id) =>
+        h('div', { class: 'rule-desc', text: `${RULE_INFO[id].name}: ${RULE_INFO[id].desc}` })),
       h('button', { class: 'btn', onClick: p.onEndless }, '엔드리스', h('small', { text: '끝없이' })),
       h('button', { class: 'btn', onClick: p.onDaily }, '일일 도전', h('small', { text: `${p.today} · 영구 강화 미적용` })),
       h('button', { class: 'btn', onClick: p.onUpgrades }, '영구 강화', h('small', { class: 'parts', text: `부품 ${p.save.parts}` })),

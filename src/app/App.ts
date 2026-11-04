@@ -226,6 +226,11 @@ export class App {
         save,
         today,
         chapterId: this.chapterId,
+        onToggleRule: (id) => {
+          save.settings.rules[id] = !save.settings.rules[id];
+          this.saves.persist();
+          this.showTitle();
+        },
         onSelectChapter: (id) => {
           this.chapterId = id;
           this.showTitle();

@@ -48,6 +48,20 @@
 반경이 게이지에 비례하니 넓이는 제곱으로 커진다 → 꽉 채워 쏠수록 무리 처리에 유리.
 초신성은 상한을 250%로 올리고(100% 넘은 뒤 절반 속도), 무한 연쇄는 연쇄 중 탭을 게이지 없이 50% 크기로 쏘게 한다.
 
+## 실험 규칙
+
+`RunConfig.rules`(`sim/types.ts` 의 `RULE_IDS`)로 켜고 끄는 플레이테스트용 규칙. 수치는 `balance.ts` 의 `experiment`.
+타이틀 칩 → `settings.rules`(세이브) → `createRunConfig`. 일일 도전은 항상 끔.
+
+- **과충전** (`overcharge`): 게이지 상한 150%. 100% 에서 누르면 `World.charging` 이 되고, 누르고 있는 동안만 넘어서 찬다
+  (100% 위로 갈수록 가속). 떼면(`release`) 그 크기로 쏘고, 상한에 닿으면 `overload` (게이지 0, `overheat` 동안 헛탭).
+  환급·증강으로는 100% 까지만 찬다. 초신성이 있으면 상한 250%, 폭주 없음(기존 방식).
+- **연쇄 잇기** (`combo`): 처치마다 `combo.kills++`, `windowSec` 동안 처치가 없으면 끊김(`comboEnd`).
+  `comboMult()` 를 탭 피해와 폭발형 자기 폭약에 곱한다 (넘친 피해에는 안 곱함).
+- **벼랑 끝** (`brink`): 방어선 위 `zone` 안에서 잡으면 게이지 환급 (`brink` 이벤트).
+
+봇은 규칙마다 정책 옵션이 있다 (`overchargeAt`, `holdJitter`, `comboExtend`, `brinkGreed`, `pressDelay`). 자동 플레이 `--rules`, `--bot` 로 비교한다.
+
 ## 피해 배율
 
 `stats.damageMult` 는 곱으로 쌓이는 피해 배율이고 `stats.tapDamage`(D)에 이미 곱해져 있다. 그래서 탭·연쇄·증강 폭발이 전부 따라 커진다.
