@@ -67,13 +67,12 @@ describe('무리 스폰', () => {
 });
 
 describe('연쇄 환급', () => {
-  /** 연쇄 반응을 켜고 30px 간격으로 한 줄 → 왼쪽 끝을 작게 쏘면 끝까지 번진다 */
+  /** 연쇄 반응을 켜고 체력 1짜리 30px 간격 한 줄 → 왼쪽 끝을 꽉 채워 쏘면 넘친 피해로 끝까지 번진다 */
   function line(count: number) {
     const w = sandbox();
     grant(w, 'chain_reaction');
     for (let i = 0; i < count; i++) w.spawnEnemy('normal', 30 + i * 30, 200)!.hp = 1;
     freeze(w);
-    w.gauge = 0.3;
     tap(w, 30, 200);
     return w;
   }

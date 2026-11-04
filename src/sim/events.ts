@@ -13,7 +13,8 @@ export type SimEvent =
   | { type: 'hit'; x: number; y: number; amount: number; crit: boolean }
   | { type: 'shieldBreak'; x: number; y: number }
   | { type: 'kill'; x: number; y: number; kind: string; chainKills: number; boss: boolean }
-  | { type: 'chainEnd'; chainId: number; kills: number }
+  /** links = 연쇄 폭발 수 (0 이면 연쇄 없이 탭이 직접 잡은 것뿐) */
+  | { type: 'chainEnd'; chainId: number; kills: number; links: number }
   /** 연쇄 환급으로 게이지 증가. x, y 는 환급을 만든 처치 위치 */
   | { type: 'refund'; x: number; y: number; chainKills: number }
   | { type: 'leak'; x: number; damage: number }

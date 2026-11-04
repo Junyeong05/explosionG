@@ -58,7 +58,7 @@ export class Renderer {
   private banner: { text: string; sub: string; color: string; t: number; life: number } | null = null;
   private chainShown = 0;
   private chainPop = 0;
-  private chainResult = { kills: 0, t: 0 };
+  private chainResult = { kills: 0, links: 0, t: 0 };
   private ambientTimer = 0;
 
   constructor(private readonly canvas: HTMLCanvasElement) {
@@ -100,7 +100,7 @@ export class Renderer {
     this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = 0;
     this.banner = null;
     this.chainShown = this.chainPop = 0;
-    this.chainResult = { kills: 0, t: 0 };
+    this.chainResult = { kills: 0, links: 0, t: 0 };
   }
 
   /** 슬로모션과 함께 화면 가장자리 발광 */
@@ -140,7 +140,7 @@ export class Renderer {
           this.bolts.add(e.x1, e.y1, e.x2, e.y2, e.kind === 'lightning' ? '#9fe8ff' : '#ffd36b', e.kind === 'lightning' ? 0.22 : 0.12);
           break;
         case 'chainEnd':
-          if (e.kills >= 5) this.chainResult = { kills: e.kills, t: 1 };
+          if (e.kills >= 5) this.chainResult = { kills: e.kills, links: e.links, t: 1 };
           break;
         case 'wave':
           this.showBanner(`WAVE ${e.wave}`, '', COLORS.text);
@@ -480,11 +480,16 @@ export class Renderer {
     }
 
     // 연쇄 카운터
+    // 연쇄 폭발이 하나라도 터졌으면 "CHAIN ×배율", 탭이 직접 잡은 것뿐이면 "KILLS"
     const cur = w.currentChain();
-    if (cur > this.chainShown) this.chainPop = 1;
-    this.chainShown = cur;
-    if (cur >= 3) this.drawChainCounter(cur, 1, 1 + w.stats.chainMultiplierPerKill * cur);
-    else if (this.chainResult.t > 0) this.drawChainCounter(this.chainResult.kills, this.chainResult.t, 1 + w.stats.chainMultiplierPerKill * this.chainResult.kills);
+    if (cur.kills > this.chainShown) this.chainPop = 1;
+    this.chainShown = cur.kills;
+    const mult = (k: number) => 1 + w.stats.chainMultiplierPerKill * k;
+    if (cur.kills >= 3) this.drawChainCounter(cur.kills, 1, cur.links > 0 ? mult(cur.kills) : 0);
+    else if (this.chainResult.t > 0) {
+      const r = this.chainResult;
+      this.drawChainCounter(r.kills, r.t, r.links > 0 ? mult(r.kills) : 0);
+    }
 
     // 배너
     if (this.banner) {
@@ -511,6 +516,7 @@ export class Renderer {
     this.drawGauge(w);
   }
 
+  /** mult = 0 이면 연쇄 없이 탭이 직접 잡은 것 → "KILLS" */
   private drawChainCounter(kills: number, alpha: number, mult: number): void {
     const ctx = this.ctx;
     const color = chainColor(kills);
@@ -528,7 +534,7 @@ export class Renderer {
     ctx.shadowBlur = 0;
     ctx.font = `800 11px ${FONT}`;
     ctx.fillStyle = COLORS.text;
-    ctx.fillText(`CHAIN  ×${mult.toFixed(2)}`, 0, 16);
+    ctx.fillText(mult > 0 ? `CHAIN  ×${mult.toFixed(2)}` : 'KILLS', 0, 16);
     ctx.restore();
   }
 

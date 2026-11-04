@@ -223,7 +223,7 @@ export class World implements SimApi {
 
   tapDamageAt(power: number): number {
     const G = BALANCE.tap.gauge;
-    return this.stats.tapDamage * (G.damageAt0 + (G.damageAt1 - G.damageAt0) * power);
+    return this.stats.tapDamage * G.damageAt1 * Math.pow(Math.max(0, power), G.damageExp);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -433,6 +433,7 @@ export class World implements SimApi {
 
   private detonate(ex: Explosion): void {
     const chain = this.chains.get(ex.chainId);
+    if (chain && ex.source === 'chain') chain.links++;
     this.emit({
       type: 'explosion', x: ex.x, y: ex.y, radius: ex.radius, source: ex.source,
       chainId: ex.chainId, chainKills: chain?.kills ?? 0, crit: ex.crit,
@@ -514,7 +515,7 @@ export class World implements SimApi {
       if (c.refs > 0) continue;
       if (c.kills > 0) {
         this.chainHistogram[chainBucket(c.kills)]++;
-        this.emit({ type: 'chainEnd', chainId: id, kills: c.kills });
+        this.emit({ type: 'chainEnd', chainId: id, kills: c.kills, links: c.links });
       }
       this.chains.delete(id);
     }
@@ -537,10 +538,12 @@ export class World implements SimApi {
     e.hp -= dmg;
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
     e.def.boss?.onDamaged?.(this, e);
-    if (e.hp <= 0) this.killEnemy(e, chainId);
+    // 체력을 넘긴 만큼이 넘친 피해 → 연쇄로 이월
+    if (e.hp <= 0) this.killEnemy(e, chainId, -e.hp);
   }
 
-  private killEnemy(e: Enemy, chainId: number): void {
+  /** overflow = 이 적을 죽인 피해 중 체력을 넘긴 양 */
+  private killEnemy(e: Enemy, chainId: number, overflow = 0): void {
     e.dead = true;
     e.hp = 0;
     this.kills++;
@@ -566,20 +569,26 @@ export class World implements SimApi {
     }
 
     // 연쇄: 처치된 적이 그 자리에서 다시 폭발. 기본은 deathBlast 가 있는 적(폭발형·보스)만,
-    // "연쇄 반응" 증강이 있으면 모든 적. 연쇄 배율 = 1 + 처치당 증가 × 지금까지 처치 수
+    // "연쇄 반응" 증강이 있으면 모든 적.
+    //   피해 = 넘친 피해 × carry + 자기 폭약 × 연쇄 배율(1 + 처치당 증가 × 지금까지 처치 수)
+    // 넘친 피해는 단계마다 체력만큼 깎이므로 연쇄는 저절로 약해지다 끊긴다.
+    // 연쇄 배율을 넘친 피해에 곱하면 단계마다 복리로 불어나서 끊기지 않으므로, 폭발형의 자기 폭약에만 곱한다.
     const s = this.stats;
     const blast = e.def.deathBlast;
     if (blast || s.chainOnAllKills) {
       const mult = 1 + s.chainMultiplierPerKill * chain.kills;
-      this.spawnExplosion({
-        x: e.x,
-        y: e.y,
-        radius: s.chainRadius * (blast?.radiusMul ?? 1),
-        damage: s.tapDamage * s.chainDamageRatio * (blast?.damageMul ?? 1) * mult,
-        chainId: chain.id,
-        source: 'chain',
-        delay: s.chainDelaySec,
-      });
+      const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult;
+      if (damage >= BALANCE.chain.minDamage) {
+        this.spawnExplosion({
+          x: e.x,
+          y: e.y,
+          radius: s.chainRadius * (blast?.radiusMul ?? 1),
+          damage,
+          chainId: chain.id,
+          source: 'chain',
+          delay: s.chainDelaySec,
+        });
+      }
     }
 
     this.gainXp(e.def.xp);
@@ -677,7 +686,7 @@ export class World implements SimApi {
 
   newChain(): number {
     const id = this.nextId++;
-    this.chains.set(id, { id, kills: 0, refs: 0 });
+    this.chains.set(id, { id, kills: 0, refs: 0, links: 0 });
     return id;
   }
 
@@ -716,11 +725,11 @@ export class World implements SimApi {
   // 조회 (HUD·봇·결과)
   // ═══════════════════════════════════════════════════════════
 
-  /** 진행 중인 연쇄 중 가장 긴 것의 처치 수 */
-  currentChain(): number {
-    let best = 0;
-    for (const c of this.chains.values()) if (c.refs > 0 && c.kills > best) best = c.kills;
-    return best;
+  /** 진행 중인 묶음 중 처치가 가장 많은 것 (links = 연쇄 폭발 수) */
+  currentChain(): { kills: number; links: number } {
+    let best = { kills: 0, links: 0 };
+    for (const c of this.chains.values()) if (c.refs > 0 && c.kills > best.kills) best = c;
+    return { kills: best.kills, links: best.links };
   }
 
   /** 지금 화면에 있는 보스 (HP 바용) */

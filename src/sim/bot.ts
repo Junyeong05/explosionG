@@ -22,7 +22,7 @@ const RARITY_SCORE: Record<Rarity, number> = { normal: 1, rare: 2, epic: 3, pris
 /** 방어선에서 이 거리 안으로 들어온 적이 있으면 급함 */
 const DANGER_DIST = 70;
 /** 급할 때는 게이지가 이만큼만 있어도 쏜다 */
-const URGENT_FIRE = 0.35;
+const URGENT_FIRE = 0.5;
 /** 초신성(과충전)이면 상한까지 기다리지 않고 이만큼에서 쏜다 */
 const OVERFILL_FIRE = 1.8;
 

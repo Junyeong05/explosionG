@@ -30,10 +30,10 @@ export interface EnemyDef {
   shape: EnemyShape;
   mark?: EnemyMark;
   /**
-   * 죽을 때 터진다 (반경·피해는 연쇄 폭발 기준 배율). 이게 있는 적만 기본으로 연쇄를 일으킨다.
-   * 없는 적은 "연쇄 반응" 증강(chainOnAllKills)이 있어야 터진다.
+   * 죽을 때 터진다. 이게 있는 적만 기본으로 연쇄를 일으킨다 (없는 적은 "연쇄 반응" 증강이 있어야 터짐).
+   *   반경 = 연쇄 반경 × radiusMul,  피해 = 넘친 피해 × carry + 탭 기준 피해 D × charge (자기 폭약)
    */
-  deathBlast?: { radiusMul: number; damageMul: number };
+  deathBlast?: { radiusMul: number; charge: number };
   /** 탭이 아닌 피해(연쇄·잔불·번개 등)를 받을 때 배율 */
   indirectDamageTakenMul?: number;
   /** 폭발을 막는 보호막 횟수 */
@@ -56,8 +56,8 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
     id: 'explosive', name: '폭발형', spawnWeight: 3,
     hpMul: 1, speed: 28, radius: 12, xp: 1, leak: 1,
     color: '#ff9a3c', shape: 'octagon', mark: 'dot',
-    // 죽을 때 연쇄 폭발 반경 1.8배, 피해 2배
-    deathBlast: { radiusMul: 1.8, damageMul: 2 },
+    // 죽을 때 연쇄 폭발 반경 1.8배 + 자기 폭약 D×1.2 (기획서 "피해 2배" = 옛 연쇄 피해 D×60%의 2배)
+    deathBlast: { radiusMul: 1.8, charge: 1.2 },
   },
   rusher: {
     id: 'rusher', name: '돌격형', spawnWeight: 3,

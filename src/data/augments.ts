@@ -97,9 +97,9 @@ export const AUGMENTS: readonly AugmentDef[] = [
     modifyStats: (s, n) => { s.chainRadius *= 1 + 0.1 * n; },
   },
   {
-    id: 'chain_amp', name: '연쇄 증폭', rarity: 'normal', archetypes: ['chain'], maxStacks: 5,
-    desc: '연쇄 피해 +10%p (기본 탭 피해의 60%)',
-    modifyStats: (s, n) => { s.chainDamageRatio += 0.1 * n; },
+    id: 'chain_amp', name: '연쇄 증폭', rarity: 'normal', archetypes: ['chain'], maxStacks: 3,
+    desc: '연쇄로 넘어가는 피해 +10%p (기본: 체력을 넘긴 피해의 100%)',
+    modifyStats: (s, n) => { s.chainCarry += 0.1 * n; },
   },
   {
     id: 'leftover', name: '잔여 장약', rarity: 'normal', archetypes: ['rapid'], maxStacks: 3,
@@ -120,7 +120,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
   // ── 레어: 작은 규칙 추가 ─────────────────────────────────
   {
     id: 'chain_reaction', name: '연쇄 반응', rarity: 'rare', archetypes: ['chain'], maxStacks: 1,
-    desc: '모든 적이 죽을 때 터진다 (기본은 폭발형만)',
+    desc: '모든 적이 죽을 때 체력을 넘긴 피해만큼 터진다 (기본은 폭발형만)',
     modifyStats: (s) => { s.chainOnAllKills = true; },
   },
   {
@@ -130,7 +130,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
   },
   {
     id: 'chain_accel', name: '연쇄 가속', rarity: 'rare', archetypes: ['chain'], maxStacks: 3,
-    desc: '연쇄 배율 처치당 +3%p (기본 +5%)',
+    desc: '연쇄 배율 처치당 +3%p (기본 +5%, 폭발형 자기 폭약에 곱함)',
     modifyStats: (s, n) => { s.chainMultiplierPerKill += 0.03 * n; },
   },
   {

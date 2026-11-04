@@ -19,7 +19,8 @@ export interface PlayerStats {
   critChance: number;
   critMultiplier: number;
   chainRadius: number;
-  chainDamageRatio: number;
+  /** 넘친 피해 중 연쇄로 이어지는 비율 (1 = 100%) */
+  chainCarry: number;
   chainMultiplierPerKill: number;
   chainDelaySec: number;
   /** 일반 적도 죽을 때 터지는가 (기본은 deathBlast 가 있는 폭발형·보스만) */
@@ -59,7 +60,7 @@ export function baseStats(): PlayerStats {
     critChance: 0,
     critMultiplier: B.tap.critMultiplier,
     chainRadius: B.chain.radius,
-    chainDamageRatio: B.chain.damageRatio,
+    chainCarry: B.chain.carry,
     chainMultiplierPerKill: B.chain.multiplierPerKill,
     chainDelaySec: B.chain.delaySec,
     chainOnAllKills: false,

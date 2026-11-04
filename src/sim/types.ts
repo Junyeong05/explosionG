@@ -74,6 +74,8 @@ export interface Chain {
   id: number;
   kills: number;
   refs: number;
+  /** 이 묶음에서 터진 연쇄 폭발 수. 0 이면 탭(또는 지뢰·번개)이 직접 잡은 것뿐 */
+  links: number;
 }
 
 /** 잔불 같은 지속 피해 지대 */

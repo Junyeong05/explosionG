@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/data/balance';
+import { ENEMIES } from '../src/data/enemies';
 import { freeze, grant, sandbox, stepFor, tap } from './helpers';
 
 describe('모으는 탭', () => {
@@ -70,16 +71,43 @@ describe('연쇄', () => {
     expect(far.dead).toBe(true);
   });
 
-  it('연쇄 배율: 처치 1회마다 이후 폭발 피해 +5%', () => {
+  it('폭발형 연쇄 피해 = 넘친 피해 + 자기 폭약 × 연쇄 배율(처치당 +5%)', () => {
     const w = sandbox();
-    w.spawnEnemy('explosive', 100, 200);
+    const e = w.spawnEnemy('explosive', 100, 200)!;
     freeze(w);
-    tap(w, 100, 200);
-    w.drainEvents();
-    // 첫 처치 이후 생기는 연쇄 폭발 피해 = D × 60% × 폭발형 2배 × (1 + 0.05 × 1)
+    tap(w, 100, 200); // 정중앙 → 감쇠 없음
+    const overflow = w.tapDamageAt(1) - e.maxHp;
     const ex = w.explosions[0];
     expect(ex.source).toBe('chain');
-    expect(ex.damage).toBeCloseTo(BALANCE.tap.damage * 0.6 * 2 * 1.05);
+    expect(ex.damage).toBeCloseTo(overflow + ENEMIES.explosive.deathBlast!.charge * BALANCE.tap.damage * 1.05);
+  });
+
+  it('이월: 체력을 넘긴 피해만 다음 적으로 넘어가서 연쇄가 약해지다 끊긴다', () => {
+    const w = sandbox();
+    grant(w, 'chain_reaction');
+    // 30px 간격 한 줄: 연쇄 폭발(반경 46)은 바로 옆 적에게만 닿는다
+    const line = [0, 1, 2, 3, 4].map((i) => w.spawnEnemy('normal', 100 + i * 30, 200)!);
+    for (const e of line) e.hp = e.maxHp = 10;
+    freeze(w);
+    // 첫 적에게 35 → 넘친 25 → 다음 적 15 → 그다음 5 → 넷째 적은 5만 맞고 산다
+    w.spawnExplosion({ x: 100, y: 200, radius: 5, damage: 35, chainId: w.newChain(), source: 'chain' });
+    stepFor(w, 1);
+    expect(line.slice(0, 3).every((e) => e.dead)).toBe(true);
+    expect(line[3].dead).toBe(false);
+    expect(line[3].hp).toBeCloseTo(5);
+    expect(line[4].hp).toBe(10);
+  });
+
+  it('넘친 피해가 거의 없으면 일반 적의 연쇄는 바로 끊긴다', () => {
+    const w = sandbox();
+    grant(w, 'chain_reaction');
+    const e = w.spawnEnemy('normal', 100, 200)!;
+    e.hp = e.maxHp = 10;
+    freeze(w);
+    w.spawnExplosion({ x: 100, y: 200, radius: 5, damage: 10.5, chainId: w.newChain(), source: 'chain' });
+    w.step(1 / 60);
+    expect(e.dead).toBe(true);
+    expect(w.explosions.length).toBe(0);
   });
 
   it('연쇄가 끝나면 chainEnd 이벤트', () => {
