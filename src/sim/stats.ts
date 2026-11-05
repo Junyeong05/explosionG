@@ -28,6 +28,8 @@ export interface PlayerStats {
   chainDelaySec: number;
   /** 일반 적도 죽을 때 터지는가 (기본은 deathBlast 가 있는 폭발형·보스만) */
   chainOnAllKills: boolean;
+  /** 연쇄 단계 추가 (게이지로 정해지는 단계에 더함) */
+  chainDepthBonus: number;
   /** 한 연쇄에서 이 수만큼 처치할 때마다 게이지 +chainRefundGauge (0 이면 없음) */
   chainRefundKills: number;
   chainRefundGauge: number;
@@ -68,6 +70,7 @@ export function baseStats(): PlayerStats {
     chainMultiplierPerKill: B.chain.multiplierPerKill,
     chainDelaySec: B.chain.delaySec,
     chainOnAllKills: false,
+    chainDepthBonus: 0,
     chainRefundKills: B.chain.refundEveryKills,
     chainRefundGauge: B.chain.refundGauge,
     maxLife: B.life.start,

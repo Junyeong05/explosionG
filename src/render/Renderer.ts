@@ -359,8 +359,10 @@ export class Renderer {
     ctx.font = `900 13px ${FONT}`;
     ctx.textAlign = 'center';
     ctx.fillStyle = color;
-    // 원 가운데에 퍼센트 (위쪽 HUD 와 겹치지 않게)
-    ctx.fillText(`${Math.round(w.gauge * 100)}%`, c.x + jx, c.y + jy + 5);
+    // 원 가운데에 퍼센트와 연쇄 단계 (위쪽 HUD 와 겹치지 않게)
+    ctx.fillText(`${Math.round(w.gauge * 100)}%`, c.x + jx, c.y + jy);
+    ctx.font = `800 10px ${FONT}`;
+    ctx.fillText(`연쇄 ${w.chainDepthAt(w.gauge)}단계`, c.x + jx, c.y + jy + 13);
     ctx.restore();
   }
 
@@ -708,13 +710,15 @@ export class Renderer {
     ctx.font = `700 9px ${FONT}`;
     ctx.textAlign = 'center';
     ctx.fillStyle = full ? rgba(COLORS.charge, pulse) : COLORS.dim;
+    const depth = w.chainDepthAt(g);
+    const chainText = depth > 0 ? `연쇄 ${depth}단계` : '연쇄 없음';
     const label =
       w.overheat > 0 ? '폭주! 과열 중'
-      : w.charging ? `과충전 ${Math.round(g * 100)}% — 떼면 발사`
+      : w.charging ? `과충전 ${Math.round(g * 100)}% · ${chainText} — 떼면 발사`
       : w.stats.freeTapDuringChain && w.explosions.length > 0 ? 'FREE TAP'
-      : full && w.overloadable ? 'FULL — 꾹 누르면 과충전'
-      : full ? `FULL ${Math.round(g * 100)}%`
-      : `CHARGE ${Math.floor(g * 100)}%`;
+      : full && w.overloadable ? `FULL · ${chainText} — 꾹 누르면 과충전`
+      : full ? `FULL ${Math.round(g * 100)}% · ${chainText}`
+      : `CHARGE ${Math.floor(g * 100)}% · ${chainText}`;
     ctx.fillText(label, x0 + width / 2, y + 22);
   }
 

@@ -73,6 +73,7 @@ describe('연쇄 환급', () => {
     grant(w, 'chain_reaction');
     for (let i = 0; i < count; i++) w.spawnEnemy('normal', 30 + i * 30, 200)!.hp = 1;
     freeze(w);
+    w.stats.chainDepthBonus = 10; // 환급만 보려고 단계 제한은 넉넉히
     tap(w, 30, 200);
     return w;
   }

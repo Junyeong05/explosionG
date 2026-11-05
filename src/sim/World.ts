@@ -247,7 +247,7 @@ export class World implements SimApi {
     this.taps++;
     this.emit({ type: 'tap', x, y, free, power });
     this.spawnExplosion({
-      x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(), source: 'tap', crit,
+      x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(this.chainDepthAt(power)), source: 'tap', crit,
       edgeMul: s.tapEdgeMul,
     });
   }
@@ -258,9 +258,16 @@ export class World implements SimApi {
     return this.stats.tapRadius * (G.radiusAt0 + (G.radiusAt1 - G.radiusAt0) * power);
   }
 
-  tapDamageAt(power: number): number {
-    const G = BALANCE.tap.gauge;
-    return this.stats.tapDamage * G.damageAt1 * Math.pow(Math.max(0, power), G.damageExp);
+  /** 탭 피해. 게이지와 무관 (게이지는 크기·연쇄 단계, 피해는 화력 축) */
+  tapDamageAt(_power: number): number {
+    return this.stats.tapDamage * BALANCE.tap.gauge.damage;
+  }
+
+  /** 게이지 power 로 쏘면 연쇄가 몇 단계까지 가나 (0 = 연쇄 없음) + 증강 보너스 */
+  chainDepthAt(power: number): number {
+    let d = 0;
+    for (const at of BALANCE.tap.gauge.chainDepthAt) if (power >= at - 1e-9) d++;
+    return d > 0 ? d + this.stats.chainDepthBonus : 0;
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -554,7 +561,7 @@ export class World implements SimApi {
         const t = clamp(Math.sqrt(dist2(ex.x, ex.y, e.x, e.y)) / (ex.radius + e.radius), 0, 1);
         dmg *= 1 - (1 - edge) * t;
       }
-      this.hitEnemy(e, dmg, ex.source, ex.chainId, ex.crit);
+      this.hitEnemy(e, dmg, ex.source, ex.chainId, ex.crit, ex.depth);
     }
     this.augments.onExplosion(this, ex);
     if (chain) chain.refs--;
@@ -569,7 +576,7 @@ export class World implements SimApi {
       if (z.tick <= 0) {
         z.tick += ZONE_TICK_SEC;
         const hits = this.collectEnemiesNear(z.x, z.y, z.radius, this.hitBuf);
-        for (const e of hits) this.hitEnemy(e, z.dps * ZONE_TICK_SEC, z.source, z.chainId, false);
+        for (const e of hits) this.hitEnemy(e, z.dps * ZONE_TICK_SEC, z.source, z.chainId, false, z.depth);
       }
       if (z.ttl > 0) this.zones[write++] = z;
       else {
@@ -632,7 +639,7 @@ export class World implements SimApi {
   // 전투
   // ═══════════════════════════════════════════════════════════
 
-  private hitEnemy(e: Enemy, amount: number, source: DamageSource, chainId: number, crit: boolean): void {
+  private hitEnemy(e: Enemy, amount: number, source: DamageSource, chainId: number, crit: boolean, depth: number): void {
     if (e.dead) return;
     e.lastHitAt = this.time;
     if (e.shield > 0) {
@@ -646,11 +653,11 @@ export class World implements SimApi {
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
     e.def.boss?.onDamaged?.(this, e);
     // 체력을 넘긴 만큼이 넘친 피해 → 연쇄로 이월
-    if (e.hp <= 0) this.killEnemy(e, chainId, -e.hp);
+    if (e.hp <= 0) this.killEnemy(e, chainId, -e.hp, depth);
   }
 
-  /** overflow = 이 적을 죽인 피해 중 체력을 넘긴 양 */
-  private killEnemy(e: Enemy, chainId: number, overflow = 0): void {
+  /** overflow = 이 적을 죽인 피해 중 체력을 넘긴 양, depth = 이 적을 죽인 폭발의 연쇄 단계 */
+  private killEnemy(e: Enemy, chainId: number, overflow = 0, depth = 0): void {
     e.dead = true;
     e.hp = 0;
     this.kills++;
@@ -687,13 +694,14 @@ export class World implements SimApi {
     }
 
     // 연쇄: 처치된 적이 그 자리에서 다시 폭발. 기본은 deathBlast 가 있는 적(폭발형·보스)만,
-    // "연쇄 반응" 증강이 있으면 모든 적.
+    // "연쇄 반응" 증강이 있으면 모든 적. 단, 이 묶음의 연쇄 단계(게이지로 정함)를 넘으면 안 터진다
+    // (플레이 피드백: 연쇄로 죽은 적이 또 터져서 끝없이 이어지면 너무 세다).
     //   피해 = 넘친 피해 × carry + 자기 폭약 × 연쇄 배율(1 + 처치당 증가 × 지금까지 처치 수)
     // 넘친 피해는 단계마다 체력만큼 깎이므로 연쇄는 저절로 약해지다 끊긴다.
     // 연쇄 배율을 넘친 피해에 곱하면 단계마다 복리로 불어나서 끊기지 않으므로, 폭발형의 자기 폭약에만 곱한다.
     const s = this.stats;
     const blast = e.def.deathBlast;
-    if (blast || s.chainOnAllKills) {
+    if ((blast || s.chainOnAllKills) && depth + 1 <= chain.maxDepth) {
       const mult = 1 + s.chainMultiplierPerKill * chain.kills;
       const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult * this.comboMult();
       if (damage >= BALANCE.chain.minDamage) {
@@ -705,6 +713,7 @@ export class World implements SimApi {
           chainId: chain.id,
           source: 'chain',
           delay: s.chainDelaySec,
+          depth: depth + 1,
         });
       }
     }
@@ -720,7 +729,7 @@ export class World implements SimApi {
       }
     }
 
-    this.augments.onKill(this, { enemy: e, chainId: chain.id, chainKills: chain.kills });
+    this.augments.onKill(this, { enemy: e, chainId: chain.id, chainKills: chain.kills, depth });
   }
 
   private gainXp(amount: number): void {
@@ -775,6 +784,7 @@ export class World implements SimApi {
       delay: spec.delay ?? 0,
       crit: spec.crit ?? false,
       edgeMul: spec.edgeMul ?? 1,
+      depth: spec.depth ?? 0,
     });
   }
 
@@ -805,9 +815,11 @@ export class World implements SimApi {
     return e;
   }
 
-  newChain(): number {
+  /** 새 연쇄 묶음. maxDepth 를 안 주면 탭이 아닌 시작(지뢰·번개)의 기본 단계 */
+  newChain(maxDepth?: number): number {
     const id = this.nextId++;
-    this.chains.set(id, { id, kills: 0, refs: 0, links: 0 });
+    const depth = maxDepth ?? BALANCE.chain.otherStartDepth + this.stats.chainDepthBonus;
+    this.chains.set(id, { id, kills: 0, refs: 0, links: 0, maxDepth: depth });
     return id;
   }
 
@@ -815,7 +827,7 @@ export class World implements SimApi {
     if (this.zones.length >= BALANCE.limits.maxZones) return;
     const chain = this.chains.get(spec.chainId);
     if (chain) chain.refs++;
-    this.zones.push({ id: this.nextId++, ...spec, maxTtl: spec.ttl, tick: ZONE_TICK_SEC });
+    this.zones.push({ id: this.nextId++, ...spec, depth: spec.depth ?? 0, maxTtl: spec.ttl, tick: ZONE_TICK_SEC });
   }
 
   addMine(spec: MineSpec): void {

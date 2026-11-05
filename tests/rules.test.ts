@@ -63,10 +63,11 @@ describe('실험 규칙: 과충전', () => {
     expect(w.overheat).toBe(0);
   });
 
-  it('140% 에서 쏘면 100% 보다 크게 터진다', () => {
+  it('130% 넘게 쏘면 100% 보다 크고, 연쇄가 2단계까지 간다', () => {
     const w = sandbox({ rules: { overcharge: true } });
     expect(w.tapRadiusAt(1.4)).toBeGreaterThan(w.tapRadiusAt(1));
-    expect(w.tapDamageAt(1.4)).toBeGreaterThan(w.tapDamageAt(1) * 1.5);
+    expect(w.chainDepthAt(1)).toBe(1);
+    expect(w.chainDepthAt(1.4)).toBe(2);
   });
 
   it('환급으로는 100% 까지만 찬다 (환급 때문에 폭주하지 않게)', () => {

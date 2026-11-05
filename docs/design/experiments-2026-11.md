@@ -124,3 +124,28 @@ npm run autoplay -- --runs 100 --chapter ch2 --rules overcharge --bot '{"overcha
 - 타이밍 창으로 실력 차이를 만드는 장치: [Active Reload (Giant Bomb)](https://giantbomb.com/wiki/Concepts/Active_Reload), [Gears of War의 액티브 리로드를 더 많은 게임이 써야 하는 이유](https://www.gfinityesports.com/article/more-games-should-build-on-gears-of-wars-active-reload-mechanic), [GMTK: How Game Designers Solved These 11 Problems](https://gmtk.substack.com/p/how-game-designers-solved-these-11)
 - 콤보 타이머를 처치로 다시 채우는 방식: [Pizza Tower 콤보](https://pizzatower.fandom.com/wiki/Combo), [Rollerdrome 콤보](https://vip-develop.gamepur.com/?p=393719), [Neon Starfighter 콤보 설계 데브로그](https://dev.to/tanishpaul1106/the-combo-system-that-makes-neon-starfighter-addictive-a-devlog-3pi)
 - 욕심과 멈출 때 고르기(push your luck): [Push Your Luck 메커니즘 설명](https://meeplescorner.co.uk/blogs/boardgame-glossary/what-are-push-your-luck-games-everything-you-need-to-know-about-this-board-game-mechanic), [아케이드 위험-보상 장치 5가지](https://www.arcadeattack.co.uk/5-arcade-risk-reward-mechanics-that-still-keep-us-playing/)
+
+## 후속 (11-05): 연쇄 단계와 축 나누기
+
+플레이 피드백:
+- 연쇄가 연달아 끝없이 터져서 너무 세다. 연쇄로 죽은 적은 다시 안 터지게 하자.
+- 게이지 양과 피해 증강이 둘 다 "피해"라 겹친다. 다른 축을 주자.
+
+바꾼 것:
+- **연쇄 단계**: 탭으로 죽은 적까지만 터지는 게 기본 1단계다.
+- **축 분리**: 게이지는 크기와 연쇄 단계, 화력(피해 증강)은 피해를 맡는다. 탭 피해는 게이지와 무관하다.
+  - 단계 문턱: 100% 미만 0단계(연쇄 없음), 100% 1단계, 130% 2단계, 200%·250% 3·4단계
+  - 새 레어 증강 "연쇄 단계 +1"
+- **과충전의 보상**이 "피해 증가"에서 "크기 + 연쇄 2단계"로 바뀌었다.
+  - 2단계 문턱을 처음엔 140%에 뒀는데, 폭주(150%)와 너무 가까워 욕심낼 가치가 없었다(142%: 55%, 100%: 56%).
+  - 130%로 낮추자 곡선이 돌아왔다.
+
+| 과충전 정책 (챕터 2, 80판, 손 오차 ±0.07초) | 클리어율 | 판당 폭주 |
+| --- | --- | --- |
+| 100% (안 누름) | 56% | 0 |
+| 133% (2단계) | 57% | 1.1 |
+| **140%** | **64%** | 1.1 |
+| 145% | 33% | 6.7 |
+
+게이지를 언제 쏘느냐 (과충전 없음, 챕터 2, 100판): 35%에서 쏘면 50%, 70%에서 45%, 꽉 채우면 68%.
+작게 빨리 쏘기(급할 때)와 꽉 채워 연쇄(무리)로 갈리고, 어중간한 70%가 제일 나쁘다.

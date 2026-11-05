@@ -119,6 +119,11 @@ export const AUGMENTS: readonly AugmentDef[] = [
 
   // ── 레어: 작은 규칙 추가 ─────────────────────────────────
   {
+    id: 'chain_depth', name: '연쇄 단계', rarity: 'rare', archetypes: ['chain'], maxStacks: 2,
+    desc: '연쇄가 한 단계 더 이어진다 (연쇄로 죽은 적도 한 번 더 터짐)',
+    modifyStats: (s, n) => { s.chainDepthBonus += n; },
+  },
+  {
     id: 'chain_reaction', name: '연쇄 반응', rarity: 'rare', archetypes: ['chain'], maxStacks: 1,
     desc: '모든 적이 죽을 때 체력을 넘긴 피해만큼 터진다 (기본은 폭발형만)',
     modifyStats: (s) => { s.chainOnAllKills = true; },
@@ -151,6 +156,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
           ttl: 1 + 0.3 * (n - 1),
           chainId: ex.chainId,
           source: 'ember',
+          depth: ex.depth,
         });
       },
     },
@@ -170,7 +176,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
           api.spawnExplosion({
             x: t.x, y: t.y, radius: 4,
             damage: api.stats.tapDamage * 0.4,
-            chainId: k.chainId, source: 'shard', delay: 0.1,
+            chainId: k.chainId, source: 'shard', delay: 0.1, depth: k.depth + 1,
           });
         }
       },
@@ -192,7 +198,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
           api.spawnExplosion({
             x: ex.x + Math.cos(a) * d, y: ex.y + Math.sin(a) * d,
             radius: ex.radius * 0.5, damage: ex.damage * 0.4,
-            chainId: ex.chainId, source: 'fission', delay: 0.08,
+            chainId: ex.chainId, source: 'fission', delay: 0.08, depth: ex.depth,
           });
         }
       },
@@ -233,7 +239,7 @@ export const AUGMENTS: readonly AugmentDef[] = [
   // ── 프리즘: 판의 규칙·조작 변경 (보스 처치 보상에서만, 판당 1개) ──
   {
     id: 'supernova', name: '초신성', rarity: 'prism', archetypes: ['burst'], maxStacks: 1,
-    desc: `과충전: 게이지가 100%를 넘어 ${BALANCE.prism.supernova.gaugeMax * 100}%까지 찬다 (넘긴 뒤엔 절반 속도). 기다릴수록 끝없이 커지는 폭발`,
+    desc: `과충전: 게이지가 100%를 넘어 ${BALANCE.prism.supernova.gaugeMax * 100}%까지 찬다 (넘긴 뒤엔 절반 속도). 클수록 넓고, 200%면 연쇄 3단계·250%면 4단계`,
     modifyStats: (s) => { s.gaugeMax = BALANCE.prism.supernova.gaugeMax; },
   },
   {

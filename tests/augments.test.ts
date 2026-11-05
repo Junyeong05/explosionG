@@ -84,6 +84,7 @@ describe('증강 효과', () => {
     const w = sandbox();
     grant(w, 'resonance');
     grant(w, 'chain_reaction');
+    w.stats.chainDepthBonus = 10; // 공명만 보려고 단계 제한은 넉넉히
     for (let i = 0; i < 10; i++) w.spawnEnemy('normal', 20 + i * 30, 200)!.hp = 1;
     for (const e of w.enemies) e.speed = 0;
     tap(w, 20, 200);

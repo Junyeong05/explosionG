@@ -12,6 +12,8 @@ export interface ExplosionSpec {
   source: DamageSource;
   delay?: number;
   crit?: boolean;
+  /** 연쇄 단계 (탭·지뢰·번개 = 0, 그 폭발로 죽은 적의 폭발 = 1, ...). 없으면 0 */
+  depth?: number;
   /** 가장자리 피해 배율 (중심 1 → 가장자리 이 값, 거리에 비례). 없으면 1 = 어디서나 같은 피해 */
   edgeMul?: number;
 }
@@ -24,6 +26,8 @@ export interface ZoneSpec {
   ttl: number;
   chainId: number;
   source: DamageSource;
+  /** 이 지대로 죽은 적은 이 단계에서 죽은 것으로 친다 */
+  depth?: number;
 }
 
 export interface MineSpec {
@@ -39,6 +43,8 @@ export interface KillInfo {
   chainId: number;
   /** 이 처치까지 포함한 연쇄 처치 수 */
   chainKills: number;
+  /** 이 적을 죽인 폭발의 연쇄 단계 */
+  depth: number;
 }
 
 /**
@@ -59,7 +65,8 @@ export interface SimApi {
   aliveEnemies(): Enemy[];
   spawnExplosion(spec: ExplosionSpec): void;
   spawnEnemy(kind: string, x: number, y: number, hpMul?: number): Enemy | null;
-  newChain(): number;
+  /** 새 연쇄 묶음. maxDepth = 연쇄가 몇 단계까지 가나 (없으면 기본) */
+  newChain(maxDepth?: number): number;
   addZone(spec: ZoneSpec): void;
   addMine(spec: MineSpec): void;
   heal(amount: number): void;

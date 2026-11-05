@@ -25,10 +25,15 @@ describe('모으는 탭', () => {
     expect(w.drainEvents().some((e) => e.type === 'gaugeFull')).toBe(true);
   });
 
-  it('많이 모을수록 크게 터진다 (반경·피해 모두)', () => {
+  it('게이지는 크기와 연쇄 단계를 정하고, 피해는 게이지와 무관하다', () => {
     const w = sandbox();
     expect(w.tapRadiusAt(1)).toBeGreaterThan(w.tapRadiusAt(0.3) * 1.5);
-    expect(w.tapDamageAt(1)).toBeGreaterThan(w.tapDamageAt(0.3) * 1.5);
+    expect(w.tapDamageAt(1)).toBe(w.tapDamageAt(0.3));
+    expect(w.chainDepthAt(0.99)).toBe(0);
+    expect(w.chainDepthAt(1)).toBe(1);
+    expect(w.chainDepthAt(1.29)).toBe(1);
+    expect(w.chainDepthAt(1.3)).toBe(2);
+    expect(w.chainDepthAt(2.5)).toBe(4);
     w.gauge = 0.3;
     tap(w, 100, 100);
     const ex = w.drainEvents().find((e) => e.type === 'explosion');
@@ -38,7 +43,7 @@ describe('모으는 탭', () => {
 
 describe('연쇄', () => {
   /**
-   * 게이지 30% 탭(반경 약 44)으로 왼쪽 적만 맞히고, 오른쪽 적은 40px 옆에 둔다.
+   * 꽉 채운 탭(반경 60)으로 왼쪽 적만 맞히고, 오른쪽 적은 40px 옆(탭에서 80)에 둔다.
    * 오른쪽 적이 죽으면 왼쪽 적이 터져서(연쇄) 잡은 것. 체력은 1 로 둬서 거리만 본다.
    */
   function pair(left: string, augment?: string) {
@@ -48,7 +53,6 @@ describe('연쇄', () => {
     const far = w.spawnEnemy('normal', 140, 200)!;
     near.hp = far.hp = 1;
     freeze(w);
-    w.gauge = 0.3;
     tap(w, 60, 200);
     stepFor(w, 0.5);
     return { w, far };
@@ -89,13 +93,52 @@ describe('연쇄', () => {
     const line = [0, 1, 2, 3, 4].map((i) => w.spawnEnemy('normal', 100 + i * 30, 200)!);
     for (const e of line) e.hp = e.maxHp = 10;
     freeze(w);
-    // 첫 적에게 35 → 넘친 25 → 다음 적 15 → 그다음 5 → 넷째 적은 5만 맞고 산다
-    w.spawnExplosion({ x: 100, y: 200, radius: 5, damage: 35, chainId: w.newChain(), source: 'chain' });
+    // 첫 적에게 35 → 넘친 25 → 다음 적 15 → 그다음 5 → 넷째 적은 5만 맞고 산다 (단계 제한은 넉넉히)
+    w.spawnExplosion({ x: 100, y: 200, radius: 5, damage: 35, chainId: w.newChain(9), source: 'chain' });
     stepFor(w, 1);
     expect(line.slice(0, 3).every((e) => e.dead)).toBe(true);
     expect(line[3].dead).toBe(false);
     expect(line[3].hp).toBeCloseTo(5);
     expect(line[4].hp).toBe(10);
+  });
+
+  it('100% 미만으로 쏘면 연쇄 없음 (폭발형도 안 터짐)', () => {
+    const w = sandbox();
+    const ex = w.spawnEnemy('explosive', 100, 200)!;
+    const far = w.spawnEnemy('normal', 175, 200)!; // 90% 탭(반경 약 56)엔 안 닿고, 폭발형 폭발(약 83)엔 닿는 거리
+    ex.hp = far.hp = 1;
+    freeze(w);
+    w.gauge = 0.9;
+    tap(w, 100, 200);
+    stepFor(w, 0.5);
+    expect(ex.dead).toBe(true);
+    expect(far.dead).toBe(false);
+  });
+
+  /** 폭발형 A 를 쏘면 A 의 폭발이 B 를, B 의 폭발이 C 를 (탭은 A 만 닿음) */
+  function ladder(augments: string[]) {
+    const w = sandbox();
+    for (const a of augments) grant(w, a);
+    const a = w.spawnEnemy('explosive', 100, 200)!;
+    const b = w.spawnEnemy('normal', 180, 200)!;
+    const c = w.spawnEnemy('normal', 220, 200)!;
+    a.hp = b.hp = c.hp = 1;
+    freeze(w);
+    tap(w, 100, 200);
+    stepFor(w, 0.6);
+    return { b, c };
+  }
+
+  it('연쇄 1단계(100%): 탭으로 죽은 적은 터지지만, 그 폭발로 죽은 적은 안 터진다', () => {
+    const { b, c } = ladder(['chain_reaction']);
+    expect(b.dead).toBe(true);
+    expect(c.dead).toBe(false);
+  });
+
+  it('"연쇄 단계" 증강이면 한 단계 더 이어진다', () => {
+    const { b, c } = ladder(['chain_reaction', 'chain_depth']);
+    expect(b.dead).toBe(true);
+    expect(c.dead).toBe(true);
   });
 
   it('넘친 피해가 거의 없으면 일반 적의 연쇄는 바로 끊긴다', () => {

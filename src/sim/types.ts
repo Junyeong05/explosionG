@@ -64,6 +64,8 @@ export interface Explosion {
   crit: boolean;
   /** 가장자리 피해 배율 (1 = 균일) */
   edgeMul: number;
+  /** 연쇄 단계 (0 = 탭·지뢰·번개) */
+  depth: number;
 }
 
 /**
@@ -76,6 +78,8 @@ export interface Chain {
   refs: number;
   /** 이 묶음에서 터진 연쇄 폭발 수. 0 이면 탭(또는 지뢰·번개)이 직접 잡은 것뿐 */
   links: number;
+  /** 이 묶음에서 연쇄가 몇 단계까지 갈 수 있나 (0 = 연쇄 없음) */
+  maxDepth: number;
 }
 
 /** 잔불 같은 지속 피해 지대 */
@@ -90,6 +94,7 @@ export interface Zone {
   tick: number;
   chainId: number;
   source: DamageSource;
+  depth: number;
 }
 
 /** 유폭 지뢰 */
