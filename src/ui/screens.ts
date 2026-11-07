@@ -1,7 +1,7 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
 import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
 import { ENEMIES } from '../data/enemies';
-import { EXPERIMENTS, experimentInfo } from '../data/experiments';
+import { EXPERIMENTS, EXPERIMENT_SETS, experimentInfo } from '../data/experiments';
 import { UPGRADES, type UpgradeId } from '../data/upgrades';
 import { canBuy, isChapterUnlocked, upgradeCost, upgradeLevel } from '../meta/progression';
 import type { SaveData } from '../meta/save';
@@ -88,7 +88,7 @@ export function titleScreen(p: TitleProps): HTMLElement {
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },
-          `실험 규칙 ${EXPERIMENTS.length}개`, h('small', { text: on.length ? on.join(' · ') : '꺼짐 · 골라서 켜기' }));
+          `실험실 · ${EXPERIMENTS.length}개`, h('small', { text: on.length ? on.join(' · ') : '꺼짐 · 골라서 켜기' }));
       })(),
       h('button', { class: 'btn', onClick: p.onEndless }, '엔드리스', h('small', { text: '끝없이' })),
       h('button', { class: 'btn', onClick: p.onDaily }, '일일 도전', h('small', { text: `${p.today} · 영구 강화 미적용` })),
@@ -108,36 +108,54 @@ export function titleScreen(p: TitleProps): HTMLElement {
 export interface ExperimentsProps {
   rules: Partial<Record<RuleId, boolean>>;
   chapterName: string;
+  /** 판 중에 열었나 (돌아가기 = 이어서 하기, ▶ = 이 판을 버리고 새로 시작) */
+  inRun: boolean;
   onToggle(id: RuleId): void;
-  /** 이것만 켜고 바로 시작 */
-  onTryOnly(id: RuleId): void;
+  /** 이것들만 켜고 바로 시작 */
+  onTry(ids: readonly RuleId[]): void;
   onClear(): void;
   onBack(): void;
 }
 
 export function experimentsScreen(p: ExperimentsProps): HTMLElement {
+  const no = (id: RuleId) => experimentInfo(id)?.no ?? 0;
   const row = (x: (typeof EXPERIMENTS)[number]) => {
     const on = !!p.rules[x.id];
     return h('div', { class: `exp${on ? ' on' : ''}` },
       h('button', { class: 'exp-main', onClick: () => p.onToggle(x.id) },
-        h('div', { class: 'exp-name' }, h('span', { class: 'exp-no', text: String(x.no).padStart(2, '0') }), x.name, on ? h('span', { class: 'exp-on', text: 'ON' }) : null),
+        h('div', { class: 'exp-name' },
+          h('span', { class: 'exp-no', text: String(x.no).padStart(2, '0') }), x.name,
+          x.old ? h('span', { class: 'exp-old', text: '지난' }) : null,
+          on ? h('span', { class: 'exp-on', text: 'ON' }) : null),
         h('div', { class: 'exp-desc', text: x.desc }),
       ),
-      h('button', { class: 'exp-try', onClick: () => p.onTryOnly(x.id), ariaLabel: `${x.name}만 켜고 시작`, text: '▶' }),
+      h('button', { class: 'exp-try', onClick: () => p.onTry([x.id]), ariaLabel: `${x.name}만 켜고 시작`, text: '▶' }),
     );
   };
+  const same = (ids: readonly RuleId[]) => EXPERIMENTS.every((x) => !!p.rules[x.id] === ids.includes(x.id));
+  const setRow = (set: (typeof EXPERIMENT_SETS)[number]) =>
+    h('div', { class: `exp set${same(set.rules) ? ' on' : ''}` },
+      h('div', { class: 'exp-main' },
+        h('div', { class: 'exp-name' }, set.name, h('span', { class: 'exp-no', text: set.rules.map((r) => no(r)).join(' + ') })),
+        h('div', { class: 'exp-desc', text: set.pitch }),
+      ),
+      h('button', { class: 'exp-try', onClick: () => p.onTry(set.rules), ariaLabel: `${set.name} 시작`, text: '▶' }),
+    );
   return h('div', { class: 'overlay top' },
     h('div', { class: 'panel' },
-      h('h2', { class: 'heading', text: '실험 규칙' }),
-      h('div', { class: 'rule-desc', text: `눌러서 켜고 끄기 (여러 개 같이 가능). ▶ = 이것만 켜고 ${p.chapterName} 바로 시작` }),
+      h('h2', { class: 'heading', text: '실험실' }),
+      h('div', { class: 'rule-desc', text: `▶ = 그것만 켜고 ${p.chapterName} 바로 시작${p.inRun ? ' (지금 판은 버림)' : ''}. 이름을 누르면 켜고 끄기` }),
       h('div', { class: 'exp-list' },
-        ...EXPERIMENTS.filter((x) => !x.old).map(row),
-        h('div', { class: 'rules-label exp-sep', text: '지난 실험' }),
-        ...EXPERIMENTS.filter((x) => x.old).map(row),
+        h('div', { class: 'rules-label exp-sep', text: '메인 후보 묶음' }),
+        ...EXPERIMENT_SETS.map(setRow),
+        h('div', { class: 'rules-label exp-sep', text: '메인 재료 · 판이나 탭을 바꾸는 것' }),
+        ...EXPERIMENTS.filter((x) => x.core).map(row),
+        h('div', { class: 'rules-label exp-sep', text: '곁들이 기믹' }),
+        ...EXPERIMENTS.filter((x) => !x.core).map(row),
       ),
-      h('div', { class: 'row' },
+      h('div', { class: 'row exp-foot' },
         h('button', { class: 'btn', onClick: p.onClear, text: '모두 끄기' }),
-        h('button', { class: 'btn primary', onClick: p.onBack, text: '돌아가기' }),
+        h('button', { class: 'btn primary', onClick: p.onBack, text: p.inRun ? '이어서 하기' : '돌아가기' }),
       ),
     ),
   );
@@ -226,6 +244,7 @@ export function augmentPicker(p: PickerProps): HTMLElement {
 
 export interface PauseProps {
   onResume(): void;
+  onLab(): void;
   onQuit(): void;
 }
 
@@ -234,6 +253,7 @@ export function pauseScreen(p: PauseProps): HTMLElement {
     h('div', { class: 'panel' },
       h('h2', { class: 'heading', text: '일시정지' }),
       h('button', { class: 'btn primary', onClick: p.onResume, text: '계속' }),
+      h('button', { class: 'btn', onClick: p.onLab }, '실험실', h('small', { text: '다른 실험으로 바로 바꾸기' })),
       h('button', { class: 'btn', onClick: p.onQuit }, '포기', h('small', { text: '지금까지 보상은 받음' })),
     ),
   );
@@ -245,6 +265,7 @@ export interface ResultProps {
   /** 이번 판으로 새로 열린 챕터 이름 */
   unlocked?: string;
   onRetry(): void;
+  onLab(): void;
   onTitle(): void;
 }
 
@@ -272,6 +293,7 @@ export function resultScreen(p: ResultProps): HTMLElement {
       p.unlocked ? h('div', { class: 'center unlocked', text: `${p.unlocked} 열림` }) : null,
       h('div', { class: 'row' },
         h('button', { class: 'btn primary', onClick: p.onRetry, text: '다시' }),
+        h('button', { class: 'btn', onClick: p.onLab, text: '실험실' }),
         h('button', { class: 'btn', onClick: p.onTitle, text: '타이틀' }),
       ),
     ),

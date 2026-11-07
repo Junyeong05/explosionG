@@ -58,6 +58,8 @@ export class App {
     this.speedBtn = h('button', { class: 'speed', ariaLabel: '게임 배속', onClick: () => this.cycleSpeed() });
     this.hud = h('div', { class: 'hud' },
       h('button', { class: 'pause', ariaLabel: '일시정지', text: 'II', onClick: () => this.pause() }),
+      // 판 중에 바로 실험실로 (포기 → 타이틀 → 실험 고르기를 한 번에)
+      h('button', { class: 'lab', ariaLabel: '실험실', text: '실험', onClick: () => this.openLabInRun() }),
       this.speedBtn,
     );
     this.showSpeed();
@@ -185,6 +187,7 @@ export class App {
           this.input.clear();
           this.overlay.clear();
         },
+        onLab: () => this.showExperiments(true),
         onQuit: () => {
           this.paused = false;
           this.overlay.clear();
@@ -210,6 +213,7 @@ export class App {
         totalParts: save.parts,
         unlocked: opened?.name,
         onRetry: () => this.makeConfig && this.startRun(this.makeConfig),
+        onLab: () => this.showExperiments(false),
         onTitle: () => this.showTitle(),
       }),
     );
@@ -228,7 +232,7 @@ export class App {
         save,
         today,
         chapterId: this.chapterId,
-        onExperiments: () => this.showExperiments(),
+        onExperiments: () => this.showExperiments(false),
         onSelectChapter: (id) => {
           this.chapterId = id;
           this.showTitle();
@@ -257,21 +261,34 @@ export class App {
     );
   }
 
-  private showExperiments(): void {
+  /** 판 중 실험 버튼: 멈추고 실험실을 띄운다 (돌아가면 이어서) */
+  private openLabInRun(): void {
+    const w = this.world;
+    if (!w || w.phase === 'ended') return;
+    this.paused = true;
+    this.showExperiments(true);
+  }
+
+  /**
+   * 실험실. inRun 이면 돌아가기 = 이어서 하기, ▶ = 지금 판을 버리고 새로 시작.
+   * 켜고 끄기는 세이브(다음 판)에만 반영된다.
+   */
+  private showExperiments(inRun: boolean): void {
     const save = this.saves.data;
     const rules = save.settings.rules;
     const keep = this.overlayScroll();
     this.overlay.show(
       experimentsScreen({
         rules,
+        inRun,
         chapterName: getChapter(this.chapterId).name,
         onToggle: (id) => {
           toggleExperiment(rules, id);
           this.saves.persist();
-          this.showExperiments();
+          this.showExperiments(inRun);
         },
-        onTryOnly: (id) => {
-          for (const r of RULE_IDS) rules[r] = r === id;
+        onTry: (ids) => {
+          for (const r of RULE_IDS) rules[r] = ids.includes(r);
           this.saves.persist();
           const ch = this.chapterId;
           this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), ch));
@@ -279,9 +296,19 @@ export class App {
         onClear: () => {
           for (const r of RULE_IDS) rules[r] = false;
           this.saves.persist();
-          this.showExperiments();
+          this.showExperiments(inRun);
         },
-        onBack: () => this.showTitle(),
+        onBack: () => {
+          if (!inRun || !this.world || this.world.phase === 'ended') {
+            this.showTitle();
+            return;
+          }
+          this.paused = false;
+          this.input.clear();
+          this.overlay.clear();
+          // 증강 선택 중에 열었으면 선택창을 다시 띄운다
+          this.shownOffer = null;
+        },
       }),
     );
     this.overlayScroll(keep);

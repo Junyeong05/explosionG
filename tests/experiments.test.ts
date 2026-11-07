@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
-import { EXPERIMENTS } from '../src/data/experiments';
+import { EXPERIMENTS, EXPERIMENT_SETS, experimentInfo } from '../src/data/experiments';
 import { defaultSave } from '../src/meta/save';
 import { createRunConfig } from '../src/meta/progression';
 import { Bot } from '../src/sim/bot';
@@ -19,6 +19,20 @@ describe('11-07 실험 묶음', () => {
         w.drainEvents();
       }
       expect(w.kills, x.name).toBeGreaterThan(0);
+    }
+  });
+
+  it('메인 후보 묶음마다 봇이 1분 동안 돌려도 터지지 않고, 묶음 안 규칙끼리 충돌이 없다', () => {
+    for (const set of EXPERIMENT_SETS) {
+      for (const id of set.rules) for (const c of experimentInfo(id)?.conflicts ?? []) expect(set.rules, set.name).not.toContain(c);
+      const rules = Object.fromEntries(set.rules.map((r) => [r, true]));
+      const w = new World({ ...createRunConfig(defaultSave(), 'chapter', 11, 'ch2'), rules });
+      const bot = new Bot({ seed: 11 });
+      for (let i = 0; i < 60 * 60 && w.phase !== 'ended'; i++) {
+        w.step(FIXED_DT, bot.think(w, FIXED_DT));
+        w.drainEvents();
+      }
+      expect(w.kills, set.name).toBeGreaterThan(0);
     }
   });
 

@@ -106,7 +106,7 @@ html, body {
 .rules { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
 .rules-label { color: var(--dim); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; margin-right: 2px; }
 .rule-desc { color: var(--dim); font-size: 11px; line-height: 1.4; text-align: center; }
-.overlay.top { align-items: flex-start; }
+.overlay.top { align-items: flex-start; background: rgba(5, 6, 10, 0.93); }
 .exp-btn small { max-width: 62%; text-align: right; }
 .exp-btn.on { border-color: var(--accent); }
 .exp-btn.on small { color: var(--accent); }
@@ -121,6 +121,27 @@ html, body {
 .exp-try { appearance: none; border: none; border-left: 1px solid var(--line); background: rgba(255, 60, 110, 0.18); color: var(--text); font-size: 14px; width: 46px; cursor: pointer; }
 .exp-try:active, .exp-main:active { filter: brightness(1.4); }
 .exp-sep { margin-top: 8px; text-align: center; }
+.exp-old { color: var(--dim); font-size: 9px; font-weight: 700; border: 1px solid var(--line); padding: 0 4px; }
+.exp.set { border-color: rgba(255, 211, 107, 0.45); background: rgba(40, 32, 16, 0.6); }
+.exp.set .exp-name { color: var(--gold); }
+.exp.set.on { border-color: var(--gold); }
+.exp-foot { position: sticky; bottom: 0; padding-top: 6px; background: linear-gradient(180deg, rgba(5, 6, 10, 0), rgba(5, 6, 10, 0.95) 30%); }
+.hud .lab {
+  position: absolute;
+  left: 2%;
+  bottom: 2.5%;
+  min-width: 44px;
+  height: 30px;
+  padding: 0 8px;
+  pointer-events: auto;
+  border: 1px solid var(--line);
+  background: rgba(14, 16, 26, 0.6);
+  color: var(--dim);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
 .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .link { background: none; border: none; padding: 0; color: var(--dim); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .ver { font-size: 10px; color: #4a4f63; }

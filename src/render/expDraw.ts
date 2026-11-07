@@ -393,7 +393,7 @@ export class ExpDraw {
       ctx.fillStyle = c0;
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(gx - 48, gy + 4, 4.5, 0, TAU);
+      ctx.arc(gx - 40, gy - 13, 4.5, 0, TAU);
       ctx.fillStyle = rgba(c1, 0.7);
       ctx.fill();
       ctx.font = `700 8px ${FONT}`;
