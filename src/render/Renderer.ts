@@ -726,7 +726,8 @@ export class Renderer {
     }
 
     this.hudTime += dt;
-    this.drawGauge(w);
+    // 도파민 모드에서 폭탄 탭이 없으면 게이지가 의미 없다
+    if (!w.chaos || w.chaos.hasBomb) this.drawGauge(w);
   }
 
   /** mult = 0 이면 연쇄 없이 탭이 직접 잡은 것 → "KILLS" */

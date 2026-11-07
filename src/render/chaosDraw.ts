@@ -1,5 +1,5 @@
 import { BALANCE } from '../data/balance';
-import { INSTALL_EMOJI, chaosEvent, type ChaosEventId } from '../data/chaos';
+import { ARMS, chaosEvent, type ChaosEventId } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import type { Actor } from '../sim/chaos';
 import type { SimEvent } from '../sim/events';
@@ -149,17 +149,13 @@ export class ChaosDraw {
       ctx.drawImage(this.glow.get(COLORS.gold), s.x - 18, s.y - 18 + bob, 36, 36);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-      this.icon(INSTALL_EMOJI[s.id], s.x, s.y + bob, 24);
+      this.icon(ARMS[s.id].emoji, s.x, s.y + bob, 24);
       for (let i = 0; i < s.stacks; i++) {
         ctx.beginPath();
         ctx.arc(s.x - 6 + i * 6, s.y + 15, 2, 0, TAU);
         ctx.fillStyle = COLORS.gold;
         ctx.fill();
       }
-    }
-    if (w.augments.stacks('chaos_cannon') > 0) {
-      this.cannon(14, 430, 1);
-      this.cannon(FW - 14, 430, -1);
     }
     const g = c.gate;
     if (g) {
@@ -361,6 +357,17 @@ export class ChaosDraw {
         ctx.fillText('TAP!', a.x, a.y + 28);
         break;
       }
+      case 'frost': {
+        const f = 1 - k;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.n * (0.6 + 0.4 * k), 0, TAU);
+        ctx.fillStyle = rgba('#9fe8ff', 0.25 * f);
+        ctx.fill();
+        ctx.strokeStyle = rgba('#e8fbff', 0.8 * f);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
       case 'laser': {
         const f = 1 - k;
         ctx.globalCompositeOperation = 'lighter';
@@ -406,11 +413,46 @@ export class ChaosDraw {
     };
     if (c.frenzy > 0) bar('FRENZY 피해 ×3', c.frenzy, BALANCE.chaos.frenzySec, COLORS.gold);
     if (c.clickFrenzy > 0) bar('CLICK FRENZY 게이지 무한', c.clickFrenzy, BALANCE.chaos.clickFrenzySec, COLORS.charge);
-    // 다음 난입까지 (오른쪽 위 작은 글씨)
-    ctx.font = `700 9px ${FONT}`;
-    ctx.textAlign = 'right';
-    ctx.fillStyle = COLORS.dim;
-    ctx.fillText(`다음 난입 ${Math.max(0, c.eventTimer).toFixed(0)}s · 열기 ${Math.round(c.heat)}/${BALANCE.chaos.feverThreshold}`, FW - 12, 62);
+    // 가진 무기: 오른쪽 위에 아이콘 + 레벨 + 쿨다운 (강화는 작게 그 아래)
+    let ix = FW - 18;
+    for (const id of c.owned()) {
+      const info = ARMS[id];
+      if (info.cat === 'passive') continue;
+      const L = w.augments.stacks(id);
+      const cd = c.cooldowns.get(id) ?? 0;
+      const ready = 1 - clamp(cd / Math.max(0.01, c.cooldownOf(id)), 0, 1);
+      ctx.beginPath();
+      ctx.arc(ix, 66, 11, -Math.PI / 2, -Math.PI / 2 + TAU * ready);
+      ctx.strokeStyle = rgba(info.cat === 'hand' ? COLORS.charge : info.cat === 'magic' ? '#c77dff' : COLORS.gold, 0.8);
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      this.icon(info.emoji, ix, 66, 15);
+      ctx.font = `900 8px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = COLORS.text;
+      ctx.fillText(String(L), ix + 8, 78);
+      ix -= 26;
+    }
+    let px = FW - 16;
+    for (const id of c.owned('passive')) {
+      this.icon(ARMS[id].emoji, px, 92, 11);
+      ctx.font = `900 7px ${FONT}`;
+      ctx.fillStyle = COLORS.dim;
+      ctx.fillText(String(w.augments.stacks(id)), px + 7, 99);
+      px -= 18;
+    }
+    // 손공격이 없으면 탭이 아무 일도 안 한다는 안내 (게이지 자리)
+    if (c.owned('hand').length === 0 && w.phase === 'playing') {
+      ctx.font = `800 10px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = COLORS.dim;
+      ctx.fillText('손공격 없음 · 레벨 업에서 얻으면 탭으로 싸운다', FW / 2, 600);
+    } else if (!c.hasBomb && w.phase === 'playing') {
+      ctx.font = `800 10px ${FONT}`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = COLORS.charge;
+      ctx.fillText(`탭: ${c.owned('hand').map((id) => ARMS[id].emoji).join(' ')}`, FW / 2, 600);
+    }
 
     for (let i = 0; i < this.banners.length; i++) {
       const b = this.banners[i];

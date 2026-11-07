@@ -58,6 +58,8 @@ export interface AugmentDef {
   evolution?: { requires: string[]; replaces: string[] };
   /** 고를 증강이 바닥났을 때만 나오는 대체 선택지 */
   fallback?: boolean;
+  /** 카드에 갈래 대신 보일 꼬리표 (도파민 모드 무기: 손공격·포탑·소환수·마법·강화) */
+  tag?: string;
 }
 
 // ─────────────────────────────────────────────────────────────

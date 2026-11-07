@@ -17,6 +17,7 @@ const OFFER_TITLE: Record<Offer['kind'], string> = {
   level: '레벨 업',
   boss: '보스 처치 보상',
   start: '선행 증강',
+  starter: '시작 무기 고르기',
 };
 
 const RESULT_TITLE = {
@@ -87,7 +88,7 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
-      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: `${selected.name} · 공룡·UFO·운석이 난입하고 설치물이 깔린다` })),
+      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: `${selected.name} · 무기 하나로 시작해서 하나씩 늘려 간다` })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },
@@ -224,11 +225,11 @@ export function augmentPicker(p: PickerProps): HTMLElement {
         ...p.offer.choices.map((id, i) => {
           const def = getAugment(id);
           const n = p.stacks(id);
-          const tags = def.archetypes.map((a) => ARCHETYPE_LABEL[a]).join(' · ');
+          const tags = def.tag ?? def.archetypes.map((a) => ARCHETYPE_LABEL[a]).join(' · ');
           const level = def.fallback ? '' : n === 0 ? 'NEW' : `Lv ${n} → ${n + 1}`;
           return h('button', { class: 'card', dataset: { rarity: def.rarity }, onClick: () => pick(i) },
             h('div', { class: 'meta' },
-              h('span', { text: `${def.evolution ? '진화 · ' : ''}${RARITY_LABEL[def.rarity]}${tags ? ` · ${tags}` : ''}` }),
+              h('span', { text: def.tag ? def.tag : `${def.evolution ? '진화 · ' : ''}${RARITY_LABEL[def.rarity]}${tags ? ` · ${tags}` : ''}` }),
               h('span', { text: level }),
             ),
             h('div', { class: 'name', text: def.name }),

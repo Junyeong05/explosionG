@@ -170,7 +170,7 @@ export type Command =
 
 export type RunMode = 'chapter' | 'endless';
 export type RunResult = 'victory' | 'defeat' | 'quit';
-export type OfferKind = 'level' | 'boss' | 'start';
+export type OfferKind = 'level' | 'boss' | 'start' | 'starter';
 export type Phase = 'playing' | 'choosing' | 'ended';
 
 /**

@@ -190,18 +190,21 @@ export const BALANCE = {
      * 처음부터 ×4~5 로 두면 설치물이 깔리기 전 초반에 봇이 25% 만 깼다 (판마다 들쭉날쭉).
      * 초반엔 한 방에 쓸리고, 설치물이 쌓이는 후반에 단단해지게.
      */
-    enemyHpMul: 1.5,
-    enemyHpPerWave: 0.28,
-    /** ⚠ 무리가 이 배 간격으로 내려온다 (작을수록 더 많이) */
-    packIntervalMul: 0.6,
-    /** 첫 난입까지 (초). 8초·20초 간격은 첫 1분에 난입이 두 번뿐이라 심심했다. 난입 간격 = max(min, base - perWave × (웨이브-1)) / (1 + 네잎클로버 0.3 × 중첩) */
-    firstEventSec: 4,
-    intervalBase: 14,
-    intervalPerWave: 0.7,
-    intervalMin: 5,
-    /** 이 웨이브부터 가끔 두 개가 한꺼번에 */
-    doubleFromWave: 9,
-    doubleChance: 0.35,
+    enemyHpMul: 1,
+    enemyHpPerWave: 0.32,
+    /**
+     * ⚠ 무리 간격 배율 = max(packIntervalMin, 1 - packIntervalPerWave × (웨이브-1)) (작을수록 더 많이).
+     * 시작 무기 하나뿐인 초반은 일반 판과 같게, 무기가 쌓이는 후반엔 빽빽하게.
+     * 처음부터 ×0.6·체력 ×1.5 였더니 기관총으로 시작한 판이 42초 만에 무너졌다.
+     */
+    packIntervalMul: 1,
+    packIntervalPerWave: 0.035,
+    packIntervalMin: 0.55,
+    /** 경험치 배율 (무기 6개 × 5레벨 + 강화를 판 안에 다 채우려면 레벨 업이 잦아야 한다) */
+    xpMul: 1.6,
+    /** 황금 쿠키: 이 웨이브부터, 이 간격 (행운 강화로 빨라짐) */
+    cookieFromWave: 3,
+    cookieEverySec: 40,
     /** 동시에 있는 난입 물체 상한 (게이트 곱하기로 폭주하지 않게) */
     maxActors: 140,
     /** 피버: 처치마다 열기 +1, 열기는 heatHalfSec 마다 반으로. threshold 넘으면 feverSec 동안 피버 */

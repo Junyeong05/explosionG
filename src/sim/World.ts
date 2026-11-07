@@ -4,7 +4,6 @@ import { getChapter, type ChapterDef } from '../data/chapters';
 import type { EnemyDef, EnemyKind } from '../data/enemies';
 import { getEnemyDef } from '../data/lookup';
 import { AUGMENTS } from '../data/augments';
-import { CHAOS_AUGMENTS } from '../data/chaos';
 import { clamp, dist2 } from '../core/math';
 import { Rng, deriveSeed } from '../core/rng';
 import { SpatialGrid } from '../core/spatial';
@@ -137,8 +136,7 @@ export class World implements SimApi {
     this.chapter = getChapter(config.chapterId);
     this.rng = new Rng(deriveSeed(config.seed, 'combat'));
     this.spawnRng = new Rng(deriveSeed(config.seed, 'spawn'));
-    // 도파민 모드면 설치물 증강도 선택지에 섞인다
-    this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')), config.rules?.chaos ? [...AUGMENTS, ...CHAOS_AUGMENTS] : AUGMENTS);
+    this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')), AUGMENTS);
     this.recordEvents = config.recordEvents ?? true;
     this.rules = config.rules ?? {};
     this.exp = new Experiments(this, this.rules);
@@ -151,6 +149,8 @@ export class World implements SimApi {
     this.life = this.stats.maxLife;
     this.gauge = Math.min(1, this.stats.gaugeMax);
     this.rerollsLeft = config.meta.rerolls;
+    // 도파민 모드: 시작 무기부터 고른다 (선행 증강은 그다음)
+    if (this.chaos) this.offerQueue.push('starter');
     for (let i = 0; i < config.meta.headStartPicks; i++) this.offerQueue.push('start');
     this.spawnTimer = packInterval(1) - FIRST_PACK_SEC;
   }
@@ -251,8 +251,13 @@ export class World implements SimApi {
   private onPress(px: number, py: number): void {
     const x = clamp(px, 0, this.field.width);
     const y = clamp(py, 0, this.field.height);
-    // 도파민 모드: 황금 쿠키를 누른 탭은 쿠키만 먹는다
-    if (this.chaos?.tryPickup(x, y)) return;
+    // 도파민 모드: 황금 쿠키를 누른 탭은 쿠키만 먹는다. 손공격 무기는 탭한 자리에서 나가고,
+    // 폭탄 탭이 없으면 탭은 거기서 끝 (포탑·소환수로 시작한 판)
+    if (this.chaos) {
+      if (this.chaos.tryPickup(x, y)) return;
+      this.chaos.onTap(x, y);
+      if (!this.chaos.hasBomb) return;
+    }
     // 과충전 규칙: 100% 가 찬 상태에서 누르면 바로 쏘지 않고 과충전을 시작한다 (떼면 쏨)
     const free = this.stats.freeTapDuringChain && this.explosions.length > 0;
     const startsCharge = this.gauge >= 1 || this.exp.pressStartsCharge();
@@ -323,9 +328,8 @@ export class World implements SimApi {
   private openNextOffer(): void {
     while (this.offerQueue.length > 0) {
       const kind = this.offerQueue.shift()!;
-      const choices = this.augments.roll(kind, this.level);
+      const choices = this.chaos ? this.chaos.roll(kind) : this.augments.roll(kind, this.level);
       if (choices.length === 0) continue;
-      if (this.chaos) this.ensureInstallChoice(choices);
       this.offer = { kind, choices };
       this.phase = 'choosing';
       this.offerWait = 0;
@@ -338,14 +342,6 @@ export class World implements SimApi {
       return;
     }
     this.offerWait = 0;
-  }
-
-  /** 도파민 모드: 선택지에 설치물이 하나도 없으면 마지막 칸을 설치물로 바꾼다 (판 후반에 다 깔리게) */
-  private ensureInstallChoice(choices: string[]): void {
-    if (choices.some((id) => id.startsWith('chaos_'))) return;
-    const pool = CHAOS_AUGMENTS.filter((d) => this.augments.isAvailable(d) && !choices.includes(d.id));
-    if (pool.length === 0) return;
-    choices[choices.length - 1] = this.rng.pick(pool).id;
   }
 
   private choose(index: number): void {
@@ -361,7 +357,7 @@ export class World implements SimApi {
   private reroll(): void {
     if (!this.offer || this.rerollsLeft <= 0) return;
     this.rerollsLeft--;
-    this.offer = { kind: this.offer.kind, choices: this.augments.roll(this.offer.kind, this.level) };
+    this.offer = { kind: this.offer.kind, choices: this.chaos ? this.chaos.roll(this.offer.kind) : this.augments.roll(this.offer.kind, this.level) };
   }
 
   private recomputeStats(): void {
@@ -543,7 +539,9 @@ export class World implements SimApi {
     }
 
     this.spawnTimer += dt;
-    const interval = packInterval(this.wave) * (this.rules.chaos ? BALANCE.chaos.packIntervalMul : 1);
+    const C = BALANCE.chaos;
+    const chaosPack = Math.max(C.packIntervalMin, C.packIntervalMul - C.packIntervalPerWave * (this.wave - 1));
+    const interval = packInterval(this.wave) * (this.rules.chaos ? chaosPack : 1);
     while (this.spawnTimer >= interval) {
       // 화면 안 적 상한: 무리가 다 들어갈 자리가 없으면 자리가 날 때까지 미룬다
       if (this.enemies.length + BALANCE.wave.packSizeMax + 1 > BALANCE.limits.maxEnemies) {
@@ -997,7 +995,7 @@ export class World implements SimApi {
   }
 
   private gainXp(amount: number): void {
-    this.xp += amount;
+    this.xp += amount * (this.chaos?.xpMul() ?? 1);
     let need = xpToNext(this.level);
     while (this.xp >= need) {
       this.xp -= need;

@@ -57,8 +57,9 @@
 11-07 묶음(21개)은 `sim/exp.ts` 의 `Experiments` 한 곳에 모았다. World 는 정해진 자리에서 훅만 부른다:
 `timeScale`(적·웨이브·지속 피해 시간 배율) · `onSpawn`/`placePack`(색·황금·코어 방향) · `onFire`/`afterFire`(탭 한 발 `Shot` 을 고치거나 지뢰·씨앗으로 바꿈) ·
 `collectRow`/`onDetonate`(가로 띠, 씨앗 유폭) · `modifyDamage`/`afterHit`(색·얼음 배율, 밀어내기·풍선·불) · `deathBlast`/`onKill`(얼음 깨짐·익는 폭발형·불덩이·황금) · `update`(불·자석·불덩이·바람·박자).
-도파민 모드(`rules.chaos`)는 `sim/chaos.ts` 의 `Chaos`: 난입·설치물 효과를 물체(`Actor`) 목록으로 움직이고, 피해는 연쇄 단계 1짜리 폭발로 준다.
-설치물은 `data/chaos.ts` 의 `CHAOS_AUGMENTS`(도파민 모드일 때만 증강 풀에 섞임)이고 효과는 보유 중첩 수를 보고 `Chaos.updateInstalls` 가 돌린다. 그리기는 `render/chaosDraw.ts`(이모지를 캔버스에 한 번 그려 캐시).
+도파민 모드(`rules.chaos`)는 `sim/chaos.ts` 의 `Chaos`: 카테고리 무기고. 무기 = `data/chaos.ts` 의 `ARSENAL` 증강(중첩 = 레벨)이고,
+레벨 업 선택지는 `Chaos.roll` 이 만든다(시작 무기 `starter` 선택지 포함). 손공격은 `onTap`, 나머지는 `updateWeapons` 가 쿨다운마다 쓴다.
+효과는 물체(`Actor`) 목록으로 움직이고 피해는 연쇄 단계 1짜리 폭발로 준다. 그리기는 `render/chaosDraw.ts`(이모지 캐시).
 폭발의 모양·색 같은 꼬리표는 `Explosion.tag`, 연쇄 전체로 따라가는 것(색·밀어내기)은 `Chain.tag`. 그리기는 `render/expDraw.ts`.
 
 - **과충전** (기본 규칙, `overchargeOn` 이 항상 참. `rules.overcharge` 는 옛 세이브 호환용): 게이지 상한 150%. 100% 에서 누르면 `World.charging` 이 되고, 누르고 있는 동안만 넘어서 찬다
