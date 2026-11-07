@@ -26,12 +26,22 @@ describe('증강 선택지', () => {
     }
   });
 
-  it('등급 비율은 대략 60:30:10', () => {
+  it('에픽은 epicFromLevel 전 레벨업 선택지에 안 나온다', () => {
+    const m = new AugmentManager(new Rng(7));
+    for (let i = 0; i < 500; i++) {
+      for (const id of m.roll('level', BALANCE.augment.epicFromLevel - 1)) expect(getAugment(id).rarity).not.toBe('epic');
+    }
+    let epics = 0;
+    for (let i = 0; i < 500; i++) epics += m.roll('level', BALANCE.augment.epicFromLevel).filter((id) => getAugment(id).rarity === 'epic').length;
+    expect(epics).toBeGreaterThan(0);
+  });
+
+  it('등급 비율은 대략 75:21:4', () => {
     const m = new AugmentManager(new Rng(3));
     const count = { normal: 0, rare: 0, epic: 0, prism: 0 };
     for (let i = 0; i < 3000; i++) count[getAugment(m.roll('level')[0]).rarity]++;
-    expect(count.normal / 3000).toBeGreaterThan(0.5);
-    expect(count.epic / 3000).toBeLessThan(0.18);
+    expect(count.normal / 3000).toBeGreaterThan(0.65);
+    expect(count.epic / 3000).toBeLessThan(0.08);
   });
 
   it('진화: 조건을 갖추면 75% 근처로 등장, 얻으면 재료 하나가 대체됨', () => {

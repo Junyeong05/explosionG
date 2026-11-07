@@ -54,13 +54,15 @@ export class AugmentManager {
    * 선택지 뽑기.
    *  - 보스 보상: 프리즘 1개 보장 (판당 최대 1개를 아직 안 채웠으면)
    *  - 진화 조건 충족 시 75% 확률로 진화 1개
-   *  - 나머지: 노말 60 : 레어 30 : 에픽 10
+   *  - 나머지: 노말 : 레어 : 에픽 = BALANCE.augment.rarityWeights (에픽은 epicFromLevel 부터, 보스 보상은 예외)
    *  - 그래도 모자라면 대체 선택지(응급 수리)
    */
-  roll(kind: OfferKind): string[] {
+  /** level = 지금 레벨 (에픽 해금 판정). 없으면 제한 없음 */
+  roll(kind: OfferKind, level = Number.POSITIVE_INFINITY): string[] {
     const A = BALANCE.augment;
     const n = A.offerCount;
-    const avail = this.pool.filter((d) => this.isAvailable(d));
+    const epicOk = kind === 'boss' || level >= A.epicFromLevel;
+    const avail = this.pool.filter((d) => this.isAvailable(d) && (epicOk || d.rarity !== 'epic' || !!d.evolution));
     const out: AugmentDef[] = [];
 
     if (kind === 'boss') {

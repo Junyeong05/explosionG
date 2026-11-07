@@ -277,7 +277,7 @@ export class World implements SimApi {
   private openNextOffer(): void {
     while (this.offerQueue.length > 0) {
       const kind = this.offerQueue.shift()!;
-      const choices = this.augments.roll(kind);
+      const choices = this.augments.roll(kind, this.level);
       if (choices.length === 0) continue;
       this.offer = { kind, choices };
       this.phase = 'choosing';
@@ -306,7 +306,7 @@ export class World implements SimApi {
   private reroll(): void {
     if (!this.offer || this.rerollsLeft <= 0) return;
     this.rerollsLeft--;
-    this.offer = { kind: this.offer.kind, choices: this.augments.roll(this.offer.kind) };
+    this.offer = { kind: this.offer.kind, choices: this.augments.roll(this.offer.kind, this.level) };
   }
 
   private recomputeStats(): void {
