@@ -233,7 +233,7 @@ export function augmentPicker(p: PickerProps): HTMLElement {
               h('span', { text: level }),
             ),
             h('div', { class: 'name', text: def.name }),
-            h('div', { class: 'desc', text: def.desc }),
+            h('div', { class: 'desc', text: n > 0 && def.levelDesc ? def.levelDesc(n + 1) : def.desc }),
           );
         }),
       ),

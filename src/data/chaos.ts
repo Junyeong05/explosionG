@@ -1,4 +1,5 @@
 import type { AugmentDef } from './augments';
+import { UP, type UpKey, type UpStep } from './chaosUp';
 
 /**
  * 도파민 모드: 카테고리 무기고 (docs/design/dopamine-catalog.md).
@@ -176,10 +177,38 @@ export interface WeaponSpec {
   cd: number;
   starter?: boolean;
   p: WeaponParams;
+  /** 레벨 업 효과 (Lv2, 3, 4, 5). data/chaosUp.ts */
+  up: UpStep[];
 }
 
 const W = (cat: ArmCategory, id: string, emoji: string, name: string, kind: WeaponKind, cd: number, p: WeaponParams, desc: string, starter = false): WeaponSpec =>
-  ({ id: `arm_${id}`, cat, emoji, name, kind, cd, p, desc, starter });
+  ({ id: `arm_${id}`, cat, emoji, name, kind, cd, p, desc, starter, up: UP[id] ?? [] });
+
+/** 사거리가 있는 갈래 (플레이 피드백: 총·대포 같은 것만 제한, 소환수·폭격·잭팟은 화면 어디든) */
+export function hasRange(cat: ArmCategory): boolean {
+  return cat === 'gun' || cat === 'turret';
+}
+
+/** 수치가 비어 있을 때 레벨 업 효과를 더하는 기준값 (한 번에 1발, 사거리 기본값 등) */
+const UP_BASE: Partial<Record<UpKey, number>> = { count: 1, burst: 1, range: DEFAULT_RANGE, speed: 100 };
+
+/** 레벨 L 일 때 실제 수치: 기본 p 에 Lv2~L 효과를 쌓은 것 + 피해·쿨다운 배율 */
+export function effective(spec: WeaponSpec, L: number): { p: WeaponParams; dmg: number; cd: number } {
+  const p = { ...spec.p } as WeaponParams & Record<string, number | undefined>;
+  let dmg = 1;
+  let cd = 1;
+  for (let i = 0; i < Math.min(L - 1, spec.up.length); i++) {
+    for (const [k, v] of Object.entries(spec.up[i].d) as [UpKey, number][]) {
+      if (k === 'dmg') dmg *= 1 + v;
+      else if (k === 'cd') cd *= v;
+      else {
+        const cur = (p[k] as number | undefined) ?? UP_BASE[k] ?? 0;
+        p[k] = k === 'spread' || k === 'speed' ? cur * v : cur + v;
+      }
+    }
+  }
+  return { p, dmg, cd };
+}
 
 export const WEAPONS: readonly WeaponSpec[] = [
   // ── 손공격: 탭한 자리에서 (사거리 없음) ──────────────────────
@@ -325,7 +354,8 @@ export function armInfo(id: string): WeaponSpec | undefined {
 export const ARSENAL: readonly AugmentDef[] = WEAPONS.map((w) => ({
   id: w.id,
   name: `${w.emoji} ${w.name}`,
-  desc: w.p.range ? `${w.desc} · 사거리 ${w.p.range}` : w.desc,
+  desc: hasRange(w.cat) ? `${w.desc} · 사거리 ${w.p.range ?? DEFAULT_RANGE}` : w.desc,
+  levelDesc: w.up.length ? (next: number) => `레벨 업: ${w.up[next - 2]?.label ?? ''}` : undefined,
   rarity: 'normal' as const,
   archetypes: [],
   maxStacks: MAX_LEVEL,

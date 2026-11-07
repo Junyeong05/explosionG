@@ -60,6 +60,8 @@ export interface AugmentDef {
   fallback?: boolean;
   /** 카드에 갈래 대신 보일 꼬리표 (도파민 모드 무기: 손공격·포탑·소환수·마법·강화) */
   tag?: string;
+  /** 이미 가진 증강의 레벨 업 카드에 보일 설명 (next = 오를 레벨). 없으면 desc */
+  levelDesc?(next: number): string;
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
-import { ARMS, ARSENAL, MAX_LEVEL, WEAPON_SLOTS } from '../src/data/chaos';
+import { ARMS, ARSENAL, MAX_LEVEL, WEAPON_SLOTS, WEAPONS, effective } from '../src/data/chaos';
 import { defaultSave } from '../src/meta/save';
 import { createRunConfig } from '../src/meta/progression';
 import { Bot } from '../src/sim/bot';
@@ -91,6 +91,35 @@ describe('도파민 모드: 카테고리 무기고', () => {
     far.y = 420;
     stepFor(w, 3);
     expect(far.dead || far.hp < far.maxHp).toBe(true);
+  });
+
+  it('무기마다 레벨 업 효과가 다르다 (산탄총은 산탄, 저격총은 관통, 병사는 마릿수, 로켓은 연발)', () => {
+    expect(effective(ARMS.arm_shotgun, 2).p.count).toBe(9);
+    expect(effective(ARMS.arm_shotgun, 4).p.count).toBe(12);
+    expect(effective(ARMS.arm_sniper, 2).p.pierce).toBe(3);
+    expect(effective(ARMS.arm_soldier, 5).p.count).toBe(4);
+    expect(effective(ARMS.arm_rocket, 4).p.burst).toBe(2);
+    expect(effective(ARMS.arm_minigun, 2).cd).toBeLessThan(1);
+    expect(effective(ARMS.arm_pistol, 1)).toEqual({ p: ARMS.arm_pistol.p, dmg: 1, cd: 1 });
+    // 강화 말고는 전부 Lv2~5 효과 네 개, 카드에 다음 레벨 효과가 보인다
+    for (const wpn of WEAPONS) {
+      if (wpn.cat === 'passive') continue;
+      expect(wpn.up, wpn.name).toHaveLength(4);
+    }
+    const shotgunCard = ARSENAL.find((d) => d.id === 'arm_shotgun')!;
+    expect(shotgunCard.levelDesc?.(2)).toBe('레벨 업: 산탄 +2');
+  });
+
+  it('소환수·마법은 사거리 없이 화면 어디든 간다 (총·포탑만 사거리)', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    const far = w.spawnEnemy('normal', 180, 80)!;
+    far.hp = far.maxHp = 1e6;
+    freeze(w);
+    w.augments.acquire('arm_meteor', w);
+    w.augments.acquire('arm_cat', w);
+    stepFor(w, 6);
+    expect(far.hp).toBeLessThan(far.maxHp);
   });
 
   it('황금 쿠키를 누르면 그 탭은 쏘지 않고 버프를 받는다', () => {

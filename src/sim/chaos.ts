@@ -1,7 +1,7 @@
 import { BALANCE } from '../data/balance';
 import { AUGMENTS, FALLBACK_AUGMENTS } from '../data/augments';
 import {
-  ARMS, ARSENAL, DEFAULT_RANGE, MAX_LEVEL, PASSIVE_SLOTS, WEAPON_SLOTS,
+  ARMS, ARSENAL, DEFAULT_RANGE, MAX_LEVEL, PASSIVE_SLOTS, WEAPON_SLOTS, effective, hasRange,
   type ArmCategory, type ChaosEventId, type WeaponParams, type WeaponSpec,
 } from '../data/chaos';
 import { clamp, dist2 } from '../core/math';
@@ -124,9 +124,14 @@ export class Chaos {
     return this.lv('arm_bomb') > 0;
   }
 
-  /** 무기 레벨 피해 배율 (+소환술) */
+  /** 지금 레벨의 실제 수치 (기본값 + 무기별 레벨 업 효과, data/chaosUp.ts) */
+  eff(spec: WeaponSpec): { p: WeaponParams; dmg: number; cd: number } {
+    return effective(spec, Math.max(1, this.lv(spec.id)));
+  }
+
+  /** 무기 피해 배율: 레벨 업 효과 + 소환술 */
   private dmgMul(spec: WeaponSpec): number {
-    let m = 1 + 0.25 * (this.lv(spec.id) - 1);
+    let m = this.eff(spec).dmg;
     if (spec.cat === 'summon') m *= 1 + 0.2 * this.lv('arm_summoner');
     return m;
   }
@@ -138,15 +143,16 @@ export class Chaos {
 
   cooldownOf(id: string): number {
     const spec = ARMS[id];
-    const L = this.lv(id);
-    let cd = spec.cd * (1 - 0.1 * (L - 1)) * Math.max(0.5, 1 - 0.08 * this.lv('arm_haste'));
+    let cd = spec.cd * this.eff(spec).cd * Math.max(0.5, 1 - 0.08 * this.lv('arm_haste'));
     if (spec.kind === 'gun' || spec.kind === 'beam') cd *= Math.max(0.5, 1 - 0.08 * this.lv('arm_gunsmith'));
     if (spec.cat === 'magic') cd *= Math.max(0.5, 1 - 0.08 * this.lv('arm_archmage'));
     return cd;
   }
 
+  /** 사거리: 총·포탑만 (소환수·마법은 화면 전체, 플레이 피드백) */
   rangeOf(spec: WeaponSpec): number {
-    return (spec.p.range ?? DEFAULT_RANGE) * (1 + 0.12 * this.lv('arm_range'));
+    if (!hasRange(spec.cat)) return this.LINE - 50;
+    return (this.eff(spec).p.range ?? DEFAULT_RANGE) * (1 + 0.12 * this.lv('arm_range'));
   }
 
   /** 가진 무기 (카테고리별) */
@@ -175,16 +181,25 @@ export class Chaos {
     }
     const weapons = this.owned().filter((id) => ARMS[id].cat !== 'passive');
     const passives = this.owned('passive');
-    const cand: { id: string; wt: number }[] = [];
+    // 무기 종류가 100개가 넘어서 한 장씩 같은 무게로 섞으면 가진 무기 레벨 업이 거의 안 나왔다.
+    // 그래서 갈래별 전체 무게를 정해 두고 나눠 준다: 레벨 업 1장당 1, 새 무기 전체 max(2, 0.25 × 가진 무기 수),
+    // 새 강화 전체 0.8 (보스 보상은 새 마법을 더 자주).
+    const ups: string[] = [];
+    const newWeapons: string[] = [];
+    const newPassives: string[] = [];
     for (const d of ARSENAL) {
       const L = this.lv(d.id);
-      const info = ARMS[d.id];
       if (L >= MAX_LEVEL) continue;
-      if (L > 0) cand.push({ id: d.id, wt: 1 });
-      else if (info.cat === 'passive') {
-        if (passives.length < PASSIVE_SLOTS) cand.push({ id: d.id, wt: 0.2 });
-      } else if (weapons.length < WEAPON_SLOTS) cand.push({ id: d.id, wt: kind === 'boss' && info.cat === 'magic' ? 0.8 : 0.12 });
+      if (L > 0) ups.push(d.id);
+      else if (ARMS[d.id].cat === 'passive') {
+        if (passives.length < PASSIVE_SLOTS) newPassives.push(d.id);
+      } else if (weapons.length < WEAPON_SLOTS) newWeapons.push(d.id);
     }
+    const cand: { id: string; wt: number }[] = [];
+    for (const id of ups) cand.push({ id, wt: 1 });
+    const newTotal = Math.max(2, 0.25 * weapons.length);
+    for (const id of newWeapons) cand.push({ id, wt: (newTotal / newWeapons.length) * (kind === 'boss' && ARMS[id].cat === 'magic' ? 4 : 1) });
+    for (const id of newPassives) cand.push({ id, wt: 0.8 / newPassives.length });
     if (this.hasBomb) {
       for (const d of AUGMENTS) if (d.rarity !== 'prism' && !d.evolution && this.w.augments.isAvailable(d)) cand.push({ id: d.id, wt: 0.05 });
     }
@@ -233,15 +248,14 @@ export class Chaos {
       if (spec.kind === 'bomb' || (this.cooldowns.get(id) ?? 0) > 0) continue;
       this.cooldowns.set(id, this.cooldownOf(id));
       any = true;
-      const L = this.lv(id);
-      const p = spec.p;
+      const p = this.eff(spec).p;
       const D = this.D * this.dmgMul(spec) * (this.frenzy > 0 ? BALANCE.chaos.frenzyDamage : 1) * (this.fever > 0 ? BALANCE.chaos.feverDamage : 1);
       this.curMul = D / this.D;
       switch (spec.kind) {
         case 'tapZap': {
           const near = w.enemiesNear(x, y, p.radius ?? 110).sort((a, b) => dist2(a.x, a.y, x, y) - dist2(b.x, b.y, x, y));
           const chainId = w.newChain(1);
-          for (const e of near.slice(0, (p.count ?? 3) + Math.floor(L / 2) + this.extra)) {
+          for (const e of near.slice(0, (p.count ?? 3) + this.extra)) {
             e.spark = true;
             w.emit({ type: 'bolt', kind: 'lightning', x1: x, y1: y, x2: e.x, y2: e.y });
             w.spawnExplosion({ x: e.x, y: e.y, radius: 18, damage: (p.dmg ?? 2) * D, chainId, source: 'lightning' });
@@ -249,18 +263,18 @@ export class Chaos {
           break;
         }
         case 'tapMine': {
-          const max = (p.count ?? 4) - 1 + L;
+          const max = p.count ?? 4;
           const own = w.mines.filter((m) => m.depth !== undefined);
           if (own.length >= max) w.mines.splice(w.mines.indexOf(own[0]), 1);
-          w.addMine({ x, y, radius: (p.radius ?? 48) + 3 * L, damage: (p.dmg ?? 3) * D, ttl: 15, depth: 1 });
+          w.addMine({ x, y, radius: (p.radius ?? 48) * this.areaMul, damage: (p.dmg ?? 3) * D, ttl: 15, depth: 1 });
           break;
         }
         case 'tapSlash':
-          w.spawnExplosion({ x, y, radius: (p.width ?? 12) + 3 * L, damage: (p.dmg ?? 2.5) * D, chainId: w.newChain(1), source: 'tap', tag: { row: true } });
+          w.spawnExplosion({ x, y, radius: p.width ?? 12, damage: (p.dmg ?? 2.5) * D, chainId: w.newChain(1), source: 'tap', tag: { row: true } });
           break;
         case 'tapZone':
-          w.addZone({ x, y, radius: (p.radius ?? 36) + 5 * L, dps: (p.dps ?? 1) * D, ttl: ((p.ttl ?? 2) + 0.4 * L) * this.durMul, chainId: w.newChain(1), source: 'exp' });
-          this.add('ring', x, y, { ttl: 0.4, r: (p.radius ?? 36) + 5 * L, emoji: p.color ?? '#ff8a3c' });
+          w.addZone({ x, y, radius: (p.radius ?? 36) * this.areaMul, dps: (p.dps ?? 1) * D, ttl: (p.ttl ?? 2) * this.durMul, chainId: w.newChain(1), source: 'exp' });
+          this.add('ring', x, y, { ttl: 0.4, r: (p.radius ?? 36) * this.areaMul, emoji: p.color ?? '#ff8a3c' });
           break;
         case 'tapSnipe': {
           let best: Enemy | null = null;
@@ -296,7 +310,7 @@ export class Chaos {
           break;
         }
         case 'tapStrike': {
-          const width = (p.width ?? 22) + 2 * L;
+          const width = p.width ?? 22;
           const chainId = w.newChain(1);
           for (const e of [...w.enemies]) if (!e.dead && Math.abs(e.x - x) <= width + e.radius && e.y > 0) this.hit(e, (p.dmg ?? 4) * D, p, chainId);
           this.add('laser', x, 0, { ttl: 0.35, r: width, emoji: '#fff7a8', n: -1 });
@@ -475,8 +489,7 @@ export class Chaos {
   /** 무기 한 번 쓰기. 쏠 대상이 없으면 false */
   private fire(spec: WeaponSpec): boolean {
     const w = this.w;
-    const p = spec.p;
-    const L = this.lv(spec.id);
+    const p = this.eff(spec).p;
     const D = this.D * this.curMul;
     const range = this.curRange;
     const mount = this.mounts.get(spec.id);
@@ -492,7 +505,7 @@ export class Chaos {
         const mx = from.x + Math.cos(ang) * muzzle;
         const my = from.y + Math.sin(ang) * muzzle;
         const shots = p.burst ?? 1;
-        const count = (p.count ?? 1) + (p.count && p.count > 1 ? this.extra : 0) + (L >= 4 && (p.count ?? 1) > 1 ? 1 : 0);
+        const count = (p.count ?? 1) + ((p.count ?? 1) > 1 ? this.extra : 0);
         for (let b = 0; b < shots + (shots > 1 ? this.extra : 0); b++) {
           for (let i = 0; i < count; i++) {
             const a = ang + (p.spread ?? 0) * (count > 1 ? i / (count - 1) - 0.5 : w.rng.range(-0.5, 0.5));
@@ -511,7 +524,7 @@ export class Chaos {
         this.firedAt.set(spec.id, w.time);
         const x2 = from.x + Math.cos(ang) * range;
         const y2 = from.y + Math.sin(ang) * range;
-        const width = (p.width ?? 3) + L;
+        const width = p.width ?? 3;
         const hits: { e: Enemy; d: number }[] = [];
         for (const e of w.enemies) {
           if (e.dead) continue;
@@ -530,7 +543,7 @@ export class Chaos {
       case 'lob': {
         const t = this.pickTarget(p.target ?? 'dense', mount, range);
         if (!t) return false;
-        const n = 1 + (L >= 3 ? 1 : 0) + (L >= 5 ? 1 : 0) + this.extra;
+        const n = (p.count ?? 1) + this.extra;
         for (let i = 0; i < n; i++) {
           const tt = i === 0 ? t : this.pickTarget('random', mount, range) ?? t;
           const a = this.lob('thrown', from.x, from.y - 8, tt.x, tt.y, p.speed ?? 480);
@@ -546,7 +559,7 @@ export class Chaos {
       case 'zap': {
         const chainId = w.newChain(1);
         let any = false;
-        for (let i = 0; i < (p.count ?? 3) + Math.floor(L / 2) + this.extra; i++) {
+        for (let i = 0; i < (p.count ?? 3) + this.extra; i++) {
           const e = this.pickTarget('random', mount, range);
           if (!e) break;
           any = true;
@@ -559,13 +572,13 @@ export class Chaos {
       case 'column': {
         const t = this.pickTarget('dense', undefined, range);
         if (!t) return false;
-        this.add('laser', t.x, 0, { ttl: 0.5, r: (p.width ?? 20) + 2 * L, dmg: (p.dmg ?? 4) * D, ty: this.LINE - range });
+        this.add('laser', t.x, 0, { ttl: 0.5, r: p.width ?? 20, dmg: (p.dmg ?? 4) * D, ty: this.LINE - range });
         return true;
       }
       case 'strikes': {
         let any = false;
         const chainId = w.newChain(1);
-        for (let i = 0; i < (p.count ?? 2) + Math.floor(L / 2) + this.extra; i++) {
+        for (let i = 0; i < (p.count ?? 2) + this.extra; i++) {
           const e = this.pickTarget('random', mount, range);
           if (!e) break;
           any = true;
@@ -577,7 +590,7 @@ export class Chaos {
       case 'frostArea': {
         const t = this.pickTarget('dense', mount, range);
         if (!t) return false;
-        const r = (p.radius ?? 55) + 8 * L;
+        const r = (p.radius ?? 55) * this.areaMul;
         const chainId = w.newChain(1);
         for (const e of w.enemiesNear(t.x, t.y, r)) {
           if (!e.def.boss) {
@@ -592,7 +605,7 @@ export class Chaos {
       case 'zoneAt': {
         const t = this.pickTarget('dense', mount, range);
         if (!t) return false;
-        const r = (p.radius ?? 40) + 5 * L;
+        const r = (p.radius ?? 40) * this.areaMul;
         w.addZone({ x: t.x, y: t.y, radius: r, dps: (p.dps ?? 1) * D, ttl: (p.ttl ?? 3) * this.durMul, chainId: w.newChain(1), source: 'exp' });
         this.add('ring', t.x, t.y, { ttl: 0.4, r, emoji: p.color ?? '#ff8a3c' });
         return true;
@@ -600,7 +613,7 @@ export class Chaos {
       case 'saw': {
         const t = this.pickTarget('random', mount, range);
         if (!t) return false;
-        for (let i = 0; i < 1 + this.extra; i++) {
+        for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
           const ang = Math.atan2(t.y - from.y, t.x - from.x) + i * 0.6;
           const speed = p.speed ?? 260;
           this.add('saw', from.x, from.y - 10, { vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ttl: (p.ttl ?? 5) * this.durMul, p, dmg: (p.dmg ?? 1.5) * D, hits: true, r: range });
@@ -610,14 +623,14 @@ export class Chaos {
       case 'pullAt': {
         const t = this.pickTarget('dense', mount, range);
         if (!t) return false;
-        this.add('vortex', t.x, t.y, { ttl: p.ttl ?? 1.2, r: (p.radius ?? 100) + 10 * L, p, dmg: (p.dmg ?? 2) * D });
+        this.add('vortex', t.x, t.y, { ttl: p.ttl ?? 1.2, r: (p.radius ?? 100) * this.areaMul, p, dmg: (p.dmg ?? 2) * D });
         if (spec.cat === 'magic') w.emit({ type: 'magic', id: spec.id, x: t.x, y: t.y });
         return true;
       }
       case 'bubble': {
         const t = this.pickTarget('dense', mount, range);
         if (!t) return false;
-        const a = this.add('bubble', t.x, t.y, { ttl: (p.ttl ?? 2) * this.durMul, r: (p.radius ?? 50) + 6 * L, p, dmg: (p.dmg ?? 3) * D, grabbed: true });
+        const a = this.add('bubble', t.x, t.y, { ttl: (p.ttl ?? 2) * this.durMul, r: (p.radius ?? 50) * this.areaMul, p, dmg: (p.dmg ?? 3) * D, grabbed: true });
         if (a) for (const e of w.enemiesNear(t.x, t.y, a.r)) if (!e.def.boss) a.grabbed!.push(e);
         return true;
       }
@@ -635,7 +648,7 @@ export class Chaos {
       }
       case 'walker': {
         if (!this.pickTarget('front', undefined, range)) return false;
-        const n = (p.count ?? 1) + this.extra + (L >= 3 ? 1 : 0);
+        const n = (p.count ?? 1) + this.extra;
         for (let i = 0; i < n; i++) {
           this.add('walker', from.x + (i - (n - 1) / 2) * 10, from.y, {
             ttl: 12 * this.durMul, p, emoji: p.emoji ?? '💂', dmg: (p.dmg ?? 2) * D, r: range, left: p.melee ?? 0,
@@ -646,7 +659,7 @@ export class Chaos {
       case 'stamp': {
         const t = this.pickTarget('dense', undefined, range);
         if (!t) return false;
-        const n = (p.count ?? 2) + Math.floor((L - 1) / 2) + this.extra;
+        const n = (p.count ?? 2) + this.extra;
         const W = w.field.width;
         const speed = p.speed ?? 230;
         if (p.dir === 'side') {
@@ -665,32 +678,37 @@ export class Chaos {
       }
       case 'event': {
         if (!this.pickTarget('front', undefined, range)) return false;
-        this.startEvent(p.event ?? 'meteor', L, spec.cat !== 'magic', p);
+        // 규모 = 레벨 업으로 오른 count (기본 1)
+        this.startEvent(p.event ?? 'meteor', p.count ?? 1, spec.cat !== 'magic', p);
         if (spec.cat === 'magic' && p.emoji) w.emit({ type: 'magic', id: spec.id, x: w.field.width / 2, y: 200 });
         return true;
       }
       case 'drop': {
         const t = this.pickTarget(p.target ?? 'dense', undefined, range);
         if (!t) return false;
-        this.add('faller', t.x + 40, -60, { tx: t.x, ty: t.y, ttl: 4, p, emoji: p.emoji ?? '🔨', dmg: (p.dmg ?? 6) * D, r: (p.radius ?? 80) + 6 * L });
+        for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
+          const tt = i === 0 ? t : this.pickTarget('random', undefined, range) ?? t;
+          this.add('faller', tt.x + 40, -60 - i * 80, { tx: tt.x, ty: tt.y, ttl: 5, p, emoji: p.emoji ?? '🔨', dmg: (p.dmg ?? 6) * D, r: (p.radius ?? 80) + (p.boom ?? 0) });
+        }
         if (spec.cat === 'magic') w.emit({ type: 'magic', id: spec.id, x: t.x, y: t.y });
         return true;
       }
       case 'rain': {
         if (!this.pickTarget('front', undefined, range)) return false;
-        const n = (p.count ?? 10) + 2 * (L - 1) + 2 * this.extra;
+        const n = (p.count ?? 10) + 2 * this.extra;
+        const blast = (p.radius ?? 30) + (p.boom ?? 0);
         for (let i = 0; i < n; i++) {
           const t = this.pickTarget('random', undefined, range) ?? this.randomPoint(range);
           if (p.fromBottom) {
             const a = this.lob('thrown', clamp(t.x + w.rng.range(-30, 30), 10, w.field.width - 10), this.LINE + 20, t.x, t.y, 420);
             if (a) {
-              a.p = p;
+              a.p = { ...p, boom: blast };
               a.emoji = p.emoji ?? null;
               a.dmg = (p.dmg ?? 2) * D;
               a.t = -i * 0.08;
             }
           } else {
-            this.add('faller', t.x + w.rng.range(-30, 30), -30 - i * 22, { tx: t.x, ty: t.y, ttl: 5, p, emoji: p.emoji ?? '☄️', dmg: (p.dmg ?? 2) * D, r: p.radius ?? 30 });
+            this.add('faller', t.x + w.rng.range(-30, 30), -30 - i * 22, { tx: t.x, ty: t.y, ttl: 5, p, emoji: p.emoji ?? '☄️', dmg: (p.dmg ?? 2) * D, r: blast });
           }
         }
         w.emit({ type: 'magic', id: spec.id, x: w.field.width / 2, y: this.LINE - range / 2 });
@@ -710,7 +728,7 @@ export class Chaos {
       }
       case 'columns': {
         if (!this.pickTarget('front', undefined, range)) return false;
-        for (let i = 0; i < (p.count ?? 5) + (L - 1) + this.extra; i++) {
+        for (let i = 0; i < (p.count ?? 5) + this.extra; i++) {
           const t = i === 0 ? this.pickTarget('dense', undefined, range)! : this.pickTarget('random', undefined, range) ?? this.randomPoint(range);
           this.add('laser', t.x, 0, { ttl: 0.5, r: p.width ?? 20, dmg: (p.dmg ?? 4) * D, ty: this.LINE - range });
           this.actors[this.actors.length - 1].t = -i * 0.12;
@@ -753,11 +771,11 @@ export class Chaos {
 
   /** 드론: 레벨 + 다중 만큼 떠서 돌며 쏜다 */
   private keepDrones(spec: WeaponSpec): void {
-    const want = this.lv(spec.id) + this.extra;
+    const want = (this.eff(spec).p.count ?? 1) + this.extra;
     let have = 0;
     for (const a of this.actors) if (a.kind === 'drone') have++;
     for (let i = have; i < want; i++) {
-      const a = this.add('drone', this.w.field.width / 2, this.LINE - 60, { ttl: Number.POSITIVE_INFINITY, p: spec.p, r: this.rangeOf(spec) });
+      const a = this.add('drone', this.w.field.width / 2, this.LINE - 60, { ttl: Number.POSITIVE_INFINITY, p: this.eff(spec).p, r: this.rangeOf(spec) });
       if (a) {
         a.n = i;
         a.src = spec.id;
@@ -835,7 +853,8 @@ export class Chaos {
       }
       case 'dragon': {
         const dir = rng.chance(0.5) ? 1 : -1;
-        this.add('dragon', dir > 0 ? -40 : W + 40, LINE - this.curRange, { vx: 130 * dir, dir, ttl: 3.6, n: more });
+        // 적이 몰린 곳 조금 위를 날며 아래로 불을 뿜는다
+        this.add('dragon', dir > 0 ? -40 : W + 40, clamp(spot.y - 110, 60, LINE - 200), { vx: 130 * dir, dir, ttl: 3.6, n: more });
         break;
       }
     }
@@ -1003,10 +1022,13 @@ export class Chaos {
         a.y = LINE - 110 + Math.sin(k * 1.3) * 40;
         a.cd -= dt;
         if (a.cd <= 0) {
+          // 레벨이 오르면 바로 반영되게 쏠 때마다 다시 계산
           const spec = ARMS[a.src];
+          const p = this.eff(spec).p;
+          a.dmg = (p.dmg ?? 0.6) * this.D * this.dmgMul(spec);
           const t = this.pickTarget('front', { x: a.x, y: a.y, wall: 0 }, a.r);
           a.cd = this.cooldownOf(a.src);
-          if (t) this.bullet(a.src, a.x, a.y, Math.atan2(t.y - a.y, t.x - a.x), spec.p, a.dmg, a.r, 0);
+          if (t) this.bullet(a.src, a.x, a.y, Math.atan2(t.y - a.y, t.x - a.x), p, a.dmg, a.r, 0);
         }
         return true;
       }
