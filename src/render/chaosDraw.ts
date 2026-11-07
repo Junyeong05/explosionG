@@ -1,5 +1,5 @@
 import { BALANCE } from '../data/balance';
-import { ARMS, chaosEvent, type ChaosEventId } from '../data/chaos';
+import { ARMS, DEFAULT_RANGE, chaosEvent, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import type { Actor } from '../sim/chaos';
 import type { SimEvent } from '../sim/events';
@@ -65,6 +65,9 @@ export class ChaosDraw {
   private pops: Pop[] = [];
   private flash = 0;
   private time = 0;
+  /** 총구 불꽃·탄피 */
+  private flashes: { x: number; y: number; a: number; t: number; big: boolean }[] = [];
+  private casings: { x: number; y: number; vx: number; vy: number; r: number; t: number }[] = [];
 
   constructor(
     private readonly ctx: CanvasRenderingContext2D,
@@ -75,6 +78,8 @@ export class ChaosDraw {
     this.banners = [];
     this.pops = [];
     this.flash = 0;
+    this.flashes = [];
+    this.casings = [];
   }
 
   consume(e: SimEvent): void {
@@ -102,6 +107,18 @@ export class ChaosDraw {
       case 'gate':
         this.pop(e.x, e.y - 14, `×${e.mult}`, '#4dd2ff');
         break;
+      case 'magic': {
+        const spec = ARMS[e.id];
+        if (spec) this.banner(`${spec.emoji} ${spec.name}!`, '', '#c77dff');
+        break;
+      }
+      case 'gunFire':
+        if (this.flashes.length < 40) this.flashes.push({ x: e.x, y: e.y, a: e.angle, t: 0, big: e.big });
+        if (this.casings.length < 60) {
+          const side = Math.cos(e.angle) >= 0 ? -1 : 1;
+          this.casings.push({ x: e.x - Math.cos(e.angle) * 10, y: e.y - Math.sin(e.angle) * 10, vx: side * (40 + Math.random() * 40), vy: -60 - Math.random() * 40, r: Math.random() * 6, t: 0 });
+        }
+        break;
       default:
         break;
     }
@@ -124,6 +141,16 @@ export class ChaosDraw {
     this.banners = this.banners.filter((b) => b.t < 1.6);
     for (const p of this.pops) p.t += dt;
     this.pops = this.pops.filter((p) => p.t < 0.8);
+    for (const f of this.flashes) f.t += dt;
+    this.flashes = this.flashes.filter((f) => f.t < 0.06);
+    for (const c of this.casings) {
+      c.t += dt;
+      c.vy += 400 * dt;
+      c.x += c.vx * dt;
+      c.y += c.vy * dt;
+      c.r += dt * 12;
+    }
+    this.casings = this.casings.filter((c) => c.t < 0.5);
   }
 
   private icon(e: string, x: number, y: number, size: number, flip = false, rot = 0, alpha = 1): void {
@@ -142,20 +169,36 @@ export class ChaosDraw {
     const c = w.chaos;
     if (!c) return;
     const ctx = this.ctx;
-    for (const s of c.installSlots()) {
-      const bob = Math.sin(this.time * 3 + s.x) * 1.5;
+    // 기본 사거리 안내선 (자동 무기는 대개 여기부터 쏜다)
+    const ry = LINE_Y - DEFAULT_RANGE;
+    ctx.strokeStyle = rgba(COLORS.gold, 0.12);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 7]);
+    ctx.beginPath();
+    ctx.moveTo(0, ry);
+    ctx.lineTo(FW, ry);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `700 8px ${FONT}`;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = rgba(COLORS.gold, 0.3);
+    ctx.fillText('사거리', 4, ry - 3);
+    for (const { id, m } of c.allMounts()) {
+      const spec = ARMS[id];
+      const L = w.augments.stacks(id);
+      if (m.wall !== 0 && spec.p.look) {
+        this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? (m.wall < 0 ? -0.6 : Math.PI + 0.6), m.wall, w.time - (c.firedAt.get(id) ?? -9));
+        this.pips(m.x + (m.x < 30 ? 4 : m.x > FW - 30 ? -4 : 0), m.y + 9, L);
+        continue;
+      }
+      const bob = Math.sin(this.time * 3 + m.x) * 1.5;
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = 0.25;
-      ctx.drawImage(this.glow.get(COLORS.gold), s.x - 18, s.y - 18 + bob, 36, 36);
+      ctx.drawImage(this.glow.get(COLORS.gold), m.x - 16, m.y - 16 + bob, 32, 32);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-      this.icon(ARMS[s.id].emoji, s.x, s.y + bob, 24);
-      for (let i = 0; i < s.stacks; i++) {
-        ctx.beginPath();
-        ctx.arc(s.x - 6 + i * 6, s.y + 15, 2, 0, TAU);
-        ctx.fillStyle = COLORS.gold;
-        ctx.fill();
-      }
+      this.icon(spec.emoji, m.x, m.y + bob, 22);
+      this.pips(m.x, m.y + 14, L);
     }
     const g = c.gate;
     if (g) {
@@ -176,6 +219,90 @@ export class ChaosDraw {
       ctx.fillText(`×${g.mult}`, g.x, g.y + 1);
       ctx.textBaseline = 'alphabetic';
     }
+  }
+
+  private pips(x: number, y: number, n: number): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = COLORS.gold;
+    for (let i = 0; i < n; i++) {
+      ctx.beginPath();
+      ctx.arc(x - (n - 1) * 2.5 + i * 5, y, 1.6, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  /** 벽에 붙은 총: 받침대 + 겨누는 총 (모양은 GunLook) + 총구 불꽃 */
+  private gun(look: GunLook, x: number, y: number, ang: number, wall: number, since: number): void {
+    const ctx = this.ctx;
+    // 받침대 (벽 쪽 반원)
+    ctx.beginPath();
+    ctx.arc(x - wall * 4, y, 7, 0, TAU);
+    ctx.fillStyle = '#20232f';
+    ctx.fill();
+    ctx.strokeStyle = '#4a4f63';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    // 위아래가 뒤집히지 않게 (왼쪽을 겨누면 거울)
+    if (Math.cos(ang) < 0) ctx.scale(1, -1);
+    // 반동: 쏜 직후 살짝 뒤로
+    const kick = since < 0.06 ? -2.5 * (1 - since / 0.06) : 0;
+    ctx.translate(kick, 0);
+    const c = look.color;
+    ctx.fillStyle = c;
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = 0.8;
+    // 개머리판
+    if (look.stock) {
+      ctx.beginPath();
+      ctx.moveTo(-look.body / 2, -look.bh / 2);
+      ctx.lineTo(-look.body / 2 - 7, -look.bh / 2 + 1);
+      ctx.lineTo(-look.body / 2 - 7, look.bh / 2 + 2);
+      ctx.lineTo(-look.body / 2, look.bh / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    // 몸통
+    ctx.fillRect(-look.body / 2, -look.bh / 2, look.body, look.bh);
+    ctx.strokeRect(-look.body / 2, -look.bh / 2, look.body, look.bh);
+    // 손잡이
+    ctx.fillRect(-look.body / 2 + 1, look.bh / 2 - 1, 3, 5);
+    // 탄창
+    if (look.mag) ctx.fillRect(1, look.bh / 2 - 1, 3, 6);
+    // 연료통
+    if (look.tank) {
+      ctx.beginPath();
+      ctx.arc(-1, look.bh / 2 + 3, 3.5, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+    }
+    // 총열
+    const x0 = look.body / 2;
+    const barrels = look.barrels ?? 1;
+    for (let i = 0; i < barrels; i++) {
+      const off = barrels > 1 ? (i - (barrels - 1) / 2) * (look.bw / barrels) * 1.2 + Math.sin(this.time * 40 + i) * 0.5 : 0;
+      ctx.fillStyle = look.tube ? c : '#2a2e3a';
+      ctx.fillRect(x0, off - (barrels > 1 ? 1 : look.bw / 2), look.len, barrels > 1 ? 2 : look.bw);
+      ctx.strokeRect(x0, off - (barrels > 1 ? 1 : look.bw / 2), look.len, barrels > 1 ? 2 : look.bw);
+    }
+    // 조준경
+    if (look.scope) {
+      ctx.fillStyle = '#15171f';
+      ctx.fillRect(-2, -look.bh / 2 - 4, 10, 3.5);
+    }
+    // 에너지 무기 빛
+    if (look.glow) {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.5 + 0.3 * Math.sin(this.time * 6);
+      ctx.fillStyle = look.glow;
+      ctx.fillRect(-look.body / 2 + 2, -1, look.body - 4, 2);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
   }
 
   private cannon(x: number, y: number, dir: number): void {
@@ -202,7 +329,31 @@ export class ChaosDraw {
     const c = w.chaos;
     if (!c) return;
     const ctx = this.ctx;
-    for (const a of c.actors) this.actor(a, ctx);
+    for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
+    // 총구 불꽃
+    ctx.globalCompositeOperation = 'lighter';
+    for (const f of this.flashes) {
+      const s = (f.big ? 22 : 14) * (1 - f.t / 0.06);
+      ctx.drawImage(this.glow.get('#ffd36b'), f.x - s / 2, f.y - s / 2, s, s);
+      ctx.strokeStyle = rgba('#fff7d0', 0.9);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(f.x, f.y);
+      ctx.lineTo(f.x + Math.cos(f.a) * s * 0.7, f.y + Math.sin(f.a) * s * 0.7);
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    // 탄피
+    ctx.fillStyle = '#e8b04a';
+    for (const cs of this.casings) {
+      ctx.save();
+      ctx.translate(cs.x, cs.y);
+      ctx.rotate(cs.r);
+      ctx.globalAlpha = 1 - cs.t / 0.5;
+      ctx.fillRect(-1.5, -0.8, 3, 1.6);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
     for (const p of this.pops) {
       const k = p.t / 0.8;
       ctx.globalAlpha = 1 - k;
@@ -369,14 +520,201 @@ export class ChaosDraw {
         break;
       }
       case 'laser': {
+        // 기둥 (위성 레이저·궤도 폭격·낙뢰 손). ty 가 있으면 그 높이부터
         const f = 1 - k;
+        const wdt = a.r || 20;
+        const top = a.ty > a.y ? a.ty : 0;
+        const col = a.emoji ?? '#ff3cc8';
         ctx.globalCompositeOperation = 'lighter';
-        ctx.fillStyle = rgba('#ff3cc8', 0.5 * f);
-        ctx.fillRect(a.x - 20, 0, 40, LINE_Y);
+        ctx.fillStyle = rgba(col, 0.45 * f);
+        ctx.fillRect(a.x - wdt, top, wdt * 2, LINE_Y - top);
         ctx.fillStyle = rgba('#ffffff', 0.8 * f);
-        ctx.fillRect(a.x - 4, 0, 8, LINE_Y);
+        ctx.fillRect(a.x - wdt / 5, top, (wdt * 2) / 5, LINE_Y - top);
         ctx.globalCompositeOperation = 'source-over';
         break;
+      }
+      case 'bullet':
+        this.bullet(a, ctx);
+        break;
+      case 'beam': {
+        const f = 1 - k;
+        const col = a.emoji ?? '#ff3cc8';
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = rgba(col, 0.5 * f);
+        ctx.lineWidth = a.r * 2.5;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(a.tx, a.ty);
+        ctx.stroke();
+        ctx.strokeStyle = rgba('#ffffff', 0.9 * f);
+        ctx.lineWidth = Math.max(1, a.r * 0.6);
+        ctx.stroke();
+        ctx.lineCap = 'butt';
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'thrown': {
+        const y = a.y - Math.sin(Math.PI * k) * 60;
+        if (a.emoji) this.icon(a.emoji, a.x, y, 18, false, a.t * 10);
+        else {
+          ctx.beginPath();
+          ctx.arc(a.x, y, 5, 0, TAU);
+          ctx.fillStyle = '#20232f';
+          ctx.fill();
+          ctx.strokeStyle = '#ffb347';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'faller': {
+        const size = a.p?.size ?? 26;
+        if (a.y > -20) {
+          ctx.beginPath();
+          ctx.arc(a.tx, a.ty, (a.r || 20) * 0.4 + 4 * Math.sin(this.time * 20), 0, TAU);
+          ctx.strokeStyle = rgba('#ff7a3c', 0.5);
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        this.icon(a.emoji ?? '☄️', a.x, a.y, size, false, size > 50 ? Math.sin(a.t * 6) * 0.2 : a.t * 4);
+        break;
+      }
+      case 'walker':
+        this.icon(a.emoji ?? '💂', a.x, a.y + Math.abs(Math.sin(a.t * 12)) * -4, a.p?.size ?? 20, a.dir > 0);
+        break;
+      case 'stamp':
+        this.icon(a.emoji ?? '🦖', a.x, a.y + Math.abs(Math.sin(a.t * 14)) * -3, a.p?.size ? a.p.size + 8 : 30, a.dir > 0, a.vy < 0 ? 0 : 0);
+        break;
+      case 'saw':
+        this.icon('⚙️', a.x, a.y, 24, false, a.t * 18);
+        break;
+      case 'vortex': {
+        ctx.strokeStyle = rgba('#b54dff', 0.5);
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, a.r * (0.3 + 0.25 * i) * (1 - k * 0.5), this.time * 8 + i, this.time * 8 + i + Math.PI * 1.3);
+          ctx.stroke();
+        }
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.6;
+        ctx.drawImage(this.glow.get('#5a3c8a'), a.x - 24, a.y - 24, 48, 48);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'bubble':
+        for (const e of a.grabbed ?? []) {
+          if (e.dead) continue;
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.radius + 6, 0, TAU);
+          ctx.fillStyle = 'rgba(160, 220, 255, 0.18)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(200, 240, 255, 0.8)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        break;
+      case 'drone':
+        this.icon('🚁', a.x, a.y, 20, Math.cos(this.time * 2 + a.n) > 0);
+        break;
+      case 'storm':
+        this.icon('⛈️', a.x + Math.sin(this.time * 2) * 80, 36, 54);
+        break;
+      case 'sweep': {
+        const wide = a.r >= 50;
+        if (wide) {
+          for (let x = 16; x < FW; x += 34) this.icon(a.emoji ?? '🌊', x, a.y + Math.sin(this.time * 8 + x) * 4, 34);
+        } else this.icon(a.emoji ?? '🎳', a.x, a.y, a.p?.size ?? 34, false, a.t * 10);
+        break;
+      }
+      case 'ring': {
+        const f = 1 - k;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r * (0.7 + 0.3 * k), 0, TAU);
+        ctx.strokeStyle = rgba(a.emoji ?? '#ffffff', 0.7 * f);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
+    }
+  }
+
+  private bullet(a: Actor, ctx: CanvasRenderingContext2D): void {
+    const p = a.p ?? {};
+    const col = p.color ?? '#ffe08a';
+    const sp = Math.hypot(a.vx, a.vy) || 1;
+    const ux = a.vx / sp;
+    const uy = a.vy / sp;
+    switch (p.tracer) {
+      case 'flame': {
+        const f = clamp(a.t / a.ttl, 0, 1);
+        const s = 8 + f * 18;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.6 * (1 - f);
+        ctx.drawImage(this.glow.get(f < 0.4 ? '#ffd36b' : '#ff7a3c'), a.x - s / 2, a.y - s / 2, s, s);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'ball': {
+        const r = p.size ?? 3;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.drawImage(this.glow.get(col), a.x - r * 3, a.y - r * 3, r * 6, r * 6);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, r, 0, TAU);
+        ctx.fillStyle = col;
+        ctx.fill();
+        break;
+      }
+      case 'rocket': {
+        ctx.save();
+        ctx.translate(a.x, a.y);
+        ctx.rotate(Math.atan2(a.vy, a.vx));
+        ctx.fillStyle = '#c8d0e8';
+        ctx.fillRect(-5, -1.8, 9, 3.6);
+        ctx.fillStyle = '#ff3c6e';
+        ctx.fillRect(3, -1.8, 2.5, 3.6);
+        ctx.restore();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(this.glow.get(col), a.x - ux * 8 - 6, a.y - uy * 8 - 6, 12, 12);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'arrow': {
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(a.x - ux * 12, a.y - uy * 12);
+        ctx.lineTo(a.x, a.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(a.x - ux * 4 - uy * 3, a.y - uy * 4 + ux * 3);
+        ctx.lineTo(a.x - ux * 4 + uy * 3, a.y - uy * 4 - ux * 3);
+        ctx.closePath();
+        ctx.fillStyle = col;
+        ctx.fill();
+        break;
+      }
+      case 'emoji':
+        this.icon(a.emoji ?? p.emoji ?? '✴️', a.x, a.y, p.size ?? 12, false, a.t * 20);
+        break;
+      default: {
+        // 예광탄: 진행 방향으로 짧은 빛줄기
+        const len = Math.min(16, sp * 0.02);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = rgba(col, 0.9);
+        ctx.lineWidth = (p.dmg ?? 1) >= 3 ? 2.2 : 1.4;
+        ctx.beginPath();
+        ctx.moveTo(a.x - ux * len, a.y - uy * len);
+        ctx.lineTo(a.x, a.y);
+        ctx.stroke();
+        ctx.globalCompositeOperation = 'source-over';
       }
     }
   }
@@ -413,34 +751,40 @@ export class ChaosDraw {
     };
     if (c.frenzy > 0) bar('FRENZY 피해 ×3', c.frenzy, BALANCE.chaos.frenzySec, COLORS.gold);
     if (c.clickFrenzy > 0) bar('CLICK FRENZY 게이지 무한', c.clickFrenzy, BALANCE.chaos.clickFrenzySec, COLORS.charge);
-    // 가진 무기: 오른쪽 위에 아이콘 + 레벨 + 쿨다운 (강화는 작게 그 아래)
-    let ix = FW - 18;
-    for (const id of c.owned()) {
+    // 가진 무기: 오른쪽 위부터 줄바꿈하며 아이콘 + 레벨 + 쿨다운 (강화는 그 아래 작게)
+    const perRow = 9;
+    let k = 0;
+    const weapons = c.owned().filter((id) => ARMS[id].cat !== 'passive');
+    for (const id of weapons) {
       const info = ARMS[id];
-      if (info.cat === 'passive') continue;
+      const ix = FW - 16 - (k % perRow) * 20;
+      const iy = 64 + Math.floor(k / perRow) * 22;
       const L = w.augments.stacks(id);
       const cd = c.cooldowns.get(id) ?? 0;
       const ready = 1 - clamp(cd / Math.max(0.01, c.cooldownOf(id)), 0, 1);
+      const col = info.cat === 'hand' ? COLORS.charge : info.cat === 'magic' ? '#c77dff' : info.cat === 'gun' ? '#ffe08a' : COLORS.gold;
       ctx.beginPath();
-      ctx.arc(ix, 66, 11, -Math.PI / 2, -Math.PI / 2 + TAU * ready);
-      ctx.strokeStyle = rgba(info.cat === 'hand' ? COLORS.charge : info.cat === 'magic' ? '#c77dff' : COLORS.gold, 0.8);
-      ctx.lineWidth = 2;
+      ctx.arc(ix, iy, 8.5, -Math.PI / 2, -Math.PI / 2 + TAU * ready);
+      ctx.strokeStyle = rgba(col, 0.75);
+      ctx.lineWidth = 1.5;
       ctx.stroke();
-      this.icon(info.emoji, ix, 66, 15);
-      ctx.font = `900 8px ${FONT}`;
+      this.icon(info.emoji, ix, iy, 12);
+      ctx.font = `900 7px ${FONT}`;
       ctx.textAlign = 'center';
       ctx.fillStyle = COLORS.text;
-      ctx.fillText(String(L), ix + 8, 78);
-      ix -= 26;
+      ctx.fillText(String(L), ix + 7, iy + 9);
+      k++;
     }
-    let px = FW - 16;
-    for (const id of c.owned('passive')) {
-      this.icon(ARMS[id].emoji, px, 92, 11);
-      ctx.font = `900 7px ${FONT}`;
+    const passives = c.owned('passive');
+    const py = 64 + Math.ceil(Math.max(1, weapons.length) / perRow) * 22;
+    passives.forEach((id, i) => {
+      const px = FW - 14 - (i % 12) * 15;
+      const yy = py + Math.floor(i / 12) * 14;
+      this.icon(ARMS[id].emoji, px, yy, 10);
+      ctx.font = `900 6px ${FONT}`;
       ctx.fillStyle = COLORS.dim;
-      ctx.fillText(String(w.augments.stacks(id)), px + 7, 99);
-      px -= 18;
-    }
+      ctx.fillText(String(w.augments.stacks(id)), px + 6, yy + 6);
+    });
     // 손공격이 없으면 탭이 아무 일도 안 한다는 안내 (게이지 자리)
     if (c.owned('hand').length === 0 && w.phase === 'playing') {
       ctx.font = `800 10px ${FONT}`;

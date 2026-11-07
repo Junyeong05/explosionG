@@ -183,6 +183,9 @@ export class Renderer {
         case 'land':
           this.rings.add(e.x, e.y, 4, 14, '#8a90a8', 0.2, 1.5);
           break;
+        case 'shake':
+          this.shake.add(e.power);
+          break;
         case 'pairBlast': {
           // 짝 폭발: 두 자리를 잇는 번개 + 짝 자리 링
           const c = PAIR_COLORS[e.color % PAIR_COLORS.length];

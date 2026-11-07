@@ -34,6 +34,10 @@ export type SimEvent =
   | { type: 'slot'; reels: string[] }
   | { type: 'nuke' }
   | { type: 'gate'; x: number; y: number; mult: number }
+  /** 도파민 모드: 총이 쏨 (총구 불꽃·탄피), 마법 무기 발동 (배너), 화면 흔들림 */
+  | { type: 'gunFire'; x: number; y: number; angle: number; big: boolean }
+  | { type: 'magic'; id: string; x: number; y: number }
+  | { type: 'shake'; power: number }
   /** 11-07 실험 묶음 */
   | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }
   | { type: 'beat' }

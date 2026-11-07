@@ -13,7 +13,8 @@ const C = BALANCE.chaos;
 function arena(): World {
   const w = sandbox({ rules: { chaos: true } });
   (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
-  for (let i = 0; i < 24; i++) w.spawnEnemy('normal', 40 + (i % 8) * 40, 150 + Math.floor(i / 8) * 90);
+  // 사거리 안 (방어선 위 200px 안쪽)에 깔아 둔다
+  for (let i = 0; i < 24; i++) w.spawnEnemy('normal', 40 + (i % 8) * 40, 360 + Math.floor(i / 8) * 60);
   freeze(w);
   return w;
 }
@@ -21,42 +22,43 @@ function arena(): World {
 const fresh = arena;
 
 describe('도파민 모드: 카테고리 무기고', () => {
-  it('판은 시작 무기 고르기로 시작하고, 손공격·포탑·소환수·마법에서 한 장씩 나온다', () => {
+  it('판은 시작 무기 고르기로 시작하고, 손공격·총·포탑·소환수·마법에서 한 장씩 나온다', () => {
     const w = sandbox({ rules: { chaos: true } });
     w.step(FIXED_DT);
     expect(w.phase).toBe('choosing');
     expect(w.offer?.kind).toBe('starter');
     const cats = w.offer!.choices.map((id) => ARMS[id].cat);
-    expect(cats).toEqual(['hand', 'turret', 'summon', 'magic']);
+    expect(cats).toEqual(['hand', 'gun', 'turret', 'summon', 'magic']);
   });
 
   it('폭탄 탭이 없으면 탭은 폭발을 만들지 않고, 번개 손이 있으면 번개가 나간다', () => {
     const w = fresh();
     w.augments.acquire('arm_cannon', w);
     w.drainEvents();
-    tap(w, 100, 150);
+    tap(w, 100, 420);
     expect(w.drainEvents().some((e) => e.type === 'tap')).toBe(false);
     w.augments.acquire('arm_zap', w);
-    tap(w, 100, 150);
+    tap(w, 100, 420);
     const evs = w.drainEvents();
     expect(evs.some((e) => e.type === 'bolt')).toBe(true);
     expect(evs.some((e) => e.type === 'tap')).toBe(false);
   });
 
-  it('무기마다 혼자서 적을 잡는다 (손공격은 탭, 나머지는 저절로)', () => {
+  it('무기마다 혼자서 적에게 피해를 준다 (손공격은 탭, 나머지는 저절로)', () => {
     for (const d of ARSENAL) {
       const info = ARMS[d.id];
       if (info.cat === 'passive') continue;
       const w = fresh();
       w.augments.acquire(d.id, w);
-      for (let i = 0; i < 40 && w.kills === 0; i++) {
+      const hurt = () => w.kills > 0 || w.enemies.some((e) => e.hp < e.maxHp);
+      for (let i = 0; i < 40 && !hurt(); i++) {
         if (info.cat === 'hand') {
           w.gauge = 1;
-          tap(w, 160, 240);
+          tap(w, 160, 420);
         }
         stepFor(w, info.cat === 'hand' ? 0.6 : 1);
       }
-      expect(w.kills, d.name).toBeGreaterThan(0);
+      expect(hurt(), d.name).toBe(true);
     }
   });
 
@@ -72,6 +74,19 @@ describe('도파민 모드: 카테고리 무기고', () => {
         expect(w.augments.stacks(id)).toBeLessThan(MAX_LEVEL);
       }
     }
+  });
+
+  it('자동 무기는 사거리 밖의 적은 쏘지 않는다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    const far = w.spawnEnemy('normal', 180, 60)!;
+    freeze(w);
+    w.augments.acquire('arm_pistol', w);
+    stepFor(w, 3);
+    expect(far.hp).toBe(far.maxHp);
+    far.y = 420;
+    stepFor(w, 3);
+    expect(far.dead || far.hp < far.maxHp).toBe(true);
   });
 
   it('황금 쿠키를 누르면 그 탭은 쏘지 않고 버프를 받는다', () => {

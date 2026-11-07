@@ -206,7 +206,7 @@ export const BALANCE = {
     cookieFromWave: 3,
     cookieEverySec: 40,
     /** 동시에 있는 난입 물체 상한 (게이트 곱하기로 폭주하지 않게) */
-    maxActors: 140,
+    maxActors: 420,
     /** 피버: 처치마다 열기 +1, 열기는 heatHalfSec 마다 반으로. threshold 넘으면 feverSec 동안 피버 */
     heatHalfSec: 1.8,
     feverThreshold: 40,
