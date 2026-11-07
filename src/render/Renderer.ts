@@ -170,6 +170,9 @@ export class Renderer {
           this.leakFlash = 1;
           this.showBanner('폭주!', '과충전 한계를 넘었다', COLORS.life);
           break;
+        case 'land':
+          this.rings.add(e.x, e.y, 4, 14, '#8a90a8', 0.2, 1.5);
+          break;
         case 'pairBlast': {
           // 짝 폭발: 두 자리를 잇는 번개 + 짝 자리 링
           const c = PAIR_COLORS[e.color % PAIR_COLORS.length];
@@ -260,6 +263,7 @@ export class Renderer {
     this.drawDefenseLine();
 
     if (world) {
+      if (world.rules.pile) this.drawPileLimit(world);
       if (world.rules.brink) this.drawBrinkZone();
       this.drawZones(world);
       this.drawMines(world);
@@ -318,6 +322,34 @@ export class Renderer {
     g.fillStyle = 'rgba(0, 0, 0, 0.4)';
     g.fillRect(0, LINE_Y, FW, FH - LINE_Y);
     return c;
+  }
+
+  /** 쌓이는 바닥: 한계선 (가까워질수록 붉게) */
+  private drawPileLimit(w: World): void {
+    const ctx = this.ctx;
+    const P = BALANCE.experiment.pile;
+    const y = LINE_Y - P.maxRows * P.blockH;
+    const near = clamp(w.pileHeight() / P.maxRows, 0, 1);
+    ctx.strokeStyle = rgba(COLORS.life, 0.3 + 0.6 * near * near);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(FW, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `800 9px ${FONT}`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = rgba(COLORS.life, 0.5 + 0.5 * near);
+    ctx.fillText('한계', FW - 6, y - 4);
+    // 한계에 가까운 칸은 바닥부터 붉게
+    for (let i = 0; i < w.pileCols.length; i++) {
+      const n = w.pileCols[i].length;
+      if (n < P.maxRows - 4) continue;
+      const a = 0.08 + 0.12 * (n - (P.maxRows - 4)) / 4;
+      ctx.fillStyle = rgba(COLORS.life, a);
+      ctx.fillRect(i * P.colWidth, LINE_Y - n * P.blockH, P.colWidth, n * P.blockH);
+    }
   }
 
   /** 실험 규칙 벼랑 끝: 방어선 위 보상 구역 */
@@ -440,7 +472,8 @@ export class Renderer {
     ctx.translate(e.x, e.y);
     if (d.boss) ctx.rotate(t * 0.4);
     shapePath(ctx, d.shape, r);
-    ctx.fillStyle = rgba(d.color, flash ? 0.65 : 0.16);
+    // 쌓인 블록은 속을 더 채워서 굳은 것처럼
+    ctx.fillStyle = rgba(d.color, flash ? 0.65 : e.pileCol >= 0 ? 0.42 : 0.16);
     ctx.fill();
     ctx.lineWidth = d.mark === 'thick' ? 3.2 : 1.6;
     ctx.strokeStyle = flash ? '#ffffff' : d.color;
@@ -543,8 +576,16 @@ export class Renderer {
     const ctx = this.ctx;
     ctx.textBaseline = 'alphabetic';
 
-    // LIFE
-    for (let i = 0; i < w.stats.maxLife; i++) {
+    // LIFE (쌓이는 바닥이면 LIFE 대신 더미 높이)
+    if (w.rules.pile) {
+      const P = BALANCE.experiment.pile;
+      const hgt = w.pileHeight();
+      ctx.font = `800 11px ${FONT}`;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = hgt >= P.maxRows - 3 ? COLORS.life : COLORS.text;
+      ctx.fillText(`더미 ${hgt}/${P.maxRows}`, 12, 24);
+    }
+    for (let i = 0; i < (w.rules.pile ? 0 : w.stats.maxLife); i++) {
       ctx.save();
       ctx.translate(16 + i * 15, 20);
       polygon(ctx, 4, 5.5, 0);

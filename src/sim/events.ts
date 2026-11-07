@@ -27,6 +27,8 @@ export type SimEvent =
   | { type: 'overload' }
   /** 짝 폭발: (x1, y1) 이 터져서 짝 (x2, y2) 도 터짐 */
   | { type: 'pairBlast'; x1: number; y1: number; x2: number; y2: number; color: number }
+  /** 쌓이는 바닥: 적이 바닥(더미)에 쌓임 */
+  | { type: 'land'; x: number; y: number; rows: number }
   /** 벼랑 끝 처치 */
   | { type: 'brink'; x: number; y: number }
   /** 연쇄 잇기 콤보가 끊김 (kills = 그 콤보의 처치 수) */

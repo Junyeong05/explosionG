@@ -96,6 +96,11 @@ export class World implements SimApi {
   brinkKills = 0;
   sparkBlasts = 0;
   pairBlasts = 0;
+  /** 쌓이는 바닥: 칸마다 아래부터 쌓인 블록 */
+  readonly pileCols: Enemy[][] = [];
+  pileLanded = 0;
+  pileCleared = 0;
+  pileMaxRows = 0;
   private nextPairColor = 0;
   rerollsLeft: number;
   bonusParts = 0;
@@ -127,6 +132,10 @@ export class World implements SimApi {
     this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')));
     this.recordEvents = config.recordEvents ?? true;
     this.rules = config.rules ?? {};
+    if (this.rules.pile) {
+      const n = Math.ceil(this.field.width / BALANCE.experiment.pile.colWidth);
+      for (let i = 0; i < n; i++) this.pileCols.push([]);
+    }
     this.stats = this.withRules(computeStats(config.meta, []));
     this.life = this.stats.maxLife;
     this.gauge = Math.min(1, this.stats.gaugeMax);
@@ -347,9 +356,12 @@ export class World implements SimApi {
     return this.overchargeOn && this.stats.gaugeMax <= BALANCE.experiment.overcharge.max;
   }
 
-  /** 과충전 규칙이 켜졌나 (불씨 칠하기는 과충전 위에 얹힌 규칙이라 같이 켜진다) */
+  /**
+   * 과충전은 기본 규칙이다 (플레이 피드백: "모았다가 팡"이 그나마 나으니 메인으로).
+   * 100% 에서 꾹 누르면 150% 까지 차고 떼면 발사, 넘기면 폭주. rules.overcharge 는 옛 세이브 호환용으로만 남음.
+   */
   private get overchargeOn(): boolean {
-    return !!this.rules.overcharge || !!this.rules.paint;
+    return true;
   }
 
   /**
@@ -373,7 +385,8 @@ export class World implements SimApi {
         rate = 1 + (OC.accel * (this.gauge - 1)) / (OC.max - 1);
       } else rate = BALANCE.prism.supernova.overfillRate;
     }
-    this.fillGauge((rate / s.gaugeFillSec) * dt);
+    // 과충전: 누르고 있지 않으면 100% 에서 딱 멈춘다
+    this.fillGauge((rate / s.gaugeFillSec) * dt, this.overloadable && !this.charging ? 1 : s.gaugeMax);
     if (this.overloadable && this.gauge >= s.gaugeMax) this.overload();
   }
 
@@ -438,9 +451,9 @@ export class World implements SimApi {
   }
 
   /** 시간으로 차는 게이지 (상한까지). 100% 를 넘는 순간 gaugeFull */
-  private fillGauge(amount: number): void {
+  private fillGauge(amount: number, cap = this.stats.gaugeMax): void {
     const before = this.gauge;
-    this.gauge = Math.min(this.stats.gaugeMax, this.gauge + amount);
+    this.gauge = Math.min(cap, this.gauge + amount);
     if (before < 1 && this.gauge >= 1) this.emit({ type: 'gaugeFull' });
   }
 
@@ -569,14 +582,29 @@ export class World implements SimApi {
   private moveEnemies(dt: number): void {
     const line = this.field.defenseLineY;
     for (const p of this.packs) p.y += p.speed * dt;
+    const pile = !!this.rules.pile;
     for (const e of this.enemies) {
       if (e.dead) continue;
+      // 쌓인 블록: 아래 블록이 사라졌으면 떨어진다
+      if (e.pileCol >= 0) {
+        if (e.y < e.pileY) e.y = Math.min(e.pileY, e.y + BALANCE.experiment.pile.fallSpeed * dt);
+        continue;
+      }
       const p = e.pack;
       if (p) {
         e.x = p.x + e.packOx;
         e.y = p.y + e.packOy;
       } else {
         e.y += e.speed * dt;
+      }
+      // 쌓이는 바닥: 방어선이나 더미 위에 닿으면 블록이 된다 (최종 보스는 그대로 즉시 패배)
+      if (pile && !e.isFinalBoss) {
+        const col = this.pileColAt(e.x);
+        if (e.y + e.radius >= this.pileTopY(col)) {
+          this.landOnPile(e, col);
+          if (this.phase === 'ended') return;
+          continue;
+        }
       }
       if (e.y >= line) {
         e.dead = true;
@@ -591,6 +619,57 @@ export class World implements SimApi {
         this.emit({ type: 'leak', x: e.x, damage });
       }
     }
+  }
+
+  /** 적이 x 에서 내려앉는 높이 (쌓이는 바닥이면 그 칸 더미 윗면, 아니면 방어선) */
+  landingY(x: number): number {
+    return this.rules.pile ? this.pileTopY(this.pileColAt(x)) : this.field.defenseLineY;
+  }
+
+  /** 쌓이는 바닥: 가장 높은 칸의 블록 수 */
+  pileHeight(): number {
+    let h = 0;
+    for (const c of this.pileCols) if (c.length > h) h = c.length;
+    return h;
+  }
+
+  /** 쌓이는 바닥: x 가 속한 칸 */
+  private pileColAt(x: number): number {
+    return clamp(Math.floor(x / BALANCE.experiment.pile.colWidth), 0, this.pileCols.length - 1);
+  }
+
+  /** 쌓이는 바닥: 칸의 더미 윗면 y */
+  pileTopY(col: number): number {
+    return this.field.defenseLineY - this.pileCols[col].length * BALANCE.experiment.pile.blockH;
+  }
+
+  /** 쌓이는 바닥: 적이 칸에 내려앉아 블록이 된다. 한계까지 차면 패배 */
+  private landOnPile(e: Enemy, col: number): void {
+    const P = BALANCE.experiment.pile;
+    const stack = this.pileCols[col];
+    e.pileCol = col;
+    e.pileY = this.field.defenseLineY - (stack.length + 0.5) * P.blockH;
+    e.x = (col + 0.5) * P.colWidth;
+    e.y = Math.min(e.y, e.pileY);
+    e.pack = null;
+    e.speed = 0;
+    stack.push(e);
+    this.pileLanded++;
+    if (stack.length > this.pileMaxRows) this.pileMaxRows = stack.length;
+    this.emit({ type: 'land', x: e.x, y: e.pileY, rows: stack.length });
+    if (stack.length >= P.maxRows) this.end('defeat');
+  }
+
+  /** 쌓이는 바닥: 블록이 죽으면 칸에서 빼고, 위 블록들이 떨어질 자리를 다시 정한다 */
+  private removeFromPile(e: Enemy): void {
+    const stack = this.pileCols[e.pileCol];
+    const i = stack.indexOf(e);
+    if (i < 0) return;
+    stack.splice(i, 1);
+    const h = BALANCE.experiment.pile.blockH;
+    for (let k = i; k < stack.length; k++) stack[k].pileY = this.field.defenseLineY - (k + 0.5) * h;
+    e.pileCol = -1;
+    this.pileCleared++;
   }
 
   private rebuildGrid(): void {
@@ -711,13 +790,15 @@ export class World implements SimApi {
   private hitEnemy(e: Enemy, amount: number, source: DamageSource, chainId: number, crit: boolean, depth: number): void {
     if (e.dead) return;
     e.lastHitAt = this.time;
-    if (e.shield > 0) {
+    if (e.shield > 0 && !(source === 'pile' && e.pileCol >= 0)) {
       e.shield--;
       this.emit({ type: 'shieldBreak', x: e.x, y: e.y });
       return;
     }
     let dmg = amount;
     if (!isDirect(source) && e.def.indirectDamageTakenMul !== undefined) dmg *= e.def.indirectDamageTakenMul;
+    // 쌓이는 바닥: 무너지는 블록의 폭발은 옆 블록을 바로 무너뜨린다
+    if (source === 'pile' && e.pileCol >= 0) dmg = Math.max(dmg, e.hp);
     e.hp -= dmg;
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
     e.def.boss?.onDamaged?.(this, e);
@@ -769,10 +850,16 @@ export class World implements SimApi {
     // 넘친 피해는 단계마다 체력만큼 깎이므로 연쇄는 저절로 약해지다 끊긴다.
     // 연쇄 배율을 넘친 피해에 곱하면 단계마다 복리로 불어나서 끊기지 않으므로, 폭발형의 자기 폭약에만 곱한다.
     const s = this.stats;
+    // 쌓이는 바닥: 블록은 늘 터지고, 블록끼리는 연쇄 단계 × stepsPerDepth 칸까지 줄줄이 무너진다
+    const pileBlock = e.pileCol >= 0;
+    if (pileBlock) this.removeFromPile(e);
+    const PB = BALANCE.experiment.pile;
+    const pileBlast = pileBlock ? { radiusMul: PB.blastRadius / s.chainRadius, charge: PB.blastCharge } : undefined;
     // 불씨 칠하기: 불씨 붙은 적은 폭발형처럼 터진다
-    const blast = e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    const blast = pileBlast ?? e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    const depthOk = pileBlock ? chain.maxDepth > 0 && depth + 1 <= chain.maxDepth * PB.stepsPerDepth : depth + 1 <= chain.maxDepth;
     let exploded = false;
-    if ((blast || s.chainOnAllKills) && depth + 1 <= chain.maxDepth) {
+    if ((blast || s.chainOnAllKills) && depthOk) {
       const mult = 1 + s.chainMultiplierPerKill * chain.kills;
       const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult * this.comboMult();
       if (damage >= BALANCE.chain.minDamage) {
@@ -782,7 +869,7 @@ export class World implements SimApi {
           radius: s.chainRadius * (blast?.radiusMul ?? 1),
           damage,
           chainId: chain.id,
-          source: 'chain',
+          source: pileBlock ? 'pile' : 'chain',
           delay: s.chainDelaySec,
           depth: depth + 1,
         });
@@ -876,7 +963,8 @@ export class World implements SimApi {
   spawnEnemy(kind: EnemyKind | BossId | string, x: number, y: number, hpMul = 1): Enemy | null {
     if (this.enemies.length >= BALANCE.limits.maxEnemies) return null;
     const def = getEnemyDef(kind);
-    const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul;
+    const pileMul = this.rules.pile ? BALANCE.experiment.pile.enemyHpMul : 1;
+    const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul;
     const e: Enemy = {
       id: this.nextId++,
       def,
@@ -891,6 +979,8 @@ export class World implements SimApi {
       phase: 0,
       lastHitAt: -1,
       isFinalBoss: false,
+      pileCol: -1,
+      pileY: 0,
       pack: null,
       packOx: 0,
       packOy: 0,
@@ -1000,6 +1090,9 @@ export class World implements SimApi {
       brinkKills: this.brinkKills,
       sparkBlasts: this.sparkBlasts,
       pairBlasts: this.pairBlasts,
+      pileLanded: this.pileLanded,
+      pileCleared: this.pileCleared,
+      pileMaxRows: this.pileMaxRows,
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],

@@ -54,14 +54,18 @@
 `RunConfig.rules`(`sim/types.ts` 의 `RULE_IDS`)로 켜고 끄는 플레이테스트용 규칙. 수치는 `balance.ts` 의 `experiment`.
 타이틀 칩 → `settings.rules`(세이브) → `createRunConfig`. 일일 도전은 항상 끔.
 
-- **과충전** (`overcharge`): 게이지 상한 150%. 100% 에서 누르면 `World.charging` 이 되고, 누르고 있는 동안만 넘어서 찬다
+- **과충전** (기본 규칙, `overchargeOn` 이 항상 참. `rules.overcharge` 는 옛 세이브 호환용): 게이지 상한 150%. 100% 에서 누르면 `World.charging` 이 되고, 누르고 있는 동안만 넘어서 찬다
   (100% 위로 갈수록 가속). 떼면(`release`) 그 크기로 쏘고, 상한에 닿으면 `overload` (게이지 0, `overheat` 동안 헛탭).
   환급·증강으로는 100% 까지만 찬다. 초신성이 있으면 상한 250%, 폭주 없음(기존 방식).
+- **쌓이는 바닥** (`pile`): 넘어온 적(최종 보스 빼고)이 LIFE 를 깎는 대신 `pileCols[칸]` 에 블록으로 쌓인다(`landOnPile`, `land` 이벤트).
+  한 칸이 `maxRows` 에 닿으면 패배. 블록이 죽으면 `removeFromPile` 로 위 블록이 내려오고, 죽은 블록은 작은 폭발(`source: 'pile'`)을 일으켜
+  닿은 블록을 바로 죽인다. 이 폭발은 연쇄 단계 × `stepsPerDepth` 칸까지 이어진다(100% = 3칸, 130% = 6칸).
+  이 규칙에선 적 체력에 `enemyHpMul` 를 곱한다. `landingY(x)` 가 칸마다 바닥 높이를 돌려줘서 봇·위험 판정이 쓴다.
 - **연쇄 잇기** (`combo`): 처치마다 `combo.kills++`, `windowSec` 동안 처치가 없으면 끊김(`comboEnd`).
   `comboMult()` 를 탭 피해와 폭발형 자기 폭약에 곱한다 (넘친 피해에는 안 곱함).
 - **벼랑 끝** (`brink`): 방어선 위 `zone` 안에서 잡으면 게이지 환급 (`brink` 이벤트).
 
-봇은 규칙마다 정책 옵션이 있다 (`overchargeAt`, `holdJitter`, `comboExtend`, `brinkGreed`, `pressDelay`). 자동 플레이 `--rules`, `--bot` 로 비교한다.
+봇은 규칙마다 정책 옵션이 있다 (`overchargeAt`, `holdJitter`, `comboExtend`, `brinkGreed`, `paint`, `pairAware`, `pileClearAt`, `pressDelay`). 자동 플레이 `--rules`, `--bot` 로 비교한다.
 
 ## 피해 배율
 

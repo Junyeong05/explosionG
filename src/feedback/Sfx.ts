@@ -69,6 +69,9 @@ export class Sfx {
           this.burst(0.35, 0.45, 300);
           this.tone(110, 0.3, 'sawtooth', 0.25, 50);
           break;
+        case 'land':
+          this.tone(95, 0.06, 'square', 0.05);
+          break;
         case 'pairBlast':
           // 짝 폭발: 멀리서 울리는 두 번째 펑
           this.tone(520, 0.08, 'triangle', 0.12, 1040);

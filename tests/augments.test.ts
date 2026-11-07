@@ -114,7 +114,7 @@ describe('증강 효과', () => {
     const w = sandbox();
     grant(w, 'fission');
     w.spawnEnemy('explosive', 100, 200)!.speed = 0;
-    w.step(1 / 60, [{ t: 'press', x: 100, y: 200 }]);
+    tap(w, 100, 200);
     stepFor(w, BALANCE.chain.delaySec + 0.02);
     expect(w.explosions.filter((e) => e.source === 'fission').length).toBe(2);
   });
@@ -136,12 +136,12 @@ describe('증강 효과', () => {
     const w = sandbox();
     grant(w, 'infinite_chain');
     w.spawnEnemy('explosive', 100, 200)!.speed = 0;
-    w.step(1 / 60, [{ t: 'press', x: 100, y: 200 }]);
+    tap(w, 100, 200);
     const after = w.gauge;
     expect(after).toBeLessThan(0.1);
     expect(w.explosions.length).toBeGreaterThan(0); // 폭발형이 터지는 중
     w.drainEvents();
-    w.step(1 / 60, [{ t: 'press', x: 300, y: 300 }]);
+    tap(w, 300, 300);
     const t = w.drainEvents().find((e) => e.type === 'tap');
     expect(t && t.type === 'tap' && t.free).toBe(true);
     expect(t && t.type === 'tap' && t.power).toBe(BALANCE.prism.infiniteChain.freeTapPower);

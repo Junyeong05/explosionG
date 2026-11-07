@@ -5,11 +5,14 @@ import { grant, sandbox, stepFor, tap } from './helpers';
 const OC = BALANCE.experiment.overcharge;
 
 describe('실험 규칙: 과충전', () => {
-  it('규칙이 꺼져 있으면 100% 에서 멈추고 누르면 바로 쏜다', () => {
+  it('기본 규칙: 누르고 있지 않으면 100% 에서 멈추고, 100% 에서 누르면 과충전이 시작된다 (떼야 발사)', () => {
     const w = sandbox();
     stepFor(w, 5);
     expect(w.gauge).toBe(1);
     w.step(FIXED_DT, [{ t: 'press', x: 100, y: 100 }]);
+    expect(w.charging).not.toBeNull();
+    expect(w.taps).toBe(0);
+    w.step(FIXED_DT, [{ t: 'release', x: 100, y: 100 }]);
     expect(w.taps).toBe(1);
   });
 
@@ -294,5 +297,75 @@ describe('봇: 불씨 칠하기 정책', () => {
     expect(fired).toBe(true);
     expect(w.enemies.filter((e) => e.spark).length).toBeGreaterThanOrEqual(4);
     expect(w.overloads).toBe(0);
+  });
+});
+
+describe('실험 규칙: 쌓이는 바닥', () => {
+  const P = BALANCE.experiment.pile;
+  const line = BALANCE.field.defenseLineY;
+
+  /** col 칸에 적 하나를 떨어뜨려 쌓는다 */
+  function drop(w: ReturnType<typeof sandbox>, col: number, kind = 'normal') {
+    const e = w.spawnEnemy(kind, (col + 0.5) * P.colWidth, 100)!;
+    e.hp = e.maxHp = 1;
+    e.y = w.pileTopY(col) - e.radius - 0.5;
+    e.speed = 120;
+    stepFor(w, 0.05);
+    return e;
+  }
+
+  it('방어선에 닿은 적은 LIFE 를 깎지 않고 블록으로 쌓인다', () => {
+    const w = sandbox({ rules: { pile: true } });
+    const a = drop(w, 3);
+    const b = drop(w, 3);
+    expect(a.dead).toBe(false);
+    expect(a.pileCol).toBe(3);
+    expect(b.pileY).toBeCloseTo(a.pileY - P.blockH);
+    expect(w.life).toBe(BALANCE.life.start);
+    expect(w.pileCols[3].length).toBe(2);
+  });
+
+  it('한 칸이 한계까지 차면 패배', () => {
+    const w = sandbox({ rules: { pile: true } });
+    for (let i = 0; i < P.maxRows; i++) drop(w, 0);
+    expect(w.phase).toBe('ended');
+    expect(w.result).toBe('defeat');
+  });
+
+  it('아래 블록이 사라지면 위 블록이 떨어진다', () => {
+    const w = sandbox({ rules: { pile: true } });
+    const a = drop(w, 5);
+    const b = drop(w, 5);
+    const top = b.pileY;
+    w.spawnExplosion({ x: a.x, y: a.y, radius: 4, damage: 99, chainId: w.newChain(0), source: 'chain' });
+    stepFor(w, 0.3);
+    expect(a.dead).toBe(true);
+    expect(b.pileY).toBeGreaterThan(top);
+    expect(b.y).toBeCloseTo(line - 0.5 * P.blockH);
+  });
+
+  /** 0~11칸에 한 줄로 쌓고 0칸을 쏜다 → 몇 칸까지 무너지나 */
+  function rowCollapse(fire: (w: ReturnType<typeof sandbox>) => void) {
+    const w = sandbox({ rules: { pile: true } });
+    const row = Array.from({ length: 12 }, (_, c) => drop(w, c));
+    fire(w);
+    stepFor(w, 1);
+    return row.filter((e) => e.dead).length;
+  }
+
+  it('100% 로 쏘면 블록이 줄줄이 무너지고, 100% 미만이면 맞은 것만 죽는다', () => {
+    const full = rowCollapse((w) => tap(w, P.colWidth / 2, line - P.blockH / 2));
+    const half = rowCollapse((w) => { w.gauge = 0.5; tap(w, P.colWidth / 2, line - P.blockH / 2); });
+    expect(full).toBeGreaterThan(half + 2);
+  });
+
+  it('과충전 130% 로 쏘면 100% 보다 더 멀리 무너진다 (단계 × stepsPerDepth)', () => {
+    const full = rowCollapse((w) => tap(w, P.colWidth / 2, line - P.blockH / 2));
+    const over = rowCollapse((w) => {
+      w.step(FIXED_DT, [{ t: 'press', x: P.colWidth / 2, y: line - P.blockH / 2 }]);
+      while (w.gauge < 1.32) w.step(FIXED_DT);
+      w.step(FIXED_DT, [{ t: 'release', x: P.colWidth / 2, y: line - P.blockH / 2 }]);
+    });
+    expect(over).toBeGreaterThan(full);
   });
 });

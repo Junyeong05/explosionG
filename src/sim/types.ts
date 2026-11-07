@@ -8,6 +8,8 @@ import type { MetaModifiers } from './stats';
 export type DamageSource =
   | 'tap'
   | 'chain'
+  /** 쌓이는 바닥: 무너지는 블록의 폭발. 블록에게는 즉사 */
+  | 'pile'
   | 'fission'
   | 'ember'
   | 'shard'
@@ -38,6 +40,9 @@ export interface Enemy {
   pack: Pack | null;
   /** 불씨 칠하기: 불씨가 붙었나 (죽을 때 폭발형처럼 터짐) */
   spark: boolean;
+  /** 쌓이는 바닥: 쌓인 블록이면 칸 번호 (-1 = 아님), 떨어져 내려갈 목표 y */
+  pileCol: number;
+  pileY: number;
   /** 짝 폭발형: 짝 (없으면 null) 과 짝 색 번호 (-1 = 짝 없음) */
   partner: Enemy | null;
   pairColor: number;
@@ -131,13 +136,15 @@ export type Phase = 'playing' | 'choosing' | 'ended';
 
 /**
  * 실험 규칙 (플레이테스트용, 타이틀에서 켜고 끔). 기본은 전부 꺼짐.
- *   overcharge: 과충전 — 게이지가 150%까지 차지만 넘기면 폭주
+ *   overcharge: 과충전 — 이제 기본 규칙이라 이 값은 무시됨 (옛 세이브 호환용)
  *   combo:      연쇄 잇기 — 처치가 끊기지 않으면 콤보 배율이 쌓인다
  *   brink:      벼랑 끝 — 방어선 가까이서 잡을수록 게이지를 돌려받는다 (봇 시험 탈락, 타이틀엔 안 보임)
  *   paint:      불씨 칠하기 — 과충전 중 누른 채 끌면 닿은 적에 불씨, 불씨 붙은 적은 죽을 때 폭발형처럼 터짐 (과충전 포함)
  *   pairs:      짝 폭발형 — 서로 다른 무리의 폭발형 둘이 짝, 하나가 터지면 짝도 그 자리에서 터짐
+ *   pile:       쌓이는 바닥 — 넘어온 적이 바닥에 블록으로 쌓이고(LIFE 없음), 꼭대기까지 차면 끝.
+ *               100% 이상으로 쏜 폭발에 블록이 죽으면 붙은 블록이 줄줄이 무너진다
  */
-export const RULE_IDS = ['overcharge', 'combo', 'brink', 'paint', 'pairs'] as const;
+export const RULE_IDS = ['overcharge', 'combo', 'brink', 'paint', 'pairs', 'pile'] as const;
 export type RuleId = (typeof RULE_IDS)[number];
 export type RunRules = Partial<Record<RuleId, boolean>>;
 
@@ -188,6 +195,10 @@ export interface RunSummary {
   sparkBlasts?: number;
   /** 짝 폭발이 일어난 횟수 */
   pairBlasts?: number;
+  /** 쌓이는 바닥: 쌓인 블록 수와 무너뜨린 블록 수, 판 최고 더미 높이(칸) */
+  pileLanded?: number;
+  pileCleared?: number;
+  pileMaxRows?: number;
   level: number;
   durationSec: number;
   /** 고른 증강 id (순서대로) */

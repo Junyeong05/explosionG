@@ -35,12 +35,13 @@ const RULE_INFO: Record<RuleId, { name: string; desc: string }> = {
   overcharge: { name: '과충전', desc: '100%에서 꾹 누르면 150%까지 더 모인다. 떼면 발사, 끝까지 넘기면 폭주' },
   combo: { name: '연쇄 잇기', desc: '0.6초 안에 계속 잡으면 콤보 배율이 쌓인다 (처치당 +3%, 최대 ×3)' },
   brink: { name: '벼랑 끝', desc: '방어선 근처에서 잡으면 게이지 25% 환급 (봇 시험에선 손해였음)' },
-  paint: { name: '불씨 칠하기', desc: '100%에서 꾹 누른 채 끌면 원에 닿은 적에 불씨가 붙는다. 떼면 발사, 불씨 붙은 적은 죽을 때 폭발형처럼 터진다 (과충전 포함)' },
+  paint: { name: '불씨 칠하기', desc: '100%에서 꾹 누른 채 끌면 손끝이 지나간 적에 불씨가 붙는다. 떼면 발사, 불씨 붙은 적은 죽을 때 폭발형처럼 터진다' },
   pairs: { name: '짝 폭발형', desc: '같은 색 테두리 폭발형 둘은 짝. 하나가 터지면 멀리 있는 짝도 그 자리에서 같이 터진다' },
+  pile: { name: '쌓이는 바닥', desc: '넘어온 적은 LIFE 대신 바닥에 블록으로 쌓이고, 한계선까지 차면 끝. 100% 이상으로 블록을 터뜨리면 붙은 블록이 줄줄이 무너진다 (과충전 130%면 두 배)' },
 };
 
-/** 타이틀에 보이는 실험 규칙 (벼랑 끝은 봇 시험에서 탈락해 숨김) */
-const VISIBLE_RULES: readonly RuleId[] = RULE_IDS.filter((id) => id !== 'brink');
+/** 타이틀에 보이는 실험 규칙 (벼랑 끝은 봇 시험에서 탈락, 과충전은 기본 규칙이 되어 숨김) */
+const VISIBLE_RULES: readonly RuleId[] = RULE_IDS.filter((id) => id !== 'brink' && id !== 'overcharge');
 
 export interface TitleProps {
   save: SaveData;

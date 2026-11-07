@@ -38,6 +38,8 @@ export interface BotOptions {
   paint?: 'none' | 'ring' | 'smart';
   /** 짝 폭발형 규칙: 짝이 있는 폭발형을 맞히면 짝 자리 주변 적까지 점수에 넣는다 */
   pairAware?: boolean;
+  /** 쌓이는 바닥 규칙: 가장 높은 칸이 한계의 이 비율 이상이면 100% 한 방을 더미에 쓴다 (기본 0.6, 1 넘으면 안 씀) */
+  pileClearAt?: number;
 }
 
 /** 과충전: 100% 에서 level 까지 누르고 있어야 하는 시간 (World.updateGauge 의 가속 곡선을 적분) */
@@ -186,6 +188,19 @@ export class Bot {
   private decide(w: World, g: number): { x: number; y: number } | null {
     const o = this.opts;
     const free = w.stats.freeTapDuringChain && w.explosions.length > 0;
+    // 쌓이는 바닥: 더미가 높으면 100% 한 방을 가장 높은 칸 꼭대기에 (내려앉는 적보다 먼저 —
+    // 내려앉아도 바로 지지 않고 더미만 높아지므로)
+    if (w.rules.pile && g >= 1) {
+      const P = BALANCE.experiment.pile;
+      const at = this.opts.pileClearAt ?? 0.6;
+      if (w.pileHeight() >= at * P.maxRows) {
+        let best = 0;
+        w.pileCols.forEach((c, i) => { if (c.length > w.pileCols[best].length) best = i; });
+        const top = w.pileCols[best][w.pileCols[best].length - 1];
+        if (top) return { x: top.x, y: top.y };
+      }
+    }
+
     const danger = this.lowestInDanger(w, DANGER_DIST);
     this.urgent = !!danger;
     if (danger && g >= URGENT_FIRE) return danger;
@@ -273,9 +288,20 @@ export class Bot {
   }
 
   private lowestInDanger(w: World, dist: number): Enemy | null {
-    const dangerY = w.field.defenseLineY - dist;
+    // 내려앉을 높이(쌓이는 바닥이면 그 칸 더미 윗면)까지 남은 거리로 판단. 이미 쌓인 블록은 급하지 않다
     let lowest: Enemy | null = null;
-    for (const e of w.enemies) if (!e.dead && e.y > dangerY && (!lowest || e.y > lowest.y)) lowest = e;
+    let lowestGap = dist;
+    const P = BALANCE.experiment.pile;
+    for (const e of w.enemies) {
+      if (e.dead || e.pileCol >= 0) continue;
+      // 쌓이는 바닥: 한계에 가까운 칸으로 내려앉는 적만 급하다
+      if (w.rules.pile && w.pileCols[Math.min(w.pileCols.length - 1, Math.max(0, Math.floor(e.x / P.colWidth)))].length < P.maxRows - 4) continue;
+      const gap = w.landingY(e.x) - e.y;
+      if (gap < lowestGap) {
+        lowestGap = gap;
+        lowest = e;
+      }
+    }
     return lowest;
   }
 
