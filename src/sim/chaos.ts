@@ -1,7 +1,7 @@
 import { BALANCE } from '../data/balance';
 import { AUGMENTS, FALLBACK_AUGMENTS } from '../data/augments';
 import {
-  ARMS, ARSENAL, DEFAULT_RANGE, MAX_LEVEL, PASSIVE_SLOTS, WEAPON_SLOTS, effective, hasRange,
+  ARMS, ARSENAL, DEFAULT_RANGE, FUSE_LEVEL, FUSIONS, MAX_LEVEL, PASSIVE_SLOTS, WEAPON_SLOTS, effective, fusionsOf, hasRange,
   type ArmCategory, type ChaosEventId, type WeaponParams, type WeaponSpec,
 } from '../data/chaos';
 import { clamp, dist2 } from '../core/math';
@@ -20,7 +20,7 @@ export type ActorKind =
   | 'meteor' | 'dino' | 'cow' | 'ufo' | 'plane' | 'bomb' | 'cannon' | 'shell' | 'sheep' | 'banana' | 'bananaBit'
   | 'donkey' | 'train' | 'dragon' | 'tornado' | 'slot' | 'cookie' | 'soldier' | 'fireball' | 'laser' | 'frost'
   | 'bullet' | 'beam' | 'thrown' | 'walker' | 'stamp' | 'saw' | 'vortex' | 'bubble' | 'drone' | 'storm'
-  | 'faller' | 'sweep' | 'ring';
+  | 'faller' | 'sweep' | 'ring' | 'chill';
 
 export interface Actor {
   id: number;
@@ -195,19 +195,29 @@ export class Chaos {
       const L = this.lv(d.id);
       if (L >= MAX_LEVEL) continue;
       if (L > 0) ups.push(d.id);
+      else if (ARMS[d.id].fusion) continue;
       else if (ARMS[d.id].cat === 'passive') {
         if (passives.length < PASSIVE_SLOTS) newPassives.push(d.id);
       } else if (weapons.length < WEAPON_SLOTS) newWeapons.push(d.id);
     }
     const cand: { id: string; wt: number }[] = [];
-    for (const id of ups) cand.push({ id, wt: 1 });
+    // 융합 짝: 가진 무기의 짝은 새 무기로 훨씬 자주, 짝을 이미 가진 무기의 레벨 업도 더 자주
+    const partnerOwned = (id: string) => fusionsOf(id).some((f) => this.lv(f.id) === 0 && f.fusion!.some((x) => x !== id && this.lv(x) > 0));
+    for (const id of ups) cand.push({ id, wt: partnerOwned(id) && this.lv(id) < FUSE_LEVEL ? 2 : 1 });
     const newTotal = Math.max(2, 0.25 * weapons.length);
-    for (const id of newWeapons) cand.push({ id, wt: (newTotal / newWeapons.length) * (kind === 'boss' && ARMS[id].cat === 'magic' ? 4 : 1) });
-    for (const id of newPassives) cand.push({ id, wt: 0.8 / newPassives.length });
+    const each = newTotal / Math.max(1, newWeapons.length);
+    for (const id of newWeapons) {
+      const boss = kind === 'boss' && ARMS[id].cat === 'magic' ? 4 : 1;
+      cand.push({ id, wt: Math.max(each * boss, partnerOwned(id) ? 0.6 : 0) });
+    }
+    for (const id of newPassives) cand.push({ id, wt: Math.max(0.8 / newPassives.length, partnerOwned(id) ? 0.6 : 0) });
     if (this.hasBomb) {
       for (const d of AUGMENTS) if (d.rarity !== 'prism' && !d.evolution && this.w.augments.isAvailable(d)) cand.push({ id: d.id, wt: 0.05 });
     }
     const out: string[] = [];
+    // 융합: 재료 둘이 다 FUSE_LEVEL 이상이면 융합 카드를 꼭 한 장 (첫 칸)
+    const fusable = this.fusable();
+    if (fusable.length > 0) out.push(rng.pick(fusable));
     while (out.length < 3 && cand.length > 0) {
       const c = rng.weighted(cand, (x) => x.wt);
       if (!c) break;
@@ -219,6 +229,11 @@ export class Chaos {
       out.push(fb.id);
     }
     return out;
+  }
+
+  /** 지금 고를 수 있는 융합 (재료 둘이 다 FUSE_LEVEL 이상, 아직 안 가짐) */
+  fusable(): string[] {
+    return FUSIONS.filter((f) => this.lv(f.id) === 0 && f.fusion!.every((id) => this.lv(id) >= FUSE_LEVEL)).map((f) => f.id);
   }
 
   // ─── 탭 ────────────────────────────────────────────────
@@ -548,7 +563,10 @@ export class Chaos {
         hits.sort((a, b) => a.d - b.d);
         const chainId = w.newChain(1);
         const pierce = (p.pierce ?? 0) + this.lv('arm_pierce');
-        for (const h of hits.slice(0, pierce + 1)) this.hit(h.e, (p.dmg ?? 2) * D, p, chainId);
+        for (const h of hits.slice(0, pierce + 1)) {
+          this.hit(h.e, (p.dmg ?? 2) * D, p, chainId);
+          if (p.chain) this.chainZap(h.e, p.chain, (p.dmg ?? 2) * D * 0.5);
+        }
         const a = this.add('beam', from.x, from.y, { tx: x2, ty: y2, ttl: 0.15, r: width, p });
         if (a) a.emoji = p.color ?? '#ff3cc8';
         w.emit({ type: 'gunFire', x: from.x, y: from.y, angle: ang, big: true });
@@ -857,7 +875,7 @@ export class Chaos {
         break;
       case 'tornado': {
         const dir = rng.chance(0.5) ? 1 : -1;
-        this.add('tornado', dir > 0 ? 30 : W - 30, clamp(spot.y, LINE - this.curRange + 60, LINE - 80), { vx: 55 * dir, dir, ttl: 4, grabbed: true, n: 110 + 10 * more });
+        this.add('tornado', dir > 0 ? 30 : W - 30, clamp(spot.y, LINE - this.curRange + 60, LINE - 80), { vx: 55 * dir, dir, ttl: 4, grabbed: true, n: 110 + 10 * more, p });
         break;
       }
       case 'train': {
@@ -934,12 +952,19 @@ export class Chaos {
       case 'ring':
       case 'frost':
         return true;
+      case 'chill':
+        if (a.t + dt >= a.ttl) for (const e of w.enemiesNear(a.x, a.y, a.r)) if (!e.def.boss) e.frozen = Math.max(e.frozen, a.n);
+        return true;
       case 'thrown': {
         a.x += a.vx * dt;
         a.y += a.vy * dt;
         if (a.t + dt >= a.ttl - 0.02) {
           const p = a.p ?? {};
           this.boom(a.tx, a.ty, (p.boom ?? 40) * this.areaMul, a.dmg || 2 * D, p);
+          if (p.chain) {
+            const first = w.enemiesNear(a.tx, a.ty, 60)[0];
+            if (first) this.chainZap(first, p.chain, (a.dmg || 2 * D) * 0.6);
+          }
           return false;
         }
         return true;
@@ -973,8 +998,9 @@ export class Chaos {
         for (const e of w.enemiesNear(a.x, a.y, reach)) {
           if (a.hits!.has(e.id) || e.pileCol >= 0) continue;
           a.hits!.add(e.id);
-          if (a.p?.freeze && !e.def.boss) e.frozen = Math.max(e.frozen, a.p.freeze);
-          this.boom(e.x, e.y, 26, a.dmg, a.p ?? undefined, false);
+          // 밟힌 적만 맞는다 (밟을 때마다 범위 폭발을 냈더니 몰린 적에게 몇 배로 들어가 펭귄·코끼리가 압도적이었다)
+          this.hit(e, a.dmg, a.p ?? {}, w.newChain(1));
+          this.add('ring', e.x, e.y, { ttl: 0.25, r: 14, emoji: '#ffd36b' });
         }
         if (a.vy < 0) return a.y > -40;
         return a.dir > 0 ? a.x < W + 140 : a.x > -140;
@@ -1007,7 +1033,7 @@ export class Chaos {
           const pull = Math.min(d, 160 * dt);
           e.x += (dx / d) * pull - (dy / d) * 60 * dt;
           e.y += (dy / d) * pull + (dx / d) * 60 * dt;
-          e.frozen = Math.max(e.frozen, 0.1);
+          e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
           this.boom(a.x, a.y, (a.p?.boom ?? 60) * this.areaMul, a.dmg, a.p ?? undefined);
@@ -1018,7 +1044,7 @@ export class Chaos {
       case 'bubble': {
         for (const e of a.grabbed!) {
           if (e.dead) continue;
-          e.frozen = Math.max(e.frozen, 0.1);
+          e.held = Math.max(e.held, 0.1);
           e.pack = null;
           e.y -= 30 * dt;
         }
@@ -1176,7 +1202,10 @@ export class Chaos {
           if (a.kind === 'train' && Math.abs(e.y - a.y) > 24 + e.radius) continue;
           a.hits!.add(e.id);
           if (a.kind === 'train') w.hitFromExp(e, e.def.boss ? 6 * D : Math.max(e.hp + 1, 6 * D), w.newChain(1), 0);
-          else this.boom(e.x, e.y, 26, (a.kind === 'dino' ? 3 : 2.5) * D);
+          else {
+            this.hit(e, (a.kind === 'dino' ? 3 : 2.5) * D, {}, w.newChain(1));
+            this.add('ring', e.x, e.y, { ttl: 0.25, r: 14, emoji: '#ffd36b' });
+          }
         }
         if (a.kind === 'cow') return a.y > -40;
         return a.dir > 0 ? a.x < W + 140 : a.x > -140;
@@ -1226,7 +1255,7 @@ export class Chaos {
             if (e.dead) continue;
             e.y -= 80 * dt;
             e.x += (a.x - e.x) * Math.min(1, dt * 3);
-            e.frozen = Math.max(e.frozen, 0.2);
+            e.held = Math.max(e.held, 0.2);
           }
           return true;
         }
@@ -1244,12 +1273,13 @@ export class Chaos {
           if (e.def.boss || e.pileCol >= 0) continue;
           if (!a.grabbed!.includes(e)) a.grabbed!.push(e);
           e.pack = null;
+          if (a.p?.ignite) e.burn = Math.max(e.burn, 3);
           const dx = a.x - e.x;
           const dy = a.y - e.y;
           const d = Math.hypot(dx, dy) || 1;
           e.x += ((dx / d) * 90 - (dy / d) * 120) * dt;
           e.y += ((dy / d) * 90 + (dx / d) * 120) * dt;
-          e.frozen = Math.max(e.frozen, 0.1);
+          e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
           for (const e of a.grabbed!) if (!e.dead) e.spark = true;
@@ -1496,13 +1526,15 @@ export class Chaos {
   private hit(e: Enemy, dmg: number, p: WeaponParams, chainId: number): void {
     const rng = this.w.rng;
     if (this.lv('arm_crit') > 0 && rng.chance(0.06 * this.lv('arm_crit'))) dmg *= 2.5;
+    // 피해를 먼저 주고 얼린다 (먼저 얼리면 그 한 방부터 언 적 피해 2.5배가 붙어서 얼리는 무기가 다 셌다)
+    this.w.hitFromExp(e, dmg, chainId, 0);
+    if (e.dead) return;
     if (p.freeze && !e.def.boss) {
       e.frozen = Math.max(e.frozen, p.freeze);
       e.pack = null;
     }
     if (p.ignite) e.burn = Math.max(e.burn, 3);
     if (p.spark || (this.lv('arm_explosive') > 0 && rng.chance(0.08 * this.lv('arm_explosive')))) e.spark = true;
-    this.w.hitFromExp(e, dmg, chainId, 0);
   }
 
   /** 폭발 (연쇄 1단계). 다시 터짐 강화면 가끔 한 번 더 */
@@ -1510,7 +1542,8 @@ export class Chaos {
     const w = this.w;
     const tag = p?.ignite ? { ignite: true } : undefined;
     w.spawnExplosion({ x, y, radius, damage, chainId: chainId ?? w.newChain(1), source: 'exp', tag });
-    if (p?.freeze) for (const e of w.enemiesNear(x, y, radius)) if (!e.def.boss) e.frozen = Math.max(e.frozen, p.freeze);
+    // 얼림은 폭발이 터진 뒤에 (먼저 얼리면 그 폭발이 2.5배로 들어감)
+    if (p?.freeze) this.add('chill', x, y, { ttl: 0.05, r: radius, n: p.freeze });
     if (p?.spark) for (const e of w.enemiesNear(x, y, radius)) e.spark = true;
     const re = this.lv('arm_retrigger');
     if (re > 0 && w.rng.chance(0.06 * re)) w.spawnExplosion({ x, y, radius, damage, chainId: w.newChain(1), source: 'exp', delay: 0.2, tag });

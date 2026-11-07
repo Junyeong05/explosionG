@@ -59,6 +59,8 @@ export interface Enemy {
   ky: number;
   /** 실험 규칙 상태 (exp.ts). 얼음·불 남은 시간, 색, 부푼 횟수, 화면에 들어온 시각, 황금 */
   frozen: number;
+  /** 블랙홀·토네이도·UFO·거품에 붙잡혀 멈춘 시간 (얼림과 달리 받는 피해는 그대로) */
+  held: number;
   burn: number;
   color: number;
   inflate: number;

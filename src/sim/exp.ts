@@ -377,6 +377,7 @@ export class Experiments {
     for (const e of w.enemies) {
       if (e.dead) continue;
       if (e.frozen > 0) e.frozen = Math.max(0, e.frozen - dt);
+      if (e.held > 0) e.held = Math.max(0, e.held - dt);
     }
     if (this.r.burn || this.r.chaos) this.updateBurn(dt);
     if (this.r.magnet) this.updateMagnet(dt);

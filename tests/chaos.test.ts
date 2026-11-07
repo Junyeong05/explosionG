@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
-import { ARMS, ARSENAL, MAX_LEVEL, WEAPON_SLOTS, WEAPONS, effective } from '../src/data/chaos';
+import { ARMS, ARSENAL, FUSE_LEVEL, FUSIONS, MAX_LEVEL, WEAPON_SLOTS, WEAPONS, effective } from '../src/data/chaos';
 import { defaultSave } from '../src/meta/save';
 import { createRunConfig } from '../src/meta/progression';
 import { Bot } from '../src/sim/bot';
@@ -149,6 +149,34 @@ describe('도파민 모드: 카테고리 무기고', () => {
     expect(xs[2]).toBeGreaterThan(xs[0]);
     expect(w.chaos!.mountOf('arm_zap')).toBeUndefined();
     expect(w.chaos!.mountOf('arm_power')).toBeUndefined();
+  });
+
+  it('융합: 재료 둘을 FUSE_LEVEL 까지 올리면 융합 카드가 꼭 나오고, 얻으면 재료는 그대로 두고 무기가 하나 더 생긴다', () => {
+    const w = arena();
+    for (let i = 0; i < FUSE_LEVEL; i++) {
+      w.augments.acquire('arm_cannon', w);
+      if (i < FUSE_LEVEL - 1) expect(w.chaos!.fusable()).toEqual([]);
+      w.augments.acquire('arm_mortar', w);
+    }
+    expect(w.chaos!.fusable()).toEqual(['fus_barrage']);
+    for (let k = 0; k < 10; k++) expect(w.chaos!.roll('level')[0]).toBe('fus_barrage');
+    w.augments.acquire('fus_barrage', w);
+    const owned = w.chaos!.owned();
+    expect(owned).toContain('arm_cannon');
+    expect(owned).toContain('arm_mortar');
+    expect(owned).toContain('fus_barrage');
+    expect(w.chaos!.fusable()).toEqual([]);
+    stepFor(w, 0.05);
+    expect(w.chaos!.mountOf('fus_barrage')).toBeDefined();
+  });
+
+  it('융합 무기는 재료가 정해져 있고, 재료는 전부 있는 무기다', () => {
+    expect(FUSIONS.length).toBeGreaterThanOrEqual(12);
+    for (const f of FUSIONS) {
+      expect(f.fusion).toHaveLength(2);
+      for (const id of f.fusion!) expect(ARMS[id], `${f.name} 재료 ${id}`).toBeDefined();
+      expect(ARSENAL.find((d) => d.id === f.id)?.rarity).toBe('prism');
+    }
   });
 
   it('황금 쿠키를 누르면 그 탭은 쏘지 않고 버프를 받는다', () => {

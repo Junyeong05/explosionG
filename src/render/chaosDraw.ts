@@ -112,6 +112,15 @@ export class ChaosDraw {
         if (spec) this.banner(`${spec.emoji} ${spec.name}!`, '', '#c77dff');
         break;
       }
+      case 'augment': {
+        const spec = ARMS[e.id];
+        if (spec?.fusion) {
+          const [a, b] = spec.fusion.map((id) => ARMS[id]);
+          this.banner(`⚡ 융합! ${spec.emoji} ${spec.name}`, `${a.emoji} ${a.name} + ${b.emoji} ${b.name}`, '#ff3cc8');
+          this.flash = 0.5;
+        }
+        break;
+      }
       case 'gunFire':
         if (this.flashes.length < 40) this.flashes.push({ x: e.x, y: e.y, a: e.angle, t: 0, big: e.big });
         if (this.casings.length < 60) {
@@ -185,7 +194,15 @@ export class ChaosDraw {
     for (const { id, m } of mounts) {
       const spec = ARMS[id];
       const L = w.augments.stacks(id);
-      const glowCol = spec.cat === 'magic' ? '#c77dff' : spec.cat === 'summon' ? '#7dff9a' : spec.cat === 'gun' ? '#ffe08a' : COLORS.gold;
+      const glowCol = spec.fusion ? '#ff3cc8' : spec.cat === 'magic' ? '#c77dff' : spec.cat === 'summon' ? '#7dff9a' : spec.cat === 'gun' ? '#ffe08a' : COLORS.gold;
+      if (spec.fusion) {
+        // 융합 무기: 무지개빛 고리
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 13, 0, TAU);
+        ctx.strokeStyle = `hsla(${(this.time * 200 + m.x) % 360}, 100%, 65%, 0.9)`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
       if (id === sel) {
         ctx.beginPath();
         ctx.arc(m.x, m.y, 15, 0, TAU);

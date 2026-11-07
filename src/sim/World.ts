@@ -643,7 +643,7 @@ export class World implements SimApi {
         continue;
       }
       // 얼리고 깨기: 언 적은 멈춘다
-      if (e.frozen > 0) continue;
+      if (e.frozen > 0 || e.held > 0) continue;
       const p = e.pack;
       if (p) {
         e.x = p.x + e.packOx;
@@ -1085,6 +1085,7 @@ export class World implements SimApi {
       kx: 0,
       ky: 0,
       frozen: 0,
+      held: 0,
       burn: 0,
       color: -1,
       inflate: 0,

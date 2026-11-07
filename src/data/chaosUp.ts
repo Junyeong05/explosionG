@@ -53,7 +53,7 @@ export const UP: Record<string, UpStep[]> = {
   grenade: [boom(10), dmg(0.3), cool(0.2), boom(15)],
   strike: [width(6, '폭'), dmg(0.3), width(8, '폭'), dmg(0.4)],
   missile: [more(1, '미사일'), dmg(0.25), more(2, '미사일'), boom(10)],
-  hole: [radius(20), dmg(0.4), ttl(0.5, '빨아들이는 시간'), boom(30)],
+  hole: [radius(12), dmg(0.25), ttl(0.4, '빨아들이는 시간'), boom(15)],
   coins: [more(3, '동전'), dmg(0.3), more(5, '동전'), radius(8, '폭발 범위')],
 
   // 총
@@ -139,7 +139,7 @@ export const UP: Record<string, UpStep[]> = {
   jackpot: [S('777 확률 +3%', { count: 1 }), cool(0.15), S('777 확률 +3%', { count: 1 }), cool(0.2)],
   nuke: [cool(0.15), dmg(0.4), cool(0.15), dmg(0.6)],
   tsunami: [width(15, '물결 두께'), dmg(0.3), cool(0.15), knock(150)],
-  blackhole: [radius(30), boom(20), dmg(0.4), cool(0.15)],
+  blackhole: [radius(15), boom(10), dmg(0.25), cool(0.1)],
   storm: [ttl(1.5), dmg(0.3), ttl(2), cool(0.15)],
   volcano: [more(4, '용암'), dmg(0.3), more(5, '용암'), boom(10)],
   whale: [more(1, '고래'), boom(20), dmg(0.4), more(1, '고래')],
