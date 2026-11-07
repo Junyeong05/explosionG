@@ -945,7 +945,10 @@ export class World implements SimApi {
     const PB = BALANCE.experiment.pile;
     const pileBlast = pileBlock ? { radiusMul: PB.blastRadius / s.chainRadius, charge: PB.blastCharge } : undefined;
     // 불씨 칠하기: 불씨 붙은 적은 폭발형처럼 터진다
-    const blast = pileBlast ?? this.exp.deathBlast(e) ?? e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    // 도파민 모드: 적이 죽을 때 저절로 터지지 않는다 (폭발형·보스·폭약 전부). 플레이 피드백: 무기가 많아지니
+    // 거의 모든 적이 죽으면서 터져서 왜 터지는지 알 수 없었다. "연쇄 반응" 증강을 고르면 그때만 터진다.
+    const ownBlast = this.chaos ? undefined : e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    const blast = pileBlast ?? this.exp.deathBlast(e) ?? ownBlast;
     const depthOk = pileBlock ? chain.maxDepth > 0 && depth + 1 <= chain.maxDepth * PB.stepsPerDepth : depth + 1 <= chain.maxDepth;
     let exploded = false;
     if ((blast || s.chainOnAllKills) && depthOk) {

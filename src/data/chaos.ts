@@ -215,7 +215,7 @@ export function effective(spec: WeaponSpec, L: number): { p: WeaponParams; dmg: 
 export const WEAPONS: readonly WeaponSpec[] = [
   // ── 손공격: 탭한 자리에서 (사거리 없음) ──────────────────────
   W('hand', 'bomb', '💥', '폭탄 탭', 'bomb', 0, {}, '게이지를 모아 탭한 자리를 터뜨린다 (100%에서 꾹 누르면 과충전). 레벨: 반경, 3·5레벨 연쇄 +1', true),
-  W('hand', 'zap', '⚡', '번개 손', 'tapZap', 0.6, { count: 3, dmg: 2, radius: 110 }, '탭 근처 3마리에 번개 + 폭약', true),
+  W('hand', 'zap', '⚡', '번개 손', 'tapZap', 0.6, { count: 3, dmg: 2, radius: 110 }, '탭 근처 3마리에 번개', true),
   W('hand', 'mine', '💣', '지뢰 손', 'tapMine', 1, { dmg: 3, radius: 48, count: 4 }, '탭한 자리에 지뢰, 밟으면 쾅', true),
   W('hand', 'slash', '🔪', '베기 손', 'tapSlash', 1.2, { dmg: 2.5, width: 12 }, '탭한 높이를 화면 가로로 벤다'),
   W('hand', 'flame', '🔥', '화염 손', 'tapZone', 0.8, { radius: 36, dps: 1.2, ttl: 2 }, '탭한 자리에 불바다'),
@@ -264,7 +264,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   // ── 포탑: 아래 칸에 서서 ───────────────────────────────────
   W('turret', 'cannon', '🏰', '대포', 'lob', 3, { range: 320, dmg: 2.5, boom: 46 }, '몰린 곳에 포탄', true),
   W('turret', 'mortar', '🏯', '박격포', 'lob', 4.5, { range: 380, dmg: 4, boom: 70, speed: 300 }, '멀리 높이, 크게 터진다'),
-  W('turret', 'tesla', '🗼', '테슬라 코일', 'zap', 2.2, { range: 260, count: 3, dmg: 1.6, spark: true }, '세 마리를 지지고 폭약을 붙인다', true),
+  W('turret', 'tesla', '🗼', '테슬라 코일', 'zap', 2.2, { range: 260, count: 3, dmg: 1.6 }, '세 마리를 지진다', true),
   W('turret', 'satellite', '🛰️', '위성 레이저', 'column', 7, { range: 320, dmg: 4, width: 20 }, '몰린 줄에 레이저 기둥'),
   W('turret', 'frost', '❄️', '냉각탑', 'frostArea', 5, { range: 280, radius: 55, dmg: 0.5, freeze: 2 }, '몰린 곳을 2초 얼린다'),
   W('turret', 'flametower', '♨️', '화염탑', 'zoneAt', 3, { range: 220, radius: 40, dps: 1.2, ttl: 3 }, '몰린 곳에 불바다'),
@@ -281,7 +281,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('summon', 'chicken', '🐔', '닭', 'walker', 2.5, { count: 3, speed: 170, boom: 28, dmg: 1.2, emoji: '🐔' }, '닭 세 마리가 우르르, 작게 터진다'),
   W('summon', 'granny', '👵', '폭탄 할머니', 'walker', 7, { count: 1, speed: 45, boom: 95, dmg: 6, emoji: '👵' }, '느릿느릿, 크게 터진다'),
   W('summon', 'rats', '🐀', '쥐 떼', 'walker', 4, { count: 6, speed: 180, boom: 18, dmg: 1.2, emoji: '🐀' }, '쥐 여섯 마리가 흩어져 문다'),
-  W('summon', 'bees', '🐝', '벌 떼', 'walker', 3, { count: 5, speed: 200, melee: 1, dmg: 1, spark: true, emoji: '🐝' }, '쏘고 폭약을 붙인다'),
+  W('summon', 'bees', '🐝', '벌 떼', 'walker', 3, { count: 5, speed: 200, melee: 1, dmg: 1.2, emoji: '🐝' }, '벌 다섯 마리가 흩어져 쏜다'),
   W('summon', 'dog', '🐕', '강아지', 'walker', 5, { count: 1, speed: 160, melee: 6, dmg: 1.8, emoji: '🐕' }, '여섯 번 물고 돌아간다'),
   W('summon', 'bear', '🐻', '곰', 'walker', 8, { count: 1, speed: 80, melee: 10, dmg: 3, size: 30, emoji: '🐻' }, '열 번 후려친다'),
   W('summon', 'robot', '🤖', '로봇', 'walker', 7, { count: 1, speed: 70, melee: 8, dmg: 2.5, boom: 60, emoji: '🤖' }, '여덟 번 때리고 자폭'),
@@ -340,7 +340,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('passive', 'area', '🌀', '범위', 'passive', 0, {}, '무기 폭발 반경 +10%'),
   W('passive', 'crit', '🎲', '치명타', 'passive', 0, {}, '무기 피해 6% 확률로 ×2.5'),
   W('passive', 'retrigger', '🔁', '다시 터짐', 'passive', 0, {}, '무기 폭발이 6% 확률로 한 번 더'),
-  W('passive', 'explosive', '🧪', '폭약', 'passive', 0, {}, '맞힌 적에 8% 확률로 폭약 (죽으면 터짐)'),
+  W('passive', 'explosive', '🧪', '약점 공략', 'passive', 0, {}, '불타거나 언 적에게 무기 피해 +12%'),
   W('passive', 'duration', '⌛', '지속', 'passive', 0, {}, '지대·소환 지속 +15%'),
   W('passive', 'gunsmith', '🔧', '총기 개조', 'passive', 0, {}, '총 쿨다운 -8%'),
   W('passive', 'summoner', '📯', '소환술', 'passive', 0, {}, '소환수 피해 +20%'),

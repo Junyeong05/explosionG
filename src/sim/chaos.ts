@@ -275,7 +275,6 @@ export class Chaos {
           const near = w.enemiesNear(x, y, p.radius ?? 110).sort((a, b) => dist2(a.x, a.y, x, y) - dist2(b.x, b.y, x, y));
           const chainId = w.newChain(1);
           for (const e of near.slice(0, (p.count ?? 3) + this.extra)) {
-            e.spark = true;
             w.emit({ type: 'bolt', kind: 'lightning', x1: x, y1: y, x2: e.x, y2: e.y });
             w.spawnExplosion({ x: e.x, y: e.y, radius: 18, damage: (p.dmg ?? 2) * D, chainId, source: 'lightning' });
           }
@@ -595,7 +594,6 @@ export class Chaos {
           const e = this.pickTarget('random', mount, range);
           if (!e) break;
           any = true;
-          if (p.spark) e.spark = true;
           w.emit({ type: 'bolt', kind: 'lightning', x1: from.x, y1: from.y - 10, x2: e.x, y2: e.y });
           w.spawnExplosion({ x: e.x, y: e.y, radius: 20, damage: (p.dmg ?? 1) * D, chainId, source: 'lightning' });
         }
@@ -1248,7 +1246,6 @@ export class Chaos {
             if (!a.grabbed!.includes(e)) {
               a.grabbed!.push(e);
               e.pack = null;
-              e.spark = true;
             }
           }
           for (const e of a.grabbed!) {
@@ -1282,7 +1279,6 @@ export class Chaos {
           e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
-          for (const e of a.grabbed!) if (!e.dead) e.spark = true;
           this.boom(a.x, a.y, 85, 4 * D);
         }
         return true;
@@ -1527,6 +1523,9 @@ export class Chaos {
   private hit(e: Enemy, dmg: number, p: WeaponParams, chainId: number): void {
     const rng = this.w.rng;
     if (this.lv('arm_crit') > 0 && rng.chance(0.06 * this.lv('arm_crit'))) dmg *= 2.5;
+    // 약점 공략: 불타거나 언 적에게 더
+    const weak = this.lv('arm_explosive');
+    if (weak > 0 && (e.burn > 0 || e.frozen > 0)) dmg *= 1 + 0.12 * weak;
     // 피해를 먼저 주고 얼린다 (먼저 얼리면 그 한 방부터 언 적 피해 2.5배가 붙어서 얼리는 무기가 다 셌다)
     this.w.hitFromExp(e, dmg, chainId, 0);
     if (e.dead) return;
@@ -1535,7 +1534,7 @@ export class Chaos {
       e.pack = null;
     }
     if (p.ignite) e.burn = Math.max(e.burn, 3);
-    if (p.spark || (this.lv('arm_explosive') > 0 && rng.chance(0.08 * this.lv('arm_explosive')))) e.spark = true;
+
   }
 
   /** 폭발 (연쇄 1단계). 다시 터짐 강화면 가끔 한 번 더 */
@@ -1545,7 +1544,6 @@ export class Chaos {
     w.spawnExplosion({ x, y, radius, damage, chainId: chainId ?? w.newChain(1), source: 'exp', tag });
     // 얼림은 폭발이 터진 뒤에 (먼저 얼리면 그 폭발이 2.5배로 들어감)
     if (p?.freeze) this.add('chill', x, y, { ttl: 0.05, r: radius, n: p.freeze });
-    if (p?.spark) for (const e of w.enemiesNear(x, y, radius)) e.spark = true;
     const re = this.lv('arm_retrigger');
     if (re > 0 && w.rng.chance(0.06 * re)) w.spawnExplosion({ x, y, radius, damage, chainId: w.newChain(1), source: 'exp', delay: 0.2, tag });
   }

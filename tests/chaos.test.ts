@@ -179,6 +179,19 @@ describe('도파민 모드: 카테고리 무기고', () => {
     }
   });
 
+  it('도파민 모드에선 적이 죽어도 저절로 터지지 않는다 (폭발형도)', () => {
+    const w = arena();
+    const bomb = w.spawnEnemy('explosive', 180, 300)!;
+    freeze(w);
+    w.augments.acquire('arm_pistol', w);
+    w.drainEvents();
+    bomb.hp = 1;
+    w.hitFromExp(bomb, 5, w.newChain(1), 0);
+    stepFor(w, 0.3);
+    expect(bomb.dead).toBe(true);
+    expect(w.drainEvents().some((e) => e.type === 'explosion' && e.source === 'chain')).toBe(false);
+  });
+
   it('황금 쿠키를 누르면 그 탭은 쏘지 않고 버프를 받는다', () => {
     const w = arena();
     w.chaos!.startEvent('cookie');
