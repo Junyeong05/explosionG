@@ -27,6 +27,13 @@ export type SimEvent =
   | { type: 'overload' }
   /** 짝 폭발: (x1, y1) 이 터져서 짝 (x2, y2) 도 터짐 */
   | { type: 'pairBlast'; x1: number; y1: number; x2: number; y2: number; color: number }
+  /** 도파민 모드: 난입 시작 (id = ChaosEventId), 피버, 황금 쿠키, 잭팟, 핵, 곱하기 게이트 */
+  | { type: 'chaos'; id: string; x: number; y: number }
+  | { type: 'fever'; on: boolean }
+  | { type: 'cookie'; x: number; y: number; buff: string }
+  | { type: 'slot'; reels: string[] }
+  | { type: 'nuke' }
+  | { type: 'gate'; x: number; y: number; mult: number }
   /** 11-07 실험 묶음 */
   | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }
   | { type: 'beat' }

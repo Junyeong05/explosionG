@@ -1,5 +1,6 @@
 import { BALANCE } from './balance';
 import { TAU } from '../core/math';
+import { CHAOS_AUGMENTS } from './chaos';
 import type { KillInfo, SimApi } from '../sim/api';
 import type { PlayerStats } from '../sim/stats';
 import type { Explosion } from '../sim/types';
@@ -287,7 +288,7 @@ export const FALLBACK_AUGMENTS: readonly AugmentDef[] = [
   },
 ];
 
-const ALL = new Map<string, AugmentDef>([...AUGMENTS, ...FALLBACK_AUGMENTS].map((a) => [a.id, a]));
+const ALL = new Map<string, AugmentDef>([...AUGMENTS, ...FALLBACK_AUGMENTS, ...CHAOS_AUGMENTS].map((a) => [a.id, a]));
 
 export function getAugment(id: string): AugmentDef {
   const a = ALL.get(id);

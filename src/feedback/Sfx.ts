@@ -72,6 +72,27 @@ export class Sfx {
         case 'land':
           this.tone(95, 0.06, 'square', 0.05);
           break;
+        case 'chaos':
+          this.tone(220, 0.35, 'sawtooth', 0.12, 880);
+          break;
+        case 'fever':
+          if (e.on) {
+            this.tone(523, 0.12, 'square', 0.1, 784);
+            this.tone(784, 0.3, 'triangle', 0.12, 1568);
+          }
+          break;
+        case 'cookie':
+          this.tone(1568, 0.2, 'triangle', 0.14, 2093);
+          break;
+        case 'slot':
+          this.tone(e.reels[0] === e.reels[2] ? 1760 : 440, 0.25, 'square', 0.1, e.reels[0] === e.reels[2] ? 2637 : 330);
+          break;
+        case 'nuke':
+          this.tone(60, 0.9, 'sawtooth', 0.5, 25);
+          break;
+        case 'gate':
+          this.tone(1200, 0.06, 'triangle', 0.06, 1800);
+          break;
         case 'beat':
           this.tone(1320, 0.03, 'square', 0.035);
           break;

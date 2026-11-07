@@ -7,6 +7,7 @@ import type { Enemy } from '../sim/types';
 import type { World } from '../sim/World';
 import { Bolts, DamageNumbers, GlowCache, Particles, Rings, Shake } from './fx/effects';
 import { ExpDraw } from './expDraw';
+import { ChaosDraw } from './chaosDraw';
 import { CHAIN_COLORS, COLORS, PAIR_COLORS, chainColor, rgba } from './palette';
 
 const FW = BALANCE.field.width;
@@ -46,6 +47,7 @@ export class Renderer {
   private readonly bolts = new Bolts(64);
   private readonly shake = new Shake();
   private readonly expFx: ExpDraw;
+  private readonly chaosFx: ChaosDraw;
   private particleBudget = PARTICLE_BUDGET_PER_FRAME;
 
   private edge = 0;
@@ -70,6 +72,7 @@ export class Renderer {
     if (!ctx) throw new Error('Canvas2D 를 쓸 수 없습니다');
     this.ctx = ctx;
     this.expFx = new ExpDraw(ctx, this.glow);
+    this.chaosFx = new ChaosDraw(ctx, this.glow);
     this.resize();
   }
 
@@ -102,6 +105,7 @@ export class Renderer {
     this.numbers.clear();
     this.bolts.clear();
     this.expFx.reset();
+    this.chaosFx.reset();
     this.shake.trauma = 0;
     this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = this.multPop = 0;
     this.banner = null;
@@ -120,6 +124,7 @@ export class Renderer {
   consume(events: readonly SimEvent[]): void {
     for (const e of events) {
       this.expFx.consume(e);
+      this.chaosFx.consume(e);
       switch (e.type) {
         case 'explosion':
           this.onExplosion(e);
@@ -239,6 +244,7 @@ export class Renderer {
     this.numbers.update(dt);
     this.bolts.update(dt);
     this.expFx.update(dt);
+    this.chaosFx.update(dt);
     this.shake.update(dt);
     this.edge = Math.max(0, this.edge - dt * 1.6);
     this.leakFlash = Math.max(0, this.leakFlash - dt * 2.5);
@@ -274,12 +280,14 @@ export class Renderer {
       this.drawZones(world);
       this.drawMines(world);
       this.expFx.drawUnder(world);
+      this.chaosFx.drawUnder(world);
       if (world.rules.pairs) this.drawPairLinks(world);
       for (const e of world.enemies) {
         if (e.dead) continue;
         this.drawEnemy(e, world.time);
         this.expFx.decorate(e, world);
       }
+      this.chaosFx.drawActors(world);
       this.drawCharging(world);
     }
 
@@ -298,6 +306,7 @@ export class Renderer {
     if (world) {
       this.drawHud(world, dt);
       this.expFx.drawHud(world);
+      this.chaosFx.drawHud(world);
     }
   }
 

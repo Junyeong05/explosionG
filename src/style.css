@@ -92,6 +92,8 @@ html, body {
 .btn:active { transform: translateY(1px); filter: brightness(1.25); }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .btn small { color: var(--dim); font-size: 12px; font-weight: 500; }
+.btn.dopamine { background: linear-gradient(90deg, rgba(255, 179, 71, 0.4), rgba(255, 60, 200, 0.3), rgba(60, 224, 255, 0.25)); border-color: rgba(255, 211, 107, 0.8); font-weight: 900; }
+.btn.dopamine small { color: #ffe1a8; }
 .btn.primary { background: linear-gradient(90deg, rgba(255, 60, 110, 0.38), rgba(181, 77, 255, 0.26)); border-color: rgba(255, 60, 110, 0.65); }
 .row { display: flex; gap: 8px; }
 .row > * { flex: 1; justify-content: center; }

@@ -183,6 +183,46 @@ export const BALANCE = {
   },
 
   /** 실험 규칙 수치 (sim/types.ts RULE_IDS). 전부 ⚠ 임시 */
+  /** 도파민 모드 (data/chaos.ts). 피해는 전부 D(지금 탭 피해 기준값) 배율이라 증강을 따라 커진다 */
+  chaos: {
+    /**
+     * ⚠ 난입·설치물이 워낙 세서 적 체력에 배율 = enemyHpMul + enemyHpPerWave × (웨이브-1).
+     * 처음부터 ×4~5 로 두면 설치물이 깔리기 전 초반에 봇이 25% 만 깼다 (판마다 들쭉날쭉).
+     * 초반엔 한 방에 쓸리고, 설치물이 쌓이는 후반에 단단해지게.
+     */
+    enemyHpMul: 1.5,
+    enemyHpPerWave: 0.28,
+    /** ⚠ 무리가 이 배 간격으로 내려온다 (작을수록 더 많이) */
+    packIntervalMul: 0.6,
+    /** 첫 난입까지 (초). 8초·20초 간격은 첫 1분에 난입이 두 번뿐이라 심심했다. 난입 간격 = max(min, base - perWave × (웨이브-1)) / (1 + 네잎클로버 0.3 × 중첩) */
+    firstEventSec: 4,
+    intervalBase: 14,
+    intervalPerWave: 0.7,
+    intervalMin: 5,
+    /** 이 웨이브부터 가끔 두 개가 한꺼번에 */
+    doubleFromWave: 9,
+    doubleChance: 0.35,
+    /** 동시에 있는 난입 물체 상한 (게이트 곱하기로 폭주하지 않게) */
+    maxActors: 140,
+    /** 피버: 처치마다 열기 +1, 열기는 heatHalfSec 마다 반으로. threshold 넘으면 feverSec 동안 피버 */
+    heatHalfSec: 1.8,
+    feverThreshold: 40,
+    feverSec: 8,
+    feverCooldownSec: 20,
+    /** 피버 중 탭 피해·반경 배율, 게이지 차는 속도 배율 */
+    feverDamage: 2,
+    feverRadius: 1.3,
+    feverGauge: 3,
+    /** 황금 쿠키: 탭 판정 반경, 떠 있는 시간, 버프 시간, 프렌지 피해 배율 */
+    cookieRadius: 36,
+    cookieSec: 7,
+    frenzySec: 10,
+    frenzyDamage: 3,
+    clickFrenzySec: 8,
+    /** 잭팟: 777(화면 전체 핵) 확률, 같은 그림 셋(그 난입 두 번) 확률 */
+    jackpot777: 0.12,
+    jackpotTriple: 0.35,
+  },
   experiment: {
     overcharge: {
       /** 게이지 상한. 100% 에서 꾹 누르고 있으면 여기까지 차고, 떼면 그 크기로 쏜다 */

@@ -39,6 +39,8 @@ export function activeExperiments(rules: Partial<Record<RuleId, boolean>>): stri
 export interface TitleProps {
   save: SaveData;
   onExperiments(): void;
+  /** 도파민 모드로 고른 챕터 바로 시작 */
+  onDopamine(): void;
   today: string;
   /** 고른 챕터 id */
   chapterId: string;
@@ -85,6 +87,7 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
+      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: `${selected.name} · 공룡·UFO·운석이 난입하고 설치물이 깔린다` })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },

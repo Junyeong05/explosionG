@@ -378,7 +378,7 @@ export class Experiments {
       if (e.dead) continue;
       if (e.frozen > 0) e.frozen = Math.max(0, e.frozen - dt);
     }
-    if (this.r.burn) this.updateBurn(dt);
+    if (this.r.burn || this.r.chaos) this.updateBurn(dt);
     if (this.r.magnet) this.updateMagnet(dt);
     if (this.r.seeds) {
       for (const s of this.seeds) s.ttl -= dt;

@@ -3,12 +3,15 @@ import type { BossId } from '../data/bosses';
 import { getChapter, type ChapterDef } from '../data/chapters';
 import type { EnemyDef, EnemyKind } from '../data/enemies';
 import { getEnemyDef } from '../data/lookup';
+import { AUGMENTS } from '../data/augments';
+import { CHAOS_AUGMENTS } from '../data/chaos';
 import { clamp, dist2 } from '../core/math';
 import { Rng, deriveSeed } from '../core/rng';
 import { SpatialGrid } from '../core/spatial';
 import { AugmentManager } from './augments';
 import type { ExplosionSpec, MineSpec, SimApi, ZoneSpec } from './api';
 import type { SimEvent } from './events';
+import { Chaos } from './chaos';
 import { Experiments, type Shot } from './exp';
 import { computeStats, type PlayerStats } from './stats';
 import {
@@ -86,6 +89,8 @@ export class World implements SimApi {
   readonly rules: RunRules;
   /** 11-07 실험 묶음 (exp.ts) */
   readonly exp: Experiments;
+  /** 도파민 모드 (chaos.ts). 꺼져 있으면 null */
+  readonly chaos: Chaos | null;
   /** 과충전 폭주 뒤 남은 과열 시간 (이 동안 못 쏨) */
   overheat = 0;
   /** 과충전 규칙: 100% 에서 누르고 있는 중 (이 동안만 100% 를 넘어 찬다, 떼면 쏨) */
@@ -132,10 +137,12 @@ export class World implements SimApi {
     this.chapter = getChapter(config.chapterId);
     this.rng = new Rng(deriveSeed(config.seed, 'combat'));
     this.spawnRng = new Rng(deriveSeed(config.seed, 'spawn'));
-    this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')));
+    // 도파민 모드면 설치물 증강도 선택지에 섞인다
+    this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')), config.rules?.chaos ? [...AUGMENTS, ...CHAOS_AUGMENTS] : AUGMENTS);
     this.recordEvents = config.recordEvents ?? true;
     this.rules = config.rules ?? {};
     this.exp = new Experiments(this, this.rules);
+    this.chaos = this.rules.chaos ? new Chaos(this) : null;
     if (this.rules.pile) {
       const n = Math.ceil(this.field.width / BALANCE.experiment.pile.colWidth);
       for (let i = 0; i < n; i++) this.pileCols.push([]);
@@ -175,6 +182,7 @@ export class World implements SimApi {
     this.rebuildGrid();
     this.paintSparks();
     this.exp.update(flow);
+    this.chaos?.update(flow);
     this.updateExplosions(dt);
     this.updateZones(flow);
     this.updateMines(flow);
@@ -243,6 +251,8 @@ export class World implements SimApi {
   private onPress(px: number, py: number): void {
     const x = clamp(px, 0, this.field.width);
     const y = clamp(py, 0, this.field.height);
+    // 도파민 모드: 황금 쿠키를 누른 탭은 쿠키만 먹는다
+    if (this.chaos?.tryPickup(x, y)) return;
     // 과충전 규칙: 100% 가 찬 상태에서 누르면 바로 쏘지 않고 과충전을 시작한다 (떼면 쏨)
     const free = this.stats.freeTapDuringChain && this.explosions.length > 0;
     const startsCharge = this.gauge >= 1 || this.exp.pressStartsCharge();
@@ -270,6 +280,7 @@ export class World implements SimApi {
     // 실험 규칙이 탭 한 발을 고친다 (모양·색·지연, 지뢰·씨앗이면 폭발 대신)
     const shot: Shot = { x, y, power, radius: this.tapRadiusAt(power), damage, depth: this.chainDepthAt(power), delay: 0, tag: {}, cancel: false };
     this.exp.onFire(shot);
+    this.chaos?.onFire(shot);
     if (!free) this.gauge = shot.gaugeAfter ?? Math.min(power, s.gaugeLeftover);
     if (shot.cancel) {
       this.taps++;
@@ -314,6 +325,7 @@ export class World implements SimApi {
       const kind = this.offerQueue.shift()!;
       const choices = this.augments.roll(kind, this.level);
       if (choices.length === 0) continue;
+      if (this.chaos) this.ensureInstallChoice(choices);
       this.offer = { kind, choices };
       this.phase = 'choosing';
       this.offerWait = 0;
@@ -326,6 +338,14 @@ export class World implements SimApi {
       return;
     }
     this.offerWait = 0;
+  }
+
+  /** 도파민 모드: 선택지에 설치물이 하나도 없으면 마지막 칸을 설치물로 바꾼다 (판 후반에 다 깔리게) */
+  private ensureInstallChoice(choices: string[]): void {
+    if (choices.some((id) => id.startsWith('chaos_'))) return;
+    const pool = CHAOS_AUGMENTS.filter((d) => this.augments.isAvailable(d) && !choices.includes(d.id));
+    if (pool.length === 0) return;
+    choices[choices.length - 1] = this.rng.pick(pool).id;
   }
 
   private choose(index: number): void {
@@ -405,6 +425,7 @@ export class World implements SimApi {
         rate = 1 + (OC.accel * (this.gauge - 1)) / (OC.max - 1);
       } else rate = BALANCE.prism.supernova.overfillRate;
     }
+    rate *= this.chaos?.gaugeRateMul() ?? 1;
     // 과충전: 누르고 있지 않으면 100% 에서 딱 멈춘다
     this.fillGauge((rate / s.gaugeFillSec) * dt, this.overloadable && !this.charging ? 1 : s.gaugeMax);
     if (this.overloadable && this.gauge >= s.gaugeMax) this.overload();
@@ -522,7 +543,7 @@ export class World implements SimApi {
     }
 
     this.spawnTimer += dt;
-    const interval = packInterval(this.wave);
+    const interval = packInterval(this.wave) * (this.rules.chaos ? BALANCE.chaos.packIntervalMul : 1);
     while (this.spawnTimer >= interval) {
       // 화면 안 적 상한: 무리가 다 들어갈 자리가 없으면 자리가 날 때까지 미룬다
       if (this.enemies.length + BALANCE.wave.packSizeMax + 1 > BALANCE.limits.maxEnemies) {
@@ -960,6 +981,7 @@ export class World implements SimApi {
     }
 
     this.exp.onKill(e, depth, exploded);
+    this.chaos?.onKill(e);
     this.gainXp(e.def.xp);
 
     if (e.def.boss) {
@@ -1035,7 +1057,8 @@ export class World implements SimApi {
     if (this.enemies.length >= BALANCE.limits.maxEnemies) return null;
     const def = getEnemyDef(kind);
     const pileMul = this.rules.pile ? BALANCE.experiment.pile.enemyHpMul : 1;
-    const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul;
+    const chaosMul = this.rules.chaos ? BALANCE.chaos.enemyHpMul + BALANCE.chaos.enemyHpPerWave * (this.wave - 1) : 1;
+    const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul * chaosMul;
     const e: Enemy = {
       id: this.nextId++,
       def,

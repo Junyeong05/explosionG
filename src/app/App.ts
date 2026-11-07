@@ -233,6 +233,12 @@ export class App {
         today,
         chapterId: this.chapterId,
         onExperiments: () => this.showExperiments(false),
+        onDopamine: () => {
+          for (const r of RULE_IDS) save.settings.rules[r] = r === 'chaos';
+          this.saves.persist();
+          const ch = this.chapterId;
+          this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), ch));
+        },
         onSelectChapter: (id) => {
           this.chapterId = id;
           this.showTitle();

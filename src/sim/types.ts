@@ -188,6 +188,8 @@ export const RULE_IDS = [
   // 11-07 실험 묶음 (설명은 data/experiments.ts)
   'freeze', 'burn', 'scorch', 'knockback', 'magnet', 'beat', 'colors', 'core', 'launcher', 'mines',
   'seeds', 'row', 'bouncer', 'ripen', 'sweet', 'stopTime', 'inflate', 'fog', 'echo', 'wind', 'golden',
+  // 도파민 모드: 다 쏟아붓기 (data/chaos.ts)
+  'chaos',
 ] as const;
 export type RuleId = (typeof RULE_IDS)[number];
 export type RunRules = Partial<Record<RuleId, boolean>>;
