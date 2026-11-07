@@ -13,6 +13,9 @@ export const COLORS = {
   gold: '#ffd36b',
 } as const;
 
+/** 짝 폭발형 짝 색 (폭발형 주황과 겹치지 않게) */
+export const PAIR_COLORS = ['#3cf0e0', '#9dff5a', '#c77dff'] as const;
+
 /** 연쇄가 길어질수록 주황 → 분홍 → 보라 → 파랑 → 하양 */
 export const CHAIN_COLORS = ['#ffb347', '#ff7a3c', '#ff3c6e', '#ff3cc8', '#b54dff', '#5a7cff', '#3ce0ff', '#e8fbff'] as const;
 

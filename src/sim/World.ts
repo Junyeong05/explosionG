@@ -87,11 +87,16 @@ export class World implements SimApi {
   overheat = 0;
   /** 과충전 규칙: 100% 에서 누르고 있는 중 (이 동안만 100% 를 넘어 찬다, 떼면 쏨) */
   charging: { x: number; y: number } | null = null;
+  /** 불씨 칠하기: 지난 스텝의 손끝 위치 (움직인 길만 칠함) */
+  private paintFrom: { x: number; y: number } | null = null;
   overloads = 0;
   /** 연쇄 잇기 콤보: 처치 수와 끊기기까지 남은 시간 */
   readonly combo = { kills: 0, timer: 0 };
   maxCombo = 0;
   brinkKills = 0;
+  sparkBlasts = 0;
+  pairBlasts = 0;
+  private nextPairColor = 0;
   rerollsLeft: number;
   bonusParts = 0;
 
@@ -153,6 +158,7 @@ export class World implements SimApi {
     if (!this.config.sandbox) this.updateWaves(dt);
     this.moveEnemies(dt);
     this.rebuildGrid();
+    this.paintSparks();
     this.updateExplosions(dt);
     this.updateZones(dt);
     this.updateMines(dt);
@@ -225,6 +231,7 @@ export class World implements SimApi {
     const free = this.stats.freeTapDuringChain && this.explosions.length > 0;
     if (this.overloadable && !free && this.gauge >= 1 && this.overheat <= 0 && !this.charging) {
       this.charging = { x, y };
+      this.paintFrom = null;
       return;
     }
     this.fire(x, y);
@@ -331,13 +338,18 @@ export class World implements SimApi {
 
   /** 실험 규칙이 능력치에 주는 변화 (과충전: 게이지 상한 150%) */
   private withRules(s: PlayerStats): PlayerStats {
-    if (this.rules.overcharge) s.gaugeMax = Math.max(s.gaugeMax, BALANCE.experiment.overcharge.max);
+    if (this.overchargeOn) s.gaugeMax = Math.max(s.gaugeMax, BALANCE.experiment.overcharge.max);
     return s;
   }
 
   /** 과충전 규칙에서 상한에 닿으면 폭주하는가 (초신성이 상한을 더 올렸으면 폭주 없음) */
   get overloadable(): boolean {
-    return !!this.rules.overcharge && this.stats.gaugeMax <= BALANCE.experiment.overcharge.max;
+    return this.overchargeOn && this.stats.gaugeMax <= BALANCE.experiment.overcharge.max;
+  }
+
+  /** 과충전 규칙이 켜졌나 (불씨 칠하기는 과충전 위에 얹힌 규칙이라 같이 켜진다) */
+  private get overchargeOn(): boolean {
+    return !!this.rules.overcharge || !!this.rules.paint;
   }
 
   /**
@@ -363,6 +375,57 @@ export class World implements SimApi {
     }
     this.fillGauge((rate / s.gaugeFillSec) * dt);
     if (this.overloadable && this.gauge >= s.gaugeMax) this.overload();
+  }
+
+  /**
+   * 불씨 칠하기: 과충전으로 누르고 있는 동안 손끝 붓(brush)이 **움직이며 지나간 길**의 적에 불씨를 붙인다
+   * (피해·게이지 변화 없음). 가만히 누르고만 있으면 안 칠해진다.
+   */
+  private paintSparks(): void {
+    const c = this.charging;
+    if (!c || !this.rules.paint) return;
+    const last = this.paintFrom;
+    this.paintFrom = { x: c.x, y: c.y };
+    if (!last) return;
+    const len = Math.hypot(c.x - last.x, c.y - last.y);
+    if (len < 0.5) return;
+    // 지난 위치 → 지금 위치 선분을 따라 붓 반경 간격으로 칠한다 (빠르게 그어도 빈틈 없게)
+    const brush = BALANCE.experiment.paint.brush;
+    const n = Math.max(1, Math.ceil(len / brush));
+    for (let i = 1; i <= n; i++) {
+      const t = i / n;
+      const hits = this.collectEnemiesNear(last.x + (c.x - last.x) * t, last.y + (c.y - last.y) * t, brush, this.hitBuf);
+      for (const e of hits) if (!e.spark && !e.def.deathBlast) e.spark = true;
+    }
+  }
+
+  /**
+   * 짝 폭발형: 새 폭발형은 다른 무리의 짝 없는 폭발형 중 가장 먼 것과 짝을 맺는다 (minDistance 이상일 때만).
+   * 동시에 살아 있는 짝은 maxActive 쌍까지.
+   */
+  private assignPair(e: Enemy, pack: Pack): void {
+    const P = BALANCE.experiment.pairs;
+    let active = 0;
+    let best: Enemy | null = null;
+    let bestD = P.minDistance * P.minDistance;
+    for (const x of this.enemies) {
+      if (x.dead || x === e) continue;
+      if (x.partner) {
+        active++;
+        continue;
+      }
+      if (!x.def.deathBlast || x.def.boss || x.pack === pack) continue;
+      const d = dist2(x.x, x.y, e.x, e.y);
+      if (d >= bestD) {
+        bestD = d;
+        best = x;
+      }
+    }
+    if (!best || active / 2 >= P.maxActive) return;
+    const color = this.nextPairColor++ % P.maxActive;
+    e.partner = best;
+    best.partner = e;
+    e.pairColor = best.pairColor = color;
   }
 
   /** 과충전 폭주: 게이지가 날아가고 잠깐 쏠 수 없다 */
@@ -461,6 +524,7 @@ export class World implements SimApi {
       const p = this.packSpot(cx, cy, spread, def, placed);
       placed.push(p);
       const e = this.spawnEnemy(def.id, p.x, p.y);
+      if (e && this.rules.pairs && def.deathBlast && !def.boss) this.assignPair(e, pack);
       if (!e || def.loner) continue;
       // 무리는 가장 느린 구성원 속도로 같이 내려온다
       e.pack = pack;
@@ -516,6 +580,11 @@ export class World implements SimApi {
       }
       if (e.y >= line) {
         e.dead = true;
+        // 짝이 방어선을 넘으면 짝 관계만 끊긴다 (남은 쪽은 보통 폭발형)
+        if (e.partner) {
+          e.partner.partner = null;
+          e.partner = null;
+        }
         // 최종 보스가 방어선을 넘으면 즉시 패배
         const damage = e.isFinalBoss ? this.life : e.def.leak;
         this.life -= damage;
@@ -700,7 +769,9 @@ export class World implements SimApi {
     // 넘친 피해는 단계마다 체력만큼 깎이므로 연쇄는 저절로 약해지다 끊긴다.
     // 연쇄 배율을 넘친 피해에 곱하면 단계마다 복리로 불어나서 끊기지 않으므로, 폭발형의 자기 폭약에만 곱한다.
     const s = this.stats;
-    const blast = e.def.deathBlast;
+    // 불씨 칠하기: 불씨 붙은 적은 폭발형처럼 터진다
+    const blast = e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    let exploded = false;
     if ((blast || s.chainOnAllKills) && depth + 1 <= chain.maxDepth) {
       const mult = 1 + s.chainMultiplierPerKill * chain.kills;
       const damage = overflow * s.chainCarry + (blast?.charge ?? 0) * s.tapDamage * mult * this.comboMult();
@@ -715,6 +786,20 @@ export class World implements SimApi {
           delay: s.chainDelaySec,
           depth: depth + 1,
         });
+        exploded = true;
+        if (e.spark && !e.def.deathBlast) this.sparkBlasts++;
+      }
+    }
+
+    // 짝 폭발형: 이 폭발형이 터졌으면 짝도 그 자리에서 같은 단계로 죽어 터진다
+    const mate = e.partner;
+    if (mate) {
+      e.partner = null;
+      mate.partner = null;
+      if (exploded && !mate.dead) {
+        this.pairBlasts++;
+        this.emit({ type: 'pairBlast', x1: e.x, y1: e.y, x2: mate.x, y2: mate.y, color: e.pairColor });
+        this.killEnemy(mate, chain.id, 0, depth);
       }
     }
 
@@ -809,6 +894,9 @@ export class World implements SimApi {
       pack: null,
       packOx: 0,
       packOy: 0,
+      spark: false,
+      partner: null,
+      pairColor: -1,
     };
     this.enemies.push(e);
     this.grid.insert(e);
@@ -910,6 +998,8 @@ export class World implements SimApi {
       overloads: this.overloads,
       maxCombo: this.maxCombo,
       brinkKills: this.brinkKills,
+      sparkBlasts: this.sparkBlasts,
+      pairBlasts: this.pairBlasts,
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],

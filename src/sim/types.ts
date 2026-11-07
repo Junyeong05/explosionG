@@ -36,6 +36,11 @@ export interface Enemy {
   isFinalBoss: boolean;
   /** 묶여 움직이는 무리. null 이면 혼자 움직임 (돌격형·분열체·보스·직접 배치) */
   pack: Pack | null;
+  /** 불씨 칠하기: 불씨가 붙었나 (죽을 때 폭발형처럼 터짐) */
+  spark: boolean;
+  /** 짝 폭발형: 짝 (없으면 null) 과 짝 색 번호 (-1 = 짝 없음) */
+  partner: Enemy | null;
+  pairColor: number;
   /** 무리 중심에서의 위치 */
   packOx: number;
   packOy: number;
@@ -128,9 +133,11 @@ export type Phase = 'playing' | 'choosing' | 'ended';
  * 실험 규칙 (플레이테스트용, 타이틀에서 켜고 끔). 기본은 전부 꺼짐.
  *   overcharge: 과충전 — 게이지가 150%까지 차지만 넘기면 폭주
  *   combo:      연쇄 잇기 — 처치가 끊기지 않으면 콤보 배율이 쌓인다
- *   brink:      벼랑 끝 — 방어선 가까이서 잡을수록 게이지를 돌려받는다
+ *   brink:      벼랑 끝 — 방어선 가까이서 잡을수록 게이지를 돌려받는다 (봇 시험 탈락, 타이틀엔 안 보임)
+ *   paint:      불씨 칠하기 — 과충전 중 누른 채 끌면 닿은 적에 불씨, 불씨 붙은 적은 죽을 때 폭발형처럼 터짐 (과충전 포함)
+ *   pairs:      짝 폭발형 — 서로 다른 무리의 폭발형 둘이 짝, 하나가 터지면 짝도 그 자리에서 터짐
  */
-export const RULE_IDS = ['overcharge', 'combo', 'brink'] as const;
+export const RULE_IDS = ['overcharge', 'combo', 'brink', 'paint', 'pairs'] as const;
 export type RuleId = (typeof RULE_IDS)[number];
 export type RunRules = Partial<Record<RuleId, boolean>>;
 
@@ -177,6 +184,10 @@ export interface RunSummary {
   maxCombo?: number;
   /** 벼랑 끝 처치 수 */
   brinkKills?: number;
+  /** 불씨 붙은 적이 터진 횟수 */
+  sparkBlasts?: number;
+  /** 짝 폭발이 일어난 횟수 */
+  pairBlasts?: number;
   level: number;
   durationSec: number;
   /** 고른 증강 id (순서대로) */

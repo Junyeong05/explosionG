@@ -31,6 +31,13 @@ export interface BotOptions {
   comboExtend?: { minKills: number; minGauge: number; timerBelow: number };
   /** 벼랑 끝 규칙: 급하지 않으면 방어선 가까이 내려온 무리만 노린다 */
   brinkGreed?: boolean;
+  /**
+   * 불씨 칠하기 규칙: 누르고 있는 동안 어떻게 끄나.
+   *   none: 안 끔, ring: 늘 목표 둘레를 한 바퀴 칠하고 돌아와서 뗌, smart: 둘레에 칠할 적이 3마리 이상일 때만 ring
+   */
+  paint?: 'none' | 'ring' | 'smart';
+  /** 짝 폭발형 규칙: 짝이 있는 폭발형을 맞히면 짝 자리 주변 적까지 점수에 넣는다 */
+  pairAware?: boolean;
 }
 
 /** 과충전: 100% 에서 level 까지 누르고 있어야 하는 시간 (World.updateGauge 의 가속 곡선을 적분) */
@@ -39,6 +46,16 @@ function overchargeHoldSec(w: World, level: number): number {
   const span = OC.max - 1;
   const t = Math.min(1, Math.max(0, (level - 1) / span));
   return ((w.stats.gaugeFillSec * span) / OC.accel) * Math.log(1 + OC.accel * t);
+}
+
+function pathLength(from: { x: number; y: number }, path: readonly { x: number; y: number }[]): number {
+  let len = 0;
+  let p = from;
+  for (const q of path) {
+    len += Math.hypot(q.x - p.x, q.y - p.y);
+    p = q;
+  }
+  return len;
 }
 
 const RARITY_SCORE: Record<Rarity, number> = { normal: 1, rare: 2, epic: 3, prism: 5 };
@@ -52,6 +69,11 @@ const OVERFILL_FIRE = 1.8;
 const PRESSURE_DIST = 170;
 /** 벼랑 끝 욕심 정책: 가득 찬 채 이 시간 넘게 기다렸으면 아무 데나 쏜다 */
 const BRINK_PATIENCE = 1.5;
+/** 불씨 칠하기: 목표 둘레를 도는 반경과 손가락 속도 (px/s) */
+const PAINT_RING = 55;
+const FINGER_SPEED = 900;
+/** 짝 폭발형: 짝 자리에서 터질 때 맞을 거리 (폭발형 반경 × 1.8 + 적 반지름) */
+const PAIR_REACH = 46 * 1.8 + 11;
 
 /**
  * 자동 플레이 봇. 사람이 아니라 "밸런스 기준선"이다.
@@ -71,9 +93,11 @@ export class Bot {
   private readonly pick: PickStrategy;
   private readonly opts: BotOptions;
   /** 쏘기로 정하고 누르기를 기다리는 중 (holdSec 가 있으면 누른 뒤 그만큼 있다가 뗀다) */
-  private pending: { x: number; y: number; at: number; holdSec: number } | null = null;
+  private pending: { x: number; y: number; at: number; holdSec: number; path: { x: number; y: number }[] } | null = null;
   /** 과충전으로 누르고 있는 중: 이 시각에 뗀다 */
   private releaseAt = -1;
+  /** 불씨 칠하기: 누르고 있는 동안 지나갈 점들 */
+  private paintPath: { x: number; y: number }[] = [];
   /** 게이지가 가득 찬 채로 기다리기 시작한 시각 */
   private fullSince = -1;
   /** 마지막 판단 때 방어선 근처에 적이 있었나 (급하면 과충전 안 함) */
@@ -99,15 +123,28 @@ export class Bot {
         this.releaseAt = -1;
         return [];
       }
+      // 불씨 칠하기: 정한 길을 손가락 속도로 따라간다
+      if (this.paintPath.length > 0 && w.time < this.releaseAt) {
+        const c = w.charging;
+        const next = this.paintPath[0];
+        const step = FINGER_SPEED * dt;
+        const d = Math.hypot(next.x - c.x, next.y - c.y);
+        if (d <= step) {
+          this.paintPath.shift();
+          return [{ t: 'move', x: next.x, y: next.y }];
+        }
+        return [{ t: 'move', x: c.x + ((next.x - c.x) / d) * step, y: c.y + ((next.y - c.y) / d) * step }];
+      }
       if (w.time < this.releaseAt) return [];
       this.releaseAt = -1;
+      this.paintPath = [];
       return [{ t: 'release', x: w.charging.x, y: w.charging.y }];
     }
     if (this.pending) {
       if (w.time < this.pending.at) return [];
       const p = this.pending;
       this.pending = null;
-      return this.pressFor(w, p.x, p.y, p.holdSec);
+      return this.pressFor(w, p.x, p.y, p.holdSec, p.path);
     }
     if (this.cooldown > 0) return [];
     const g = w.gauge;
@@ -119,22 +156,27 @@ export class Bot {
     // 과충전: 100% 에서 목표만큼 누르고 있을 시간 (+ 손 오차)
     let holdSec = 0;
     const level = this.readyLevel(w);
-    if (w.overloadable && g >= 1 && level > 1 && !this.urgent) {
+    let path: { x: number; y: number }[] = [];
+    if (w.overloadable && g >= 1 && (level > 1 || this.wantsPaint(w)) && !this.urgent) {
       const jitter = this.opts.holdJitter ?? 0.07;
       holdSec = Math.max(0, overchargeHoldSec(w, level) + this.rng.range(-jitter, jitter));
+      // 불씨 칠하기: 칠하는 길을 다 지나갈 만큼은 누르고 있는다
+      path = this.planPaint(w, target.x, target.y);
+      if (path.length > 0) holdSec = Math.max(holdSec, pathLength(target, path) / FINGER_SPEED + 0.05);
     }
     const d = this.opts.pressDelay;
     if (d) {
-      this.pending = { x: target.x, y: target.y, at: w.time + this.rng.range(d[0], d[1]), holdSec };
+      this.pending = { x: target.x, y: target.y, at: w.time + this.rng.range(d[0], d[1]), holdSec, path };
       return [];
     }
-    return this.pressFor(w, target.x, target.y, holdSec);
+    return this.pressFor(w, target.x, target.y, holdSec, path);
   }
 
   /** 누르기. holdSec > 0 이면 그만큼 있다가 뗀다 (과충전) */
-  private pressFor(w: World, x: number, y: number, holdSec: number): Command[] {
+  private pressFor(w: World, x: number, y: number, holdSec: number, path: { x: number; y: number }[] = []): Command[] {
     if (holdSec > 0) {
       this.releaseAt = w.time + holdSec;
+      this.paintPath = path.slice();
       return [{ t: 'press', x, y }];
     }
     return [{ t: 'press', x, y }, { t: 'release', x, y }];
@@ -176,6 +218,34 @@ export class Bot {
     return best;
   }
 
+  /** 불씨 칠하기를 할 생각인가 (과충전 목표가 100% 여도 칠하려면 누르고 있어야 함) */
+  private wantsPaint(w: World): boolean {
+    const p = this.opts.paint;
+    return !!w.rules.paint && (p === 'ring' || p === 'smart');
+  }
+
+  /** 불씨 칠하기: 목표 둘레를 한 바퀴 돌고 목표로 돌아오는 길 (smart 는 둘레에 칠할 적이 3마리 이상일 때만) */
+  private planPaint(w: World, x: number, y: number): { x: number; y: number }[] {
+    if (!this.wantsPaint(w)) return [];
+    const r = w.tapRadiusAt(1);
+    if (this.opts.paint === 'smart') {
+      let ring = 0;
+      for (const e of w.enemies) {
+        if (e.dead || e.spark || e.def.deathBlast) continue;
+        const d = Math.hypot(e.x - x, e.y - y);
+        if (d > r && d <= r + PAINT_RING + e.radius) ring++;
+      }
+      if (ring < 3) return [];
+    }
+    const path: { x: number; y: number }[] = [];
+    for (let i = 0; i <= 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      path.push({ x: x + Math.cos(a) * PAINT_RING, y: y + Math.sin(a) * PAINT_RING });
+    }
+    path.push({ x, y });
+    return path;
+  }
+
   /** 급하지 않을 때 이만큼 모이면 쏜다 */
   private readyLevel(w: World): number {
     const max = w.stats.gaugeMax;
@@ -214,6 +284,17 @@ export class Bot {
     const visible = w.enemies.filter((e) => !e.dead && e.y > 0);
     const centers = minY === undefined ? visible : visible.filter((e) => e.y >= minY);
     if (centers.length === 0) return null;
+    // 짝 폭발형을 아는 봇: 짝 자리 주변에 있는 적 수를 미리 센다
+    const pairBonus = new Map<number, number>();
+    if (this.opts.pairAware && w.rules.pairs) {
+      for (const e of visible) {
+        const m = e.partner;
+        if (!m || m.dead) continue;
+        let n = 0;
+        for (const o of visible) if (o !== m && dist2(m.x, m.y, o.x, o.y) <= PAIR_REACH * PAIR_REACH) n++;
+        pairBonus.set(e.id, n + 1);
+      }
+    }
     if (visible.length === 0) return null;
     let best = centers[0];
     let bestScore = -1;
@@ -223,6 +304,7 @@ export class Bot {
         const rr = r + e.radius;
         if (dist2(c.x, c.y, e.x, e.y) > rr * rr) continue;
         score += e.def.deathBlast ? (e.def.boss ? 3 : 2) : 1;
+        score += pairBonus.get(e.id) ?? 0;
       }
       if (score > bestScore) {
         bestScore = score;

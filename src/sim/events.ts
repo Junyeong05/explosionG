@@ -25,6 +25,8 @@ export type SimEvent =
   | { type: 'gaugeFull' }
   /** 과충전 폭주 (게이지 0, 잠깐 못 쏨) */
   | { type: 'overload' }
+  /** 짝 폭발: (x1, y1) 이 터져서 짝 (x2, y2) 도 터짐 */
+  | { type: 'pairBlast'; x1: number; y1: number; x2: number; y2: number; color: number }
   /** 벼랑 끝 처치 */
   | { type: 'brink'; x: number; y: number }
   /** 연쇄 잇기 콤보가 끊김 (kills = 그 콤보의 처치 수) */

@@ -6,7 +6,7 @@ import type { SimEvent } from '../sim/events';
 import type { Enemy } from '../sim/types';
 import type { World } from '../sim/World';
 import { Bolts, DamageNumbers, GlowCache, Particles, Rings, Shake } from './fx/effects';
-import { CHAIN_COLORS, COLORS, chainColor, rgba } from './palette';
+import { CHAIN_COLORS, COLORS, PAIR_COLORS, chainColor, rgba } from './palette';
 
 const FW = BALANCE.field.width;
 const FH = BALANCE.field.height;
@@ -170,6 +170,13 @@ export class Renderer {
           this.leakFlash = 1;
           this.showBanner('폭주!', '과충전 한계를 넘었다', COLORS.life);
           break;
+        case 'pairBlast': {
+          // 짝 폭발: 두 자리를 잇는 번개 + 짝 자리 링
+          const c = PAIR_COLORS[e.color % PAIR_COLORS.length];
+          this.bolts.add(e.x1, e.y1, e.x2, e.y2, c, 0.3);
+          this.rings.add(e.x2, e.y2, 6, 40, c, 0.4, 3);
+          break;
+        }
         case 'brink':
           this.rings.add(e.x, e.y, 4, 22, COLORS.charge, 0.3, 2);
           break;
@@ -256,6 +263,7 @@ export class Renderer {
       if (world.rules.brink) this.drawBrinkZone();
       this.drawZones(world);
       this.drawMines(world);
+      if (world.rules.pairs) this.drawPairLinks(world);
       for (const e of world.enemies) if (!e.dead) this.drawEnemy(e, world.time);
       this.drawCharging(world);
     }
@@ -450,6 +458,29 @@ export class Renderer {
       ctx.stroke();
     }
     ctx.restore();
+    if (e.pairColor >= 0 && e.partner) {
+      // 짝 폭발형: 짝 색 테두리
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, r + 5, 0, TAU);
+      ctx.strokeStyle = PAIR_COLORS[e.pairColor % PAIR_COLORS.length];
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+    if (e.spark) {
+      // 불씨: 머리 위에서 흔들리는 불꽃 + 주황 점선 테두리
+      const f = 0.5 + 0.5 * Math.sin(t * 18 + e.id);
+      ctx.beginPath();
+      ctx.arc(e.x, e.y - r - 4, 2.2 + f * 1.4, 0, TAU);
+      ctx.fillStyle = rgba('#ffb347', 0.7 + 0.3 * f);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, r + 3, 0, TAU);
+      ctx.strokeStyle = rgba('#ff9a3c', 0.55 + 0.3 * f);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
     if (e.shield > 0) {
       ctx.beginPath();
       ctx.arc(e.x, e.y, r + 5, 0, TAU);
@@ -459,6 +490,25 @@ export class Renderer {
       ctx.stroke();
       ctx.setLineDash([]);
     }
+  }
+
+  /** 짝 폭발형: 짝끼리 흐린 선 */
+  private drawPairLinks(w: World): void {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([5, 6]);
+    for (const e of w.enemies) {
+      const m = e.partner;
+      if (e.dead || !m || m.dead || e.id > m.id) continue;
+      if (e.y < 0 && m.y < 0) continue;
+      ctx.strokeStyle = rgba(PAIR_COLORS[e.pairColor % PAIR_COLORS.length], 0.35);
+      ctx.beginPath();
+      ctx.moveTo(e.x, e.y);
+      ctx.lineTo(m.x, m.y);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   private drawScreenFx(): void {

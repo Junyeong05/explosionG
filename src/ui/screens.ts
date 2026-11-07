@@ -35,7 +35,12 @@ const RULE_INFO: Record<RuleId, { name: string; desc: string }> = {
   overcharge: { name: '과충전', desc: '100%에서 꾹 누르면 150%까지 더 모인다. 떼면 발사, 끝까지 넘기면 폭주' },
   combo: { name: '연쇄 잇기', desc: '0.6초 안에 계속 잡으면 콤보 배율이 쌓인다 (처치당 +3%, 최대 ×3)' },
   brink: { name: '벼랑 끝', desc: '방어선 근처에서 잡으면 게이지 25% 환급 (봇 시험에선 손해였음)' },
+  paint: { name: '불씨 칠하기', desc: '100%에서 꾹 누른 채 끌면 원에 닿은 적에 불씨가 붙는다. 떼면 발사, 불씨 붙은 적은 죽을 때 폭발형처럼 터진다 (과충전 포함)' },
+  pairs: { name: '짝 폭발형', desc: '같은 색 테두리 폭발형 둘은 짝. 하나가 터지면 멀리 있는 짝도 그 자리에서 같이 터진다' },
 };
+
+/** 타이틀에 보이는 실험 규칙 (벼랑 끝은 봇 시험에서 탈락해 숨김) */
+const VISIBLE_RULES: readonly RuleId[] = RULE_IDS.filter((id) => id !== 'brink');
 
 export interface TitleProps {
   save: SaveData;
@@ -88,13 +93,13 @@ export function titleScreen(p: TitleProps): HTMLElement {
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
       h('div', { class: 'rules' },
         h('span', { class: 'rules-label', text: '실험 규칙' }),
-        ...RULE_IDS.map((id) => h('button', {
+        ...VISIBLE_RULES.map((id) => h('button', {
           class: `chip${p.save.settings.rules[id] ? ' on' : ''}`,
           onClick: () => p.onToggleRule(id),
           text: RULE_INFO[id].name,
         })),
       ),
-      ...RULE_IDS.filter((id) => p.save.settings.rules[id]).map((id) =>
+      ...VISIBLE_RULES.filter((id) => p.save.settings.rules[id]).map((id) =>
         h('div', { class: 'rule-desc', text: `${RULE_INFO[id].name}: ${RULE_INFO[id].desc}` })),
       h('button', { class: 'btn', onClick: p.onEndless }, '엔드리스', h('small', { text: '끝없이' })),
       h('button', { class: 'btn', onClick: p.onDaily }, '일일 도전', h('small', { text: `${p.today} · 영구 강화 미적용` })),

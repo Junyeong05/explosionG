@@ -163,3 +163,136 @@ describe('봇: 과충전 정책', () => {
     expect(w.overloads).toBe(0);
   });
 });
+
+describe('실험 규칙: 불씨 칠하기', () => {
+  it('과충전도 같이 켜진다 (100% 에서 누르면 바로 안 쏘고 누르고 있기)', () => {
+    const w = sandbox({ rules: { paint: true } });
+    expect(w.overloadable).toBe(true);
+    w.step(FIXED_DT, [{ t: 'press', x: 100, y: 100 }]);
+    expect(w.charging).not.toBeNull();
+    expect(w.taps).toBe(0);
+  });
+
+  it('누른 채 끌면 원에 닿은 적에 불씨가 붙고, 피해는 없다', () => {
+    const w = sandbox({ rules: { paint: true } });
+    const near = w.spawnEnemy('normal', 300, 100)!;
+    const far = w.spawnEnemy('normal', 300, 400)!;
+    const ex = w.spawnEnemy('explosive', 310, 110)!;
+    for (const e of w.enemies) e.speed = 0;
+    w.step(FIXED_DT, [{ t: 'press', x: 300, y: 100 }]);
+    w.step(FIXED_DT);
+    expect(near.spark).toBe(false); // 가만히 누르고만 있으면 안 칠해진다
+    w.step(FIXED_DT, [{ t: 'move', x: 60, y: 100 }]);
+    w.step(FIXED_DT, [{ t: 'move', x: 300, y: 100 }]);
+    expect(near.spark).toBe(true);
+    expect(near.hp).toBe(near.maxHp);
+    expect(far.spark).toBe(false);
+    expect(ex.spark).toBe(false); // 폭발형은 원래 터지므로 불씨 안 붙음
+  });
+
+  /** 불씨 붙은 적 A 를 탭으로 잡으면 A 가 터져서 탭이 안 닿는 B 를 잡는다 */
+  function sparkLadder(spark: boolean) {
+    const w = sandbox({ rules: { paint: true } });
+    const a = w.spawnEnemy('normal', 100, 200)!;
+    const b = w.spawnEnemy('normal', 180, 200)!; // 탭(반경 60+11)엔 안 닿고 폭발형 폭발(약 83+11)엔 닿음
+    a.hp = b.hp = 1;
+    a.spark = spark;
+    for (const e of w.enemies) e.speed = 0;
+    tap(w, 100, 200);
+    stepFor(w, 0.5);
+    return { w, b };
+  }
+
+  it('불씨 붙은 적은 죽을 때 폭발형처럼 터진다', () => {
+    const { w, b } = sparkLadder(true);
+    expect(b.dead).toBe(true);
+    expect(w.sparkBlasts).toBe(1);
+  });
+
+  it('불씨가 없으면 안 터진다 (대조군)', () => {
+    const { b } = sparkLadder(false);
+    expect(b.dead).toBe(false);
+  });
+});
+
+describe('실험 규칙: 짝 폭발형', () => {
+  it('서로 다른 무리의 폭발형끼리 짝을 맺는다', () => {
+    const w = sandbox({ chapterId: 'ch2', rules: { pairs: true } });
+    w.wave = 5;
+    for (let i = 0; i < 20; i++) w.spawnPack();
+    const paired = w.enemies.filter((e) => e.partner);
+    expect(paired.length).toBeGreaterThan(0);
+    for (const e of paired) {
+      expect(e.def.id).toBe('explosive');
+      expect(e.partner!.partner).toBe(e);
+      expect(e.partner!.pack).not.toBe(e.pack);
+      expect(e.pairColor).toBe(e.partner!.pairColor);
+      expect(Math.hypot(e.x - e.partner!.x, e.y - e.partner!.y)).toBeGreaterThanOrEqual(BALANCE.experiment.pairs.minDistance);
+    }
+    expect(paired.length / 2).toBeLessThanOrEqual(BALANCE.experiment.pairs.maxActive);
+  });
+
+  function pair(gauge: number) {
+    const w = sandbox({ rules: { pairs: true } });
+    const a = w.spawnEnemy('explosive', 80, 150)!;
+    const b = w.spawnEnemy('explosive', 280, 450)!;
+    const nearB = w.spawnEnemy('normal', 320, 450)!;
+    a.partner = b;
+    b.partner = a;
+    a.pairColor = b.pairColor = 0;
+    a.hp = b.hp = nearB.hp = 1;
+    for (const e of w.enemies) e.speed = 0;
+    w.gauge = gauge;
+    tap(w, 80, 150);
+    stepFor(w, 0.5);
+    return { w, b, nearB };
+  }
+
+  it('하나가 터지면 멀리 있는 짝도 그 자리에서 터져 주변을 잡는다', () => {
+    const { w, b, nearB } = pair(1);
+    expect(b.dead).toBe(true);
+    expect(nearB.dead).toBe(true);
+    expect(w.pairBlasts).toBe(1);
+  });
+
+  it('100% 미만 탭이라 터지지 않았으면 짝도 안 터진다', () => {
+    const { b } = pair(0.5);
+    expect(b.dead).toBe(false);
+  });
+
+  it('짝이 방어선을 넘으면 짝 관계만 끊긴다', () => {
+    const w = sandbox({ rules: { pairs: true } });
+    const a = w.spawnEnemy('explosive', 80, 150)!;
+    const b = w.spawnEnemy('explosive', 280, BALANCE.field.defenseLineY - 1)!;
+    a.partner = b;
+    b.partner = a;
+    a.speed = 0;
+    b.speed = 600;
+    w.step(FIXED_DT);
+    expect(b.dead).toBe(true);
+    expect(a.partner).toBeNull();
+  });
+});
+
+describe('봇: 불씨 칠하기 정책', () => {
+  it('ring 정책은 누른 채 목표 둘레를 돌며 불씨를 칠하고 뗀다', async () => {
+    const { Bot } = await import('../src/sim/bot');
+    const w = sandbox({ rules: { paint: true } });
+    // 목표 무리 + 둘레(반경 60~98)에 흩어진 적
+    for (let i = 0; i < 5; i++) w.spawnEnemy('normal', 180 + i * 6, 250)!;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      w.spawnEnemy('normal', 192 + Math.cos(a) * 85, 250 + Math.sin(a) * 85);
+    }
+    for (const e of w.enemies) { e.speed = 0; e.hp = e.maxHp = 1e6; }
+    const bot = new Bot({ seed: 1, paint: 'ring', holdJitter: 0 });
+    let fired = false;
+    for (let i = 0; i < 200 && !fired; i++) {
+      w.step(FIXED_DT, bot.think(w, FIXED_DT));
+      for (const e of w.drainEvents()) if (e.type === 'tap') fired = true;
+    }
+    expect(fired).toBe(true);
+    expect(w.enemies.filter((e) => e.spark).length).toBeGreaterThanOrEqual(4);
+    expect(w.overloads).toBe(0);
+  });
+});
