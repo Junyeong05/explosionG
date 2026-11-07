@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MemoryStore } from '../src/meta/storage';
 import { SaveManager, defaultSave, migrate } from '../src/meta/save';
 import { applyRunResult, buyUpgrade, createDailyRunConfig, metaModifiers, upgradeCost } from '../src/meta/progression';
-import type { RunSummary } from '../src/sim/types';
+import { RULE_IDS, type RunSummary } from '../src/sim/types';
 
 const summary = (over: Partial<RunSummary> = {}): RunSummary => ({
   seed: 1, mode: 'chapter', daily: false, chapterId: 'ch1', result: 'defeat',
@@ -72,15 +72,16 @@ describe('세이브', () => {
   });
 
   it('실험 규칙: 옛 세이브엔 없으면 전부 꺼짐, true 만 켜짐', () => {
-    expect(migrate({ settings: {} }).settings.rules).toEqual({ overcharge: false, combo: false, brink: false, paint: false, pairs: false, pile: false });
-    expect(migrate({ settings: { rules: { overcharge: true, combo: 'yes' } } }).settings.rules).toEqual({ overcharge: true, combo: false, brink: false, paint: false, pairs: false, pile: false });
+    const off = Object.fromEntries(RULE_IDS.map((id) => [id, false]));
+    expect(migrate({ settings: {} }).settings.rules).toEqual(off);
+    expect(migrate({ settings: { rules: { overcharge: true, combo: 'yes', freeze: true } } }).settings.rules).toEqual({ ...off, overcharge: true, freeze: true });
   });
 
   it('깨진 세이브는 기본값으로', () => {
     expect(migrate(null)).toEqual(defaultSave());
     expect(migrate({ parts: -5, settings: { sound: false } }).parts).toBe(0);
     expect(migrate({ parts: 3, settings: { sound: false } }).settings).toEqual({
-      sound: false, haptics: true, speed: 1, rules: { overcharge: false, combo: false, brink: false, paint: false, pairs: false, pile: false },
+      sound: false, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])),
     });
     const store = new MemoryStore();
     store.set('explosion-g/save', '{not json');

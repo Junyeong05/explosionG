@@ -98,6 +98,8 @@ export class Bot {
   private pending: { x: number; y: number; at: number; holdSec: number; path: { x: number; y: number }[] } | null = null;
   /** 과충전으로 누르고 있는 중: 이 시각에 뗀다 */
   private releaseAt = -1;
+  /** 누를 때만 시간: 게이지가 이만큼 차면 뗀다 (0 = 안 씀) */
+  private releaseAtGauge = 0;
   /** 불씨 칠하기: 누르고 있는 동안 지나갈 점들 */
   private paintPath: { x: number; y: number }[] = [];
   /** 게이지가 가득 찬 채로 기다리기 시작한 시각 */
@@ -119,6 +121,7 @@ export class Bot {
     if (w.phase !== 'playing') return [];
 
     this.cooldown -= dt;
+    if (w.rules.stopTime) return this.thinkStopTime(w);
     // 과충전으로 누르고 있는 중 (폭주했으면 sim 이 이미 놓았다)
     if (this.releaseAt >= 0) {
       if (!w.charging) {
@@ -172,6 +175,29 @@ export class Bot {
       return [];
     }
     return this.pressFor(w, target.x, target.y, holdSec, path);
+  }
+
+  /**
+   * 누를 때만 시간: 손을 떼면 시간이 멈추므로 게이지는 누르고 있어야 찬다.
+   * 무리 쪽을 누르고, 목표 게이지가 차면 그때 가장 좋은 자리로 옮겨서 뗀다.
+   */
+  private thinkStopTime(w: World): Command[] {
+    if (this.releaseAtGauge > 0) {
+      if (!w.charging) {
+        this.releaseAtGauge = 0;
+        return [];
+      }
+      const danger = this.lowestInDanger(w, DANGER_DIST);
+      if (w.gauge < this.releaseAtGauge && !(danger && w.gauge >= URGENT_FIRE)) return [];
+      this.releaseAtGauge = 0;
+      const t = danger ?? this.bestCluster(w, w.tapRadiusAt(w.gauge)) ?? w.charging;
+      return [{ t: 'move', x: t.x, y: t.y }, { t: 'release', x: t.x, y: t.y }];
+    }
+    if (this.cooldown > 0 || w.overheat > 0) return [];
+    this.cooldown = this.reactionSec * this.rng.range(0.5, 0.9);
+    const target = this.bestCluster(w, w.tapRadiusAt(1)) ?? { x: w.field.width / 2, y: w.field.defenseLineY / 2 };
+    this.releaseAtGauge = Math.min(w.stats.gaugeMax - 0.05, this.opts.overchargeAt ?? 1);
+    return [{ t: 'press', x: target.x, y: target.y }];
   }
 
   /** 누르기. holdSec > 0 이면 그만큼 있다가 뗀다 (과충전) */
@@ -296,7 +322,7 @@ export class Bot {
       if (e.dead || e.pileCol >= 0) continue;
       // 쌓이는 바닥: 한계에 가까운 칸으로 내려앉는 적만 급하다
       if (w.rules.pile && w.pileCols[Math.min(w.pileCols.length - 1, Math.max(0, Math.floor(e.x / P.colWidth)))].length < P.maxRows - 4) continue;
-      const gap = w.landingY(e.x) - e.y;
+      const gap = w.exp.leakGap(e);
       if (gap < lowestGap) {
         lowestGap = gap;
         lowest = e;
@@ -307,7 +333,8 @@ export class Bot {
 
   /** 반경 r 로 쐈을 때 가장 많이 잡히는 적 위치 (폭발형·보스 가중, 아래쪽 약간 가중). minY 가 있으면 그 아래 적만 중심 후보 */
   private bestCluster(w: World, r: number, minY?: number): { x: number; y: number; score: number } | null {
-    const visible = w.enemies.filter((e) => !e.dead && e.y > 0);
+    const W = w.field.width;
+    const visible = w.enemies.filter((e) => !e.dead && e.y > 0 && e.y < w.field.height && e.x > 0 && e.x < W);
     const centers = minY === undefined ? visible : visible.filter((e) => e.y >= minY);
     if (centers.length === 0) return null;
     // 짝 폭발형을 아는 봇: 짝 자리 주변에 있는 적 수를 미리 센다

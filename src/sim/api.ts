@@ -1,7 +1,7 @@
 import type { Rng } from '../core/rng';
 import type { SimEvent } from './events';
 import type { PlayerStats } from './stats';
-import type { DamageSource, Enemy, Explosion } from './types';
+import type { DamageSource, Enemy, Explosion, ExplosionTag } from './types';
 
 export interface ExplosionSpec {
   x: number;
@@ -16,6 +16,8 @@ export interface ExplosionSpec {
   depth?: number;
   /** 가장자리 피해 배율 (중심 1 → 가장자리 이 값, 거리에 비례). 없으면 1 = 어디서나 같은 피해 */
   edgeMul?: number;
+  /** 실험 규칙 꼬리표 */
+  tag?: ExplosionTag;
 }
 
 export interface ZoneSpec {
@@ -36,6 +38,7 @@ export interface MineSpec {
   radius: number;
   damage: number;
   ttl: number;
+  depth?: number;
 }
 
 export interface KillInfo {

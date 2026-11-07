@@ -238,6 +238,146 @@ export const BALANCE = {
        */
       enemyHpMul: 2,
     },
+    // ─── 11-07 실험 묶음 (가볍게 해보고 고르기용. 수치는 대충 잡음) ───
+    freeze: {
+      /** 100% 미만으로 쏘면 피해 없이 이만큼 얼린다 (초). 반경은 같은 게이지 탭의 이 배 */
+      sec: 3,
+      radiusMul: 1.2,
+      /** 언 적이 받는 피해 배율, 죽을 때 깨지며 터지는 모양 */
+      damageTakenMul: 2.5,
+      shatter: { radiusMul: 1.1, charge: 0.6 },
+    },
+    burn: {
+      /** 탭에 맞고 산 적에 불이 붙는다: 지속 (초), 초당 피해 (D 배율), 옆으로 번지는 간격 (초)·거리 */
+      sec: 3,
+      dps: 0.35,
+      spreadEvery: 0.5,
+      spreadGap: 8,
+    },
+    scorch: {
+      /** 탭 자리에 남는 불바다: 반경 = 탭 반경 × radiusMul, 시간 = base + perPower × 게이지, 초당 피해 (D 배율) */
+      radiusMul: 0.8,
+      base: 1,
+      perPower: 3,
+      dps: 0.4,
+    },
+    knockback: {
+      /** 탭이 미는 세기 (px/s, 게이지 100% 기준). 연쇄 폭발은 chainMul 배. 초당 감속 */
+      tap: 300,
+      chainMul: 0.4,
+      damping: 4,
+    },
+    magnet: {
+      /** 폭발형이 이 거리 안의 적을 초당 이만큼 끌어당긴다 */
+      range: 90,
+      pull: 30,
+    },
+    beat: {
+      /** 박자 간격 (초, 100bpm), 박자에 맞았다고 보는 오차 (초) */
+      period: 0.6,
+      window: 0.1,
+      /** 박자에 맞으면 피해·반경 배율, 연쇄 단계 +1. 엇박이면 피해 배율 */
+      onDamage: 2,
+      onRadius: 1.15,
+      offDamage: 0.8,
+    },
+    colors: {
+      /** 색 수, 같은 색·다른 색 피해 배율 (탭과 그 연쇄 전부) */
+      count: 3,
+      same: 1.8,
+      other: 0.55,
+    },
+    core: {
+      /** 지킬 중심 (화면 가운데보다 조금 위), 반경. 적은 화면 가장자리 바로 바깥(spawnMargin)에서 출발 */
+      x: 180,
+      y: 300,
+      radius: 26,
+      spawnMargin: 40,
+      /** 출발 방향의 아래쪽 성분 상한 (sin). 0.45 = 수평에서 아래로 약 27° 까지만 */
+      maxBelow: 0.45,
+      /** 위에서 내려올 때보다 가는 길이 짧아서 (평균 약 250px 대 580px) 적 속도를 줄인다 */
+      speedMul: 0.5,
+    },
+    launcher: {
+      /** 발사대 위치 (화면 아래 가운데)와 탄속 (px/s) */
+      x: 180,
+      y: 600,
+      speed: 650,
+    },
+    mines: {
+      /** 탭 = 지뢰 심기. 반경·피해는 같은 게이지 탭의 배율, 적이 이 거리 안에 오면 터짐, 최대 개수, 수명 */
+      radiusMul: 1.1,
+      damageMul: 1.3,
+      trigger: 18,
+      max: 6,
+      ttl: 12,
+    },
+    seeds: {
+      /** 100% 미만 탭 = 씨앗 심기 (게이지 cost 소모). 폭발에 닿으면 같은 단계로 터져서 연쇄를 잇는다 */
+      cost: 0.3,
+      max: 6,
+      ttl: 10,
+      radius: 46,
+      charge: 1,
+    },
+    row: {
+      /** 탭이 화면 가로 전체 띠로 터진다. 띠 반높이 = base + perPower × 게이지, 피해 배율 */
+      base: 6,
+      perPower: 16,
+      damageMul: 0.8,
+    },
+    bouncer: {
+      /** 폭발형이 터지면 위로 불덩이가 튀어나가 벽에 튕기다 적에 닿으면 터진다 */
+      speed: 320,
+      ttl: 2.5,
+      radius: 40,
+      charge: 0.8,
+      max: 12,
+    },
+    ripen: {
+      /** 폭발형은 화면에 들어온 뒤 시간이 갈수록 크게 터진다: 반경 배율 from → to (fullSec 동안) */
+      fullSec: 10,
+      from: 0.5,
+      to: 2,
+    },
+    sweet: {
+      /** 위아래로 오가는 명당 띠 (높이, 범위, 왕복 주기). 띠 안에서 쏜 탭은 피해 배율·연쇄 단계 +1 */
+      height: 56,
+      top: 120,
+      bottom: 500,
+      period: 6,
+      damageMul: 2,
+    },
+    stopTime: {
+      /** 누르고 있지 않으면 시간이 이 배로 흐른다 (거의 멈춤) */
+      idleScale: 0.04,
+    },
+    inflate: {
+      /** 맞고 산 적은 부푼다: 반경 배율 (최대 횟수), 죽을 때 부푼 횟수 × 이만큼 터짐 */
+      grow: 1.18,
+      max: 6,
+      radiusPer: 0.35,
+      chargePer: 0.2,
+    },
+    fog: {
+      /** 방어선 위 이만큼 + 폭발 자리만 보인다 (폭발 자리는 holdSec 동안) */
+      clear: 150,
+      holdSec: 1.5,
+    },
+    echo: {
+      /** 탭 폭발이 이 시간 뒤 같은 자리에서 한 번 더 (피해 배율) */
+      delay: 0.9,
+      damageMul: 0.7,
+    },
+    wind: {
+      /** 바람: 좌우로 미는 속도 (px/s)와 방향이 바뀌는 주기 (초) */
+      speed: 45,
+      period: 8,
+    },
+    golden: {
+      /** 적이 황금일 확률. 연쇄로 잡으면 즉시 레벨 업 + 게이지 가득, 탭으로 직접 잡으면 그냥 적 */
+      chance: 0.03,
+    },
     brink: {
       /** 방어선 위 이 거리 안에서 잡으면 벼랑 끝 처치 */
       zone: 120,

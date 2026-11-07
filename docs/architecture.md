@@ -52,7 +52,12 @@
 ## 실험 규칙
 
 `RunConfig.rules`(`sim/types.ts` 의 `RULE_IDS`)로 켜고 끄는 플레이테스트용 규칙. 수치는 `balance.ts` 의 `experiment`.
-타이틀 칩 → `settings.rules`(세이브) → `createRunConfig`. 일일 도전은 항상 끔.
+타이틀 → 실험 규칙 화면(`data/experiments.ts` 의 번호·이름·설명) → `settings.rules`(세이브) → `createRunConfig`. 일일 도전은 항상 끔.
+
+11-07 묶음(21개)은 `sim/exp.ts` 의 `Experiments` 한 곳에 모았다. World 는 정해진 자리에서 훅만 부른다:
+`timeScale`(적·웨이브·지속 피해 시간 배율) · `onSpawn`/`placePack`(색·황금·코어 방향) · `onFire`/`afterFire`(탭 한 발 `Shot` 을 고치거나 지뢰·씨앗으로 바꿈) ·
+`collectRow`/`onDetonate`(가로 띠, 씨앗 유폭) · `modifyDamage`/`afterHit`(색·얼음 배율, 밀어내기·풍선·불) · `deathBlast`/`onKill`(얼음 깨짐·익는 폭발형·불덩이·황금) · `update`(불·자석·불덩이·바람·박자).
+폭발의 모양·색 같은 꼬리표는 `Explosion.tag`, 연쇄 전체로 따라가는 것(색·밀어내기)은 `Chain.tag`. 그리기는 `render/expDraw.ts`.
 
 - **과충전** (기본 규칙, `overchargeOn` 이 항상 참. `rules.overcharge` 는 옛 세이브 호환용): 게이지 상한 150%. 100% 에서 누르면 `World.charging` 이 되고, 누르고 있는 동안만 넘어서 찬다
   (100% 위로 갈수록 가속). 떼면(`release`) 그 크기로 쏘고, 상한에 닿으면 `overload` (게이지 0, `overheat` 동안 헛탭).

@@ -10,7 +10,9 @@ import { Renderer } from '../render/Renderer';
 import type { Offer, RunConfig } from '../sim/types';
 import { World } from '../sim/World';
 import { Overlay, h } from '../ui/dom';
-import { augmentPicker, pauseScreen, resultScreen, titleScreen, upgradeScreen } from '../ui/screens';
+import { augmentPicker, experimentsScreen, pauseScreen, resultScreen, titleScreen, toggleExperiment, upgradeScreen } from '../ui/screens';
+import { RULE_IDS } from '../sim/types';
+import { getChapter } from '../data/chapters';
 import { GameLoop } from './GameLoop';
 
 /** 판이 끝나고 결과 화면을 띄우기까지 (마지막 폭발 연출을 보여주는 시간) */
@@ -226,11 +228,7 @@ export class App {
         save,
         today,
         chapterId: this.chapterId,
-        onToggleRule: (id) => {
-          save.settings.rules[id] = !save.settings.rules[id];
-          this.saves.persist();
-          this.showTitle();
-        },
+        onExperiments: () => this.showExperiments(),
         onSelectChapter: (id) => {
           this.chapterId = id;
           this.showTitle();
@@ -257,6 +255,44 @@ export class App {
         onExport: () => this.exportHistory(),
       }),
     );
+  }
+
+  private showExperiments(): void {
+    const save = this.saves.data;
+    const rules = save.settings.rules;
+    const keep = this.overlayScroll();
+    this.overlay.show(
+      experimentsScreen({
+        rules,
+        chapterName: getChapter(this.chapterId).name,
+        onToggle: (id) => {
+          toggleExperiment(rules, id);
+          this.saves.persist();
+          this.showExperiments();
+        },
+        onTryOnly: (id) => {
+          for (const r of RULE_IDS) rules[r] = r === id;
+          this.saves.persist();
+          const ch = this.chapterId;
+          this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), ch));
+        },
+        onClear: () => {
+          for (const r of RULE_IDS) rules[r] = false;
+          this.saves.persist();
+          this.showExperiments();
+        },
+        onBack: () => this.showTitle(),
+      }),
+    );
+    this.overlayScroll(keep);
+  }
+
+  /** 다시 그려도 목록 스크롤 위치를 유지 (값을 주면 복원, 안 주면 지금 값) */
+  private overlayScroll(top?: number): number {
+    const el = this.overlay.element;
+    if (!el) return 0;
+    if (top !== undefined) el.scrollTop = top;
+    return el.scrollTop;
   }
 
   private showUpgrades(): void {

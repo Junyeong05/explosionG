@@ -10,6 +10,8 @@ export type DamageSource =
   | 'chain'
   /** 쌓이는 바닥: 무너지는 블록의 폭발. 블록에게는 즉사 */
   | 'pile'
+  /** 실험 규칙에서 생긴 피해 (불·씨앗·불덩이·메아리 등). 연쇄 폭발과 같은 간접 피해 */
+  | 'exp'
   | 'fission'
   | 'ember'
   | 'shard'
@@ -49,6 +51,19 @@ export interface Enemy {
   /** 무리 중심에서의 위치 */
   packOx: number;
   packOy: number;
+  /** 이동 방향 (단위 벡터). 기본은 아래 (0, 1), 가운데 지키기에서는 중심 쪽 */
+  dx: number;
+  dy: number;
+  /** 밀어내기·끌어당김으로 받은 속도 (px/s, 점점 줄어듦) */
+  kx: number;
+  ky: number;
+  /** 실험 규칙 상태 (exp.ts). 얼음·불 남은 시간, 색, 부푼 횟수, 화면에 들어온 시각, 황금 */
+  frozen: number;
+  burn: number;
+  color: number;
+  inflate: number;
+  bornAt: number;
+  golden: boolean;
 }
 
 /** 무리: 구성원이 가장 느린 구성원 속도에 맞춰 대열을 유지하며 내려온다 (World.moveEnemies) */
@@ -59,6 +74,9 @@ export interface Pack {
   speed: number;
   /** 살아 있는 구성원 수 (0 이 되면 정리) */
   members: number;
+  /** 이동 방향 (단위 벡터, 기본 아래) */
+  dx: number;
+  dy: number;
 }
 
 export interface Explosion {
@@ -76,6 +94,23 @@ export interface Explosion {
   edgeMul: number;
   /** 연쇄 단계 (0 = 탭·지뢰·번개) */
   depth: number;
+  /** 실험 규칙 꼬리표: 모양(가로 띠)·색·밀어내기·얼리기 등 (exp.ts 가 읽음) */
+  tag?: ExplosionTag;
+}
+
+export interface ExplosionTag {
+  /** 가로 베기: 화면 전체 가로 띠 (radius = 띠 반높이) */
+  row?: boolean;
+  /** 색 맞추기: 이 폭발의 색 */
+  color?: number;
+  /** 밀어내기: 밀어내는 세기 (px/s) */
+  knock?: number;
+  /** 얼리고 깨기: 피해 없이 얼린다 */
+  freeze?: boolean;
+  /** 번지는 불: 맞은 적에 불이 붙는다 */
+  ignite?: boolean;
+  /** 메아리: 이미 메아리인 폭발 (다시 메아리 안 만듦) */
+  echo?: boolean;
 }
 
 /**
@@ -90,6 +125,8 @@ export interface Chain {
   links: number;
   /** 이 묶음에서 연쇄가 몇 단계까지 갈 수 있나 (0 = 연쇄 없음) */
   maxDepth: number;
+  /** 실험 규칙: 탭에서 연쇄 전체로 따라가는 꼬리표 (색·밀어내기) */
+  tag?: ExplosionTag;
 }
 
 /** 잔불 같은 지속 피해 지대 */
@@ -116,6 +153,8 @@ export interface Mine {
   damage: number;
   armIn: number;
   ttl: number;
+  /** 지뢰 심기 규칙: 터질 때 연쇄 단계 (없으면 기본) */
+  depth?: number;
 }
 
 /**
@@ -144,7 +183,12 @@ export type Phase = 'playing' | 'choosing' | 'ended';
  *   pile:       쌓이는 바닥 — 넘어온 적이 바닥에 블록으로 쌓이고(LIFE 없음), 꼭대기까지 차면 끝.
  *               100% 이상으로 쏜 폭발에 블록이 죽으면 붙은 블록이 줄줄이 무너진다
  */
-export const RULE_IDS = ['overcharge', 'combo', 'brink', 'paint', 'pairs', 'pile'] as const;
+export const RULE_IDS = [
+  'overcharge', 'combo', 'brink', 'paint', 'pairs', 'pile',
+  // 11-07 실험 묶음 (설명은 data/experiments.ts)
+  'freeze', 'burn', 'scorch', 'knockback', 'magnet', 'beat', 'colors', 'core', 'launcher', 'mines',
+  'seeds', 'row', 'bouncer', 'ripen', 'sweet', 'stopTime', 'inflate', 'fog', 'echo', 'wind', 'golden',
+] as const;
 export type RuleId = (typeof RULE_IDS)[number];
 export type RunRules = Partial<Record<RuleId, boolean>>;
 

@@ -27,6 +27,17 @@ export type SimEvent =
   | { type: 'overload' }
   /** 짝 폭발: (x1, y1) 이 터져서 짝 (x2, y2) 도 터짐 */
   | { type: 'pairBlast'; x1: number; y1: number; x2: number; y2: number; color: number }
+  /** 11-07 실험 묶음 */
+  | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }
+  | { type: 'beat' }
+  | { type: 'beatShot'; x: number; y: number; on: boolean }
+  | { type: 'sweetShot'; x: number; y: number }
+  | { type: 'freeze'; x: number; y: number }
+  | { type: 'seed'; x: number; y: number }
+  | { type: 'seedBlast'; x: number; y: number }
+  | { type: 'mineBlast'; x: number; y: number; radius: number }
+  | { type: 'rowBlast'; y: number; half: number }
+  | { type: 'golden'; x: number; y: number; ok: boolean }
   /** 쌓이는 바닥: 적이 바닥(더미)에 쌓임 */
   | { type: 'land'; x: number; y: number; rows: number }
   /** 벼랑 끝 처치 */

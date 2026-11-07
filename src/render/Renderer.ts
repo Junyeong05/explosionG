@@ -6,6 +6,7 @@ import type { SimEvent } from '../sim/events';
 import type { Enemy } from '../sim/types';
 import type { World } from '../sim/World';
 import { Bolts, DamageNumbers, GlowCache, Particles, Rings, Shake } from './fx/effects';
+import { ExpDraw } from './expDraw';
 import { CHAIN_COLORS, COLORS, PAIR_COLORS, chainColor, rgba } from './palette';
 
 const FW = BALANCE.field.width;
@@ -44,6 +45,7 @@ export class Renderer {
   private readonly numbers = new DamageNumbers(48);
   private readonly bolts = new Bolts(64);
   private readonly shake = new Shake();
+  private readonly expFx: ExpDraw;
   private particleBudget = PARTICLE_BUDGET_PER_FRAME;
 
   private edge = 0;
@@ -67,6 +69,7 @@ export class Renderer {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) throw new Error('Canvas2D 를 쓸 수 없습니다');
     this.ctx = ctx;
+    this.expFx = new ExpDraw(ctx, this.glow);
     this.resize();
   }
 
@@ -98,6 +101,7 @@ export class Renderer {
     this.particles.clear();
     this.numbers.clear();
     this.bolts.clear();
+    this.expFx.reset();
     this.shake.trauma = 0;
     this.edge = this.leakFlash = this.whiteFlash = this.levelFlash = this.refundFlash = this.multPop = 0;
     this.banner = null;
@@ -115,6 +119,7 @@ export class Renderer {
 
   consume(events: readonly SimEvent[]): void {
     for (const e of events) {
+      this.expFx.consume(e);
       switch (e.type) {
         case 'explosion':
           this.onExplosion(e);
@@ -233,6 +238,7 @@ export class Renderer {
     this.particles.update(dt);
     this.numbers.update(dt);
     this.bolts.update(dt);
+    this.expFx.update(dt);
     this.shake.update(dt);
     this.edge = Math.max(0, this.edge - dt * 1.6);
     this.leakFlash = Math.max(0, this.leakFlash - dt * 2.5);
@@ -260,15 +266,20 @@ export class Renderer {
     ctx.clip();
     if (!this.bg) this.bg = this.buildBackground();
     ctx.drawImage(this.bg, 0, 0, FW, FH);
-    this.drawDefenseLine();
+    if (!world?.rules.core) this.drawDefenseLine();
 
     if (world) {
       if (world.rules.pile) this.drawPileLimit(world);
       if (world.rules.brink) this.drawBrinkZone();
       this.drawZones(world);
       this.drawMines(world);
+      this.expFx.drawUnder(world);
       if (world.rules.pairs) this.drawPairLinks(world);
-      for (const e of world.enemies) if (!e.dead) this.drawEnemy(e, world.time);
+      for (const e of world.enemies) {
+        if (e.dead) continue;
+        this.drawEnemy(e, world.time);
+        this.expFx.decorate(e, world);
+      }
       this.drawCharging(world);
     }
 
@@ -278,12 +289,16 @@ export class Renderer {
     this.bolts.draw(ctx);
     ctx.globalCompositeOperation = 'source-over';
     this.numbers.draw(ctx, FONT);
+    if (world) this.expFx.drawOver(world);
     ctx.restore();
 
     // HUD 레이어 (흔들림 없음)
     ctx.setTransform(k, 0, 0, k, this.dpr * this.ox, this.dpr * this.oy);
     this.drawScreenFx();
-    if (world) this.drawHud(world, dt);
+    if (world) {
+      this.drawHud(world, dt);
+      this.expFx.drawHud(world);
+    }
   }
 
   private buildBackground(): HTMLCanvasElement {

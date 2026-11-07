@@ -1,10 +1,11 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
 import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
 import { ENEMIES } from '../data/enemies';
+import { EXPERIMENTS, experimentInfo } from '../data/experiments';
 import { UPGRADES, type UpgradeId } from '../data/upgrades';
 import { canBuy, isChapterUnlocked, upgradeCost, upgradeLevel } from '../meta/progression';
 import type { SaveData } from '../meta/save';
-import { RULE_IDS, type Offer, type RuleId, type RunSummary } from '../sim/types';
+import type { Offer, RuleId, RunSummary } from '../sim/types';
 import { h } from './dom';
 
 /**
@@ -30,22 +31,14 @@ function fmtTime(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-/** 실험 규칙 이름과 한 줄 설명 (타이틀 토글) */
-const RULE_INFO: Record<RuleId, { name: string; desc: string }> = {
-  overcharge: { name: '과충전', desc: '100%에서 꾹 누르면 150%까지 더 모인다. 떼면 발사, 끝까지 넘기면 폭주' },
-  combo: { name: '연쇄 잇기', desc: '0.6초 안에 계속 잡으면 콤보 배율이 쌓인다 (처치당 +3%, 최대 ×3)' },
-  brink: { name: '벼랑 끝', desc: '방어선 근처에서 잡으면 게이지 25% 환급 (봇 시험에선 손해였음)' },
-  paint: { name: '불씨 칠하기', desc: '100%에서 꾹 누른 채 끌면 손끝이 지나간 적에 불씨가 붙는다. 떼면 발사, 불씨 붙은 적은 죽을 때 폭발형처럼 터진다' },
-  pairs: { name: '짝 폭발형', desc: '같은 색 테두리 폭발형 둘은 짝. 하나가 터지면 멀리 있는 짝도 그 자리에서 같이 터진다' },
-  pile: { name: '쌓이는 바닥', desc: '넘어온 적은 LIFE 대신 바닥에 블록으로 쌓이고, 한계선까지 차면 끝. 100% 이상으로 블록을 터뜨리면 붙은 블록이 줄줄이 무너진다 (과충전 130%면 두 배)' },
-};
-
-/** 타이틀에 보이는 실험 규칙 (벼랑 끝은 봇 시험에서 탈락, 과충전은 기본 규칙이 되어 숨김) */
-const VISIBLE_RULES: readonly RuleId[] = RULE_IDS.filter((id) => id !== 'brink' && id !== 'overcharge');
+/** 켜 둔 실험 규칙 (번호 순). 과충전은 기본 규칙, 벼랑 끝은 탈락이라 목록에 없음 */
+export function activeExperiments(rules: Partial<Record<RuleId, boolean>>): string[] {
+  return EXPERIMENTS.filter((x) => rules[x.id]).map((x) => `${x.no}. ${x.name}`);
+}
 
 export interface TitleProps {
   save: SaveData;
-  onToggleRule(id: RuleId): void;
+  onExperiments(): void;
   today: string;
   /** 고른 챕터 id */
   chapterId: string;
@@ -92,16 +85,11 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
-      h('div', { class: 'rules' },
-        h('span', { class: 'rules-label', text: '실험 규칙' }),
-        ...VISIBLE_RULES.map((id) => h('button', {
-          class: `chip${p.save.settings.rules[id] ? ' on' : ''}`,
-          onClick: () => p.onToggleRule(id),
-          text: RULE_INFO[id].name,
-        })),
-      ),
-      ...VISIBLE_RULES.filter((id) => p.save.settings.rules[id]).map((id) =>
-        h('div', { class: 'rule-desc', text: `${RULE_INFO[id].name}: ${RULE_INFO[id].desc}` })),
+      (() => {
+        const on = activeExperiments(p.save.settings.rules);
+        return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },
+          `실험 규칙 ${EXPERIMENTS.length}개`, h('small', { text: on.length ? on.join(' · ') : '꺼짐 · 골라서 켜기' }));
+      })(),
       h('button', { class: 'btn', onClick: p.onEndless }, '엔드리스', h('small', { text: '끝없이' })),
       h('button', { class: 'btn', onClick: p.onDaily }, '일일 도전', h('small', { text: `${p.today} · 영구 강화 미적용` })),
       h('button', { class: 'btn', onClick: p.onUpgrades }, '영구 강화', h('small', { class: 'parts', text: `부품 ${p.save.parts}` })),
@@ -115,6 +103,50 @@ export function titleScreen(p: TitleProps): HTMLElement {
       ),
     ),
   );
+}
+
+export interface ExperimentsProps {
+  rules: Partial<Record<RuleId, boolean>>;
+  chapterName: string;
+  onToggle(id: RuleId): void;
+  /** 이것만 켜고 바로 시작 */
+  onTryOnly(id: RuleId): void;
+  onClear(): void;
+  onBack(): void;
+}
+
+export function experimentsScreen(p: ExperimentsProps): HTMLElement {
+  const row = (x: (typeof EXPERIMENTS)[number]) => {
+    const on = !!p.rules[x.id];
+    return h('div', { class: `exp${on ? ' on' : ''}` },
+      h('button', { class: 'exp-main', onClick: () => p.onToggle(x.id) },
+        h('div', { class: 'exp-name' }, h('span', { class: 'exp-no', text: String(x.no).padStart(2, '0') }), x.name, on ? h('span', { class: 'exp-on', text: 'ON' }) : null),
+        h('div', { class: 'exp-desc', text: x.desc }),
+      ),
+      h('button', { class: 'exp-try', onClick: () => p.onTryOnly(x.id), ariaLabel: `${x.name}만 켜고 시작`, text: '▶' }),
+    );
+  };
+  return h('div', { class: 'overlay top' },
+    h('div', { class: 'panel' },
+      h('h2', { class: 'heading', text: '실험 규칙' }),
+      h('div', { class: 'rule-desc', text: `눌러서 켜고 끄기 (여러 개 같이 가능). ▶ = 이것만 켜고 ${p.chapterName} 바로 시작` }),
+      h('div', { class: 'exp-list' },
+        ...EXPERIMENTS.filter((x) => !x.old).map(row),
+        h('div', { class: 'rules-label exp-sep', text: '지난 실험' }),
+        ...EXPERIMENTS.filter((x) => x.old).map(row),
+      ),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn', onClick: p.onClear, text: '모두 끄기' }),
+        h('button', { class: 'btn primary', onClick: p.onBack, text: '돌아가기' }),
+      ),
+    ),
+  );
+}
+
+/** 켜면 같이 못 켜는 규칙을 끈다 */
+export function toggleExperiment(rules: Record<RuleId, boolean>, id: RuleId): void {
+  rules[id] = !rules[id];
+  if (rules[id]) for (const c of experimentInfo(id)?.conflicts ?? []) rules[c] = false;
 }
 
 export interface UpgradeProps {
@@ -222,6 +254,9 @@ export function resultScreen(p: ResultProps): HTMLElement {
   return h('div', { class: 'overlay' },
     h('div', { class: 'panel' },
       h('h2', { class: `heading result-${s.result}`, text: RESULT_TITLE[s.result] }),
+      (s.rules?.length ?? 0) > 0
+        ? h('div', { class: 'center rule-desc', text: `실험: ${activeExperiments(Object.fromEntries((s.rules ?? []).map((r) => [r, true]))).join(' · ') || '없음'}` })
+        : null,
       h('dl', { class: 'stats' },
         ...stat('웨이브', String(s.wave)),
         ...stat('처치', String(s.kills)),

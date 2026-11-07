@@ -106,6 +106,21 @@ html, body {
 .rules { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
 .rules-label { color: var(--dim); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; margin-right: 2px; }
 .rule-desc { color: var(--dim); font-size: 11px; line-height: 1.4; text-align: center; }
+.overlay.top { align-items: flex-start; }
+.exp-btn small { max-width: 62%; text-align: right; }
+.exp-btn.on { border-color: var(--accent); }
+.exp-btn.on small { color: var(--accent); }
+.exp-list { display: flex; flex-direction: column; gap: 6px; }
+.exp { display: flex; align-items: stretch; border: 1px solid var(--line); background: rgba(20, 24, 40, 0.82); }
+.exp.on { border-color: var(--accent); background: rgba(20, 60, 64, 0.5); }
+.exp-main { flex: 1; appearance: none; border: none; background: none; color: var(--text); font: inherit; text-align: left; padding: 9px 10px; cursor: pointer; }
+.exp-name { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.exp-no { color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
+.exp-on { color: var(--accent); font-size: 10px; letter-spacing: 0.1em; }
+.exp-desc { color: var(--dim); font-size: 11px; line-height: 1.4; margin-top: 3px; }
+.exp-try { appearance: none; border: none; border-left: 1px solid var(--line); background: rgba(255, 60, 110, 0.18); color: var(--text); font-size: 14px; width: 46px; cursor: pointer; }
+.exp-try:active, .exp-main:active { filter: brightness(1.4); }
+.exp-sep { margin-top: 8px; text-align: center; }
 .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .link { background: none; border: none; padding: 0; color: var(--dim); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .ver { font-size: 10px; color: #4a4f63; }

@@ -9,6 +9,7 @@ import { SpatialGrid } from '../core/spatial';
 import { AugmentManager } from './augments';
 import type { ExplosionSpec, MineSpec, SimApi, ZoneSpec } from './api';
 import type { SimEvent } from './events';
+import { Experiments, type Shot } from './exp';
 import { computeStats, type PlayerStats } from './stats';
 import {
   RULE_IDS,
@@ -83,6 +84,8 @@ export class World implements SimApi {
   runMult = 1;
   /** 실험 규칙 */
   readonly rules: RunRules;
+  /** 11-07 실험 묶음 (exp.ts) */
+  readonly exp: Experiments;
   /** 과충전 폭주 뒤 남은 과열 시간 (이 동안 못 쏨) */
   overheat = 0;
   /** 과충전 규칙: 100% 에서 누르고 있는 중 (이 동안만 100% 를 넘어 찬다, 떼면 쏨) */
@@ -132,6 +135,7 @@ export class World implements SimApi {
     this.augments = new AugmentManager(new Rng(deriveSeed(config.seed, 'augment')));
     this.recordEvents = config.recordEvents ?? true;
     this.rules = config.rules ?? {};
+    this.exp = new Experiments(this, this.rules);
     if (this.rules.pile) {
       const n = Math.ceil(this.field.width / BALANCE.experiment.pile.colWidth);
       for (let i = 0; i < n; i++) this.pileCols.push([]);
@@ -162,16 +166,19 @@ export class World implements SimApi {
     }
 
     this.time += dt;
+    // 누를 때만 시간: 손을 떼면 적·웨이브·지속 피해가 거의 멈춘다 (폭발·연쇄는 그대로 터짐)
+    const flow = dt * this.exp.timeScale();
     this.updateGauge(dt);
     this.updateCombo(dt);
-    if (!this.config.sandbox) this.updateWaves(dt);
-    this.moveEnemies(dt);
+    if (!this.config.sandbox) this.updateWaves(flow);
+    this.moveEnemies(flow);
     this.rebuildGrid();
     this.paintSparks();
+    this.exp.update(flow);
     this.updateExplosions(dt);
-    this.updateZones(dt);
-    this.updateMines(dt);
-    this.augments.onTick(this, dt);
+    this.updateZones(flow);
+    this.updateMines(flow);
+    this.augments.onTick(this, flow);
     this.compactEnemies();
     this.sweepChains();
 
@@ -238,7 +245,8 @@ export class World implements SimApi {
     const y = clamp(py, 0, this.field.height);
     // 과충전 규칙: 100% 가 찬 상태에서 누르면 바로 쏘지 않고 과충전을 시작한다 (떼면 쏨)
     const free = this.stats.freeTapDuringChain && this.explosions.length > 0;
-    if (this.overloadable && !free && this.gauge >= 1 && this.overheat <= 0 && !this.charging) {
+    const startsCharge = this.gauge >= 1 || this.exp.pressStartsCharge();
+    if (this.overloadable && !free && startsCharge && this.overheat <= 0 && !this.charging) {
       this.charging = { x, y };
       this.paintFrom = null;
       return;
@@ -255,17 +263,28 @@ export class World implements SimApi {
       this.emit({ type: 'dryTap', x, y });
       return;
     }
-    if (!free) this.gauge = Math.min(power, s.gaugeLeftover);
 
     const crit = this.rng.chance(s.critChance);
     let damage = this.tapDamageAt(power) * this.comboMult();
     if (crit) damage *= s.critMultiplier;
+    // 실험 규칙이 탭 한 발을 고친다 (모양·색·지연, 지뢰·씨앗이면 폭발 대신)
+    const shot: Shot = { x, y, power, radius: this.tapRadiusAt(power), damage, depth: this.chainDepthAt(power), delay: 0, tag: {}, cancel: false };
+    this.exp.onFire(shot);
+    if (!free) this.gauge = shot.gaugeAfter ?? Math.min(power, s.gaugeLeftover);
+    if (shot.cancel) {
+      this.taps++;
+      return;
+    }
     this.taps++;
     this.emit({ type: 'tap', x, y, free, power });
+    const chainId = this.newChain(shot.depth);
+    const tag = shot.tag;
+    if (tag.color !== undefined || tag.knock !== undefined) this.chains.get(chainId)!.tag = { color: tag.color, knock: tag.knock };
     this.spawnExplosion({
-      x, y, radius: this.tapRadiusAt(power), damage, chainId: this.newChain(this.chainDepthAt(power)), source: 'tap', crit,
-      edgeMul: s.tapEdgeMul,
+      x, y, radius: shot.radius, damage: shot.damage, chainId, source: 'tap', crit,
+      edgeMul: tag.row ? 1 : s.tapEdgeMul, delay: shot.delay, tag,
     });
+    this.exp.afterFire(shot, chainId);
   }
 
   /** 게이지 power(1 = 100%)로 쏘면 반경이 얼마인가 (렌더러 미리보기·봇도 씀) */
@@ -378,6 +397,7 @@ export class World implements SimApi {
     if (this.gauge >= s.gaugeMax) return;
     // 과충전 규칙: 100% 넘게는 누르고 있을 때만 찬다
     if (this.overloadable && this.gauge >= 1 && !this.charging) return;
+    if (!this.exp.gaugeFills()) return;
     let rate = 1;
     if (this.gauge >= 1) {
       if (this.overloadable) {
@@ -521,13 +541,17 @@ export class World implements SimApi {
   spawnPack(): void {
     const W = BALANCE.wave;
     const rng = this.spawnRng;
-    const pool = this.chapter.roster.filter((r) => r.fromWave <= this.wave);
+    // 폭발형을 쓰는 실험 규칙을 켜면 폭발형은 처음부터 나온다 (챕터 1 은 웨이브 3부터라 1분 동안 해볼 게 없었다)
+    const r = this.rules;
+    const bombsEarly = !!(r.magnet || r.ripen || r.bouncer || r.pairs);
+    const pool = this.chapter.roster.filter((x) => x.fromWave <= this.wave || (bombsEarly && x.kind === 'explosive'));
     const size = Math.max(1, packSize(this.wave) + rng.int(3) - 1);
     const spread = W.packSpread * Math.max(1, Math.sqrt(size / W.packSpreadRefSize));
     const cx = rng.range(spread + 12, this.field.width - spread - 12);
     // 무리 전체가 화면 위 바깥에서 시작하도록 아래 끝을 spawnY 에 맞춘다
     const cy = this.field.spawnY - spread;
-    const pack: Pack = { id: this.nextId++, x: cx, y: cy, speed: Number.POSITIVE_INFINITY, members: 0 };
+    const pack: Pack = { id: this.nextId++, x: cx, y: cy, speed: Number.POSITIVE_INFINITY, members: 0, dx: 0, dy: 1 };
+    const spawned: Enemy[] = [];
 
     const placed: { x: number; y: number; r: number }[] = [];
     for (let i = 0; i < size; i++) {
@@ -537,6 +561,7 @@ export class World implements SimApi {
       const p = this.packSpot(cx, cy, spread, def, placed);
       placed.push(p);
       const e = this.spawnEnemy(def.id, p.x, p.y);
+      if (e) spawned.push(e);
       if (e && this.rules.pairs && def.deathBlast && !def.boss) this.assignPair(e, pack);
       if (!e || def.loner) continue;
       // 무리는 가장 느린 구성원 속도로 같이 내려온다
@@ -546,6 +571,7 @@ export class World implements SimApi {
       pack.speed = Math.min(pack.speed, e.speed);
       pack.members++;
     }
+    this.exp.placePack(pack, spawned);
     if (pack.members > 0) this.packs.push(pack);
   }
 
@@ -580,9 +606,15 @@ export class World implements SimApi {
   }
 
   private moveEnemies(dt: number): void {
-    const line = this.field.defenseLineY;
-    for (const p of this.packs) p.y += p.speed * dt;
+    const W = this.field.width;
+    const wind = this.exp.windAt();
+    const core = !!this.rules.core;
+    for (const p of this.packs) {
+      p.x += p.dx * p.speed * dt + wind * dt;
+      p.y += p.dy * p.speed * dt;
+    }
     const pile = !!this.rules.pile;
+    const damp = Math.exp(-BALANCE.experiment.knockback.damping * dt);
     for (const e of this.enemies) {
       if (e.dead) continue;
       // 쌓인 블록: 아래 블록이 사라졌으면 떨어진다
@@ -590,13 +622,25 @@ export class World implements SimApi {
         if (e.y < e.pileY) e.y = Math.min(e.pileY, e.y + BALANCE.experiment.pile.fallSpeed * dt);
         continue;
       }
+      // 얼리고 깨기: 언 적은 멈춘다
+      if (e.frozen > 0) continue;
       const p = e.pack;
       if (p) {
         e.x = p.x + e.packOx;
         e.y = p.y + e.packOy;
       } else {
-        e.y += e.speed * dt;
+        e.x += e.dx * e.speed * dt + wind * dt;
+        e.y += e.dy * e.speed * dt;
       }
+      // 밀어내기: 받은 속도로 날아가다 점점 멈춘다
+      if (e.kx !== 0 || e.ky !== 0) {
+        e.x += e.kx * dt;
+        e.y += e.ky * dt;
+        e.kx *= damp;
+        e.ky *= damp;
+        if (Math.abs(e.kx) + Math.abs(e.ky) < 2) e.kx = e.ky = 0;
+      }
+      if (!core) e.x = clamp(e.x, e.radius, W - e.radius);
       // 쌓이는 바닥: 방어선이나 더미 위에 닿으면 블록이 된다 (최종 보스는 그대로 즉시 패배)
       if (pile && !e.isFinalBoss) {
         const col = this.pileColAt(e.x);
@@ -606,7 +650,7 @@ export class World implements SimApi {
           continue;
         }
       }
-      if (e.y >= line) {
+      if (this.exp.leaked(e)) {
         e.dead = true;
         // 짝이 방어선을 넘으면 짝 관계만 끊긴다 (남은 쪽은 보통 폭발형)
         if (e.partner) {
@@ -700,7 +744,8 @@ export class World implements SimApi {
       type: 'explosion', x: ex.x, y: ex.y, radius: ex.radius, source: ex.source,
       chainId: ex.chainId, chainKills: chain?.kills ?? 0, crit: ex.crit,
     });
-    const hits = this.collectEnemiesNear(ex.x, ex.y, ex.radius, this.hitBuf);
+    if (ex.tag?.row) this.emit({ type: 'rowBlast', y: ex.y, half: ex.radius });
+    const hits = ex.tag?.row ? this.exp.collectRow(ex, this.hitBuf) : this.collectEnemiesNear(ex.x, ex.y, ex.radius, this.hitBuf);
     const edge = ex.edgeMul;
     for (const e of hits) {
       let dmg = ex.damage;
@@ -709,8 +754,9 @@ export class World implements SimApi {
         const t = clamp(Math.sqrt(dist2(ex.x, ex.y, e.x, e.y)) / (ex.radius + e.radius), 0, 1);
         dmg *= 1 - (1 - edge) * t;
       }
-      this.hitEnemy(e, dmg, ex.source, ex.chainId, ex.crit, ex.depth);
+      this.hitEnemy(e, dmg, ex.source, ex.chainId, ex.crit, ex.depth, ex);
     }
+    this.exp.onDetonate(ex);
     this.augments.onExplosion(this, ex);
     if (chain) chain.refs--;
   }
@@ -743,9 +789,15 @@ export class World implements SimApi {
       m.ttl -= dt;
       let keep = m.ttl > 0;
       if (keep && m.armIn <= 0) {
-        const near = this.collectEnemiesNear(m.x, m.y, MINE_TRIGGER_RADIUS, this.hitBuf);
+        // 지뢰 심기 규칙의 지뢰(depth 있음)는 탭 폭발처럼 터진다
+        const own = m.depth !== undefined;
+        const near = this.collectEnemiesNear(m.x, m.y, own ? BALANCE.experiment.mines.trigger : MINE_TRIGGER_RADIUS, this.hitBuf);
         if (near.length > 0) {
-          this.spawnExplosion({ x: m.x, y: m.y, radius: m.radius, damage: m.damage, chainId: this.newChain(), source: 'mine' });
+          this.spawnExplosion({
+            x: m.x, y: m.y, radius: m.radius, damage: m.damage, chainId: this.newChain(m.depth), source: own ? 'tap' : 'mine',
+            edgeMul: own ? this.stats.tapEdgeMul : 1,
+          });
+          if (own) this.emit({ type: 'mineBlast', x: m.x, y: m.y, radius: m.radius });
           keep = false;
         }
       }
@@ -787,9 +839,14 @@ export class World implements SimApi {
   // 전투
   // ═══════════════════════════════════════════════════════════
 
-  private hitEnemy(e: Enemy, amount: number, source: DamageSource, chainId: number, crit: boolean, depth: number): void {
+  private hitEnemy(e: Enemy, amount: number, source: DamageSource, chainId: number, crit: boolean, depth: number, ex?: Explosion): void {
     if (e.dead) return;
     e.lastHitAt = this.time;
+    const chainTag = this.chains.get(chainId)?.tag;
+    // 실험 규칙 피해 배율 (색·얼음). 얼리는 탭이면 피해 없이 끝
+    const expDmg = this.exp.modifyDamage(e, amount, ex?.tag, chainTag);
+    if (expDmg < 0) return;
+    amount = expDmg;
     if (e.shield > 0 && !(source === 'pile' && e.pileCol >= 0)) {
       e.shield--;
       this.emit({ type: 'shieldBreak', x: e.x, y: e.y });
@@ -804,6 +861,18 @@ export class World implements SimApi {
     e.def.boss?.onDamaged?.(this, e);
     // 체력을 넘긴 만큼이 넘친 피해 → 연쇄로 이월
     if (e.hp <= 0) this.killEnemy(e, chainId, -e.hp, depth);
+    else this.exp.afterHit(e, ex, chainTag);
+  }
+
+  /** 실험 규칙의 지속 피해 (불 등). 증강 훅과 달리 바로 피해를 준다 (exp.ts 의 스텝 갱신에서만 부름) */
+  hitFromExp(e: Enemy, amount: number, chainId: number, depth: number): void {
+    this.hitEnemy(e, amount, 'exp', chainId, false, depth);
+  }
+
+  /** 황금 적을 연쇄로 잡음: 즉시 레벨 업 + 게이지 가득 */
+  goldenReward(): void {
+    this.gainXp(Math.max(0, this.xpNeeded - this.xp));
+    this.gainGauge(1);
   }
 
   /** overflow = 이 적을 죽인 피해 중 체력을 넘긴 양, depth = 이 적을 죽인 폭발의 연쇄 단계 */
@@ -856,7 +925,7 @@ export class World implements SimApi {
     const PB = BALANCE.experiment.pile;
     const pileBlast = pileBlock ? { radiusMul: PB.blastRadius / s.chainRadius, charge: PB.blastCharge } : undefined;
     // 불씨 칠하기: 불씨 붙은 적은 폭발형처럼 터진다
-    const blast = pileBlast ?? e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
+    const blast = pileBlast ?? this.exp.deathBlast(e) ?? e.def.deathBlast ?? (e.spark ? BALANCE.experiment.paint.blast : undefined);
     const depthOk = pileBlock ? chain.maxDepth > 0 && depth + 1 <= chain.maxDepth * PB.stepsPerDepth : depth + 1 <= chain.maxDepth;
     let exploded = false;
     if ((blast || s.chainOnAllKills) && depthOk) {
@@ -890,6 +959,7 @@ export class World implements SimApi {
       }
     }
 
+    this.exp.onKill(e, depth, exploded);
     this.gainXp(e.def.xp);
 
     if (e.def.boss) {
@@ -957,6 +1027,7 @@ export class World implements SimApi {
       crit: spec.crit ?? false,
       edgeMul: spec.edgeMul ?? 1,
       depth: spec.depth ?? 0,
+      tag: spec.tag,
     });
   }
 
@@ -987,9 +1058,20 @@ export class World implements SimApi {
       spark: false,
       partner: null,
       pairColor: -1,
+      dx: 0,
+      dy: 1,
+      kx: 0,
+      ky: 0,
+      frozen: 0,
+      burn: 0,
+      color: -1,
+      inflate: 0,
+      bornAt: 0,
+      golden: false,
     };
     this.enemies.push(e);
     this.grid.insert(e);
+    this.exp.onSpawn(e);
     return e;
   }
 

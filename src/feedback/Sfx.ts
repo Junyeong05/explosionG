@@ -72,6 +72,24 @@ export class Sfx {
         case 'land':
           this.tone(95, 0.06, 'square', 0.05);
           break;
+        case 'beat':
+          this.tone(1320, 0.03, 'square', 0.035);
+          break;
+        case 'beatShot':
+          if (e.on) this.tone(1760, 0.12, 'triangle', 0.12, 2640);
+          break;
+        case 'sweetShot':
+          this.tone(1480, 0.12, 'triangle', 0.1, 2200);
+          break;
+        case 'freeze':
+          this.tone(2400, 0.04, 'sine', 0.03, 3200);
+          break;
+        case 'seed':
+          this.tone(660, 0.06, 'triangle', 0.08, 990);
+          break;
+        case 'golden':
+          this.tone(e.ok ? 1320 : 220, 0.25, 'triangle', 0.18, e.ok ? 2640 : 110);
+          break;
         case 'pairBlast':
           // 짝 폭발: 멀리서 울리는 두 번째 펑
           this.tone(520, 0.08, 'triangle', 0.12, 1040);

@@ -33,7 +33,7 @@ export function defaultSave(): SaveData {
     parts: 0,
     upgrades: {},
     records: { runs: 0, bestWave: 0, bestChain: 0, chapterClears: {}, dailyBest: {} },
-    settings: { sound: true, haptics: true, speed: 1, rules: { overcharge: false, combo: false, brink: false, paint: false, pairs: false, pile: false } },
+    settings: { sound: true, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])) as Record<RuleId, boolean> },
     history: [],
   };
 }

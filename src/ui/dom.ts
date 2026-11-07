@@ -47,6 +47,10 @@ export class Overlay {
     this.current = null;
   }
 
+  get element(): HTMLElement | null {
+    return this.current;
+  }
+
   get open(): boolean {
     return this.current !== null;
   }
