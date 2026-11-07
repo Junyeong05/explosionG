@@ -5,6 +5,7 @@
 - 기획서: [`docs/design/game-design-v0.1.md`](docs/design/game-design-v0.1.md)
 - 구조 설명: [`docs/architecture.md`](docs/architecture.md)
 - 실험 기록: [`docs/design/experiments-2026-11.md`](docs/design/experiments-2026-11.md) (과충전·연쇄 잇기·벼랑 끝)
+- 구상: [`docs/design/concepts-2026-11.md`](docs/design/concepts-2026-11.md) (이 게임만의 한 방: 도화선 연결망·합체·하루 한 판)
 
 이 저장소는 **프로토 v3 개발 틀**이다. 코어 루프(게이지 모으기 → 탭 → 연쇄 → 레벨업 증강 → 보스 → 판 종료 → 영구 강화 → 다음 챕터)가 처음부터 끝까지 돌아가고, 콘텐츠를 데이터로 계속 붙여나갈 수 있게 잡아뒀다.
 
