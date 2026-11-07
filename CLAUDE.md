@@ -14,4 +14,5 @@
 **어떻게**
 1. portalShare를 클론 (세션에 없으면 추가)
 2. portalShare의 `CLAUDE.md` 규칙대로 `projects/explosion-g/status.json` 갱신 + `log.md` 맨 위에 항목 추가
+   - 화면이 바뀌었으면 `screens/` 스크린샷 갱신, 설명할 거리가 있으면 `docs/`에 정리 문서 추가
 3. `node scripts/build.mjs --check` 통과 확인 → `status(explosion-g): ...` 로 커밋 → push
