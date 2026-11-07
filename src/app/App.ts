@@ -234,10 +234,10 @@ export class App {
         chapterId: this.chapterId,
         onExperiments: () => this.showExperiments(false),
         onDopamine: () => {
+          // 도파민 모드는 엔드리스 (끝없이 무기를 쌓아 가는 맛)
           for (const r of RULE_IDS) save.settings.rules[r] = r === 'chaos';
           this.saves.persist();
-          const ch = this.chapterId;
-          this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), ch));
+          this.startRun(() => createRunConfig(this.saves.data, 'endless', randomSeed()));
         },
         onSelectChapter: (id) => {
           this.chapterId = id;
@@ -297,7 +297,9 @@ export class App {
           for (const r of RULE_IDS) rules[r] = ids.includes(r);
           this.saves.persist();
           const ch = this.chapterId;
-          this.startRun(() => createRunConfig(this.saves.data, 'chapter', randomSeed(), ch));
+          // 도파민 모드는 엔드리스, 나머지 실험은 고른 챕터
+          const mode = ids.includes('chaos') ? 'endless' : 'chapter';
+          this.startRun(() => createRunConfig(this.saves.data, mode, randomSeed(), ch));
         },
         onClear: () => {
           for (const r of RULE_IDS) rules[r] = false;

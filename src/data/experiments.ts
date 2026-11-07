@@ -39,7 +39,7 @@ export const EXPERIMENTS: readonly ExperimentInfo[] = [
   { id: 'echo', no: 19, name: '메아리', desc: '탭 폭발이 0.9초 뒤 같은 자리에서 한 번 더 터진다 (70%)' },
   { id: 'wind', no: 20, name: '바람', desc: '바람이 무리를 좌우로 민다. 방향은 8초마다 바뀐다(위쪽 화살표)' },
   { id: 'golden', no: 21, name: '황금 적', desc: '가끔 황금 적이 섞인다. 연쇄로 잡으면 즉시 레벨 업 + 게이지 가득, 탭으로 직접 잡으면 꽝' },
-  { id: 'chaos', no: 26, name: '도파민 모드', desc: '시작 무기 하나(손공격·총·포탑·소환수·마법)로 시작해서 레벨 업마다 무기를 늘리거나 올린다. 121종, 칸 제한 없음, 무기마다 사거리', core: true },
+  { id: 'chaos', no: 26, name: '도파민 모드', desc: '엔드리스. 시작 무기 3장 중 하나로 시작해서 레벨 업마다 무기를 늘리거나 올린다. 121종, 칸 제한 없음, 무기마다 사거리', core: true },
   { id: 'pile', no: 22, name: '쌓이는 바닥', desc: '넘어온 적은 LIFE 대신 바닥에 블록으로 쌓이고, 한계선까지 차면 끝. 100% 이상으로 블록을 터뜨리면 줄줄이 무너진다', conflicts: ['core'], old: true, core: true },
   { id: 'combo', no: 23, name: '연쇄 잇기', desc: '0.6초 안에 계속 잡으면 콤보 배율이 쌓인다 (처치당 +3%, 최대 ×3)', old: true },
   { id: 'paint', no: 24, name: '불씨 칠하기', desc: '100%에서 꾹 누른 채 끌면 손끝이 지나간 적에 불씨. 불씨 붙은 적은 죽을 때 터진다', old: true },
@@ -58,7 +58,7 @@ export interface ExperimentSet {
 }
 
 export const EXPERIMENT_SETS: readonly ExperimentSet[] = [
-  { id: 'dopamine', name: '🔥 도파민 모드', pitch: '시작 무기 하나로 조촐하게 시작해서, 레벨 업마다 포탑·소환수·마법·손공격을 늘려 후반엔 화면이 난장판이 된다', rules: ['chaos'] },
+  { id: 'dopamine', name: '🔥 도파민 모드', pitch: '엔드리스. 무기 하나로 조촐하게 시작해서 레벨 업마다 총·포탑·소환수·마법·손공격을 늘려 화면을 난장판으로', rules: ['chaos'] },
   { id: 'stackCut', name: '쌓고 베기', pitch: '넘어온 적은 바닥에 블록으로 쌓이고, 탭은 화면 가로를 가르는 띠. 한 줄을 통째로 베어 더미를 무너뜨린다', rules: ['pile', 'row'] },
   { id: 'planner', name: '멈춘 화면 설계', pitch: '손을 떼면 시간이 멈춘다. 멈춘 화면에서 씨앗으로 길을 깔고, 꾹 눌러 한 방에 잇는다', rules: ['stopTime', 'seeds'] },
   { id: 'siege', name: '포위 방어', pitch: '위·옆에서 코어로 몰려오는 적을 터뜨려 밀어낸다. 밀린 적끼리 뭉치면 다음 한 방 재료', rules: ['core', 'knockback'] },

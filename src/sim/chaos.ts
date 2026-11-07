@@ -163,17 +163,15 @@ export class Chaos {
 
   /**
    * 레벨 업 선택지 3장: 가진 무기 레벨 업 / 새 무기 / 강화 / 폭탄 탭이 있으면 기존 탭 증강 약간.
-   * 시작 선택지는 손공격·총·포탑·소환수·마법에서 한 장씩.
+   * 시작 선택지는 손공격·총·포탑·소환수·마법 중 세 갈래를 골라 한 장씩 (플레이 피드백: 선택지는 3개 정도로).
    */
   roll(kind: OfferKind): string[] {
     const rng = this.w.rng;
     if (kind === 'starter') {
-      const out: string[] = [];
-      for (const cat of ['hand', 'gun', 'turret', 'summon', 'magic'] as const) {
-        const pool = Object.keys(ARMS).filter((id) => ARMS[id].cat === cat && ARMS[id].starter);
-        out.push(rng.pick(pool));
-      }
-      return out;
+      const cats: ArmCategory[] = ['hand', 'gun', 'turret', 'summon', 'magic'];
+      // 다섯 갈래 중 셋 (순서는 갈래 순서대로)
+      while (cats.length > 3) cats.splice(rng.int(cats.length), 1);
+      return cats.map((cat) => rng.pick(Object.keys(ARMS).filter((id) => ARMS[id].cat === cat && ARMS[id].starter)));
     }
     const weapons = this.owned().filter((id) => ARMS[id].cat !== 'passive');
     const passives = this.owned('passive');

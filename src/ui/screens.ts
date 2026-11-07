@@ -88,7 +88,7 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
-      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: `${selected.name} · 무기 하나로 시작해서 하나씩 늘려 간다` })),
+      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: '엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다' })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },

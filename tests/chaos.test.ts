@@ -22,13 +22,17 @@ function arena(): World {
 const fresh = arena;
 
 describe('도파민 모드: 카테고리 무기고', () => {
-  it('판은 시작 무기 고르기로 시작하고, 손공격·총·포탑·소환수·마법에서 한 장씩 나온다', () => {
-    const w = sandbox({ rules: { chaos: true } });
-    w.step(FIXED_DT);
-    expect(w.phase).toBe('choosing');
-    expect(w.offer?.kind).toBe('starter');
-    const cats = w.offer!.choices.map((id) => ARMS[id].cat);
-    expect(cats).toEqual(['hand', 'gun', 'turret', 'summon', 'magic']);
+  it('판은 시작 무기 고르기로 시작하고, 서로 다른 갈래에서 3장이 나온다', () => {
+    for (let seed = 1; seed <= 10; seed++) {
+      const w = sandbox({ seed, rules: { chaos: true } });
+      w.step(FIXED_DT);
+      expect(w.phase).toBe('choosing');
+      expect(w.offer?.kind).toBe('starter');
+      const cats = w.offer!.choices.map((id) => ARMS[id].cat);
+      expect(cats).toHaveLength(3);
+      expect(new Set(cats).size).toBe(3);
+      expect(w.offer!.choices.every((id) => ARMS[id].starter)).toBe(true);
+    }
   });
 
   it('폭탄 탭이 없으면 탭은 폭발을 만들지 않고, 번개 손이 있으면 번개가 나간다', () => {
@@ -131,10 +135,10 @@ describe('도파민 모드: 카테고리 무기고', () => {
     }
   });
 
-  it('봇이 도파민 모드 한 판을 끝까지 돌려도 터지지 않고, 판 끝엔 무기가 여럿이다', () => {
-    const w = new World({ ...createRunConfig(defaultSave(), 'chapter', 5, 'ch1'), rules: { chaos: true }, recordEvents: false });
+  it('봇이 도파민 모드 엔드리스 한 판을 끝까지 돌려도 터지지 않고, 판 끝엔 무기가 여럿이다', () => {
+    const w = new World({ ...createRunConfig(defaultSave(), 'endless', 5), rules: { chaos: true }, recordEvents: false });
     const bot = new Bot({ seed: 5 });
-    for (let i = 0; i < 60 * 60 * 8 && w.phase !== 'ended'; i++) w.step(FIXED_DT, bot.think(w, FIXED_DT));
+    for (let i = 0; i < 60 * 60 * 15 && w.phase !== 'ended'; i++) w.step(FIXED_DT, bot.think(w, FIXED_DT));
     expect(w.phase).toBe('ended');
     expect(w.chaos!.owned().filter((id) => ARMS[id].cat !== 'passive').length).toBeGreaterThanOrEqual(4);
   });
