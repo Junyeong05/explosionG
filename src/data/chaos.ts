@@ -227,7 +227,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('hand', 'grenade', '🧨', '수류탄 손', 'tapThrow', 1, { boom: 55, dmg: 3, emoji: '🧨' }, '아래에서 수류탄을 던져 탭한 자리에 쾅'),
   W('hand', 'strike', '🌩️', '낙뢰 손', 'tapStrike', 1.4, { width: 18, dmg: 2.2 }, '탭한 세로줄에 벼락'),
   W('hand', 'missile', '🚀', '미사일 손', 'tapMissiles', 1.6, { count: 3, dmg: 2, boom: 34, homing: 5, speed: 380 }, '탭한 쪽으로 유도 미사일 세 발'),
-  W('hand', 'hole', '🕳️', '블랙홀 손', 'tapPull', 4, { radius: 80, ttl: 1.2, dmg: 2.2, boom: 60 }, '탭한 자리로 빨아들였다가 쾅'),
+  W('hand', 'hole', '🕳️', '블랙홀 손', 'tapPull', 4, { radius: 50, ttl: 1.2, dmg: 2.2, boom: 40 }, '탭한 자리로 빨아들였다가 쾅'),
   W('hand', 'coins', '🪙', '동전 비', 'tapRain', 2, { count: 8, radius: 24, dmg: 1.5, emoji: '🪙' }, '탭한 자리 주변에 동전이 쏟아진다'),
 
   // ── 총: 벽에 붙어 사거리 안의 적을 쏜다 ─────────────────────
@@ -258,7 +258,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('gun', 'teslagun', '🔌', '번개총', 'gun', 0.8, { range: 260, dmg: 1.2, chain: 3, speed: 900, look: L_PLASMA, tracer: 'ball', color: '#9fe8ff', size: 3 }, '맞힌 뒤 번개가 세 마리로 옮겨 간다'),
   W('gun', 'bouncer', '🏓', '튕기는 총', 'gun', 0.5, { range: 900, dmg: 1, bounce: 3, speed: 600, look: L_PISTOL, tracer: 'ball', color: '#ffd36b', size: 3 }, '탄이 벽에 세 번 튕긴다'),
   W('gun', 'popcorn', '🍿', '팝콘 기관총', 'gun', 0.4, { range: 240, dmg: 0.8, popcorn: true, speed: 700, look: L_SMG, tracer: 'emoji', emoji: '🍿', size: 12 }, '맞으면 팝콘이 네 개로 튄다'),
-  W('gun', 'orbgun', '🌑', '블랙홀 건', 'gun', 3, { range: 260, dmg: 3, boom: 70, pullOrb: true, speed: 140, look: L_PLASMA, tracer: 'ball', color: '#5a3c8a', size: 8 }, '느린 구슬이 적을 빨아들이다 터진다'),
+  W('gun', 'orbgun', '🌑', '블랙홀 건', 'gun', 3, { range: 260, dmg: 3, boom: 45, pullOrb: true, speed: 140, look: L_PLASMA, tracer: 'ball', color: '#5a3c8a', size: 8 }, '느린 구슬이 적을 빨아들이다 터진다'),
   W('gun', 'missilepod', '🛩️', '미사일 포대', 'gun', 2.6, { range: 360, dmg: 1.5, boom: 34, burst: 4, homing: 4, speed: 280, look: L_POD, tracer: 'rocket', color: '#ffb347' }, '유도 미사일 네 발'),
 
   // ── 포탑: 아래 칸에 서서 ───────────────────────────────────
@@ -313,7 +313,7 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('magic', 'jackpot', '🎰', '잭팟 룰렛', 'event', 25, { event: 'jackpot', range: 320 }, '777이면 화면 폭파'),
   W('magic', 'nuke', '☢️', '핵', 'nuke', 45, { range: 360, dmg: 8 }, '사거리 안 전부 폭파'),
   W('magic', 'tsunami', '🌊', '해일', 'sweep', 20, { range: 300, dmg: 4, width: 50, dir: 'up', knock: 200, emoji: '🌊' }, '아래에서 위로 쓸어 올린다'),
-  W('magic', 'blackhole', '🕳️', '블랙홀', 'pullAt', 24, { range: 320, radius: 130, ttl: 2.5, dmg: 4, boom: 95 }, '한 점으로 빨아들였다가 대폭발'),
+  W('magic', 'blackhole', '🕳️', '블랙홀', 'pullAt', 24, { range: 320, radius: 70, ttl: 2.5, dmg: 4, boom: 55 }, '한 점으로 빨아들였다가 대폭발'),
   W('magic', 'storm', '⛈️', '번개 폭풍', 'storm', 18, { range: 320, ttl: 4, dmg: 2 }, '4초 동안 벼락이 쏟아진다'),
   W('magic', 'volcano', '🌋', '화산', 'rain', 16, { range: 300, count: 10, dmg: 2.5, radius: 40, fromBottom: true, ignite: true, emoji: '🔥' }, '바닥에서 용암이 솟구친다'),
   W('magic', 'whale', '🐋', '고래 낙하', 'drop', 16, { range: 320, dmg: 8, radius: 110, target: 'dense', emoji: '🐋', size: 70 }, '하늘에서 고래가 떨어진다'),

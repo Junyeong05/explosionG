@@ -1365,7 +1365,8 @@ export class Chaos {
     if (a.x < -20 || a.x > W + 20 || a.y < -20 || a.y > w.field.height) return false;
     // 블랙홀 구슬: 날아가며 주변을 빨아들이다 끝에서 터짐
     if (p.pullOrb) {
-      for (const e of w.enemiesNear(a.x, a.y, 70)) {
+      // 블랙홀 건 구슬이 빨아들이는 반경 (플레이 피드백: 블랙홀이 너무 커서 사기 → 70 에서 40)
+      for (const e of w.enemiesNear(a.x, a.y, 40)) {
         if (e.def.boss) continue;
         e.pack = null;
         const dx = a.x - e.x;
