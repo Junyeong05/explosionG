@@ -122,6 +122,35 @@ describe('도파민 모드: 카테고리 무기고', () => {
     expect(far.hp).toBeLessThan(far.maxHp);
   });
 
+  it('무기를 누르면 정보·사거리가 뜨고 그 탭은 공격하지 않는다, 다시 누르면 닫힌다', () => {
+    const w = arena();
+    w.augments.acquire('arm_pistol', w);
+    w.augments.acquire('arm_zap', w);
+    stepFor(w, 0.05);
+    const m = w.chaos!.mountOf('arm_pistol')!;
+    expect(m).toBeDefined();
+    w.drainEvents();
+    tap(w, m.x, m.y);
+    expect(w.chaos!.selected?.id).toBe('arm_pistol');
+    expect(w.drainEvents().some((e) => e.type === 'bolt' && e.kind === 'lightning')).toBe(false);
+    tap(w, m.x, m.y);
+    expect(w.chaos!.selected).toBeNull();
+  });
+
+  it('무기는 방어선 뒤 한 줄에 가운데부터 좌우로 놓인다 (손공격·강화는 자리 없음)', () => {
+    const w = arena();
+    for (const id of ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor', 'arm_zap', 'arm_power']) w.augments.acquire(id, w);
+    stepFor(w, 0.05);
+    const xs = ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.x);
+    const ys = ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.y);
+    expect(new Set(ys).size).toBe(1);
+    expect(Math.abs(xs[0] - w.field.width / 2)).toBeLessThan(25);
+    expect(xs[1]).toBeLessThan(xs[0]);
+    expect(xs[2]).toBeGreaterThan(xs[0]);
+    expect(w.chaos!.mountOf('arm_zap')).toBeUndefined();
+    expect(w.chaos!.mountOf('arm_power')).toBeUndefined();
+  });
+
   it('황금 쿠키를 누르면 그 탭은 쏘지 않고 버프를 받는다', () => {
     const w = arena();
     w.chaos!.startEvent('cookie');

@@ -255,6 +255,7 @@ export class World implements SimApi {
     // 폭탄 탭이 없으면 탭은 거기서 끝 (포탑·소환수로 시작한 판)
     if (this.chaos) {
       if (this.chaos.tryPickup(x, y)) return;
+      if (this.chaos.trySelect(x, y)) return;
       this.chaos.onTap(x, y);
       if (!this.chaos.hasBomb) return;
     }

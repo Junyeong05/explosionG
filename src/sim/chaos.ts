@@ -71,7 +71,7 @@ type Buff = 'frenzy' | 'clickFrenzy' | 'lucky' | 'meteor';
 interface Mount {
   x: number;
   y: number;
-  /** 벽 총이면 -1(왼쪽 벽)·1(오른쪽 벽), 아래 칸이면 0 */
+  /** 1 이면 총 모양으로 그림, 0 이면 이모지 */
   wall: number;
 }
 
@@ -79,6 +79,8 @@ const TRAMPLE_R = 18;
 const PROJECTILE_KINDS: ReadonlySet<ActorKind> = new Set(['shell', 'fireball', 'soldier', 'sheep', 'bananaBit', 'bullet', 'thrown', 'walker']);
 const SLOT_EMOJI = ['🦖', '🐄', '☄️', '🛸', '🐑', '🍌', '7️⃣'];
 const BURST_GAP = 0.07;
+/** 한 줄 10칸을 채우는 순서: 가운데부터 좌우로 */
+const CENTER_OUT = [5, 4, 6, 3, 7, 2, 8, 1, 9, 0];
 
 export class Chaos {
   readonly actors: Actor[] = [];
@@ -99,6 +101,8 @@ export class Chaos {
   readonly aim = new Map<string, number>();
   readonly firedAt = new Map<string, number>();
   private mounts = new Map<string, Mount>();
+  /** 눌러서 고른 무기 (사거리·정보 표시, until 까지) */
+  selected: { id: string; until: number } | null = null;
   private nextId = 1;
   /** 지금 만드는 물체의 피해 배율·사거리 (마법 효과가 쓰는 것) */
   private curMul = 1;
@@ -420,34 +424,44 @@ export class Chaos {
   // ─── 자리 ──────────────────────────────────────────────
 
   /**
-   * 첫 총은 방어선 가운데, 그다음 총은 양옆 벽에 번갈아 아래부터 위로, 포탑·소환수(던지기·궁수 등)는 방어선 위 칸에 줄지어.
-   * 칸이 넘치면 한 줄 위에 더.
+   * 무기 자리: 얻은 순서대로 방어선 바로 뒤 한 줄에 가운데부터 좌우로 가지런히 (한 줄 10칸), 넘치면 방어선 위로 한 줄씩.
+   * 플레이 피드백: 총은 벽, 포탑은 아래, 마법은 자리 없음… 으로 제각각이라 이상했다. 손공격·강화만 자리가 없다.
    */
   private layoutMounts(): void {
     const W = this.w.field.width;
+    const perRow = 10;
+    const gap = (W - 24) / (perRow - 1);
     const m = new Map<string, Mount>();
-    let gi = 0;
-    let si = 0;
+    let i = 0;
     for (const id of this.owned()) {
       const spec = ARMS[id];
-      if (spec.cat === 'hand' || spec.cat === 'passive' || spec.cat === 'magic') continue;
-      const wallGun = (spec.kind === 'gun' || spec.kind === 'beam') && !spec.p.slot;
-      if (wallGun) {
-        // 첫 총은 방어선 가운데 (한쪽 벽에만 있으면 반대편이 사거리 밖이었다), 그다음부터 양옆 벽
-        if (gi === 0) m.set(id, { x: W / 2, y: this.LINE - 22, wall: 1 });
-        else {
-          const side = gi % 2 === 1 ? -1 : 1;
-          const row = Math.floor((gi - 1) / 2);
-          m.set(id, { x: side < 0 ? 12 : W - 12, y: this.LINE - 30 - row * 34, wall: side });
-        }
-        gi++;
-      } else if (spec.kind !== 'stamp' && spec.kind !== 'drone' && spec.kind !== 'event' && spec.kind !== 'drop') {
-        const perRow = 7;
-        m.set(id, { x: 36 + (si % perRow) * 48, y: this.LINE - 12 - Math.floor(si / perRow) * 30, wall: 0 });
-        si++;
-      }
+      if (spec.cat === 'hand' || spec.cat === 'passive') continue;
+      const row = Math.floor(i / perRow);
+      const y = row === 0 ? this.LINE + 16 : this.LINE - 14 - (row - 1) * 30;
+      const gun = (spec.kind === 'gun' || spec.kind === 'beam') && !!spec.p.look;
+      // 가운데부터 좌우로 번갈아 채운다 (첫 무기가 구석에 있으면 반대편이 사거리 밖이었다)
+      const col = CENTER_OUT[i % perRow];
+      m.set(id, { x: 12 + col * gap, y, wall: gun ? 1 : 0 });
+      i++;
     }
     this.mounts = m;
+  }
+
+  /** 무기를 눌렀으면 그 무기 정보·사거리를 잠깐 보여 주고 탭은 거기서 끝 (같은 걸 또 누르면 닫힘) */
+  trySelect(x: number, y: number): boolean {
+    let best: string | null = null;
+    let bd = 17 * 17;
+    for (const [id, m] of this.mounts) {
+      const d = dist2(x, y, m.x, m.y);
+      if (d < bd) {
+        bd = d;
+        best = id;
+      }
+    }
+    if (!best) return false;
+    if (this.selected && this.selected.id === best && this.selected.until > this.w.time) this.selected = null;
+    else this.selected = { id: best, until: this.w.time + 3 };
+    return true;
   }
 
   mountOf(id: string): Mount | undefined {
@@ -501,7 +515,7 @@ export class Chaos {
         const ang = Math.atan2(t.y - from.y, t.x - from.x);
         this.aim.set(spec.id, ang);
         this.firedAt.set(spec.id, w.time);
-        const muzzle = mount && mount.wall !== 0 ? (p.look?.len ?? 12) + 8 : 6;
+        const muzzle = mount && mount.wall !== 0 ? (p.look?.len ?? 12) + (p.look?.body ?? 10) / 2 : 6;
         const mx = from.x + Math.cos(ang) * muzzle;
         const my = from.y + Math.sin(ang) * muzzle;
         const shots = p.burst ?? 1;

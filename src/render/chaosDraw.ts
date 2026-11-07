@@ -1,5 +1,5 @@
 import { BALANCE } from '../data/balance';
-import { ARMS, DEFAULT_RANGE, chaosEvent, type ChaosEventId, type GunLook } from '../data/chaos';
+import { ARMS, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import type { Actor } from '../sim/chaos';
 import type { SimEvent } from '../sim/events';
@@ -169,36 +169,42 @@ export class ChaosDraw {
     const c = w.chaos;
     if (!c) return;
     const ctx = this.ctx;
-    // 기본 사거리 안내선 (자동 무기는 대개 여기부터 쏜다)
-    const ry = LINE_Y - DEFAULT_RANGE;
-    ctx.strokeStyle = rgba(COLORS.gold, 0.12);
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 7]);
-    ctx.beginPath();
-    ctx.moveTo(0, ry);
-    ctx.lineTo(FW, ry);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = `700 8px ${FONT}`;
-    ctx.textAlign = 'left';
-    ctx.fillStyle = rgba(COLORS.gold, 0.3);
-    ctx.fillText('사거리', 4, ry - 3);
-    for (const { id, m } of c.allMounts()) {
+    // 무기 받침: 방어선 바로 뒤 한 줄 (넘친 줄은 방어선 위)
+    const mounts = c.allMounts();
+    if (mounts.length > 0) {
+      ctx.fillStyle = 'rgba(20, 24, 40, 0.75)';
+      ctx.fillRect(0, LINE_Y + 4, FW, 26);
+      ctx.strokeStyle = rgba(COLORS.gold, 0.15);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, LINE_Y + 30);
+      ctx.lineTo(FW, LINE_Y + 30);
+      ctx.stroke();
+    }
+    const sel = c.selected && c.selected.until > w.time ? c.selected.id : null;
+    for (const { id, m } of mounts) {
       const spec = ARMS[id];
       const L = w.augments.stacks(id);
-      if (m.wall !== 0 && spec.p.look) {
-        this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? (m.wall < 0 ? -0.6 : Math.PI + 0.6), m.wall, w.time - (c.firedAt.get(id) ?? -9));
-        this.pips(m.x + (m.x < 30 ? 4 : m.x > FW - 30 ? -4 : 0), m.y + 9, L);
-        continue;
+      const glowCol = spec.cat === 'magic' ? '#c77dff' : spec.cat === 'summon' ? '#7dff9a' : spec.cat === 'gun' ? '#ffe08a' : COLORS.gold;
+      if (id === sel) {
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 15, 0, TAU);
+        ctx.strokeStyle = rgba(COLORS.charge, 0.9);
+        ctx.lineWidth = 2;
+        ctx.stroke();
       }
-      const bob = Math.sin(this.time * 3 + m.x) * 1.5;
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.globalAlpha = 0.25;
-      ctx.drawImage(this.glow.get(COLORS.gold), m.x - 16, m.y - 16 + bob, 32, 32);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = 'source-over';
-      this.icon(spec.emoji, m.x, m.y + bob, 22);
-      this.pips(m.x, m.y + 14, L);
+      if (m.wall !== 0 && spec.p.look) {
+        this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? -Math.PI / 2, 0, w.time - (c.firedAt.get(id) ?? -9));
+      } else {
+        const bob = spec.cat === 'magic' ? Math.sin(this.time * 2 + m.x) * 2 : 0;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.22;
+        ctx.drawImage(this.glow.get(glowCol), m.x - 14, m.y - 14 + bob, 28, 28);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        this.icon(spec.emoji, m.x, m.y + bob, 19);
+      }
+      this.pips(m.x, m.y + 12, L);
     }
     const g = c.gate;
     if (g) {
@@ -234,9 +240,10 @@ export class ChaosDraw {
   /** 벽에 붙은 총: 받침대 + 겨누는 총 (모양은 GunLook) + 총구 불꽃 */
   private gun(look: GunLook, x: number, y: number, ang: number, wall: number, since: number): void {
     const ctx = this.ctx;
-    // 받침대 (벽 쪽 반원)
+    // 받침대 (아래 반원)
     ctx.beginPath();
-    ctx.arc(x - wall * 4, y, 7, 0, TAU);
+    ctx.arc(x, y + 5 + wall * 0, 7, Math.PI, 0);
+    ctx.closePath();
     ctx.fillStyle = '#20232f';
     ctx.fill();
     ctx.strokeStyle = '#4a4f63';
@@ -354,6 +361,7 @@ export class ChaosDraw {
       ctx.restore();
     }
     ctx.globalAlpha = 1;
+    this.drawSelected(w);
     for (const p of this.pops) {
       const k = p.t / 0.8;
       ctx.globalAlpha = 1 - k;
@@ -363,6 +371,59 @@ export class ChaosDraw {
       ctx.fillText(p.text, p.x, p.y - k * 18);
     }
     ctx.globalAlpha = 1;
+  }
+
+  /** 눌러서 고른 무기: 사거리 원(총·포탑) 또는 "화면 전체", 그리고 이름·레벨·다음 레벨 효과 */
+  private drawSelected(w: World): void {
+    const c = w.chaos!;
+    const sel = c.selected;
+    if (!sel || sel.until <= w.time) return;
+    const m = c.mountOf(sel.id);
+    const spec = ARMS[sel.id];
+    if (!m || !spec) return;
+    const ctx = this.ctx;
+    const fade = clamp((sel.until - w.time) / 0.4, 0, 1);
+    const ranged = hasRange(spec.cat);
+    const range = c.rangeOf(spec);
+    ctx.save();
+    ctx.globalAlpha = fade;
+    if (ranged) {
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, range, 0, TAU);
+      ctx.fillStyle = rgba(COLORS.charge, 0.07);
+      ctx.fill();
+      ctx.strokeStyle = rgba(COLORS.charge, 0.8);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = rgba('#c77dff', 0.6);
+      ctx.lineWidth = 3;
+      ctx.strokeRect(2, 2, FW - 4, LINE_Y - 2);
+    }
+    const L = w.augments.stacks(sel.id);
+    const next = L < spec.up.length + 1 ? spec.up[L - 1]?.label : null;
+    const lines = [
+      `${spec.emoji} ${spec.name}  Lv ${L}`,
+      ranged ? `사거리 ${Math.round(range)} · 쿨다운 ${c.cooldownOf(sel.id).toFixed(2)}초` : `사거리 없음 (화면 전체) · 쿨다운 ${c.cooldownOf(sel.id).toFixed(1)}초`,
+      next ? `다음 레벨: ${next}` : '최대 레벨',
+    ];
+    ctx.font = `800 11px ${FONT}, ${EMOJI_FONT}`;
+    const wBox = Math.max(...lines.map((t) => ctx.measureText(t).width)) + 16;
+    const bx = clamp(m.x - wBox / 2, 4, FW - wBox - 4);
+    const by = m.y - 78;
+    ctx.fillStyle = 'rgba(10, 12, 20, 0.92)';
+    ctx.fillRect(bx, by, wBox, 54);
+    ctx.strokeStyle = rgba(COLORS.charge, 0.6);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by, wBox, 54);
+    ctx.textAlign = 'left';
+    lines.forEach((t, i) => {
+      ctx.fillStyle = i === 0 ? COLORS.text : i === 2 ? COLORS.gold : COLORS.dim;
+      ctx.fillText(t, bx + 8, by + 16 + i * 16);
+    });
+    ctx.restore();
   }
 
   private actor(a: Actor, ctx: CanvasRenderingContext2D): void {

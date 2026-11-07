@@ -191,15 +191,17 @@ export const BALANCE = {
      * 초반엔 한 방에 쓸리고, 설치물이 쌓이는 후반에 단단해지게.
      */
     enemyHpMul: 1,
-    enemyHpPerWave: 0.32,
+    enemyHpPerWave: 0.5,
     /**
      * ⚠ 무리 간격 배율 = max(packIntervalMin, 1 - packIntervalPerWave × (웨이브-1)) (작을수록 더 많이).
      * 시작 무기 하나뿐인 초반은 일반 판과 같게, 무기가 쌓이는 후반엔 빽빽하게.
      * 처음부터 ×0.6·체력 ×1.5 였더니 기관총으로 시작한 판이 42초 만에 무너졌다.
+     * 플레이 피드백(난이도 상승률을 높이자)으로 체력 +0.32 → +0.5/웨이브, 무리 -0.035 → -0.05/웨이브(최소 0.55 → 0.45).
+     * 봇 엔드리스 평균 9.5분·웨이브 32 → 7.2분·웨이브 24.
      */
     packIntervalMul: 1,
-    packIntervalPerWave: 0.035,
-    packIntervalMin: 0.55,
+    packIntervalPerWave: 0.05,
+    packIntervalMin: 0.45,
     /** 경험치 배율 (무기 6개 × 5레벨 + 강화를 판 안에 다 채우려면 레벨 업이 잦아야 한다) */
     xpMul: 1.6,
     /** 황금 쿠키: 이 웨이브부터, 이 간격 (행운 강화로 빨라짐) */
