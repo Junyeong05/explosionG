@@ -41,8 +41,8 @@ describe('SpatialGrid', () => {
 });
 
 describe('기획서 공식', () => {
-  it('웨이브 10 적 체력은 시작의 약 6.0배 (기획서 1.16 → 1.22)', () => {
-    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(6.0, 1);
+  it('웨이브 10 적 체력은 시작의 약 3.5배 (증가율 1.15)', () => {
+    expect(enemyHp(10) / enemyHp(1)).toBeCloseTo(3.5, 1);
     expect(enemyHp(1)).toBe(BALANCE.wave.hpBase);
   });
 

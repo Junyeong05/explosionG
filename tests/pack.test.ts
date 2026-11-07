@@ -129,9 +129,10 @@ describe('챕터별 적 구성', () => {
     expect(kindsSeen('ch2', 6).has('armored')).toBe(true);
   });
 
-  it('챕터가 올라갈수록 적 체력이 높다', () => {
+  it('챕터가 올라갈수록 적 체력이 같거나 높다 (챕터 2 는 적 종류로만 어려워짐)', () => {
     const hp = (id: string) => sandbox({ chapterId: id }).spawnEnemy('normal', 100, 100)!.maxHp;
-    expect(hp('ch2')).toBeGreaterThan(hp('ch1'));
+    expect(hp('ch2')).toBeGreaterThanOrEqual(hp('ch1'));
+    expect(hp('ch3')).toBeGreaterThan(hp('ch2'));
     expect(hp('ch4')).toBeGreaterThan(hp('ch3'));
   });
 });
