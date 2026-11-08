@@ -1,6 +1,6 @@
 // 도파민 모드 무기 표(마크다운) 뽑기: npx tsx tools/chaos/weapon-table.ts
-import { WEAPONS, CATEGORY_LABEL, hasRange } from '../../src/data/chaos';
-const cats = ['hand', 'gun', 'turret', 'summon', 'magic', 'passive'] as const;
+import { WEAPONS, CATEGORY_LABEL, ATTACK_CATEGORIES, hasRange } from '../../src/data/chaos';
+const cats = [...ATTACK_CATEGORIES, 'passive' as const];
 const lines: string[] = [];
 for (const c of cats) {
   const list = WEAPONS.filter((w) => w.cat === c);

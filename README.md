@@ -5,9 +5,9 @@
 - 기획서: [`docs/design/game-design-v0.1.md`](docs/design/game-design-v0.1.md)
 - 구조 설명: [`docs/architecture.md`](docs/architecture.md)
 - 실험 기록: [`docs/design/experiments-2026-11.md`](docs/design/experiments-2026-11.md) (과충전·연쇄 잇기·벼랑 끝·불씨 칠하기·짝 폭발형·쌓이는 바닥, 11-07 실험 21개)
-- 도파민 모드 넣을 것 목록: [`docs/design/dopamine-catalog.md`](docs/design/dopamine-catalog.md) (리서치 원칙·난입·설치물·치트키·출처)
+- 도파민 모드 무기고: [`docs/design/dopamine-catalog.md`](docs/design/dopamine-catalog.md) (갈래 15개 · 무기 312종 표, 확장·조정 기록, 리서치 원칙·출처)
 - **성장축 논의 기록 (지금 어디까지 왔나)**: [`docs/design/growth-axis-discussion.md`](docs/design/growth-axis-discussion.md) (유저 요청 원문, 나온 안과 반응, 지금 후보 4가지, 측정 도구)
-- **실어 나르기 (지금 고른 방향)**: [`docs/design/carry-links.md`](docs/design/carry-links.md) (갈래 5개 × 나르는 방식·실려서 열리는 모습 두 조각 → 연결 20가지)
+- **실어 나르기 (지금 고른 방향)**: [`docs/design/carry-links.md`](docs/design/carry-links.md) (갈래 15개 × 나르는 방식·실려서 열리는 모습 두 조각 → 연결 210가지)
 - 성장축 메인 시스템 안: [`docs/design/growth-axis-main-systems.md`](docs/design/growth-axis-main-systems.md) (형질 8개 표 하나 위에 A 형질 시너지 · B 형질 이식→각인 · C 배치형)
 - (버림) 성장축 기믹 14개: [`docs/design/growth-axis-more-ideas.md`](docs/design/growth-axis-more-ideas.md)
 - 무기가 많다는 것 자체로 크는 판 안 성장축 아이디어 34개: [`docs/design/weapon-variety-growth-ideas.md`](docs/design/weapon-variety-growth-ideas.md) (투사체 섞기·규칙형 융합·태그·변이·받침 줄·그 밖)
@@ -134,7 +134,7 @@ npm run autoplay -- --runs 200 --upgrades firepower=5,durability=2 --json autopl
 | 일일 도전 (같은 시드, 영구 강화 미적용) | 🟡 로컬만. 랭킹 서버 없음 |
 | 연출: 연쇄 피치 상승, 30연쇄 슬로모션+가장자리 발광(기획서 20), 환급 표시, 흔들림, 진동 | ✅ 합성음·도형 임시 |
 | 실험실 (타이틀·판 중 실험 버튼·일시정지·결과에서 열림, ▶ = 그것만 켜고 바로 시작): 메인 후보 묶음 6개 + 실험 규칙 25개(메인 재료 / 곁들이 기믹). 11-07 묶음 21개(얼리고 깨기·번지는 불·가운데 지키기·발사대·씨앗 심기·누를 때만 시간 등) + 지난 4개(쌓이는 바닥·연쇄 잇기·불씨 칠하기·짝 폭발형). 벼랑 끝은 탈락이라 숨김, 과충전은 기본이 됨 | 🧪 목록·봇 결과는 실험 기록. 기본은 전부 꺼짐 |
-| 도파민 모드 (타이틀 버튼, 엔드리스, 실험 26번): 카테고리 무기고 121종 (손공격 15·총 29·포탑 12·소환수 24·마법 24·강화 17). 시작 무기 3장 중 1개 → 레벨 업마다 새 무기·레벨 업·강화, 칸 제한 없음. 무기마다 Lv2~5 효과가 다름 (data/chaosUp.ts). 무기는 방어선 뒤 한 줄에 가운데부터 놓이고 누르면 사거리·정보가 뜸. 사거리는 총·포탑만(기본 280), 소환수·마법은 화면 전체. 융합 15종(두 무기 2레벨 → 하나 더). 피버·황금 쿠키 | 🧪 봇 평균 6.7분·웨이브 23 (적이 죽어도 저절로 안 터짐). 목록·결과는 dopamine-catalog.md |
+| 도파민 모드 (타이틀 버튼, 엔드리스, 실험 26번): 카테고리 무기고 **갈래 15개 · 무기 312종** + 강화 17 (손공격·총·포탑·소환수·마법 + 11-08 확장: 함정·공중·돌격·음파·회전체·장판·광선·투척·떼·정령). 시작 무기 3장(세 갈래에서 한 장씩) 중 1개 → 레벨 업마다 새 무기·레벨 업·강화, 칸 제한 없음. 무기마다 Lv2~5 효과가 다름 (data/chaosUp.ts, 새 무기는 행동 틀별 기본값). 무기는 방어선 뒤 한 줄에 가운데부터 놓이고 누르면 사거리·정보가 뜸. 사거리는 자리에서 치는 갈래만(기본 280), 소환수·마법·공중·돌격은 화면 전체. 융합 15종(두 무기 2레벨 → 하나 더). 피버·황금 쿠키 | 🧪 봇 12판 평균 5.7분·웨이브 19.5 (확장 전 5.8분·19.9). 목록·결과는 dopamine-catalog.md |
 | 게임 배속 ×1·×1.5·×2 (판 중 오른쪽 아래 버튼, 다음 판에도 유지) | ✅ 루프 timeScale 만 바꿔서 sim 결과는 배속과 무관 |
 | 성능: 풀링, 파티클 상한, 피해 숫자 합치기, 공간 격자 | ✅ |
 | 기폭 장치, 재화 3종, 증강 해금, BM, 시즌 | ⬜ 수직 슬라이스 단계 |

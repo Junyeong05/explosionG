@@ -2,7 +2,7 @@ import { BALANCE } from '../data/balance';
 import { AUGMENTS, FALLBACK_AUGMENTS } from '../data/augments';
 import {
   ARMS, ARSENAL, DEFAULT_RANGE, FUSE_LEVEL, FUSIONS, MAX_LEVEL, PASSIVE_SLOTS, WEAPON_SLOTS, effective, fusionsOf, hasRange,
-  type ArmCategory, type ChaosEventId, type WeaponParams, type WeaponSpec,
+  ATTACK_CATEGORIES, type ArmCategory, type ChaosEventId, type WeaponParams, type WeaponSpec,
 } from '../data/chaos';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
@@ -20,7 +20,7 @@ export type ActorKind =
   | 'meteor' | 'dino' | 'cow' | 'ufo' | 'plane' | 'bomb' | 'cannon' | 'shell' | 'sheep' | 'banana' | 'bananaBit'
   | 'donkey' | 'train' | 'dragon' | 'tornado' | 'slot' | 'cookie' | 'soldier' | 'fireball' | 'laser' | 'frost'
   | 'bullet' | 'beam' | 'thrown' | 'walker' | 'stamp' | 'saw' | 'vortex' | 'bubble' | 'drone' | 'storm'
-  | 'faller' | 'sweep' | 'ring' | 'chill';
+  | 'faller' | 'sweep' | 'ring' | 'chill' | 'trap';
 
 export interface Actor {
   id: number;
@@ -79,6 +79,8 @@ const TRAMPLE_R = 18;
 const PROJECTILE_KINDS: ReadonlySet<ActorKind> = new Set(['shell', 'fireball', 'soldier', 'sheep', 'bananaBit', 'bullet', 'thrown', 'walker']);
 const SLOT_EMOJI = ['🦖', '🐄', '☄️', '🛸', '🐑', '🍌', '7️⃣'];
 const BURST_GAP = 0.07;
+/** 화면에 동시에 깔리는 함정 수 (넘으면 오래된 것부터 걷는다) */
+const MAX_TRAPS = 36;
 /** 한 줄 10칸을 채우는 순서: 가운데부터 좌우로 */
 const CENTER_OUT = [5, 4, 6, 3, 7, 2, 8, 1, 9, 0];
 
@@ -178,8 +180,8 @@ export class Chaos {
   roll(kind: OfferKind): string[] {
     const rng = this.w.rng;
     if (kind === 'starter') {
-      const cats: ArmCategory[] = ['hand', 'gun', 'turret', 'summon', 'magic'];
-      // 다섯 갈래 중 셋 (순서는 갈래 순서대로)
+      // 시작 무기가 있는 갈래 중 셋 (순서는 갈래 순서대로). 11-08 확장으로 갈래가 15개
+      const cats: ArmCategory[] = ATTACK_CATEGORIES.filter((cat) => Object.values(ARMS).some((a) => a.cat === cat && a.starter));
       while (cats.length > 3) cats.splice(rng.int(cats.length), 1);
       return cats.map((cat) => rng.pick(Object.keys(ARMS).filter((id) => ARMS[id].cat === cat && ARMS[id].starter)));
     }
@@ -672,9 +674,27 @@ export class Chaos {
         for (const e of near) {
           if (p.freeze && !e.def.boss) e.frozen = Math.max(e.frozen, p.freeze);
           this.hit(e, (p.dmg ?? 0.8) * D, p, chainId);
+          if (p.knock && !e.dead) this.push(e, from.x, from.y, p.knock);
         }
-        this.add('ring', from.x, from.y, { ttl: 0.5, r, emoji: '#ffd36b' });
+        this.add('ring', from.x, from.y, { ttl: 0.5, r, emoji: p.color ?? '#ffd36b' });
         return true;
+      }
+      case 'trap': {
+        // 함정: 적이 걸어올 길(조금 아래) 위에 깔아 두고, 밟히면 터진다. 화면에 너무 많으면 오래된 것부터 걷는다
+        let any = false;
+        for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
+          const t = this.pickTarget(i === 0 ? (p.target ?? 'front') : 'random', mount, range);
+          if (!t) break;
+          any = true;
+          const traps = this.actors.filter((a) => a.kind === 'trap');
+          if (traps.length >= MAX_TRAPS) this.actors.splice(this.actors.indexOf(traps[0]), 1);
+          // 바로 앞 발밑 (멀리 깔면 적이 비켜 가서 안 밟혔다)
+          const x = clamp(t.x + w.rng.range(-8, 8), 12, w.field.width - 12);
+          const y = clamp(t.y + 10 + w.rng.range(0, 14), 40, this.LINE - 12);
+          const a = this.add('trap', x, y, { ttl: (p.ttl ?? 12) * this.durMul, p, emoji: p.emoji ?? '🪤', dmg: (p.dmg ?? 3) * D, r: (p.boom ?? 40) * this.areaMul, left: p.melee ?? 1 });
+          if (a) a.src = spec.id;
+        }
+        return any;
       }
       case 'walker': {
         if (!this.pickTarget('front', undefined, range)) return false;
@@ -803,11 +823,13 @@ export class Chaos {
   private keepDrones(spec: WeaponSpec): void {
     const want = (this.eff(spec).p.count ?? 1) + this.extra;
     let have = 0;
-    for (const a of this.actors) if (a.kind === 'drone') have++;
+    for (const a of this.actors) if (a.kind === 'drone' && a.src === spec.id) have++;
+    // 정령 갈래가 생겨 떠다니는 무기가 여럿: 무기마다 도는 자리를 엇갈리게
+    const slot = this.owned().filter((id) => ARMS[id].kind === 'drone').indexOf(spec.id);
     for (let i = have; i < want; i++) {
       const a = this.add('drone', this.w.field.width / 2, this.LINE - 60, { ttl: Number.POSITIVE_INFINITY, p: this.eff(spec).p, r: this.rangeOf(spec) });
       if (a) {
-        a.n = i;
+        a.n = i + Math.max(0, slot) * 2.3;
         a.src = spec.id;
         a.dmg = (spec.p.dmg ?? 0.6) * this.D * this.dmgMul(spec);
       }
@@ -986,6 +1008,21 @@ export class Chaos {
         a.x += (dx / d) * k;
         a.y += (dy / d) * k;
         return true;
+      }
+      case 'trap': {
+        // 밟히면 터진다 (left 번까지, 터진 뒤 잠깐 쉼)
+        if (a.cd > 0) {
+          a.cd -= dt;
+          return true;
+        }
+        if (w.enemiesNear(a.x, a.y, 16).length === 0) return true;
+        const p = a.p ?? {};
+        if (p.knock) for (const e of w.enemiesNear(a.x, a.y, a.r)) this.push(e, a.x, a.y, p.knock);
+        this.boom(a.x, a.y, a.r, a.dmg, p);
+        this.add('ring', a.x, a.y, { ttl: 0.3, r: a.r, emoji: p.color ?? '#ffb347' });
+        a.left--;
+        a.cd = 0.4;
+        return a.left > 0;
       }
       case 'walker':
         return this.stepWalker(a, dt);

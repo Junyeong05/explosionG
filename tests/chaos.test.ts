@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
-import { ARMS, ARSENAL, FUSE_LEVEL, FUSIONS, MAX_LEVEL, WEAPON_SLOTS, WEAPONS, effective } from '../src/data/chaos';
+import { ARMS, ARSENAL, ATTACK_CATEGORIES, FUSE_LEVEL, FUSIONS, MAX_LEVEL, WEAPON_SLOTS, WEAPONS, effective } from '../src/data/chaos';
 import { defaultSave } from '../src/meta/save';
 import { createRunConfig } from '../src/meta/progression';
 import { Bot } from '../src/sim/bot';
@@ -232,6 +232,39 @@ describe('도파민 모드: 카테고리 무기고', () => {
       expect(d.maxStacks).toBe(MAX_LEVEL);
       expect(d.tag).toBeTruthy();
     }
+  });
+
+  it('갈래는 15개고, 갈래마다 시작 무기가 있고, 시작 3장은 그중 세 갈래에서 나온다 (11-08 확장)', () => {
+    expect(ATTACK_CATEGORIES).toHaveLength(15);
+    for (const cat of ATTACK_CATEGORIES) expect(WEAPONS.some((w) => w.cat === cat && w.starter), cat).toBe(true);
+    expect(WEAPONS.filter((w) => w.cat !== 'passive').length).toBeGreaterThanOrEqual(300);
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const w = sandbox({ seed, rules: { chaos: true } });
+      w.step(FIXED_DT);
+      for (const id of w.offer!.choices) seen.add(ARMS[id].cat);
+    }
+    // 판마다 세 갈래를 뽑으니 60판이면 거의 다 한 번씩은 나온다
+    expect(seen.size).toBeGreaterThanOrEqual(12);
+  });
+
+  it('함정은 적 발밑에 깔리고, 밟히면 터진다', () => {
+    const w = arena();
+    w.augments.acquire('arm_tr_mines', w);
+    stepFor(w, 0.9);
+    const before = w.enemies.filter((e) => e.hp < e.maxHp || e.dead).length;
+    stepFor(w, 1.5);
+    expect(w.enemies.filter((e) => e.hp < e.maxHp || e.dead).length + w.kills).toBeGreaterThan(before);
+  });
+
+  it('정령(떠다니는 무기)이 여럿이면 무기마다 제 몫을 띄운다', () => {
+    const w = arena();
+    w.augments.acquire('arm_sl_fairy', w);
+    w.augments.acquire('arm_sl_ghost', w);
+    stepFor(w, 0.2);
+    const drones = w.chaos!.actors.filter((a) => a.kind === 'drone');
+    expect(drones.filter((a) => a.src === 'arm_sl_fairy')).toHaveLength(1);
+    expect(drones.filter((a) => a.src === 'arm_sl_ghost')).toHaveLength(1);
   });
 
   it('봇이 도파민 모드 엔드리스 한 판을 끝까지 돌려도 터지지 않고, 판 끝엔 무기가 여럿이다', () => {

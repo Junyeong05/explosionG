@@ -1,5 +1,5 @@
 import type { AugmentDef } from './augments';
-import { UP, type UpKey, type UpStep } from './chaosUp';
+import { UP, UP_KIND, type UpKey, type UpStep } from './chaosUp';
 
 /**
  * 도파민 모드: 카테고리 무기고 (docs/design/dopamine-catalog.md).
@@ -8,12 +8,17 @@ import { UP, type UpKey, type UpStep } from './chaosUp';
  *   1. 카테고리를 나누고 하나 골라 시작해서 하나씩 늘려 가기 (뱀파이어 서바이버식)
  *   2. 무기 종류를 확 늘리기, 총은 총처럼 보이게, 무기 개수 제한 없애기
  *   3. 무기마다 사거리를 따로 (보통 화면 절반 안팎). 다 맨 끝까지 치니 적이 나오는 게 안 보였다
+ *   4. (11-08) 무기 종류와 갈래를 미친 듯이 늘리기. 갈래끼리 엮는 "실어 나르기"(docs/design/carry-links.md)의
+ *      재료라서, 갈래는 "어떻게 때리나(전달 방식)"가 서로 다르게 나눴다
  *
  * 무기 하나 = 증강 하나 (중첩 = 레벨, 최대 5). 무기는 "행동 틀(kind) + 수치(p)" 로 정의하고,
  * 틀별 동작은 sim/chaos.ts, 그리기는 render/chaosDraw.ts.
  */
 
-export type ArmCategory = 'hand' | 'gun' | 'turret' | 'summon' | 'magic' | 'passive';
+export type ArmCategory =
+  | 'hand' | 'gun' | 'turret' | 'summon' | 'magic'
+  | 'trap' | 'air' | 'charge' | 'sound' | 'spinner' | 'field' | 'ray' | 'throw' | 'swarm' | 'spirit'
+  | 'passive';
 
 export const CATEGORY_LABEL: Record<ArmCategory, string> = {
   hand: '손공격',
@@ -21,7 +26,43 @@ export const CATEGORY_LABEL: Record<ArmCategory, string> = {
   turret: '포탑',
   summon: '소환수',
   magic: '마법',
+  trap: '함정',
+  air: '공중',
+  charge: '돌격',
+  sound: '음파',
+  spinner: '회전체',
+  field: '장판',
+  ray: '광선',
+  throw: '투척',
+  swarm: '떼',
+  spirit: '정령',
   passive: '강화',
+};
+
+/** 공격하는 갈래 (강화 뺀 것). 시작 무기 고르기는 이 중 셋에서 한 장씩 */
+export const ATTACK_CATEGORIES: readonly ArmCategory[] = [
+  'hand', 'gun', 'turret', 'summon', 'magic',
+  'trap', 'air', 'charge', 'sound', 'spinner', 'field', 'ray', 'throw', 'swarm', 'spirit',
+];
+
+/** 갈래 색 (무기 자리 빛, 오른쪽 위 무기 목록 고리) */
+export const CATEGORY_COLOR: Record<ArmCategory, string> = {
+  hand: '#4dd2ff',
+  gun: '#ffe08a',
+  turret: '#ffc94d',
+  summon: '#7dff9a',
+  magic: '#c77dff',
+  trap: '#ff8a3c',
+  air: '#9fd8ff',
+  charge: '#ff6b6b',
+  sound: '#ffd36b',
+  spinner: '#e8e8f0',
+  field: '#7dffd0',
+  ray: '#ff3cc8',
+  throw: '#d9a066',
+  swarm: '#b8ff5a',
+  spirit: '#b4a0ff',
+  passive: '#ffc94d',
 };
 
 /** 무기·강화 칸 제한 없음 (플레이 피드백: 시원하게 다 풀자) */
@@ -109,7 +150,7 @@ export type WeaponKind =
   // 자동
   | 'gun' | 'beam' | 'lob' | 'zap' | 'column' | 'strikes' | 'frostArea' | 'zoneAt' | 'saw' | 'pullAt'
   | 'bubble' | 'pulse' | 'walker' | 'stamp' | 'drone' | 'event' | 'rain' | 'drop' | 'sweep' | 'columns'
-  | 'storm' | 'freezeAll' | 'quake' | 'nuke'
+  | 'storm' | 'freezeAll' | 'quake' | 'nuke' | 'trap'
   | 'passive';
 
 export interface WeaponParams {
@@ -184,12 +225,14 @@ export interface WeaponSpec {
 }
 
 const W = (cat: ArmCategory, id: string, emoji: string, name: string, kind: WeaponKind, cd: number, p: WeaponParams, desc: string, starter = false): WeaponSpec =>
-  ({ id: `arm_${id}`, cat, emoji, name, kind, cd, p, desc, starter, up: UP[id] ?? [] });
+  ({ id: `arm_${id}`, cat, emoji, name, kind, cd, p, desc, starter, up: UP[id] ?? UP_KIND[kind] ?? [] });
 
 /** 사거리가 있는 갈래 (플레이 피드백: 총·대포 같은 것만 제한, 소환수·폭격·잭팟은 화면 어디든) */
 export function hasRange(cat: ArmCategory): boolean {
-  return cat === 'gun' || cat === 'turret';
+  return RANGED.has(cat);
 }
+/** 자리에서 반경 안만 치는 갈래. 소환수·마법·공중·돌격은 화면 어디든, 손공격은 탭한 자리 */
+const RANGED: ReadonlySet<ArmCategory> = new Set<ArmCategory>(['gun', 'turret', 'trap', 'sound', 'spinner', 'field', 'ray', 'throw', 'swarm', 'spirit']);
 
 /** 수치가 비어 있을 때 레벨 업 효과를 더하는 기준값 (한 번에 1발, 사거리 기본값 등) */
 const UP_BASE: Partial<Record<UpKey, number>> = { count: 1, burst: 1, range: DEFAULT_RANGE, speed: 100 };
@@ -326,6 +369,246 @@ export const WEAPONS: readonly WeaponSpec[] = [
   W('magic', 'stars', '🌠', '별똥별', 'rain', 12, { range: 320, count: 16, dmg: 1.6, radius: 30, emoji: '🌠' }, '별이 쏟아진다'),
   W('magic', 'santa', '🎅', '산타 썰매', 'event', 18, { event: 'airstrike', range: 320, emoji: '🎅' }, '선물 폭탄을 뿌리고 지나간다'),
   W('magic', 'pizza', '🍕', '피자 폭격', 'rain', 13, { range: 300, count: 10, dmg: 2, radius: 36, emoji: '🍕' }, '피자가 떨어져 터진다'),
+
+  // ════ 11-08 무기 확장: 기존 갈래에 더 ════════════════════════
+  // ── 손공격 +11 ──
+  W('hand', 'h_chain', '⛓️', '사슬 번개 손', 'tapZap', 0.9, { count: 5, dmg: 1.3, radius: 140 }, '탭 근처 다섯 마리에 번개'),
+  W('hand', 'h_kick', '🦶', '발차기', 'tapBoom', 0.8, { radius: 40, dmg: 3, knock: 260 }, '좁게 세게 차서 날려 보낸다'),
+  W('hand', 'h_lava', '🫕', '용암 손', 'tapZone', 1.1, { radius: 44, dps: 1.5, ttl: 2.5, color: '#ff5a2a' }, '탭한 자리에 용암'),
+  W('hand', 'h_honey', '🍯', '꿀 손', 'tapBoom', 1.6, { radius: 70, dmg: 0.4, freeze: 1.6 }, '끈적하게 붙잡아 멈춘다'),
+  W('hand', 'h_star', '⭐', '별 던지기', 'tapThrow', 0.9, { boom: 40, dmg: 2.4, emoji: '⭐' }, '아래에서 별을 던져 쾅'),
+  W('hand', 'h_blades', '🤺', '쌍검 손', 'tapSlash', 1, { dmg: 1.8, width: 20 }, '탭한 높이를 두껍게 벤다'),
+  W('hand', 'h_rocks', '🪨', '바위 손', 'tapRain', 2.2, { count: 4, radius: 40, dmg: 1.8, emoji: '🪨' }, '탭한 자리에 바위 네 개'),
+  W('hand', 'h_fireworks', '🎇', '불꽃놀이 손', 'tapMissiles', 1.8, { count: 5, dmg: 1.2, boom: 26, homing: 4, speed: 360 }, '유도 불꽃 다섯 발'),
+  W('hand', 'h_trident', '🔱', '삼지창 손', 'tapStrike', 1.6, { width: 26, dmg: 2.6 }, '탭한 세로줄을 넓게 찍는다'),
+  W('hand', 'h_gravity', '⚫', '중력 손', 'tapPull', 3.5, { radius: 70, ttl: 1.4, dmg: 2, boom: 50 }, '넓게 빨아들였다가 쾅'),
+  W('hand', 'h_pointer', '🔦', '레이저 포인터 손', 'tapSnipe', 1.1, { dmg: 5, radius: 120 }, '탭 근처 가장 단단한 적을 지진다'),
+
+  // ── 총 +15 ──
+  W('gun', 'g_magnum', '🐂', '황소 매그넘', 'gun', 1.3, { range: 280, dmg: 4.5, pierce: 1, speed: 1000, look: L_REVOLVER, tracer: 'line', color: '#ffd36b' }, '한 방이 아주 세다'),
+  W('gun', 'g_burst', '🔰', '3점사 권총', 'gun', 0.8, { range: 260, dmg: 0.8, burst: 3, speed: 850, look: L_PISTOL, tracer: 'line', color: '#ffe08a' }, '세 발씩 끊어 쏜다'),
+  W('gun', 'g_lmg', '🧱', '경기관총', 'gun', 0.1, { range: 270, dmg: 0.4, spread: 0.12, speed: 900, look: L_RIFLE, tracer: 'line', color: '#ffe08a' }, '멀리까지 꾸준히 갈긴다'),
+  W('gun', 'g_carbine', '🪵', '카빈', 'gun', 0.5, { range: 300, dmg: 1.5, pierce: 1, speed: 950, look: L_RIFLE, tracer: 'line', color: '#fff0b0' }, '가볍고 정확하다'),
+  W('gun', 'g_slug', '🐌', '슬러그 산탄총', 'gun', 1.4, { range: 220, dmg: 5, pierce: 2, speed: 800, look: L_SHOTGUN, tracer: 'line', color: '#ffb347' }, '산탄 대신 큰 한 알'),
+  W('gun', 'g_autoshot', '🔩', '자동 산탄총', 'gun', 0.6, { range: 180, dmg: 0.6, count: 5, spread: 0.45, speed: 700, look: L_SHOTGUN, tracer: 'line', color: '#ffb347' }, '산탄을 빠르게 연속으로'),
+  W('gun', 'g_dmr', '🎐', '지정사수 소총', 'gun', 1.1, { range: 380, dmg: 4, pierce: 1, speed: 1400, target: 'strong', look: L_SNIPER, tracer: 'line', color: '#ffffff' }, '단단한 적을 자주 저격'),
+  W('gun', 'g_harpoon', '🪝', '작살총', 'gun', 1.6, { range: 280, dmg: 3.5, pierce: 3, knock: 120, speed: 700, look: L_CROSSBOW, tracer: 'arrow', color: '#c8d0e8' }, '꿰뚫고 밀어낸다'),
+  W('gun', 'g_flare', '🌟', '조명탄총', 'gun', 1.2, { range: 300, dmg: 1.6, boom: 30, ignite: true, speed: 500, look: L_GRENADE, tracer: 'ball', color: '#ffeb3c', size: 4 }, '맞은 자리를 태운다'),
+  W('gun', 'g_coldrifle', '🌬️', '냉기 소총', 'gun', 0.6, { range: 280, dmg: 0.9, freeze: 0.5, pierce: 1, speed: 900, look: L_LASER, tracer: 'line', color: '#9fe8ff' }, '뚫고 지나가며 얼린다'),
+  W('gun', 'g_pulse', '💠', '펄스 소총', 'beam', 1, { range: 300, dmg: 2.4, pierce: 3, width: 4, look: L_LASER, color: '#3cffd0' }, '세 마리를 꿰는 빛'),
+  W('gun', 'g_arc', '🔗', '아크 건', 'gun', 1, { range: 250, dmg: 1, chain: 4, speed: 900, look: L_PLASMA, tracer: 'ball', color: '#bfe8ff', size: 3 }, '번개가 네 마리로 옮겨 간다'),
+  W('gun', 'g_spread', '✳️', '확산총', 'gun', 0.9, { range: 240, dmg: 1, count: 5, spread: 0.9, speed: 700, look: L_SMG, tracer: 'ball', color: '#ff9ad5', size: 3 }, '부채꼴로 넓게'),
+  W('gun', 'g_ricochet', '🎱', '도탄 권총', 'gun', 0.7, { range: 900, dmg: 1.2, bounce: 2, pierce: 1, speed: 700, look: L_REVOLVER, tracer: 'ball', color: '#ffe08a', size: 3 }, '벽에 튕기고 뚫는다'),
+  W('gun', 'g_candy', '🧸', '사탕 총', 'gun', 0.25, { range: 220, dmg: 0.6, popcorn: true, speed: 600, look: L_PISTOL, tracer: 'emoji', emoji: '🍬', size: 10 }, '사탕이 맞으면 네 조각으로 튄다'),
+
+  // ── 포탑 +10 ──
+  W('turret', 't_howitzer', '🎖️', '곡사포', 'lob', 5, { range: 420, dmg: 5, boom: 80, speed: 280 }, '아주 멀리, 아주 크게'),
+  W('turret', 't_flak', '🛡️', '대공포', 'lob', 1.2, { range: 340, dmg: 1, boom: 26, count: 2, speed: 600 }, '작은 포탄 두 발씩 자주'),
+  W('turret', 't_battery', '🔋', '축전탑', 'zap', 1.4, { range: 240, count: 2, dmg: 1.4 }, '두 마리를 자주 지진다'),
+  W('turret', 't_inferno', '🏮', '지옥불탑', 'zoneAt', 2.4, { range: 200, radius: 34, dps: 1.8, ttl: 2, color: '#ff5a2a' }, '좁고 뜨거운 불바다'),
+  W('turret', 't_icewall', '🗻', '빙벽탑', 'frostArea', 4, { range: 300, radius: 70, dmg: 0.4, freeze: 1.6 }, '넓게 얼린다'),
+  W('turret', 't_ballista', '⚔️', '노포', 'gun', 1.6, { range: 360, dmg: 4, pierce: 4, speed: 1000, tracer: 'arrow', color: '#e8d8b0', slot: true }, '큰 화살이 네 마리를 꿴다'),
+  W('turret', 't_torii', '⛩️', '번개 문', 'strikes', 2, { range: 300, count: 2, dmg: 1.8, width: 14 }, '벼락 두 줄기'),
+  W('turret', 't_fountain', '⛲', '분수대', 'pulse', 2, { range: 170, dmg: 0.5, freeze: 0.5, knock: 100, color: '#4dd2ff' }, '물보라로 밀고 멈칫'),
+  W('turret', 't_catapult', '🪵', '투석기', 'lob', 3.5, { range: 360, dmg: 3.5, boom: 56, speed: 360, emoji: '🪨' }, '바위를 날린다'),
+  W('turret', 't_blacktower', '🏴', '검은 탑', 'pullAt', 7, { range: 300, radius: 110, ttl: 1.4, dmg: 2.4, boom: 60 }, '넓게 모았다가 쾅'),
+
+  // ── 소환수 +12 ──
+  W('summon', 'su_wolf', '🐺', '늑대 무리', 'walker', 4, { count: 3, speed: 190, melee: 3, dmg: 1.4, emoji: '🐺' }, '셋이 몰려가 세 번씩 문다'),
+  W('summon', 'su_fox', '🦊', '여우', 'walker', 3, { count: 1, speed: 210, melee: 5, dmg: 1.2, ignite: true, emoji: '🦊' }, '물면 여우불이 붙는다'),
+  W('summon', 'su_gorilla', '🦍', '고릴라', 'walker', 9, { count: 1, speed: 90, melee: 8, dmg: 3.5, size: 30, emoji: '🦍' }, '여덟 번 내리친다'),
+  W('summon', 'su_tiger', '🐅', '호랑이', 'stamp', 8, { count: 1, speed: 340, dmg: 4, dir: 'side', size: 28, emoji: '🐅' }, '빠르게 가로지른다'),
+  W('summon', 'su_zombie', '🧟', '좀비 떼', 'walker', 5, { count: 4, speed: 60, melee: 6, dmg: 1, emoji: '🧟' }, '느릿느릿, 오래 물고 늘어진다'),
+  W('summon', 'su_crab', '🦀', '꽃게', 'walker', 3, { count: 2, speed: 120, melee: 4, dmg: 1.4, emoji: '🦀' }, '옆걸음으로 가서 집는다'),
+  W('summon', 'su_turtle', '🐢', '거북 폭탄', 'walker', 6, { count: 1, speed: 50, boom: 80, dmg: 5, emoji: '🐢' }, '느리지만 크게 터진다'),
+  W('summon', 'su_unicorn', '🦄', '유니콘', 'stamp', 10, { count: 1, speed: 320, dmg: 4, dir: 'up', size: 26, emoji: '🦄' }, '뿔로 위까지 꿰뚫는다'),
+  W('summon', 'su_shark', '🦈', '상어', 'stamp', 9, { count: 2, speed: 300, dmg: 3, dir: 'side', emoji: '🦈' }, '두 마리가 가로질러 문다'),
+  W('summon', 'su_owl', '🦉', '부엉이', 'drop', 5, { range: 320, dmg: 3.5, radius: 34, target: 'strong', emoji: '🦉' }, '단단한 적에게 내리꽂는다'),
+  W('summon', 'su_pigs', '🐖', '돼지 떼', 'walker', 5, { count: 3, speed: 140, boom: 36, dmg: 1.6, emoji: '🐖' }, '돌진해서 터진다'),
+  W('summon', 'su_kangaroo', '🦘', '캥거루 복서', 'walker', 5, { count: 1, speed: 170, melee: 6, dmg: 2, emoji: '🦘' }, '여섯 번 주먹질'),
+
+  // ── 마법 +12 ──
+  W('magic', 'm_hellrain', '🔥', '지옥불 비', 'rain', 14, { range: 320, count: 18, dmg: 1.6, radius: 30, ignite: true, emoji: '🔥' }, '불덩이가 쏟아져 태운다'),
+  W('magic', 'm_avalanche', '🏔️', '눈사태', 'sweep', 18, { range: 300, dmg: 3, width: 60, dir: 'up', freeze: 1.2, emoji: '🏔️' }, '쓸어 올리며 얼린다'),
+  W('magic', 'm_zeus', '🌩️', '천둥 신', 'storm', 20, { range: 320, ttl: 5, dmg: 2.4 }, '5초 동안 벼락'),
+  W('magic', 'm_rockfall', '⛰️', '낙석', 'rain', 13, { range: 320, count: 8, dmg: 3, radius: 44, emoji: '🪨' }, '큰 바위가 떨어진다'),
+  W('magic', 'm_timestop', '⏳', '시간 정지', 'freezeAll', 26, { range: 340, dmg: 0.5, freeze: 3.5 }, '사거리 안 전부 오래 멈춘다'),
+  W('magic', 'm_frogs', '🐸', '개구리 비', 'rain', 11, { range: 320, count: 20, dmg: 1, radius: 22, emoji: '🐸' }, '개구리가 쏟아진다'),
+  W('magic', 'm_cards', '🃏', '카드 폭풍', 'rain', 10, { range: 320, count: 22, dmg: 0.9, radius: 18, emoji: '🃏' }, '카드가 흩날려 꽂힌다'),
+  W('magic', 'm_supernova', '🌅', '초신성', 'nuke', 50, { range: 380, dmg: 8.5 }, '사거리 안 전부 태워 버린다'),
+  W('magic', 'm_wormhole', '♾️', '웜홀', 'pullAt', 20, { range: 320, radius: 90, ttl: 3, dmg: 5, boom: 70 }, '오래 빨아들였다가 대폭발'),
+  W('magic', 'm_comet', '💫', '혜성', 'drop', 14, { range: 340, dmg: 9, radius: 100, target: 'dense', emoji: '💫', size: 60 }, '몰린 곳에 혜성'),
+  W('magic', 'm_lasergrid', '🔳', '레이저 그물', 'columns', 16, { range: 320, count: 7, dmg: 3, width: 14 }, '레이저 기둥 일곱 줄'),
+  W('magic', 'm_flood', '🚿', '홍수', 'sweep', 16, { range: 300, dmg: 3.5, width: 60, dir: 'up', knock: 260, emoji: '💦' }, '물이 쓸어 올려 밀어낸다'),
+
+  // ════ 11-08 새 갈래 ═══════════════════════════════════════
+  // ── 함정: 적이 올 길에 깔아 두고, 밟으면 터진다 ──
+  W('trap', 'tr_mines', '💣', '지뢰밭', 'trap', 2.5, { range: 260, count: 2, dmg: 3, boom: 44, emoji: '💣' }, '지뢰 두 개를 깔아 둔다', true),
+  W('trap', 'tr_bear', '🪤', '덫', 'trap', 2, { range: 240, count: 1, dmg: 6, boom: 18, freeze: 1.5, emoji: '🪤' }, '밟으면 꽉 물고 멈춘다', true),
+  W('trap', 'tr_spikes', '📍', '가시 바닥', 'trap', 1.6, { range: 260, count: 2, dmg: 1.4, boom: 26, melee: 4, emoji: '📍' }, '네 번 밟혀도 남는다'),
+  W('trap', 'tr_glue', '🫙', '끈끈이', 'trap', 3, { range: 260, count: 2, dmg: 0.4, boom: 40, freeze: 1.2, melee: 3, emoji: '🫙' }, '넓게 붙잡는다'),
+  W('trap', 'tr_ember', '🕯️', '불씨 함정', 'trap', 2.5, { range: 260, count: 2, dmg: 1.5, boom: 36, ignite: true, emoji: '🕯️' }, '밟으면 불이 붙는다'),
+  W('trap', 'tr_ice', '🧊', '얼음 함정', 'trap', 3, { range: 260, count: 2, dmg: 0.8, boom: 40, freeze: 2, emoji: '🧊', color: '#9fe8ff' }, '밟으면 얼어붙는다'),
+  W('trap', 'tr_spring', '🪀', '스프링 판', 'trap', 2.2, { range: 260, count: 2, dmg: 1, boom: 34, knock: 320, emoji: '🪀' }, '밟으면 튕겨 날아간다'),
+  W('trap', 'tr_tnt', '🧨', 'TNT 상자', 'trap', 4, { range: 280, count: 1, dmg: 6, boom: 80, emoji: '🧨' }, '크게 터진다'),
+  W('trap', 'tr_claymore', '📦', '클레이모어', 'trap', 3, { range: 260, count: 1, dmg: 4, boom: 60, emoji: '📦' }, '넓게 터진다'),
+  W('trap', 'tr_peel', '🍌', '바나나 껍질', 'trap', 1.5, { range: 240, count: 3, dmg: 0.6, boom: 20, freeze: 0.8, emoji: '🍌' }, '미끄러져 넘어진다'),
+  W('trap', 'tr_shock', '⚡', '전기 바닥', 'trap', 2.5, { range: 260, count: 2, dmg: 1.2, boom: 30, melee: 3, emoji: '⚡', color: '#9fe8ff' }, '세 번까지 지진다'),
+  W('trap', 'tr_lego', '🧩', '레고 블록', 'trap', 1, { range: 240, count: 3, dmg: 0.8, boom: 14, melee: 2, emoji: '🧩' }, '밟으면 아프다'),
+  W('trap', 'tr_crackers', '🎆', '폭죽 상자', 'trap', 3, { range: 280, count: 1, dmg: 2, boom: 50, ignite: true, emoji: '🎆', color: '#ff9ad5' }, '터지며 불꽃이 붙는다'),
+  W('trap', 'tr_poison', '🧪', '독 함정', 'trap', 2.8, { range: 260, count: 2, dmg: 1, boom: 40, ignite: true, melee: 2, emoji: '🧪', color: '#7dff5a' }, '두 번 독을 뿜는다'),
+  W('trap', 'tr_nuke', '☢️', '핵지뢰', 'trap', 12, { range: 300, count: 1, dmg: 10, boom: 120, emoji: '☢️' }, '하나, 아주 크게'),
+  W('trap', 'tr_cactus', '🌵', '선인장', 'trap', 2, { range: 250, count: 2, dmg: 1.2, boom: 22, melee: 5, emoji: '🌵' }, '다섯 번 찌른다'),
+  W('trap', 'tr_cheese', '🧀', '쥐덫 치즈', 'trap', 1.4, { range: 240, count: 2, dmg: 2.2, boom: 20, emoji: '🧀' }, '작게 세게'),
+
+  // ── 공중: 하늘에서 떨어뜨린다 (화면 어디든) ──
+  W('air', 'a_bomber', '🛫', '폭격기', 'rain', 10, { range: 320, count: 8, dmg: 2.2, radius: 34, emoji: '💣' }, '폭탄 여덟 개를 뿌린다', true),
+  W('air', 'a_para', '🪂', '낙하산 폭탄', 'rain', 9, { range: 320, count: 6, dmg: 2.5, radius: 38, emoji: '🪂' }, '낙하산 폭탄 여섯 개'),
+  W('air', 'a_anchor', '⚓', '닻 낙하', 'drop', 8, { range: 320, dmg: 6, radius: 70, target: 'dense', emoji: '⚓', size: 44 }, '몰린 곳에 닻'),
+  W('air', 'a_piano', '🎹', '피아노 낙하', 'drop', 10, { range: 320, dmg: 7, radius: 80, target: 'dense', emoji: '🎹', size: 48 }, '쿵, 피아노'),
+  W('air', 'a_toilet', '🚽', '변기 낙하', 'drop', 7, { range: 320, dmg: 5, radius: 60, emoji: '🚽', size: 40 }, '하늘에서 변기가'),
+  W('air', 'a_hail', '🌨️', '우박', 'rain', 9, { range: 300, count: 20, dmg: 0.9, radius: 18, freeze: 0.5, emoji: '🧊' }, '자잘하게 쏟아지며 얼린다'),
+  W('air', 'a_thundercloud', '🌥️', '뇌운', 'strikes', 2.2, { range: 340, count: 3, dmg: 1.8, width: 14 }, '벼락 세 줄기'),
+  W('air', 'a_galaxy', '🌌', '은하 레이저', 'columns', 16, { range: 320, count: 4, dmg: 4.5, width: 18 }, '레이저 기둥 네 줄'),
+  W('air', 'a_boulders', '🗻', '바위 비', 'rain', 11, { range: 320, count: 12, dmg: 2, radius: 30, emoji: '🪨' }, '바위가 쏟아진다'),
+  W('air', 'a_chili', '🌶️', '고추 폭격', 'rain', 10, { range: 300, count: 12, dmg: 1.4, radius: 28, ignite: true, emoji: '🌶️' }, '매운 고추가 태운다', true),
+  W('air', 'a_cluster', '🎊', '집속탄', 'rain', 12, { range: 320, count: 18, dmg: 1.2, radius: 24, emoji: '🎊' }, '작은 폭탄 열여덟 개'),
+  W('air', 'a_gifts', '🎁', '선물 상자 낙하', 'drop', 6, { range: 320, dmg: 4, radius: 55, count: 2, emoji: '🎁', size: 36 }, '선물 두 개가 쾅'),
+  W('air', 'a_ducks', '🦆', '오리 편대', 'rain', 8, { range: 320, count: 6, dmg: 2, radius: 30, emoji: '🦆' }, '오리가 내리꽂힌다'),
+  W('air', 'a_moon', '🌕', '달 낙하', 'drop', 30, { range: 340, dmg: 14, radius: 150, target: 'dense', emoji: '🌕', size: 90 }, '달이 떨어진다'),
+  W('air', 'a_sunray', '☀️', '햇빛 집중', 'columns', 12, { range: 320, count: 3, dmg: 4, width: 24 }, '굵은 빛기둥 세 줄'),
+  W('air', 'a_balloons', '🎈', '풍선 폭탄', 'rain', 7, { range: 300, count: 10, dmg: 1, radius: 22, emoji: '🎈' }, '풍선이 내려와 펑'),
+  W('air', 'a_boltrain', '🌦️', '번개비', 'strikes', 1.5, { range: 320, count: 2, dmg: 1.6, width: 12 }, '자주 내리치는 벼락'),
+
+  // ── 돌격: 달려서 쓸고 간다 (화면 어디든) ──
+  W('charge', 'c_tractor', '🚜', '트랙터', 'stamp', 9, { count: 1, speed: 160, dmg: 5, dir: 'up', size: 28, emoji: '🚜' }, '느리게 위까지 밀고 간다', true),
+  W('charge', 'c_bikers', '🏍️', '폭주족', 'stamp', 6, { count: 3, speed: 380, dmg: 1.6, dir: 'side', emoji: '🏍️' }, '셋이 빠르게 가로지른다', true),
+  W('charge', 'c_bumper', '🚗', '범퍼카', 'stamp', 5, { count: 2, speed: 300, dmg: 2, dir: 'side', knock: 120, emoji: '🚗' }, '들이받아 밀어낸다'),
+  W('charge', 'c_bus', '🚌', '버스', 'stamp', 12, { count: 1, speed: 220, dmg: 6, dir: 'side', size: 34, emoji: '🚌' }, '크게 가로지른다'),
+  W('charge', 'c_firetruck', '🚒', '소방차', 'stamp', 10, { count: 1, speed: 240, dmg: 3, dir: 'up', knock: 200, emoji: '🚒' }, '위로 밀어 올린다'),
+  W('charge', 'c_ambulance', '🚑', '구급차', 'stamp', 8, { count: 1, speed: 340, dmg: 3.5, dir: 'side', emoji: '🚑' }, '아주 빠르게 가로지른다'),
+  W('charge', 'c_roller', '🛞', '롤러', 'sweep', 14, { range: 320, dmg: 4, width: 46, dir: 'up', emoji: '🛞', size: 36 }, '한 줄을 깔아뭉갠다'),
+  W('charge', 'c_dozer', '🏗️', '불도저', 'sweep', 16, { range: 300, dmg: 3, width: 60, dir: 'up', knock: 260, emoji: '🏗️' }, '화면 전체를 밀어 올린다'),
+  W('charge', 'c_horses', '🐎', '말 떼', 'stamp', 9, { count: 5, speed: 280, dmg: 1.6, dir: 'up', emoji: '🐎' }, '다섯 마리가 위로 달린다'),
+  W('charge', 'c_boars', '🐗', '멧돼지', 'stamp', 6, { count: 2, speed: 320, dmg: 2.6, dir: 'side', emoji: '🐗' }, '두 마리가 들이받는다'),
+  W('charge', 'c_skate', '🛹', '스케이트보드', 'stamp', 4, { count: 2, speed: 360, dmg: 1.4, dir: 'up', emoji: '🛹' }, '자주, 빠르게'),
+  W('charge', 'c_sled', '🛷', '눈썰매', 'stamp', 6, { count: 3, speed: 330, dmg: 1, freeze: 0.8, dir: 'up', emoji: '🛷' }, '미끄러지며 얼린다'),
+  W('charge', 'c_rocketcart', '🛺', '로켓 카트', 'stamp', 7, { count: 2, speed: 420, dmg: 2, dir: 'side', ignite: true, emoji: '🛺' }, '불을 뿜으며 가로지른다'),
+  W('charge', 'c_mammoth', '🦣', '매머드', 'stamp', 15, { count: 1, speed: 130, dmg: 7, dir: 'up', size: 36, emoji: '🦣' }, '하나, 아주 무겁게'),
+  W('charge', 'c_surf', '🏄', '서핑', 'sweep', 12, { range: 300, dmg: 3, width: 50, dir: 'up', knock: 150, emoji: '🏄' }, '파도를 타고 쓸어 올린다'),
+  W('charge', 'c_tram', '🚃', '전동차', 'stamp', 11, { count: 3, speed: 260, dmg: 2.5, dir: 'side', emoji: '🚃' }, '세 칸이 줄지어 가로지른다'),
+
+  // ── 음파: 자리에서 둥글게 퍼진다 ──
+  W('sound', 's_speaker', '🔊', '스피커', 'pulse', 2, { range: 170, dmg: 1.4, knock: 120, color: '#ffd36b' }, '쿵쿵 울려 밀어낸다'),
+  W('sound', 's_drum', '🥁', '북', 'pulse', 3, { range: 190, dmg: 0.6, freeze: 0.3, color: '#ffb347' }, '둥 울려 멈칫'),
+  W('sound', 's_guitar', '🎸', '일렉 기타', 'pulse', 1.2, { range: 170, dmg: 1.1, color: '#ff3cc8' }, '짧고 자주', true),
+  W('sound', 's_trumpet', '🎺', '트럼펫', 'pulse', 2.4, { range: 210, dmg: 1.3, knock: 200, color: '#ffe08a' }, '세게 불어 날린다'),
+  W('sound', 's_megaphone', '📢', '확성기', 'pulse', 3, { range: 230, dmg: 0.6, freeze: 0.6, color: '#ffffff' }, '넓게 외쳐 얼어붙게'),
+  W('sound', 's_sax', '🎷', '색소폰', 'pulse', 1.8, { range: 180, dmg: 1, color: '#c77dff' }, '부드럽게 꾸준히'),
+  W('sound', 's_violin', '🎻', '바이올린', 'pulse', 1, { range: 140, dmg: 0.6, color: '#ff9ad5' }, '좁고 아주 자주'),
+  W('sound', 's_janggu', '🪘', '장구', 'pulse', 2.6, { range: 200, dmg: 0.5, freeze: 0.4, color: '#ff8a3c' }, '덩 울려 멈칫'),
+  W('sound', 's_orchestra', '🎼', '오케스트라', 'pulse', 5, { range: 260, dmg: 2, color: '#9fe8ff' }, '크게 한 번'),
+  W('sound', 's_siren', '🚨', '사이렌', 'pulse', 3.5, { range: 240, dmg: 0.5, freeze: 0.8, color: '#ff3c3c' }, '넓게 울려 얼어붙게'),
+  W('sound', 's_woofer', '📻', '라디오 우퍼', 'pulse', 2.2, { range: 180, dmg: 1.5, knock: 160, color: '#5a3c8a' }, '낮게 울려 밀어낸다'),
+  W('sound', 's_howl', '🎙️', '마이크 하울링', 'pulse', 1.6, { range: 190, dmg: 1.2, ignite: true, color: '#ff5a2a' }, '귀가 타는 하울링', true),
+  W('sound', 's_flute', '🪈', '피리', 'pulse', 1.4, { range: 170, dmg: 0.4, freeze: 0.3, color: '#7dff9a' }, '가늘게 홀린다'),
+  W('sound', 's_accordion', '🪗', '아코디언', 'pulse', 2, { range: 190, dmg: 1, color: '#ffd36b' }, '넓게 꾸준히'),
+
+  // ── 회전체: 날아다니며 튕기고 썬다 ──
+  W('spinner', 'sp_boomerang', '🪃', '부메랑', 'saw', 3, { range: 300, dmg: 0.84, ttl: 3, speed: 320, emoji: '🪃' }, '돌며 튕겨 다닌다', true),
+  W('spinner', 'sp_disc', '💿', '원반', 'saw', 3.5, { range: 300, dmg: 0.96, ttl: 4, speed: 280, emoji: '💿' }, '오래 튕겨 다닌다', true),
+  W('spinner', 'sp_yoyo', '🔘', '요요', 'saw', 2, { range: 240, dmg: 0.6, ttl: 2.5, speed: 360, count: 2, emoji: '🔘' }, '두 개가 짧게'),
+  W('spinner', 'sp_star', '⭐', '대형 표창', 'saw', 4, { range: 320, dmg: 1.2, ttl: 4, speed: 300, emoji: '⭐' }, '크게 돌며 벤다'),
+  W('spinner', 'sp_firewheel', '🎡', '불바퀴', 'saw', 5, { range: 300, dmg: 0.72, ttl: 5, speed: 240, ignite: true, emoji: '🎡' }, '지나가며 태운다'),
+  W('spinner', 'sp_icering', '💍', '얼음 고리', 'saw', 5, { range: 300, dmg: 0.54, ttl: 5, speed: 240, freeze: 0.6, emoji: '💍' }, '지나가며 얼린다'),
+  W('spinner', 'sp_soccer', '⚽', '축구공', 'saw', 3, { range: 320, dmg: 1.08, ttl: 4, speed: 340, emoji: '⚽' }, '튕기며 걷어찬다'),
+  W('spinner', 'sp_basket', '🏀', '농구공', 'saw', 3.5, { range: 320, dmg: 1.32, ttl: 3, speed: 300, emoji: '🏀' }, '묵직하게 튕긴다'),
+  W('spinner', 'sp_frisbee', '🥏', '프리스비', 'saw', 2.5, { range: 300, dmg: 0.72, ttl: 3.5, speed: 380, emoji: '🥏' }, '빠르게 날아다닌다'),
+  W('spinner', 'sp_donut', '🍩', '도넛', 'saw', 3, { range: 280, dmg: 0.6, ttl: 4, speed: 260, count: 2, emoji: '🍩' }, '두 개가 굴러다닌다'),
+  W('spinner', 'sp_saturn', '🪐', '토성 고리', 'saw', 8, { range: 320, dmg: 1.5, ttl: 6, speed: 200, emoji: '🪐' }, '크게 오래'),
+  W('spinner', 'sp_compass', '🧭', '나침반 칼날', 'saw', 4, { range: 300, dmg: 0.9, ttl: 4, speed: 300, emoji: '🧭' }, '날카롭게 돈다'),
+  W('spinner', 'sp_wheel', '☸️', '법륜', 'saw', 6, { range: 320, dmg: 1.2, ttl: 5, speed: 260, count: 2, emoji: '☸️' }, '바퀴 둘이 돈다'),
+  W('spinner', 'sp_goldcd', '📀', '황금 CD', 'saw', 4.5, { range: 300, dmg: 1.2, ttl: 4, speed: 300, emoji: '📀' }, '번쩍이며 벤다'),
+
+  // ── 장판: 바닥에 깔린다 ──
+  W('field', 'f_lava', '🟧', '용암 웅덩이', 'zoneAt', 3, { range: 240, radius: 44, dps: 1.6, ttl: 3, color: '#ff5a2a' }, '몰린 곳에 용암', true),
+  W('field', 'f_swamp', '🟩', '독늪', 'zoneAt', 4, { range: 260, radius: 64, dps: 0.8, ttl: 5, color: '#7dff5a' }, '넓고 오래 가는 독'),
+  W('field', 'f_ice', '🟦', '빙판', 'frostArea', 4, { range: 280, radius: 64, dmg: 0.4, freeze: 1.6 }, '넓게 얼린다'),
+  W('field', 'f_electric', '🟨', '전기장', 'zoneAt', 3, { range: 240, radius: 50, dps: 1.2, ttl: 3, color: '#ffeb3c' }, '지지직'),
+  W('field', 'f_tar', '⬛', '타르', 'frostArea', 5, { range: 260, radius: 70, dmg: 0.3, freeze: 2.2 }, '오래 붙잡는다'),
+  W('field', 'f_soap', '🧼', '비눗방울 밭', 'bubble', 4, { range: 280, radius: 46, dmg: 2.6, ttl: 2 }, '거품에 가뒀다가 펑'),
+  W('field', 'f_quicksand', '🏜️', '모래늪', 'pullAt', 6, { range: 280, radius: 90, ttl: 1.6, dmg: 1.6, boom: 40 }, '빨려 들어갔다가 쾅'),
+  W('field', 'f_whirlpool', '💧', '소용돌이', 'pullAt', 7, { range: 300, radius: 110, ttl: 1.8, dmg: 2, boom: 50 }, '넓게 빨아들인다'),
+  W('field', 'f_flowers', '🌸', '꽃밭', 'zoneAt', 3, { range: 240, radius: 56, dps: 0.9, ttl: 4, color: '#ff9ad5' }, '꽃가루로 녹인다'),
+  W('field', 'f_firering', '⭕', '불고리', 'zoneAt', 4, { range: 260, radius: 70, dps: 1, ttl: 2.5, color: '#ff8a3c' }, '크게 둘러 태운다'),
+  W('field', 'f_acid', '🟪', '산성 웅덩이', 'zoneAt', 3.5, { range: 240, radius: 40, dps: 2, ttl: 2, color: '#b54dff' }, '좁고 독하게'),
+  W('field', 'f_snow', '⛄', '눈밭', 'frostArea', 3, { range: 260, radius: 50, dmg: 0.6, freeze: 1 }, '자주 얼린다'),
+  W('field', 'f_jelly', '🍮', '젤리 감옥', 'bubble', 5, { range: 280, radius: 60, dmg: 3.4, ttl: 2.5 }, '크게 가뒀다가 펑'),
+  W('field', 'f_gravity', '🔲', '중력장', 'pullAt', 5, { range: 260, radius: 80, ttl: 1.2, dmg: 1.4, boom: 45 }, '자주 모은다'),
+  W('field', 'f_holy', '✨', '성역', 'zoneAt', 6, { range: 280, radius: 80, dps: 1.4, ttl: 4, color: '#fff7a8' }, '크고 밝은 장판', true),
+
+  // ── 광선: 한 줄로 쏜다 ──
+  W('ray', 'r_flashlight', '🔦', '손전등', 'beam', 0.8, { range: 260, dmg: 2.4, pierce: 2, width: 6, color: '#fff7a8' }, '두 마리를 꿰는 빛', true),
+  W('ray', 'r_prism', '🔺', '프리즘', 'beam', 1.5, { range: 300, dmg: 1.8, pierce: 3, width: 4, color: '#ff9ad5' }, '세 마리를 꿰는 빛', true),
+  W('ray', 'r_magnifier', '🔍', '돋보기', 'beam', 1.2, { range: 240, dmg: 1.2, pierce: 1, width: 5, ignite: true, color: '#ffb347' }, '햇빛을 모아 태운다'),
+  W('ray', 'r_freeze', '💎', '냉동 광선', 'beam', 1.4, { range: 280, dmg: 1, pierce: 2, width: 5, freeze: 0.8, color: '#9fe8ff' }, '꿰며 얼린다'),
+  W('ray', 'r_death', '💀', '죽음의 광선', 'beam', 4, { range: 360, dmg: 10, pierce: 99, width: 8, color: '#7dff5a' }, '한 줄을 통째로'),
+  W('ray', 'r_eyes', '👁️', '눈빛 레이저', 'beam', 0.6, { range: 240, dmg: 1, pierce: 1, width: 3, color: '#ff3c3c' }, '가늘고 자주'),
+  W('ray', 'r_ion', '🧬', '이온 광선', 'beam', 1.6, { range: 300, dmg: 1.6, pierce: 2, width: 4, chain: 2, color: '#9fe8ff' }, '맞은 적에서 번개가 튄다'),
+  W('ray', 'r_rainbow', '🌈', '무지개 광선', 'beam', 2, { range: 320, dmg: 2.5, pierce: 4, width: 7, color: '#ff9ad5' }, '굵게 네 마리를 꿴다'),
+  W('ray', 'r_sunbeam', '🌞', '태양 기둥', 'column', 6, { range: 320, dmg: 4, width: 24 }, '몰린 줄에 빛기둥'),
+  W('ray', 'r_mirror', '🪞', '거울 반사', 'beam', 1, { range: 280, dmg: 1.6, pierce: 2, width: 3, color: '#e8e8f0' }, '날카로운 반사광'),
+  W('ray', 'r_signal', '🚦', '신호등 레이저', 'beam', 1.1, { range: 260, dmg: 1.5, pierce: 1, width: 5, color: '#3cff6e' }, '초록불, 쏜다'),
+  W('ray', 'r_moonbeam', '🌙', '달빛 기둥', 'column', 8, { range: 320, dmg: 5, width: 18 }, '몰린 줄에 달빛'),
+  W('ray', 'r_hyper', '🔆', '하이퍼 빔', 'beam', 5, { range: 400, dmg: 12, pierce: 99, width: 12, color: '#fff7a8' }, '아주 굵은 한 줄'),
+  W('ray', 'r_cutter', '✂️', '플라즈마 커터', 'beam', 0.4, { range: 180, dmg: 0.8, pierce: 2, width: 3, ignite: true, color: '#b54dff' }, '짧게 자르며 태운다'),
+
+  // ── 투척: 자리에서 포물선으로 던진다 ──
+  W('throw', 'th_curling', '🥌', '컬링 돌', 'lob', 2, { range: 280, dmg: 3, boom: 30, emoji: '🥌' }, '무거운 돌을 던진다'),
+  W('throw', 'th_melon', '🍉', '수박', 'lob', 2.4, { range: 280, dmg: 2, boom: 48, emoji: '🍉' }, '퍽 터진다'),
+  W('throw', 'th_pan', '🍳', '프라이팬', 'lob', 1.6, { range: 260, dmg: 3.5, boom: 22, emoji: '🍳' }, '땡! 세게'),
+  W('throw', 'th_axe', '🪓', '도끼', 'lob', 1.8, { range: 280, dmg: 4, boom: 18, emoji: '🪓' }, '좁게 아주 세게'),
+  W('throw', 'th_molotov', '🍾', '화염병', 'lob', 2.6, { range: 280, dmg: 1.6, boom: 44, ignite: true, emoji: '🍾' }, '깨지며 불이 붙는다'),
+  W('throw', 'th_snowball', '☃️', '눈덩이', 'lob', 1.5, { range: 260, dmg: 1, boom: 34, freeze: 1, emoji: '☃️' }, '맞으면 언다'),
+  W('throw', 'th_pot', '🪴', '화분', 'lob', 2, { range: 260, dmg: 2.5, boom: 30, emoji: '🪴' }, '위에서 화분이'),
+  W('throw', 'th_tomato', '🍅', '토마토', 'lob', 0.8, { range: 240, dmg: 1, boom: 20, emoji: '🍅' }, '자주 던진다'),
+  W('throw', 'th_garlic', '🧄', '마늘 폭탄', 'lob', 2.2, { range: 260, dmg: 1.4, boom: 40, ignite: true, emoji: '🧄' }, '맵게 태운다'),
+  W('throw', 'th_volley', '🏐', '배구공 스파이크', 'lob', 1.4, { range: 300, dmg: 2.4, boom: 24, count: 2, emoji: '🏐' }, '두 개씩 내리꽂는다', true),
+  W('throw', 'th_pinata', '🪅', '피냐타', 'lob', 3, { range: 280, dmg: 2, boom: 50, count: 2, emoji: '🪅' }, '터지며 사탕이 쏟아진다', true),
+  W('throw', 'th_barrel', '🛢️', '기름통', 'lob', 3.5, { range: 280, dmg: 3, boom: 64, ignite: true, emoji: '🛢️' }, '크게 터져 불바다'),
+  W('throw', 'th_cake', '🎂', '케이크', 'lob', 2.5, { range: 260, dmg: 1.6, boom: 56, freeze: 0.8, emoji: '🎂' }, '크림에 묻혀 멈춘다'),
+  W('throw', 'th_moai', '🗿', '모아이', 'lob', 6, { range: 320, dmg: 7, boom: 70, speed: 320, emoji: '🗿' }, '아주 무겁게'),
+  W('throw', 'th_spoons', '🥄', '숟가락 투척', 'lob', 0.6, { range: 240, dmg: 0.9, boom: 14, count: 2, emoji: '🥄' }, '두 개씩 자주'),
+
+  // ── 떼: 작은 것이 떼로 몰려가 쫓는다 ──
+  W('swarm', 'sw_mosquito', '🦟', '모기 떼', 'gun', 0.6, { range: 280, dmg: 0.5, count: 3, spread: 1.2, homing: 5, speed: 260, tracer: 'emoji', emoji: '🦟', size: 9 }, '셋씩 날아가 쫓아 문다', true),
+  W('swarm', 'sw_flies', '🪰', '파리 떼', 'gun', 0.5, { range: 260, dmg: 0.4, count: 4, spread: 1.4, homing: 4, speed: 240, tracer: 'emoji', emoji: '🪰', size: 8 }, '넷씩 몰려간다'),
+  W('swarm', 'sw_butterfly', '🦋', '나비 떼', 'gun', 0.8, { range: 300, dmg: 0.6, count: 3, spread: 1, homing: 3, speed: 200, freeze: 0.3, tracer: 'emoji', emoji: '🦋', size: 10 }, '홀려서 멈칫'),
+  W('swarm', 'sw_sparrows', '🐦', '참새 떼', 'gun', 0.7, { range: 300, dmg: 0.8, count: 3, spread: 0.9, homing: 4, speed: 320, tracer: 'emoji', emoji: '🐦', size: 10 }, '셋씩 빠르게 쫓는다', true),
+  W('swarm', 'sw_piranha', '🐟', '피라냐 떼', 'gun', 0.6, { range: 260, dmg: 0.7, count: 3, spread: 1, homing: 5, speed: 280, tracer: 'emoji', emoji: '🐟', size: 10 }, '물어뜯으러 몰려간다'),
+  W('swarm', 'sw_ants', '🐜', '개미 떼', 'walker', 3, { count: 8, speed: 120, melee: 2, dmg: 0.6, emoji: '🐜', size: 12 }, '여덟 마리가 기어가 문다'),
+  W('swarm', 'sw_spiders', '🕷️', '거미 떼', 'walker', 4, { count: 5, speed: 150, melee: 3, dmg: 0.8, freeze: 0.4, emoji: '🕷️', size: 14 }, '거미줄로 묶는다'),
+  W('swarm', 'sw_ladybug', '🐞', '무당벌레', 'gun', 0.9, { range: 280, dmg: 1, count: 2, spread: 0.8, homing: 4, speed: 260, boom: 16, tracer: 'emoji', emoji: '🐞', size: 10 }, '쫓아가 톡 터진다'),
+  W('swarm', 'sw_beetles', '🪲', '불딱정벌레', 'gun', 0.7, { range: 280, dmg: 0.5, count: 3, spread: 1.2, homing: 4, speed: 240, ignite: true, tracer: 'emoji', emoji: '🪲', size: 9 }, '물면 불이 붙는다'),
+  W('swarm', 'sw_doves', '🕊️', '비둘기 떼', 'gun', 1, { range: 320, dmg: 1, count: 4, spread: 1, homing: 3, speed: 300, tracer: 'emoji', emoji: '🕊️', size: 11 }, '넷씩 날아간다'),
+  W('swarm', 'sw_snakes', '🐍', '뱀 떼', 'walker', 4, { count: 4, speed: 140, melee: 3, dmg: 1, ignite: true, emoji: '🐍', size: 14 }, '물면 독이 퍼진다'),
+  W('swarm', 'sw_bats', '🦇', '박쥐 떼', 'gun', 0.6, { range: 280, dmg: 0.6, count: 4, spread: 1.3, homing: 5, speed: 300, tracer: 'emoji', emoji: '🦇', size: 10 }, '넷씩 휘감는다'),
+  W('swarm', 'sw_locusts', '🦗', '메뚜기 떼', 'walker', 3, { count: 10, speed: 200, melee: 1, dmg: 0.5, emoji: '🦗', size: 11 }, '열 마리가 뒤덮는다'),
+  W('swarm', 'sw_jelly', '🪼', '해파리 떼', 'gun', 1.2, { range: 260, dmg: 0.8, count: 3, spread: 1, homing: 2, speed: 160, chain: 2, tracer: 'emoji', emoji: '🪼', size: 11 }, '닿으면 찌릿, 옆으로 옮겨 간다'),
+
+  // ── 정령: 떠다니며 쏜다 ──
+  W('spirit', 'sl_fairy', '🧚', '요정', 'drone', 0.6, { range: 240, dmg: 0.8, speed: 700, tracer: 'ball', color: '#ff9ad5', size: 3, emoji: '🧚' }, '떠다니며 빛을 쏜다', true),
+  W('spirit', 'sl_ghost', '👻', '유령', 'drone', 0.8, { range: 240, dmg: 1, pierce: 2, speed: 600, tracer: 'ball', color: '#e8e8f0', size: 3, emoji: '👻' }, '꿰뚫는 혼을 쏜다', true),
+  W('spirit', 'sl_pumpkin', '🎃', '호박 정령', 'drone', 1, { range: 240, dmg: 1, ignite: true, speed: 600, tracer: 'ball', color: '#ff8a3c', size: 4, emoji: '🎃' }, '불씨를 쏜다'),
+  W('spirit', 'sl_frost', '💙', '얼음 정령', 'drone', 0.9, { range: 240, dmg: 0.7, freeze: 0.5, speed: 650, tracer: 'ball', color: '#9fe8ff', size: 3, emoji: '💙' }, '얼음 조각을 쏜다'),
+  W('spirit', 'sl_spark', '💛', '번개 정령', 'drone', 1.1, { range: 240, dmg: 0.9, chain: 2, speed: 800, tracer: 'ball', color: '#ffeb3c', size: 3, emoji: '💛' }, '번개가 옮겨 간다'),
+  W('spirit', 'sl_angel', '👼', '천사', 'drone', 1.2, { range: 280, dmg: 1.6, pierce: 1, speed: 900, tracer: 'arrow', color: '#fff7a8', emoji: '👼' }, '빛 화살'),
+  W('spirit', 'sl_imp', '😈', '꼬마 악마', 'drone', 0.9, { range: 240, dmg: 1.2, ignite: true, speed: 700, tracer: 'ball', color: '#ff3c3c', size: 3, emoji: '😈' }, '지옥불을 쏜다'),
+  W('spirit', 'sl_alien', '👽', '꼬마 외계인', 'drone', 0.5, { range: 240, dmg: 0.6, speed: 800, tracer: 'line', color: '#7dff5a', emoji: '👽' }, '레이저를 자주'),
+  W('spirit', 'sl_eye', '🧿', '눈알 정령', 'drone', 1.5, { range: 300, dmg: 2.5, pierce: 3, speed: 1200, target: 'strong', tracer: 'line', color: '#3ce0ff', emoji: '🧿' }, '단단한 적을 꿰뚫는다'),
+  W('spirit', 'sl_queen', '👑', '여왕 정령', 'drone', 0.7, { range: 240, dmg: 0.7, homing: 4, speed: 400, tracer: 'ball', color: '#ffd36b', size: 3, emoji: '👑' }, '쫓아가는 빛'),
+  W('spirit', 'sl_crystal', '🔮', '수정 구슬', 'drone', 1.4, { range: 260, dmg: 1.4, boom: 24, speed: 500, tracer: 'ball', color: '#c77dff', size: 4, emoji: '🔮' }, '작게 터지는 구슬'),
+  W('spirit', 'sl_genie', '🧞', '지니', 'drone', 1.6, { range: 280, dmg: 2, boom: 30, speed: 600, tracer: 'ball', color: '#3ce0ff', size: 5, emoji: '🧞' }, '크게 터지는 구슬'),
 
   // ── 강화 ───────────────────────────────────────────────────
   W('passive', 'power', '💪', '화력', 'passive', 0, {}, '모든 피해 +12%'),

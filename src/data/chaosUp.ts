@@ -153,3 +153,46 @@ export const UP: Record<string, UpStep[]> = {
   santa: [more(1, '선물 촘촘'), dmg(0.3), cool(0.15), more(1, '선물 촘촘')],
   pizza: [more(4, '피자'), dmg(0.3), more(5, '피자'), boom(10)],
 };
+
+/**
+ * 행동 틀(kind)별 기본 레벨 업 효과. UP 에 따로 적지 않은 무기는 이걸 쓴다
+ * (11-08 무기 확장: 무기를 수백 종으로 늘리면서, 같은 틀이면 오르는 것도 비슷하게).
+ */
+export const UP_KIND: Record<string, UpStep[]> = {
+  // 손공격
+  tapZap: [more(1, '대상'), dmg(0.25), more(2, '대상'), both(radius(30), dmg(0.25))],
+  tapBoom: [dmg(0.3), radius(10), cool(0.2), dmg(0.4)],
+  tapZone: [radius(8), ttl(1), radius(10), dmg(0.4, '초당 피해')],
+  tapThrow: [boom(10), dmg(0.3), cool(0.2), boom(15)],
+  tapSlash: [width(4, '두께'), dmg(0.3), width(6, '두께'), dmg(0.4)],
+  tapSnipe: [dmg(0.3), cool(0.2), dmg(0.4), radius(40, '찾는 범위')],
+  tapStrike: [width(6, '폭'), dmg(0.3), width(8, '폭'), dmg(0.4)],
+  tapMissiles: [more(1, '발'), dmg(0.25), more(2, '발'), boom(10)],
+  tapPull: [radius(6), dmg(0.25), ttl(0.4, '빨아들이는 시간'), boom(8)],
+  tapRain: [more(2, '개수'), dmg(0.3), more(3, '개수'), radius(8, '폭발 범위')],
+  // 자동
+  gun: [dmg(0.25), rate(0.15), more(1, '한 번에'), rate(0.2)],
+  beam: [dmg(0.3), width(2), pierce(1), dmg(0.4)],
+  lob: [boom(8), dmg(0.3), more(1, '한 번에'), boom(10)],
+  zap: [more(1, '대상'), dmg(0.3), more(2, '대상'), cool(0.2)],
+  column: [width(4), dmg(0.3), cool(0.2), width(6)],
+  strikes: [more(1, '벼락'), dmg(0.3), more(1, '벼락'), width(4)],
+  frostArea: [radius(12), freeze(0.4), radius(15), dmg(0.8)],
+  zoneAt: [radius(8), ttl(1), dmg(0.4, '초당 피해'), radius(12)],
+  saw: [more(1, '개'), dmg(0.3), ttl(1.5), more(1, '개')],
+  pullAt: [radius(15), boom(12), dmg(0.4), cool(0.2)],
+  bubble: [radius(10), dmg(0.4), ttl(1), radius(15)],
+  pulse: [range(20), dmg(0.3), range(25), cool(0.2)],
+  walker: [more(1, '마리'), dmg(0.3), more(1, '마리'), dmg(0.4)],
+  stamp: [more(1, '마리'), dmg(0.3), more(1, '마리'), fast(0.2)],
+  drop: [dmg(0.3), radius(15), more(1, '한 번에'), dmg(0.4)],
+  rain: [more(4, '개수'), dmg(0.25), more(6, '개수'), radius(8, '폭발 범위')],
+  sweep: [dmg(0.3), width(10, '폭'), cool(0.15), dmg(0.4)],
+  columns: [more(1, '기둥'), dmg(0.3), more(2, '기둥'), cool(0.2)],
+  storm: [ttl(1), dmg(0.3), ttl(1.5), cool(0.2)],
+  freezeAll: [freeze(0.5), cool(0.15), range(30), freeze(0.5)],
+  quake: [dmg(0.4), cool(0.15), range(30), dmg(0.5)],
+  nuke: [dmg(0.3), cool(0.1), range(30), dmg(0.4)],
+  drone: [more(1, '마리'), dmg(0.3), rate(0.2), more(1, '마리')],
+  trap: [more(1, '함정'), dmg(0.3), boom(10), more(1, '함정')],
+};

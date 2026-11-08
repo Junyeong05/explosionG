@@ -1,5 +1,5 @@
 import { BALANCE } from '../data/balance';
-import { ARMS, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
+import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import type { Actor } from '../sim/chaos';
 import type { SimEvent } from '../sim/events';
@@ -194,7 +194,7 @@ export class ChaosDraw {
     for (const { id, m } of mounts) {
       const spec = ARMS[id];
       const L = w.augments.stacks(id);
-      const glowCol = spec.fusion ? '#ff3cc8' : spec.cat === 'magic' ? '#c77dff' : spec.cat === 'summon' ? '#7dff9a' : spec.cat === 'gun' ? '#ffe08a' : COLORS.gold;
+      const glowCol = spec.fusion ? '#ff3cc8' : CATEGORY_COLOR[spec.cat];
       if (spec.fusion) {
         // 융합 무기: 무지개빛 고리
         ctx.beginPath();
@@ -665,8 +665,18 @@ export class ChaosDraw {
         this.icon(a.emoji ?? '🦖', a.x, a.y + Math.abs(Math.sin(a.t * 14)) * -3, a.p?.size ? a.p.size + 8 : 30, a.dir > 0, a.vy < 0 ? 0 : 0);
         break;
       case 'saw':
-        this.icon('⚙️', a.x, a.y, 24, false, a.t * 18);
+        this.icon(a.p?.emoji ?? '⚙️', a.x, a.y, 24, false, a.t * 18);
         break;
+      case 'trap': {
+        // 깔린 함정: 작게, 밟힐 수 있는 범위를 옅게
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, Math.min(a.r, 30) * 0.5, 0, TAU);
+        ctx.strokeStyle = rgba(a.p?.color ?? '#ff8a3c', 0.25 + 0.15 * Math.sin(this.time * 6 + a.id));
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        this.icon(a.emoji ?? '🪤', a.x, a.y, 14);
+        break;
+      }
       case 'vortex': {
         ctx.strokeStyle = rgba('#b54dff', 0.5);
         ctx.lineWidth = 2;
@@ -695,7 +705,7 @@ export class ChaosDraw {
         }
         break;
       case 'drone':
-        this.icon('🚁', a.x, a.y, 20, Math.cos(this.time * 2 + a.n) > 0);
+        this.icon(a.p?.emoji ?? '🚁', a.x, a.y, 20, Math.cos(this.time * 2 + a.n) > 0);
         break;
       case 'storm':
         this.icon('⛈️', a.x + Math.sin(this.time * 2) * 80, 36, 54);
@@ -840,7 +850,7 @@ export class ChaosDraw {
       const L = w.augments.stacks(id);
       const cd = c.cooldowns.get(id) ?? 0;
       const ready = 1 - clamp(cd / Math.max(0.01, c.cooldownOf(id)), 0, 1);
-      const col = info.cat === 'hand' ? COLORS.charge : info.cat === 'magic' ? '#c77dff' : info.cat === 'gun' ? '#ffe08a' : COLORS.gold;
+      const col = CATEGORY_COLOR[info.cat];
       ctx.beginPath();
       ctx.arc(ix, iy, 8.5, -Math.PI / 2, -Math.PI / 2 + TAU * ready);
       ctx.strokeStyle = rgba(col, 0.75);
