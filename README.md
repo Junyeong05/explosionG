@@ -6,6 +6,7 @@
 - 구조 설명: [`docs/architecture.md`](docs/architecture.md)
 - 실험 기록: [`docs/design/experiments-2026-11.md`](docs/design/experiments-2026-11.md) (과충전·연쇄 잇기·벼랑 끝·불씨 칠하기·짝 폭발형·쌓이는 바닥, 11-07 실험 21개)
 - 도파민 모드 넣을 것 목록: [`docs/design/dopamine-catalog.md`](docs/design/dopamine-catalog.md) (리서치 원칙·난입·설치물·치트키·출처)
+- **성장축 논의 기록 (지금 어디까지 왔나)**: [`docs/design/growth-axis-discussion.md`](docs/design/growth-axis-discussion.md) (유저 요청 원문, 나온 안과 반응, 지금 후보 4가지, 측정 도구)
 - 무기가 많다는 것 자체로 크는 판 안 성장축 아이디어 34개: [`docs/design/weapon-variety-growth-ideas.md`](docs/design/weapon-variety-growth-ideas.md) (투사체 섞기·규칙형 융합·태그·변이·받침 줄·그 밖)
 - 무기 개수 × BM 회의: [`docs/design/weapon-count-bm-meeting.md`](docs/design/weapon-count-bm-meeting.md) (일제 사격·무기고 도감·테마 팩, 버린 안, 규제 메모)
 - 구상: [`docs/design/concepts-2026-11.md`](docs/design/concepts-2026-11.md) (이 게임만의 한 방: 도화선 연결망·합체·하루 한 판, 새 코어 루프 후보 5개)
