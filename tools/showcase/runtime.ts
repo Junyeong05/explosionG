@@ -39,6 +39,9 @@ export interface Section {
 }
 
 export interface Page {
+  /** 페이지 이름 (탭·앱 목록에 보이는 짧은 이름, 2~4 낱말) */
+  name: string;
+  /** 맨 위 제목 */
   title: string;
   lead: string;
   notes?: string[];
@@ -159,7 +162,6 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
 }
 
 export function mount(page: Page): void {
-  document.title = page.title;
   const main = document.querySelector('main')!;
   main.append(el('h1', '', page.title), el('p', 'lead', page.lead));
   for (const n of page.notes ?? []) main.append(el('p', 'note', n));
@@ -174,9 +176,11 @@ export function mount(page: Page): void {
   const sp = el('div');
   sp.id = 'speed';
   sp.append(el('span', '', '속도'));
-  for (const s of [1, 0.5, 0.25]) {
-    const b = el('button', '', `${s}×`);
-    b.setAttribute('aria-pressed', String(s === 1));
+  // 움직임 줄이기 설정이면 멈춘 채로 시작 (버튼으로 재생)
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) speed = 0;
+  for (const s of [1, 0.5, 0.25, 0]) {
+    const b = el('button', '', s === 0 ? '멈춤' : `${s}×`);
+    b.setAttribute('aria-pressed', String(s === speed));
     b.onclick = () => {
       speed = s;
       for (const x of sp.querySelectorAll('button')) x.setAttribute('aria-pressed', String(x === b));

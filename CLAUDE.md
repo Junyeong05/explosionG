@@ -21,11 +21,13 @@
 
 "앞으로는 뭔가 구현하면 어떤 식으로 연출되고 어떤 식으로 싸우는지 HTML로 정리해서 주면 된다."
 "연출적인 걸 게임에 안 들어가고 여기(앱 대화창)서 작게라도 바로 체크할 수 있었으면 하는 것."
-기능·무기·규칙·연출을 만들면 **실제로 도는 화면을 HTML 한 파일로** 만들어 사용자에게 보낸다 (SendUserFile, 바로 열리게).
+기능·무기·규칙·연출을 만들면 **실제로 도는 화면을 HTML 한 파일로** 만들어 **앱 대화창에 페이지로 띄운다** ("여기다가 뜨게": Artifact 로 올림. 파일 전송이 아니라).
 새 연출은 게임에 넣기 전에 이 HTML로 먼저 보여 주고, 괜찮다고 하면 게임에 넣는다.
 
 - 장면 정의: `tools/showcase/pages/<이름>.ts` — 카드마다 무기·레벨·설명 (`Scene`, `tools/showcase/runtime.ts`)
-- 만들기: `npm run showcase -- <이름>` → `docs/showcase/<이름>.html` (실제 sim·렌더 코드를 묶은 한 파일, 외부 의존 없음)
+- 만들기: `npm run showcase -- <이름>` → `docs/showcase/<이름>.html` (그대로 여는 완전한 HTML, 저장소에 남김) + `dist/showcase/<이름>.html` (Artifact 로 올리는 판: doctype·head·body 없이 내용만)
+- 띄우기: Artifact 도구로 `dist/showcase/<이름>.html` 을 publish. 같은 페이지를 고치면 아래 주소로 다시 올려 주소를 유지한다 (다른 세션에서는 `url` 로)
 - 카드 = 캔버스(실제 게임 화면이 반복 재생) + 제목·꼬리표 + 무기 + "어떻게 싸우나" 한두 문장. 위에 목차와 속도(1×·0.5×·0.25×)
 - 브라우저(Playwright)로 열어 오류 없이 도는지, 폰 너비(390px)에서 가로 스크롤이 없는지 보고 나서 파일을 보낸다
-- 예: `docs/showcase/categories.html` (갈래 15개)
+- 페이지 주소
+  - `categories` (갈래 15개): https://claude.ai/artifact/HT8y53kpe6NNSaMiPXjcBM
