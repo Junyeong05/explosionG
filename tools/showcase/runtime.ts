@@ -233,7 +233,7 @@ export function mount(page: Page): void {
       const stat = el('div', 'stat');
       const h4 = el('h4', '', sc.title);
       if (sc.tag) h4.append(' ', el('span', 'tag', sc.tag));
-      const names = sc.weapons.map((id) => `${ARMS[id].emoji} ${ARMS[id].name}`).join(' · ');
+      const names = sc.weapons.map((id) => ARMS[id].name).join(' · ');
       card.append(cv, stat, h4, el('p', 'weap', `무기 (${sc.level ?? 3}레벨): ${names}`), el('p', '', sc.desc));
       grid.append(card);
       const st = new Stage(cv, sc, stat);

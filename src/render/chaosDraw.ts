@@ -2,6 +2,7 @@ import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import { CAST_SEC, SOUL_BURST, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
+import { glyphFor, paintGlyph } from './glyphs';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
 import type { GlowCache } from './fx/effects';
@@ -20,7 +21,10 @@ const BUFF_TEXT: Record<string, string> = {
   meteor: '운석 소환!',
 };
 
-/** 이모지 한 글자를 64px 캔버스에 한 번만 그려 두고 늘려 쓴다 (매 프레임 글꼴 그리기보다 빠름) */
+/**
+ * 무기·물체 그림: 데이터의 이모지를 열쇠로 네온 벡터 그림(render/glyphs.ts)을 72px 캔버스에 한 번만 그려 두고 늘려 쓴다.
+ * (11-09 "유아틱하다" 피드백으로 화면에 이모지를 그리지 않는다)
+ */
 class EmojiCache {
   private readonly map = new Map<string, HTMLCanvasElement>();
 
@@ -29,11 +33,7 @@ class EmojiCache {
     if (!c) {
       c = document.createElement('canvas');
       c.width = c.height = 72;
-      const g = c.getContext('2d')!;
-      g.font = `56px ${EMOJI_FONT}`;
-      g.textAlign = 'center';
-      g.textBaseline = 'middle';
-      g.fillText(e, 36, 40);
+      paintGlyph(c.getContext('2d')!, glyphFor(e));
       this.map.set(e, c);
     }
     return c;
@@ -86,15 +86,15 @@ export class ChaosDraw {
     switch (e.type) {
       case 'chaos': {
         const def = chaosEvent(e.id as ChaosEventId);
-        this.banner(`${def.emoji} ${def.name}!`, '', COLORS.gold);
+        this.banner(`${def.name}!`, '', COLORS.gold);
         break;
       }
       case 'fever':
-        if (e.on) this.banner('🔥 FEVER TIME 🔥', '탭이 두 배로 세지고 게이지가 세 배로 찬다', '#ff3cc8');
+        if (e.on) this.banner('FEVER TIME', '탭이 두 배로 세지고 게이지가 세 배로 찬다', '#ff3cc8');
         break;
       case 'cookie':
         this.pop(e.x, e.y - 24, BUFF_TEXT[e.buff] ?? e.buff, COLORS.gold);
-        this.banner('🍪 황금 쿠키!', BUFF_TEXT[e.buff] ?? '', COLORS.gold);
+        this.banner('황금 보급!', BUFF_TEXT[e.buff] ?? '', COLORS.gold);
         break;
       case 'slot':
         if (e.reels[0] === e.reels[1] && e.reels[1] === e.reels[2]) {
@@ -109,14 +109,14 @@ export class ChaosDraw {
         break;
       case 'magic': {
         const spec = ARMS[e.id];
-        if (spec) this.banner(`${spec.emoji} ${spec.name}!`, '', '#c77dff');
+        if (spec) this.banner(`${spec.name}!`, '', '#c77dff');
         break;
       }
       case 'augment': {
         const spec = ARMS[e.id];
         if (spec?.fusion) {
           const [a, b] = spec.fusion.map((id) => ARMS[id]);
-          this.banner(`⚡ 융합! ${spec.emoji} ${spec.name}`, `${a.emoji} ${a.name} + ${b.emoji} ${b.name}`, '#ff3cc8');
+          this.banner(`융합! ${spec.name}`, `${a.name} + ${b.name}`, '#ff3cc8');
           this.flash = 0.5;
         }
         break;
@@ -210,29 +210,14 @@ export class ChaosDraw {
         ctx.lineWidth = 2;
         ctx.stroke();
       }
-      if (spec.cat === 'turret') {
-        // 포탑: 전장에 박힌 받침 + 체력 막대. 부서지면 회색, 다시 서기까지 고리
-        const st = c.turrets.get(id);
-        const down = (st?.down ?? 0) > 0;
-        ctx.beginPath();
-        ctx.ellipse(m.x, m.y + 9, 17, 6, 0, 0, TAU);
-        ctx.fillStyle = rgba('#000000', 0.45);
-        ctx.fill();
-        ctx.fillStyle = down ? '#3a3a42' : '#5a5f73';
-        ctx.fillRect(m.x - 13, m.y + 1, 26, 8);
-        ctx.strokeStyle = rgba(CATEGORY_COLOR.turret, down ? 0.25 : 0.7);
-        ctx.lineWidth = 1;
-        ctx.strokeRect(m.x - 13, m.y + 1, 26, 8);
-        this.icon(spec.emoji, m.x, m.y - 6, 22, false, 0, down ? 0.3 : 1);
-        if (st) {
-          const f = down ? 1 - st.down / BALANCE.chaos.turretDownSec : st.hp / st.max;
-          ctx.fillStyle = rgba('#000000', 0.6);
-          ctx.fillRect(m.x - 14, m.y + 12, 28, 3);
-          ctx.fillStyle = down ? '#8a8fa3' : f > 0.5 ? '#7dff9a' : f > 0.25 ? '#ffd36b' : '#ff6b6b';
-          ctx.fillRect(m.x - 14, m.y + 12, 28 * clamp(f, 0, 1), 3);
-        }
-        this.pips(m.x, m.y + 19, L);
-        continue;
+      // 주문 분신: 두 배로 쏘는 동안 겹쳐 보이는 빛
+      if ((c.cloned.get(id) ?? -1) > w.time) {
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.5 + 0.2 * Math.sin(this.time * 12);
+        ctx.drawImage(this.glow.get('#e0b8ff'), m.x - 20, m.y - 20, 40, 40);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        this.icon(spec.emoji, m.x + 5, m.y - 5, 17, false, 0, 0.35);
       }
       if (m.wall !== 0 && spec.p.look) {
         this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? -Math.PI / 2, 0, w.time - (c.firedAt.get(id) ?? -9));
@@ -244,16 +229,6 @@ export class ChaosDraw {
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'source-over';
         this.icon(spec.emoji, m.x, m.y + bob, 19);
-        // 마법: 힘을 모으는 중이면 보라 고리가 차오른다
-        const start = c.charging.get(id);
-        if (start !== undefined) {
-          const f = clamp((w.time - start) / BALANCE.chaos.magicMaxHold, 0, 1);
-          ctx.beginPath();
-          ctx.arc(m.x, m.y + bob, 12, -Math.PI / 2, -Math.PI / 2 + TAU * f);
-          ctx.strokeStyle = rgba('#e0b8ff', 0.6 + 0.4 * f);
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
       }
       this.pips(m.x, m.y + 12, L);
     }
@@ -388,6 +363,39 @@ export class ChaosDraw {
     if (!c) return;
     const ctx = this.ctx;
     for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
+    // 주문: 변이된 적은 보라 덩어리, 매혹된 적은 분홍 테두리 + 위 화살
+    for (const e of w.enemies) {
+      if (e.dead) continue;
+      if (e.poly > 0) {
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius * 0.9, 0, TAU);
+        ctx.fillStyle = rgba('#3a2a5a', 0.85);
+        ctx.fill();
+        ctx.strokeStyle = rgba('#b4a0ff', 0.9);
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([2, 3]);
+        ctx.lineDashOffset = -this.time * 20;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      if (e.charm > 0) {
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius + 4, 0, TAU);
+        ctx.strokeStyle = rgba('#ff6fb5', 0.9);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.x - 4, e.y - e.radius - 4);
+        ctx.lineTo(e.x, e.y - e.radius - 10);
+        ctx.lineTo(e.x + 4, e.y - e.radius - 4);
+        ctx.stroke();
+      }
+    }
+    if (c.hasteUntil > w.time) {
+      ctx.strokeStyle = rgba('#e0b8ff', 0.35 + 0.15 * Math.sin(this.time * 10));
+      ctx.lineWidth = 3;
+      ctx.strokeRect(2, 2, FW - 4, LINE_Y - 4);
+    }
     // 떼가 붙어 약해진 적: 연두 점이 맴돌고 테두리가 옅게 빛난다
     for (const e of w.enemies) {
       if (e.dead || e.infest <= 0) continue;
@@ -683,7 +691,21 @@ export class ChaosDraw {
         break;
       }
       case 'thrown': {
-        const y = a.y - Math.sin(Math.PI * k) * 60;
+        const arty = ARMS[a.src]?.cat === 'turret';
+        if (arty) {
+          // 포격: 떨어질 자리에 조준 표시가 조여 든다
+          const rr = 18 * (1 - k) + 8;
+          ctx.strokeStyle = rgba(CATEGORY_COLOR.turret, 0.35 + 0.4 * k);
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(a.tx, a.ty, rr, 0, TAU);
+          ctx.moveTo(a.tx - rr - 4, a.ty);
+          ctx.lineTo(a.tx - rr + 4, a.ty);
+          ctx.moveTo(a.tx + rr - 4, a.ty);
+          ctx.lineTo(a.tx + rr + 4, a.ty);
+          ctx.stroke();
+        }
+        const y = a.y - Math.sin(Math.PI * k) * (arty ? 130 : 60);
         if (a.emoji) this.icon(a.emoji, a.x, y, 18, false, a.t * 10);
         else {
           ctx.beginPath();
@@ -797,12 +819,6 @@ export class ChaosDraw {
         ctx.globalCompositeOperation = 'source-over';
         ctx.restore();
         if (spec) this.icon(spec.emoji, a.x, a.y, 18 + 10 * f);
-        if (a.left >= 11) {
-          ctx.font = `900 ${10 + 3 * f}px ${FONT}`;
-          ctx.textAlign = 'center';
-          ctx.fillStyle = rgba('#f3e2ff', 0.6 + 0.4 * f);
-          ctx.fillText(`×${(a.left / 10).toFixed(1)}`, a.x, a.y - R - 4);
-        }
         break;
       }
       case 'ray': {
@@ -1103,7 +1119,7 @@ export class ChaosDraw {
       ctx.font = `800 10px ${FONT}`;
       ctx.textAlign = 'center';
       ctx.fillStyle = COLORS.charge;
-      ctx.fillText(`탭: ${c.owned('hand').map((id) => ARMS[id].emoji).join(' ')}`, FW / 2, 600);
+      ctx.fillText(`탭: ${c.owned('hand').map((id) => ARMS[id].name).join(' · ')}`, FW / 2, 600);
     }
 
     for (let i = 0; i < this.banners.length; i++) {

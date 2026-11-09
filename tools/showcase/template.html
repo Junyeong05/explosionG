@@ -44,6 +44,30 @@ tr:last-child td { border-bottom:0 }
 td:first-child { font-weight:600; white-space:nowrap }
 .list { margin:10px 0 0; padding-left:20px; max-width:80ch; font-size:14px }
 .list li { margin:2px 0 }
+.chip { display:inline-block; font-size:12.5px; font-weight:700; color:var(--fg); border-left:4px solid var(--c); background:color-mix(in srgb, var(--c) 16%, var(--card)); border-radius:6px; padding:1px 7px; white-space:nowrap }
+.linkgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; margin-top:10px }
+.linkcard { background:var(--card); border:1px solid var(--line); border-top:3px solid var(--b); border-radius:10px; padding:10px 12px; min-width:0 }
+.lhead { display:flex; flex-wrap:wrap; gap:6px; align-items:center }
+.arrow { color:var(--mute); font-weight:700 }
+.lname { margin-left:auto; color:var(--accent); font-size:14px }
+.ltext { margin:6px 0 0; font-size:14px }
+.lfx, .luse { margin:4px 0 0; font-size:12.5px; color:var(--mute) }
+.matrixwrap { overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--card) }
+table.matrix { border-collapse:separate; border-spacing:0; min-width:0; width:auto; font-size:12px }
+table.matrix th, table.matrix td { padding:3px; border-bottom:0; text-align:center }
+table.matrix .rowh { position:sticky; left:0; background:var(--card); text-align:left; z-index:1 }
+table.matrix .colh .chip { writing-mode:vertical-rl; padding:6px 1px; border-left:0; border-top:4px solid var(--c) }
+table.matrix .corner { color:var(--mute); font-weight:600 }
+.cell.self { background:repeating-linear-gradient(45deg, transparent 0 4px, var(--line) 4px 5px) }
+.dot { width:22px; height:22px; border-radius:6px; border:1.5px solid var(--b); background:transparent; cursor:pointer; padding:0; display:block; margin:auto }
+.dot.named { background:color-mix(in srgb, var(--b) 55%, transparent) }
+.dot.on { outline:2px solid var(--accent); outline-offset:1px }
+.dot:focus-visible { outline:2px solid var(--accent); outline-offset:1px }
+.detail { margin-top:10px }
+details.group { margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--card); padding:8px 12px }
+details.group summary { cursor:pointer; font-size:14px; color:var(--mute) }
+details.group summary .chip { margin-right:4px }
+details.group .linkgrid { margin-bottom:4px }
 @media (max-width:560px) { .grid { grid-template-columns:1fr } .card canvas { max-width:380px; margin:0 auto } }
 </style>
 <!--/PAGE-->

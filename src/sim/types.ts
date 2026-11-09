@@ -63,6 +63,10 @@ export interface Enemy {
   held: number;
   /** 도파민 모드 떼가 붙어 약해진 남은 시간: 느려지고 받는 피해가 커진다 (BALANCE.chaos.infest*) */
   infest: number;
+  /** 주문 변이: 남은 시간 동안 아주 느리고 받는 피해가 크다 (BALANCE.chaos.poly*) */
+  poly: number;
+  /** 주문 매혹: 남은 시간 동안 우리 편. 위로 거슬러 올라가며 부딪친 적을 친다. 끝나면 사라진다 */
+  charm: number;
   burn: number;
   color: number;
   inflate: number;

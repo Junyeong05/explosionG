@@ -209,21 +209,21 @@ export const BALANCE = {
     /**
      * 갈래 기능 (11-09 "연출 말고 기능적으로 확 다르게").
      * 떼: 구름이 덮은 적은 infestSec 동안 느려지고(×infestSlow) 모든 피해를 ×infestDamageMul 받는다.
-     * 포탑: 앞에 설치돼 체력 turretHp(레벨마다 +50%)로 닿은 적을 막는다. 막힌 적 하나가 초당 turretBite(보스 ×5)씩 깎고,
-     *   부서지면 turretDownSec 뒤 다시 선다. 근처(turretAggro) 위쪽 적은 포탑 쪽으로 끌려온다.
-     * 마법: 쿨다운이 끝나도 몰린 곳(80px 안 magicCrowd 마리)이 생기거나 magicMaxHold 초가 될 때까지 모으고, 모은 만큼 세진다(최대 ×2).
+     * (11-09 세 번째: 포탑 앞에서 막기·마법 모으기는 소환수·포탑과 겹친다는 피드백으로 뺐다.
+     *  포탑 → 포격(먼 뒷줄만, artyMinRange), 마법 → 주문(피해 말고 규칙을 바꾸는 효과))
      * 함정: 적이 없어도 깔리고(ttl trapSec), 밟은 적은 trapRootSec 동안 묶인다.
      * 광선: 한 적에 붙어 오래 지질수록 세진다 (rayRampPerSec, 최대 ×rayRampMax).
      */
     infestSec: 1.2,
     infestSlow: 0.5,
     infestDamageMul: 1.5,
-    turretHp: 60,
-    turretBite: 5,
-    turretDownSec: 6,
-    turretAggro: 70,
-    magicCrowd: 7,
-    magicMaxHold: 4,
+    /** 포격: 자리에서 이만큼 안쪽(가까운 적)은 못 친다. 먼 뒷줄 담당 (총은 앞줄) */
+    artyMinRange: 150,
+    /** 주문 변이: 느림 배율, 받는 피해 배율. 매혹: 부딪친 적에게 주는 피해(기본 피해 D 배율), 간격 */
+    polySlow: 0.3,
+    polyDamageMul: 2,
+    charmHit: 2,
+    charmHitSec: 0.3,
     trapSec: 30,
     trapRootSec: 1,
     rayRampPerSec: 0.6,

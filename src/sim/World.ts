@@ -649,10 +649,12 @@ export class World implements SimApi {
         e.x = p.x + e.packOx;
         e.y = p.y + e.packOy;
       } else {
-        // 떼가 붙은 적은 느리다 (붙을 때 무리에서 떨어져 혼자 움직인다)
-        const slow = e.infest > 0 ? BALANCE.chaos.infestSlow : 1;
+        // 떼가 붙은 적·변이된 적은 느리다 (붙을 때 무리에서 떨어져 혼자 움직인다). 매혹된 적은 거슬러 올라간다
+        const C = BALANCE.chaos;
+        const slow = (e.infest > 0 ? C.infestSlow : 1) * (e.poly > 0 ? C.polySlow : 1);
+        const dir = e.charm > 0 ? -1 : 1;
         e.x += e.dx * e.speed * slow * dt + wind * dt;
-        e.y += e.dy * e.speed * slow * dt;
+        e.y += e.dy * e.speed * slow * dt * dir;
       }
       // 밀어내기: 받은 속도로 날아가다 점점 멈춘다
       if (e.kx !== 0 || e.ky !== 0) {
@@ -878,8 +880,10 @@ export class World implements SimApi {
     if (!isDirect(source) && e.def.indirectDamageTakenMul !== undefined) dmg *= e.def.indirectDamageTakenMul;
     // 쌓이는 바닥: 무너지는 블록의 폭발은 옆 블록을 바로 무너뜨린다
     if (source === 'pile' && e.pileCol >= 0) dmg = Math.max(dmg, e.hp);
-    // 도파민 모드 떼가 붙은 적은 모든 피해를 더 받는다
+    // 도파민 모드: 매혹된 적(우리 편)은 맞지 않는다. 떼가 붙은 적·변이된 적은 모든 피해를 더 받는다
+    if (e.charm > 0) return;
     if (e.infest > 0) dmg *= BALANCE.chaos.infestDamageMul;
+    if (e.poly > 0) dmg *= BALANCE.chaos.polyDamageMul;
     e.hp -= dmg;
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
     e.def.boss?.onDamaged?.(this, e);
@@ -1094,6 +1098,8 @@ export class World implements SimApi {
       frozen: 0,
       held: 0,
       infest: 0,
+      poly: 0,
+      charm: 0,
       burn: 0,
       color: -1,
       inflate: 0,

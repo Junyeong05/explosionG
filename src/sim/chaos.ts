@@ -85,9 +85,6 @@ const MAX_TRAPS = 36;
 export const TRAP_FLY_SEC = 0.45;
 /** 마법은 마법진을 이만큼 먼저 띄우고 발동한다 (포탑과 확 다르게, 예고가 보이게) */
 export const CAST_SEC = 0.7;
-/** 포탑이 서는 줄 (방어선에서 위로), 막는 몸 반지름 */
-export const TURRET_ROW_Y = 150;
-const TURRET_BODY = 15;
 /** 정령이 혼을 이만큼 모으면 터진다 */
 export const SOUL_BURST = 10;
 const MAX_SOULS = 40;
@@ -113,10 +110,12 @@ export class Chaos {
   readonly aim = new Map<string, number>();
   readonly firedAt = new Map<string, number>();
   private mounts = new Map<string, Mount>();
-  /** 포탑 체력 (앞에 설치돼 적을 막는다). down > 0 이면 부서져 다시 서는 중 */
-  readonly turrets = new Map<string, { hp: number; max: number; down: number }>();
-  /** 마법이 힘을 모으기 시작한 시각 (쿨다운이 끝난 뒤, 몰린 곳이 생길 때까지) */
-  readonly charging = new Map<string, number>();
+  /** 주문 분신: 이 시각까지 그 무기가 두 배로 자주 쓴다 */
+  readonly cloned = new Map<string, number>();
+  /** 주문 가속: 이 시각까지 모든 무기 쿨다운이 짧아진다 */
+  hasteUntil = 0;
+  /** 매혹된 적이 부딪친 적을 치는 간격 */
+  private charmTick = 0;
   /** 눌러서 고른 무기 (사거리·정보 표시, until 까지) */
   selected: { id: string; until: number } | null = null;
   private nextId = 1;
@@ -166,6 +165,9 @@ export class Chaos {
     let cd = spec.cd * this.eff(spec).cd * Math.max(0.5, 1 - 0.08 * this.lv('arm_haste'));
     if (spec.kind === 'gun' || spec.kind === 'beam') cd *= Math.max(0.5, 1 - 0.08 * this.lv('arm_gunsmith'));
     if (spec.cat === 'magic') cd *= Math.max(0.5, 1 - 0.08 * this.lv('arm_archmage'));
+    const t = this.w.time;
+    if ((this.cloned.get(id) ?? -1) > t) cd *= 0.5;
+    if (this.hasteUntil > t && spec.cat !== 'magic') cd *= 0.6;
     return cd;
   }
 
@@ -458,7 +460,7 @@ export class Chaos {
     }
     for (const [id, t] of this.cooldowns) this.cooldowns.set(id, t - dt);
     this.layoutMounts();
-    this.updateTurrets(dt);
+    this.updateCharmed(dt);
     this.updateWeapons();
     this.updateGate();
     for (let i = this.actors.length - 1; i >= 0; i--) {
@@ -480,18 +482,10 @@ export class Chaos {
     const perRow = 10;
     const gap = (W - 24) / (perRow - 1);
     const m = new Map<string, Mount>();
-    // 포탑: 방어선 앞 전장에 한 줄(5칸)씩 고르게 선다 (총은 방어선 뒤에서 쏘고, 포탑은 앞에 서서 막는다)
-    const turrets = this.owned().filter((id) => ARMS[id].cat === 'turret');
-    turrets.forEach((id, j) => {
-      const row = Math.floor(j / 5);
-      const inRow = Math.min(5, turrets.length - row * 5);
-      const k = j % 5;
-      m.set(id, { x: (W * (k + 1)) / (inRow + 1), y: this.LINE - TURRET_ROW_Y - row * 60, wall: 0 });
-    });
     let i = 0;
     for (const id of this.owned()) {
       const spec = ARMS[id];
-      if (spec.cat === 'hand' || spec.cat === 'passive' || spec.cat === 'turret') continue;
+      if (spec.cat === 'hand' || spec.cat === 'passive') continue;
       const row = Math.floor(i / perRow);
       const y = row === 0 ? this.LINE + 16 : this.LINE - 14 - (row - 1) * 30;
       const gun = (spec.kind === 'gun' || spec.kind === 'beam') && !!spec.p.look;
@@ -543,7 +537,6 @@ export class Chaos {
         this.keepRays(spec);
         continue;
       }
-      if (spec.cat === 'turret' && (this.turrets.get(id)?.down ?? 0) > 0) continue;
       const left = this.cooldowns.get(id);
       if (left === undefined) {
         // 얻자마자 처음 한 번은 금방
@@ -554,28 +547,13 @@ export class Chaos {
       this.curMul = this.dmgMul(spec);
       this.curRange = this.rangeOf(spec);
       if (spec.cat === 'magic') {
-        // 마법: 쿨다운이 끝나도 바로 안 쓰고 모은다. 몰린 곳이 생기거나 magicMaxHold 초가 되면,
-        // 모은 만큼 세게 (최대 ×2) 마법진을 띄우고 CAST_SEC 뒤 발동 (step 'cast')
-        const C = BALANCE.chaos;
-        let start = this.charging.get(id);
-        if (start === undefined) {
-          start = this.w.time;
-          this.charging.set(id, start);
-        }
-        const hold = this.w.time - start;
+        // 주문: 마법진을 먼저 띄우고 CAST_SEC 뒤 발동 (step 'cast'). 대상이 없으면 조금 뒤 다시 본다
         const spot = this.pickTarget('dense', undefined, this.curRange);
-        const crowd = spot ? this.w.enemiesNear(spot.x, spot.y, 80).length : 0;
-        if (spot && (crowd >= C.magicCrowd || hold >= C.magicMaxHold)) {
-          const mult = 1 + Math.min(1, hold / C.magicMaxHold);
-          this.curMul *= mult;
+        if (spot) {
           const a = this.add('cast', spot.x, spot.y, { ttl: CAST_SEC });
-          if (a) {
-            a.src = id;
-            a.left = Math.round(mult * 10);
-          }
-          this.charging.delete(id);
-          this.cooldowns.set(id, this.cooldownOf(id));
+          if (a) a.src = id;
         }
+        this.cooldowns.set(id, spot ? this.cooldownOf(id) : 0.2);
         this.curMul = 1;
         this.curRange = DEFAULT_RANGE;
         continue;
@@ -619,11 +597,13 @@ export class Chaos {
         return true;
       }
       case 'lob': {
-        const t = this.pickTarget(p.target ?? 'dense', mount, range);
+        // 포격: 자리에서 artyMinRange 안쪽(방어선 가까이 온 적)은 못 친다. 먼 뒷줄 무리를 친다
+        const min = spec.cat === 'turret' ? BALANCE.chaos.artyMinRange : 0;
+        const t = this.pickTarget(p.target ?? 'dense', mount, range, min);
         if (!t) return false;
         const n = (p.count ?? 1) + this.extra;
         for (let i = 0; i < n; i++) {
-          const tt = i === 0 ? t : this.pickTarget('random', mount, range) ?? t;
+          const tt = i === 0 ? t : this.pickTarget('random', mount, range, min) ?? t;
           const a = this.lob('thrown', from.x, from.y - 8, tt.x, tt.y, p.speed ?? 480);
           if (a) {
             a.p = p;
@@ -710,6 +690,72 @@ export class Chaos {
           if (p.knock && !e.dead) this.push(e, from.x, from.y, p.knock);
         }
         this.add('ring', from.x, from.y, { ttl: 0.5, r, emoji: p.color ?? '#ffd36b' });
+        return true;
+      }
+      case 'spell': {
+        // 주문: 피해 말고 규칙을 바꾼다
+        const C = BALANCE.chaos;
+        const n = (p.count ?? 1) + this.extra;
+        const dur = (p.ttl ?? 3) * this.durMul;
+        const pool = this.inZone(undefined, range).filter((e) => !e.def.boss);
+        switch (p.spell) {
+          case 'stop':
+            // 시간 정지: 사거리 안 적 전부 멈춤 (얼림과 달리 피해 배율 없음)
+            if (pool.length === 0) return false;
+            for (const e of pool) {
+              e.held = Math.max(e.held, dur);
+              e.pack = null;
+            }
+            w.emit({ type: 'shake', power: 0.2 });
+            break;
+          case 'poly':
+          case 'charm': {
+            // 변이: 아주 느리고 받는 피해 ×2 / 매혹: 잠깐 우리 편 (거슬러 올라가며 부딪친 적을 친다)
+            if (pool.length === 0) return false;
+            const picks = [...pool].sort((a, b) => b.y - a.y).slice(0, n);
+            for (const e of picks) {
+              e.pack = null;
+              if (p.spell === 'poly') e.poly = Math.max(e.poly, dur);
+              else e.charm = dur;
+              this.add('ring', e.x, e.y, { ttl: 0.4, r: 16, emoji: p.spell === 'poly' ? '#b4a0ff' : '#ff6fb5' });
+            }
+            break;
+          }
+          case 'recall': {
+            // 되돌리기: 앞줄 적을 화면 위쪽으로 순간이동 (시간을 번다)
+            if (pool.length === 0) return false;
+            const picks = [...pool].sort((a, b) => b.y - a.y).slice(0, n);
+            for (const e of picks) {
+              this.add('ring', e.x, e.y, { ttl: 0.4, r: 18, emoji: '#9fd8ff' });
+              e.pack = null;
+              e.kx = e.ky = 0;
+              e.y = w.rng.range(40, 120);
+              this.add('ring', e.x, e.y, { ttl: 0.4, r: 18, emoji: '#9fd8ff' });
+            }
+            break;
+          }
+          case 'clone': {
+            // 분신: 가진 무기 n 개가 dur 초 동안 두 배로 자주 쓴다
+            const mine = this.owned().filter((id) => {
+              const c = ARMS[id].cat;
+              return c !== 'passive' && c !== 'magic' && c !== 'hand' && (this.cloned.get(id) ?? -1) < w.time;
+            });
+            if (mine.length === 0) return false;
+            for (let i = 0; i < n && mine.length > 0; i++) {
+              const id = mine.splice(w.rng.int(mine.length), 1)[0];
+              this.cloned.set(id, w.time + dur);
+              this.cooldowns.set(id, 0);
+            }
+            break;
+          }
+          case 'haste':
+            // 가속: dur 초 동안 모든 무기 쿨다운 ×0.6
+            this.hasteUntil = w.time + dur;
+            break;
+          default:
+            return false;
+        }
+        void C;
         return true;
       }
       case 'toss': {
@@ -888,55 +934,26 @@ export class Chaos {
     return false;
   }
 
-  /**
-   * 포탑: 앞에 서서 닿은 적을 막는다 (멈춤). 막힌 적은 포탑을 깎고, 부서지면 turretDownSec 뒤 다시 선다.
-   * 포탑 근처 위쪽 적은 포탑 쪽으로 조금씩 끌려와 포탑 앞에 뭉친다.
-   */
-  private updateTurrets(dt: number): void {
+  /** 매혹된 적: 부딪친 적을 치고, 시간이 다 되거나 화면 위로 빠지면 사라진다 */
+  private updateCharmed(dt: number): void {
     const C = BALANCE.chaos;
     const w = this.w;
-    for (const id of this.turrets.keys()) if (this.lv(id) <= 0) this.turrets.delete(id);
-    for (const id of this.owned('turret')) {
-      const m = this.mounts.get(id);
-      if (!m) continue;
-      const max = C.turretHp * (1 + 0.5 * (this.lv(id) - 1)) * (1 + 0.15 * this.lv('arm_duration'));
-      let st = this.turrets.get(id);
-      if (!st) {
-        st = { hp: max, max, down: 0 };
-        this.turrets.set(id, st);
-      }
-      if (st.max !== max) {
-        st.hp += max - st.max;
-        st.max = max;
-      }
-      if (st.down > 0) {
-        st.down -= dt;
-        if (st.down <= 0) {
-          st.down = 0;
-          st.hp = st.max;
-          this.add('ring', m.x, m.y, { ttl: 0.4, r: 22, emoji: '#ffc94d' });
-        }
+    this.charmTick -= dt;
+    const tick = this.charmTick <= 0;
+    if (tick) this.charmTick = C.charmHitSec;
+    for (const e of w.enemies) {
+      if (e.dead || e.charm <= 0) continue;
+      e.charm -= dt;
+      if (e.charm <= 0 || e.y < -20) {
+        e.charm = 0;
+        e.dead = true;
+        this.add('ring', e.x, e.y, { ttl: 0.4, r: 16, emoji: '#ff6fb5' });
         continue;
       }
-      for (const e of w.enemies) {
-        if (e.dead || e.def.boss || e.pileCol >= 0) continue;
-        const dx = m.x - e.x;
-        const dy = m.y - e.y;
-        if (Math.abs(dx) < C.turretAggro && dy > 0 && dy < C.turretAggro * 1.8) {
-          // 끌려온다: 포탑 쪽으로 옆걸음
-          e.x += Math.sign(dx) * Math.min(Math.abs(dx), 45 * dt);
-        }
-        if (dx * dx + dy * dy <= (TURRET_BODY + e.radius) ** 2) {
-          e.held = Math.max(e.held, 0.1);
-          e.pack = null;
-          st.hp -= C.turretBite * (e.def.boss ? 5 : 1) * dt;
-        }
-      }
-      if (st.hp <= 0) {
-        st.hp = 0;
-        st.down = C.turretDownSec;
-        this.add('ring', m.x, m.y, { ttl: 0.5, r: 34, emoji: '#ff6b6b' });
-        w.emit({ type: 'shake', power: 0.3 });
+      if (!tick) continue;
+      for (const o of [...w.enemiesNear(e.x, e.y, e.radius + 6)]) {
+        if (o === e || o.dead || o.charm > 0) continue;
+        this.hit(o, C.charmHit * this.D, {}, w.newChain(1));
       }
     }
   }
@@ -1944,7 +1961,7 @@ export class Chaos {
   // ─── 대상 고르기 (사거리 안만) ─────────────────────────
 
   private visible(e: Enemy): boolean {
-    return !e.dead && e.y > 10 && e.y < this.LINE + 10 && e.x > 0 && e.x < this.w.field.width;
+    return !e.dead && e.charm <= 0 && e.y > 10 && e.y < this.LINE + 10 && e.x > 0 && e.x < this.w.field.width;
   }
 
   /** 사거리 안의 적. from 이 있으면 그 자리에서 반경, 없으면 방어선에서 위로 range 까지 */
@@ -1959,8 +1976,9 @@ export class Chaos {
     return out;
   }
 
-  private pickTarget(mode: 'front' | 'near' | 'strong' | 'random' | 'dense', from: Mount | { x: number; y: number; wall: number } | undefined, range: number): Enemy | null {
-    const pool = this.inZone(from, range);
+  private pickTarget(mode: 'front' | 'near' | 'strong' | 'random' | 'dense', from: Mount | { x: number; y: number; wall: number } | undefined, range: number, minRange = 0): Enemy | null {
+    let pool = this.inZone(from, range);
+    if (minRange > 0 && from) pool = pool.filter((e) => dist2(from.x, from.y, e.x, e.y) >= minRange * minRange);
     if (pool.length === 0) return null;
     switch (mode) {
       case 'random':
