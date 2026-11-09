@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연출 미리보기</title>
+<style>
+:root { --bg:#f3f1ea; --card:#fffdf7; --fg:#26241e; --mute:#6d685b; --line:#ddd7c8; --accent:#b4432e; color-scheme:light }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1b1c18; --card:#25261f; --fg:#ece8dc; --mute:#a7a291; --line:#3a3a31; --accent:#e0735c; color-scheme:dark } }
+:root[data-theme="dark"] { --bg:#1b1c18; --card:#25261f; --fg:#ece8dc; --mute:#a7a291; --line:#3a3a31; --accent:#e0735c; color-scheme:dark }
+body { background:var(--bg); color:var(--fg); font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; margin:0 }
+main { max-width:1200px; margin:0 auto; padding-block:24px 60px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)) }
+h1 { font-size:24px; margin:0 0 4px; text-wrap:balance }
+h2 { font-size:21px; margin:40px 0 4px; padding-top:8px; border-top:2px solid var(--line); scroll-margin-top:56px }
+.lead { color:var(--mute); margin:0 0 12px; max-width:75ch; font-size:14px }
+.note { margin:0 0 12px; max-width:75ch; font-size:13.5px; border-left:3px solid var(--accent); padding:2px 0 2px 10px }
+.top { position:sticky; top:env(safe-area-inset-top, 0px); z-index:5; background:var(--bg); display:flex; gap:10px 18px; flex-wrap:wrap; align-items:center; padding:8px 0; border-bottom:1px solid var(--line) }
+.top nav { display:flex; gap:16px; flex-wrap:wrap }
+.top a { color:var(--fg); text-decoration:none; font-weight:600 }
+.top a:hover { color:var(--accent) }
+#speed { display:flex; gap:6px; align-items:center; margin-left:auto }
+#speed button { border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:8px; padding:3px 10px; font:inherit; cursor:pointer }
+#speed button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); font-weight:600 }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; margin-top:12px }
+.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px; min-width:0 }
+.card canvas { width:100%; aspect-ratio:360 / 640; border-radius:8px; display:block; background:#0b0d14; cursor:pointer }
+.card.wide { grid-column:1 / -1 }
+.card.wide canvas { max-width:420px; margin:0 auto }
+.card .stat { font-size:12px; color:var(--mute); font-variant-numeric:tabular-nums; margin-top:4px; text-align:center }
+.card h4 { font-size:15px; margin:8px 0 2px }
+.tag { display:inline-block; font-size:12px; color:var(--accent); border:1px solid currentColor; border-radius:999px; padding:0 8px; font-weight:500; vertical-align:2px }
+.card p { margin:4px 0 0; color:var(--mute); font-size:13.5px }
+.card p.weap { color:var(--fg); font-size:13px }
+@media (max-width:560px) { .grid { grid-template-columns:1fr } .card canvas { max-width:380px; margin:0 auto } }
+</style>
+</head>
+<body>
+<main></main>
+<script>/*__SCRIPT__*/</script>
+</body>
+</html>

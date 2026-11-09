@@ -7,6 +7,7 @@
 - 실험 기록: [`docs/design/experiments-2026-11.md`](docs/design/experiments-2026-11.md) (과충전·연쇄 잇기·벼랑 끝·불씨 칠하기·짝 폭발형·쌓이는 바닥, 11-07 실험 21개)
 - 도파민 모드 무기고: [`docs/design/dopamine-catalog.md`](docs/design/dopamine-catalog.md) (갈래 15개 · 무기 312종 표, 확장·조정 기록, 리서치 원칙·출처)
 - **성장축 논의 기록 (지금 어디까지 왔나)**: [`docs/design/growth-axis-discussion.md`](docs/design/growth-axis-discussion.md) (유저 요청 원문, 나온 안과 반응, 지금 후보 4가지, 측정 도구)
+- **연출 미리보기 (실제 게임 화면을 HTML 한 파일로)**: [`docs/showcase/`](docs/showcase/) — 갈래 15개 `categories.html`. 만들기 `npm run showcase -- <이름>` (`tools/showcase/`)
 - **실어 나르기 (지금 고른 방향)**: [`docs/design/carry-links.md`](docs/design/carry-links.md) (갈래 15개 × 나르는 방식·실려서 열리는 모습 두 조각 → 연결 210가지)
 - 성장축 메인 시스템 안: [`docs/design/growth-axis-main-systems.md`](docs/design/growth-axis-main-systems.md) (형질 8개 표 하나 위에 A 형질 시너지 · B 형질 이식→각인 · C 배치형)
 - (버림) 성장축 기믹 14개: [`docs/design/growth-axis-more-ideas.md`](docs/design/growth-axis-more-ideas.md)

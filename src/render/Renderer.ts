@@ -67,7 +67,13 @@ export class Renderer {
   private chainResult = { kills: 0, links: 0, t: 0 };
   private ambientTimer = 0;
 
-  constructor(private readonly canvas: HTMLCanvasElement) {
+  /**
+   * fit: 그릴 크기(CSS px). 없으면 창 전체. 연출 미리보기(tools/showcase)는 카드 안 캔버스 크기를 준다
+   */
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly fit: () => { w: number; h: number } = () => ({ w: window.innerWidth, h: window.innerHeight }),
+  ) {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) throw new Error('Canvas2D 를 쓸 수 없습니다');
     this.ctx = ctx;
@@ -80,8 +86,7 @@ export class Renderer {
 
   resize(): void {
     this.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const { w, h } = this.fit();
     this.canvas.width = Math.round(w * this.dpr);
     this.canvas.height = Math.round(h * this.dpr);
     this.scale = Math.min(w / FW, h / FH);
