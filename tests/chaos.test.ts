@@ -54,6 +54,8 @@ describe('도파민 모드: 카테고리 무기고', () => {
       if (info.cat === 'passive') continue;
       const w = fresh();
       w.augments.acquire(d.id, w);
+      // 함정은 적이 걸어와 밟아야 터진다
+      if (info.cat === 'trap') for (const e of w.enemies) e.speed = e.def.speed;
       const hurt = () => w.kills > 0 || w.enemies.some((e) => e.hp < e.maxHp);
       for (let i = 0; i < 40 && !hurt(); i++) {
         if (info.cat === 'hand') {
@@ -248,9 +250,15 @@ describe('도파민 모드: 카테고리 무기고', () => {
     expect(seen.size).toBeGreaterThanOrEqual(12);
   });
 
-  it('함정은 적 발밑에 깔리고, 밟히면 터진다', () => {
+  it('함정은 자리에서 던져져 적이 올 길에 깔리고, 밟히면 터진다', () => {
     const w = arena();
+    for (const e of w.enemies) e.speed = e.def.speed;
     w.augments.acquire('arm_tr_mines', w);
+    stepFor(w, 0.85);
+    const traps = w.chaos!.actors.filter((a) => a.kind === 'trap');
+    expect(traps.length).toBeGreaterThan(0);
+    // 깔린 자리는 적보다 아래 (적이 걸어올 길)
+    for (const t of traps) expect(t.y).toBeGreaterThan(Math.min(...w.enemies.map((e) => e.y)));
     stepFor(w, 0.9);
     const before = w.enemies.filter((e) => e.hp < e.maxHp || e.dead).length;
     stepFor(w, 1.5);
@@ -265,6 +273,63 @@ describe('도파민 모드: 카테고리 무기고', () => {
     const drones = w.chaos!.actors.filter((a) => a.kind === 'drone');
     expect(drones.filter((a) => a.src === 'arm_sl_fairy')).toHaveLength(1);
     expect(drones.filter((a) => a.src === 'arm_sl_ghost')).toHaveLength(1);
+  });
+
+  it('갈래마다 행동이 다르다: 마법은 마법진 뒤 발동, 투척은 튕겨 여럿을 맞힘, 떼는 구름, 광선은 이어진 줄기', () => {
+    const w = arena();
+    w.augments.acquire('arm_meteor', w);
+    stepFor(w, 0.85);
+    expect(w.chaos!.actors.some((a) => a.kind === 'cast')).toBe(true);
+    stepFor(w, 1);
+    expect(w.chaos!.actors.some((a) => a.kind === 'cast')).toBe(false);
+
+    const t = arena();
+    t.augments.acquire('arm_th_melon', t);
+    stepFor(t, 3);
+    // 약한 적은 한 방에 죽어 목록에서 빠진다: 처치 수 + 다친 적
+    expect(t.kills + t.enemies.filter((e) => e.hp < e.maxHp).length).toBeGreaterThanOrEqual(2);
+
+    const s = arena();
+    s.augments.acquire('arm_sw_mosquito', s);
+    stepFor(s, 1.2);
+    expect(s.chaos!.actors.filter((a) => a.kind === 'swarm')).toHaveLength(1);
+
+    const r = arena();
+    r.augments.acquire('arm_r_rainbow', r);
+    stepFor(r, 0.9);
+    const ray = r.chaos!.actors.find((a) => a.kind === 'ray');
+    expect(ray).toBeDefined();
+    expect(ray!.ttl).toBeGreaterThan(0.5);
+  });
+
+  it('소환수는 방어선 여기저기서 나와 각자 다른 적을 맡는다', () => {
+    const w = arena();
+    w.augments.acquire('arm_su_wolf', w);
+    stepFor(w, 0.9);
+    const walkers = w.chaos!.actors.filter((a) => a.kind === 'walker');
+    expect(walkers.length).toBe(3);
+    stepFor(w, 0.1);
+    const targets = new Set(walkers.map((a) => a.target?.id));
+    expect(targets.size).toBe(3);
+    expect(new Set(walkers.map((a) => Math.round(a.x))).size).toBe(3);
+  });
+
+  it('정령은 처치한 적의 혼을 모으고, 다 모으면 터진다', () => {
+    const w = arena();
+    w.augments.acquire('arm_sl_fairy', w);
+    stepFor(w, 0.2);
+    const fairy = w.chaos!.actors.find((a) => a.kind === 'drone')!;
+    const souls = () => w.chaos!.actors.filter((a) => a.kind === 'soul').length;
+    const before = souls();
+    for (const e of w.enemies.slice(0, 3)) w.chaos!.onKill(e);
+    expect(souls()).toBe(before + 3);
+    stepFor(w, 2);
+    expect(fairy.left).toBeGreaterThanOrEqual(3);
+    fairy.left = 10;
+    const bullets = w.chaos!.actors.filter((a) => a.kind === 'bullet').length;
+    stepFor(w, 1 / 60);
+    expect(fairy.left).toBe(0);
+    expect(w.chaos!.actors.filter((a) => a.kind === 'bullet').length).toBeGreaterThanOrEqual(bullets + 16);
   });
 
   it('봇이 도파민 모드 엔드리스 한 판을 끝까지 돌려도 터지지 않고, 판 끝엔 무기가 여럿이다', () => {

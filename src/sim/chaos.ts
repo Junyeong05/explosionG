@@ -20,7 +20,7 @@ export type ActorKind =
   | 'meteor' | 'dino' | 'cow' | 'ufo' | 'plane' | 'bomb' | 'cannon' | 'shell' | 'sheep' | 'banana' | 'bananaBit'
   | 'donkey' | 'train' | 'dragon' | 'tornado' | 'slot' | 'cookie' | 'soldier' | 'fireball' | 'laser' | 'frost'
   | 'bullet' | 'beam' | 'thrown' | 'walker' | 'stamp' | 'saw' | 'vortex' | 'bubble' | 'drone' | 'storm'
-  | 'faller' | 'sweep' | 'ring' | 'chill' | 'trap';
+  | 'faller' | 'sweep' | 'ring' | 'chill' | 'trap' | 'ray' | 'tossed' | 'swarm' | 'soul' | 'cast';
 
 export interface Actor {
   id: number;
@@ -81,6 +81,13 @@ const SLOT_EMOJI = ['🦖', '🐄', '☄️', '🛸', '🐑', '🍌', '7️⃣']
 const BURST_GAP = 0.07;
 /** 화면에 동시에 깔리는 함정 수 (넘으면 오래된 것부터 걷는다) */
 const MAX_TRAPS = 36;
+/** 함정이 자리에서 던져져 바닥에 꽂히기까지 (그리기도 씀) */
+export const TRAP_FLY_SEC = 0.45;
+/** 마법은 마법진을 이만큼 먼저 띄우고 발동한다 (포탑과 확 다르게, 예고가 보이게) */
+export const CAST_SEC = 0.7;
+/** 정령이 혼을 이만큼 모으면 터진다 */
+export const SOUL_BURST = 10;
+const MAX_SOULS = 40;
 /** 한 줄 10칸을 채우는 순서: 가운데부터 좌우로 */
 const CENTER_OUT = [5, 4, 6, 3, 7, 2, 8, 1, 9, 0];
 
@@ -383,8 +390,25 @@ export class Chaos {
     return BALANCE.chaos.xpMul * (1 + 0.2 * this.lv('arm_xp'));
   }
 
-  onKill(_e: Enemy): void {
+  onKill(e: Enemy): void {
     this.heat++;
+    // 정령이 있으면 처치한 적의 혼이 아무 정령에게나 빨려 간다 (정령은 혼을 모아 터진다)
+    let drones = 0;
+    let souls = 0;
+    for (const a of this.actors) {
+      if (a.kind === 'drone') drones++;
+      else if (a.kind === 'soul') souls++;
+    }
+    if (drones === 0 || souls >= MAX_SOULS) return;
+    let pick = this.w.rng.int(drones);
+    for (const a of this.actors) {
+      if (a.kind !== 'drone') continue;
+      if (pick-- === 0) {
+        const s = this.add('soul', e.x, e.y, { ttl: 3, n: a.id });
+        if (s) s.emoji = this.eff(ARMS[a.src]).p.color ?? '#b4a0ff';
+        break;
+      }
+    }
   }
 
   private get areaMul(): number {
@@ -508,6 +532,18 @@ export class Chaos {
       if (left > 0) continue;
       this.curMul = this.dmgMul(spec);
       this.curRange = this.rangeOf(spec);
+      if (spec.cat === 'magic') {
+        // 마법: 마법진을 먼저 띄우고 CAST_SEC 뒤 발동 (step 'cast')
+        const spot = this.pickTarget('dense', undefined, this.curRange);
+        if (spot) {
+          const a = this.add('cast', spot.x, spot.y, { ttl: CAST_SEC });
+          if (a) a.src = id;
+        }
+        this.cooldowns.set(id, spot ? this.cooldownOf(id) : 0.2);
+        this.curMul = 1;
+        this.curRange = DEFAULT_RANGE;
+        continue;
+      }
       const fired = this.fire(spec);
       // 사거리 안에 적이 없어서 못 쐈으면 조금 뒤 다시 본다
       this.cooldowns.set(id, fired ? this.cooldownOf(id) : 0.2);
@@ -547,29 +583,21 @@ export class Chaos {
         return true;
       }
       case 'beam': {
+        // 광선: 빛줄기가 ttl 동안 이어진 채 부채꼴로 훑으며 닿는 적을 계속 지진다 (총은 탄, 광선은 줄기)
         const t = this.pickTarget(p.target ?? 'front', mount, range);
         if (!t) return false;
         const ang = Math.atan2(t.y - from.y, t.x - from.x);
         this.aim.set(spec.id, ang);
         this.firedAt.set(spec.id, w.time);
-        const x2 = from.x + Math.cos(ang) * range;
-        const y2 = from.y + Math.sin(ang) * range;
-        const width = p.width ?? 3;
-        const hits: { e: Enemy; d: number }[] = [];
-        for (const e of w.enemies) {
-          if (e.dead) continue;
-          const d = segDist(from.x, from.y, x2, y2, e.x, e.y);
-          if (d <= width + e.radius) hits.push({ e, d: dist2(from.x, from.y, e.x, e.y) });
+        const dur = p.ttl ?? 0.8;
+        const sweep = 0.55 * (w.rng.chance(0.5) ? 1 : -1);
+        const a = this.add('ray', from.x, from.y, { ttl: dur, p, dmg: (p.dmg ?? 2) * D * 0.3, r: p.width ?? 3, n: ang - sweep / 2 });
+        if (a) {
+          a.vx = sweep / dur;
+          a.left = range;
+          a.emoji = p.color ?? '#ff3cc8';
+          a.src = spec.id;
         }
-        hits.sort((a, b) => a.d - b.d);
-        const chainId = w.newChain(1);
-        const pierce = (p.pierce ?? 0) + this.lv('arm_pierce');
-        for (const h of hits.slice(0, pierce + 1)) {
-          this.hit(h.e, (p.dmg ?? 2) * D, p, chainId);
-          if (p.chain) this.chainZap(h.e, p.chain, (p.dmg ?? 2) * D * 0.5);
-        }
-        const a = this.add('beam', from.x, from.y, { tx: x2, ty: y2, ttl: 0.15, r: width, p });
-        if (a) a.emoji = p.color ?? '#ff3cc8';
         w.emit({ type: 'gunFire', x: from.x, y: from.y, angle: ang, big: true });
         return true;
       }
@@ -590,16 +618,21 @@ export class Chaos {
         return true;
       }
       case 'zap': {
-        const chainId = w.newChain(1);
-        let any = false;
+        // 번개 줄기: 여러 적에게 동시에 이어져 0.6초 지진다 (광선 갈래)
+        const used = new Set<number>();
         for (let i = 0; i < (p.count ?? 3) + this.extra; i++) {
           const e = this.pickTarget('random', mount, range);
-          if (!e) break;
-          any = true;
-          w.emit({ type: 'bolt', kind: 'lightning', x1: from.x, y1: from.y - 10, x2: e.x, y2: e.y });
-          w.spawnExplosion({ x: e.x, y: e.y, radius: 20, damage: (p.dmg ?? 1) * D, chainId, source: 'lightning' });
+          if (!e || used.has(e.id)) continue;
+          used.add(e.id);
+          const a = this.add('ray', from.x, from.y - 10, { ttl: 0.6, p, dmg: (p.dmg ?? 1) * D * 0.35, r: 2 });
+          if (a) {
+            a.target = e;
+            a.dir = -1;
+            a.emoji = p.color ?? '#9fe8ff';
+            a.src = spec.id;
+          }
         }
-        return any;
+        return used.size > 0;
       }
       case 'column': {
         const t = this.pickTarget('dense', undefined, range);
@@ -679,8 +712,39 @@ export class Chaos {
         this.add('ring', from.x, from.y, { ttl: 0.5, r, emoji: p.color ?? '#ffd36b' });
         return true;
       }
+      case 'toss': {
+        // 투척: 던진 물건이 적에 맞고 통통 튕겨 다음 적으로 옮겨 간다 (포탑처럼 한 점에서 터지지 않는다)
+        const t = this.pickTarget(p.target ?? 'front', mount, range);
+        if (!t) return false;
+        for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
+          const tt = i === 0 ? t : this.pickTarget('random', mount, range) ?? t;
+          const a = this.lob('tossed', from.x, from.y - 8, tt.x, tt.y, p.speed ?? 440);
+          if (a) {
+            a.p = p;
+            a.emoji = p.emoji ?? null;
+            a.dmg = (p.dmg ?? 2) * D;
+            a.src = spec.id;
+            a.left = p.bounce ?? 3;
+            a.hits = new Set();
+            a.dir = 1;
+          }
+        }
+        return true;
+      }
+      case 'swarm': {
+        // 떼: 작은 것 수십 마리가 한 구름으로 몰려가 덮은 적 전부를 갉는다 (소환수는 하나하나, 떼는 한 덩어리)
+        const t = this.pickTarget('dense', mount, range);
+        if (!t) return false;
+        const k = (p.count ?? 3) + this.extra;
+        const a = this.add('swarm', from.x, from.y - 10, { ttl: (p.ttl ?? 4) * this.durMul, p, emoji: p.emoji ?? '🦟', dmg: (p.dmg ?? 0.6) * D, r: (20 + 3 * k) * this.areaMul, n: 6 + 3 * k });
+        if (a) {
+          a.target = t;
+          a.src = spec.id;
+        }
+        return true;
+      }
       case 'trap': {
-        // 함정: 적이 걸어올 길(조금 아래) 위에 깔아 두고, 밟히면 터진다. 화면에 너무 많으면 오래된 것부터 걷는다
+        // 함정: 자리에서 던져 적이 걸어올 길(조금 아래) 바닥에 꽂아 두고, 밟히면 터진다. 화면에 너무 많으면 오래된 것부터 걷는다
         let any = false;
         for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
           const t = this.pickTarget(i === 0 ? (p.target ?? 'front') : 'random', mount, range);
@@ -688,21 +752,28 @@ export class Chaos {
           any = true;
           const traps = this.actors.filter((a) => a.kind === 'trap');
           if (traps.length >= MAX_TRAPS) this.actors.splice(this.actors.indexOf(traps[0]), 1);
-          // 바로 앞 발밑 (멀리 깔면 적이 비켜 가서 안 밟혔다)
-          const x = clamp(t.x + w.rng.range(-8, 8), 12, w.field.width - 12);
-          const y = clamp(t.y + 10 + w.rng.range(0, 14), 40, this.LINE - 12);
-          const a = this.add('trap', x, y, { ttl: (p.ttl ?? 12) * this.durMul, p, emoji: p.emoji ?? '🪤', dmg: (p.dmg ?? 3) * D, r: (p.boom ?? 40) * this.areaMul, left: p.melee ?? 1 });
-          if (a) a.src = spec.id;
+          // 적이 걸어올 길 위 (적보다 조금 아래). 깔린 게 보이게 바로 밑이 아니라 한 걸음 앞
+          const x = clamp(t.x + w.rng.range(-12, 12), 12, w.field.width - 12);
+          const y = clamp(t.y + w.rng.range(45, 90), 40, this.LINE - 16);
+          const a = this.add('trap', from.x, from.y - 6, { ttl: (p.ttl ?? 12) * this.durMul + TRAP_FLY_SEC, p, emoji: p.emoji ?? '🪤', dmg: (p.dmg ?? 3) * D, r: (p.boom ?? 40) * this.areaMul, left: p.melee ?? 1, tx: x, ty: y });
+          if (a) {
+            a.src = spec.id;
+            // 던진 자리 (날아가는 동안 쓴다)
+            a.vx = from.x;
+            a.vy = from.y - 6;
+          }
         }
         return any;
       }
       case 'walker': {
         if (!this.pickTarget('front', undefined, range)) return false;
+        // 소환수: 방어선 여기저기에서 하나씩 나와 (한 자리에서 우르르 나오지 않게) 각자 다른 적을 맡는다 (stepWalker)
         const n = (p.count ?? 1) + this.extra;
         for (let i = 0; i < n; i++) {
-          this.add('walker', from.x + (i - (n - 1) / 2) * 10, from.y, {
-            ttl: 12 * this.durMul, p, emoji: p.emoji ?? '💂', dmg: (p.dmg ?? 2) * D, r: range, left: p.melee ?? 0,
-          });
+          const x = w.rng.range(20, w.field.width - 20);
+          const y = this.LINE - 4;
+          this.add('walker', x, y, { ttl: 12 * this.durMul, p, emoji: p.emoji ?? '💂', dmg: (p.dmg ?? 2) * D, r: range, left: p.melee ?? 0 });
+          this.add('ring', x, y, { ttl: 0.35, r: 14, emoji: '#7dff9a' });
         }
         return true;
       }
@@ -1010,6 +1081,14 @@ export class Chaos {
         return true;
       }
       case 'trap': {
+        // 날아가는 중: 자리에서 꽂힐 곳까지 (그리기가 포물선으로 띄운다). 꽂히면 "착"
+        if (a.t < TRAP_FLY_SEC) {
+          const k = Math.min(1, (a.t + dt) / TRAP_FLY_SEC);
+          a.x = a.vx + (a.tx - a.vx) * k;
+          a.y = a.vy + (a.ty - a.vy) * k;
+          if (k >= 1) this.add('ring', a.tx, a.ty, { ttl: 0.3, r: Math.min(a.r, 30), emoji: a.p?.color ?? '#ff8a3c' });
+          return true;
+        }
         // 밟히면 터진다 (left 번까지, 터진 뒤 잠깐 쉼)
         if (a.cd > 0) {
           a.cd -= dt;
@@ -1026,6 +1105,133 @@ export class Chaos {
       }
       case 'walker':
         return this.stepWalker(a, dt);
+      case 'cast': {
+        // 마법진이 다 차면 발동
+        if (a.t + dt < a.ttl) return true;
+        const spec = ARMS[a.src];
+        if (spec && this.lv(a.src) > 0) {
+          this.curMul = a.m;
+          this.curRange = this.rangeOf(spec);
+          this.fire(spec);
+          this.curMul = 1;
+          this.curRange = DEFAULT_RANGE;
+        }
+        return false;
+      }
+      case 'ray': {
+        // 이어진 줄기: 적에게 매달리거나(번개) 부채꼴로 훑는다(빛). 0.1초마다 닿은 적을 지진다
+        const p = a.p ?? {};
+        if (a.target) {
+          if (a.target.dead) return false;
+          a.tx = a.target.x;
+          a.ty = a.target.y;
+        } else {
+          a.n += a.vx * dt;
+          a.tx = a.x + Math.cos(a.n) * a.left;
+          a.ty = a.y + Math.sin(a.n) * a.left;
+        }
+        a.cd -= dt;
+        if (a.cd <= 0) {
+          a.cd = 0.1;
+          const chainId = w.newChain(1);
+          if (a.target) this.hit(a.target, a.dmg, p, chainId);
+          else {
+            let first: Enemy | null = null;
+            for (const e of [...w.enemies]) {
+              if (e.dead || segDist(a.x, a.y, a.tx, a.ty, e.x, e.y) > a.r + e.radius) continue;
+              first ??= e;
+              this.hit(e, a.dmg, p, chainId);
+            }
+            if (first && p.chain && a.t < 0.1) this.chainZap(first, p.chain, a.dmg);
+          }
+        }
+        return true;
+      }
+      case 'tossed': {
+        a.x += a.vx * dt;
+        a.y += a.vy * dt;
+        if (a.t + dt < a.ttl - 0.02) return true;
+        const p = a.p ?? {};
+        let hitE: Enemy | null = null;
+        for (const e of w.enemiesNear(a.tx, a.ty, 24)) if (!e.dead && !a.hits!.has(e.id)) { hitE = e; break; }
+        if (hitE) {
+          a.hits!.add(hitE.id);
+          this.hit(hitE, a.dmg, p, w.newChain(1));
+          if (p.boom) this.boom(a.tx, a.ty, Math.min(24, p.boom * 0.4) * this.areaMul, a.dmg * 0.35, p);
+          if (p.chain) this.chainZap(hitE, p.chain, a.dmg * 0.5);
+          this.add('ring', a.tx, a.ty, { ttl: 0.2, r: 12, emoji: '#ffd36b' });
+        }
+        if (a.left > 0) {
+          // 아직 안 맞힌 가장 가까운 적에게 통 튕겨 간다
+          let next: Enemy | null = null;
+          let bd = 140 * 140;
+          for (const e of w.enemies) {
+            if (e.dead || a.hits!.has(e.id) || !this.visible(e)) continue;
+            const d = dist2(a.tx, a.ty, e.x, e.y);
+            if (d < bd) {
+              bd = d;
+              next = e;
+            }
+          }
+          if (next) {
+            const b = this.lob('tossed', a.tx, a.ty, next.x, next.y, 380);
+            if (b) {
+              b.p = p;
+              b.emoji = a.emoji;
+              b.dmg = a.dmg * 0.85;
+              b.src = a.src;
+              b.left = a.left - 1;
+              b.hits = a.hits;
+              b.m = a.m;
+              b.dir = 0;
+            }
+          }
+        }
+        return false;
+      }
+      case 'swarm': {
+        // 구름: 몰린 곳으로 흘러가 덮은 적을 0.25초마다 갉는다
+        const p = a.p ?? {};
+        let t = a.target && !a.target.dead && this.visible(a.target) ? a.target : null;
+        if (!t) {
+          t = this.pickTarget('dense', { x: a.x, y: a.y, wall: 0 }, 220) ?? this.pickTarget('dense', undefined, this.LINE - 50);
+          a.target = t;
+        }
+        if (t) {
+          const dx = t.x - a.x;
+          const dy = t.y - a.y;
+          const d = Math.hypot(dx, dy) || 1;
+          const sp = Math.min(d / dt, (p.speed ?? 220) * 0.6);
+          a.x += (dx / d) * sp * dt;
+          a.y += (dy / d) * sp * dt;
+        }
+        a.cd -= dt;
+        if (a.cd <= 0) {
+          a.cd = 0.25;
+          const chainId = w.newChain(1);
+          const under = [...w.enemiesNear(a.x, a.y, a.r)];
+          for (const e of under) if (!e.dead) this.hit(e, a.dmg, p, chainId);
+          if (p.chain && under.length > 0 && w.rng.chance(0.3)) this.chainZap(under[0], p.chain, a.dmg);
+        }
+        return true;
+      }
+      case 'soul': {
+        // 처치한 적의 혼이 정령에게 빨려 간다
+        let d: Actor | null = null;
+        for (const x of this.actors) if (x.kind === 'drone' && x.id === a.n) d = x;
+        if (!d) return false;
+        const dx = d.x - a.x;
+        const dy = d.y - a.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const sp = 140 + 560 * Math.min(1, a.t / 0.7);
+        if (dist <= sp * dt + 6) {
+          d.left++;
+          return false;
+        }
+        a.x += (dx / dist) * sp * dt;
+        a.y += (dy / dist) * sp * dt;
+        return true;
+      }
       case 'stamp': {
         a.x += a.vx * dt;
         a.y += a.vy * dt;
@@ -1104,6 +1310,15 @@ export class Chaos {
           const t = this.pickTarget('front', { x: a.x, y: a.y, wall: 0 }, a.r);
           a.cd = this.cooldownOf(a.src);
           if (t) this.bullet(a.src, a.x, a.y, Math.atan2(t.y - a.y, t.x - a.x), p, a.dmg, a.r, 0);
+        }
+        // 혼을 SOUL_BURST 개 모으면 터진다: 사방으로 혼탄 열여섯 발
+        if (a.left >= SOUL_BURST) {
+          a.left = 0;
+          const p = this.eff(ARMS[a.src]).p;
+          const bp = { ...p, pierce: (p.pierce ?? 0) + 1 };
+          for (let i = 0; i < 16; i++) this.bullet(a.src, a.x, a.y, (i / 16) * Math.PI * 2, bp, a.dmg * 2.5, 360, 0);
+          this.add('ring', a.x, a.y, { ttl: 0.5, r: 60, emoji: p.color ?? '#b4a0ff' });
+          w.emit({ type: 'shake', power: 0.25 });
         }
         return true;
       }
@@ -1445,7 +1660,11 @@ export class Chaos {
     const w = this.w;
     const p = a.p ?? {};
     const speed = p.speed ?? 100;
-    const t = this.nearestInZone(a.x, a.y, a.r);
+    let t = a.target && !a.target.dead && this.visible(a.target) ? a.target : null;
+    if (!t) {
+      t = this.walkerTarget(a);
+      a.target = t;
+    }
     a.cd -= dt;
     if (t) {
       const dx = t.x - a.x;
@@ -1688,6 +1907,24 @@ export class Chaos {
         return b;
       }
     }
+  }
+
+  /** 소환수가 맡을 적: 다른 소환수가 아직 안 맡은 적 중 가장 가까운 것 (다 맡았으면 가장 가까운 것) */
+  private walkerTarget(a: Actor): Enemy | null {
+    const pool = this.inZone(undefined, a.r);
+    if (pool.length === 0) return null;
+    const claimed = new Map<number, number>();
+    for (const o of this.actors) if (o !== a && o.kind === 'walker' && o.target && !o.target.dead) claimed.set(o.target.id, (claimed.get(o.target.id) ?? 0) + 1);
+    let best: Enemy | null = null;
+    let bs = Infinity;
+    for (const e of pool) {
+      const s = (claimed.get(e.id) ?? 0) * 1e7 + dist2(a.x, a.y, e.x, e.y);
+      if (s < bs) {
+        bs = s;
+        best = e;
+      }
+    }
+    return best;
   }
 
   private nearestInZone(x: number, y: number, range: number): Enemy | null {

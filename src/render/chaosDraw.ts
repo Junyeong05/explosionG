@@ -1,7 +1,7 @@
 import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
-import type { Actor } from '../sim/chaos';
+import { CAST_SEC, SOUL_BURST, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
 import type { GlowCache } from './fx/effects';
@@ -648,11 +648,16 @@ export class ChaosDraw {
       }
       case 'faller': {
         const size = a.p?.size ?? 26;
-        if (a.y > -20) {
+        // 떨어질 자리에 그림자: 가까워질수록 짙고 커진다 (공중 갈래의 예고)
+        {
+          const near = clamp(1 - (a.ty - a.y) / 600, 0, 1);
+          const rr = (a.r || 20) * (0.35 + 0.45 * near);
           ctx.beginPath();
-          ctx.arc(a.tx, a.ty, (a.r || 20) * 0.4 + 4 * Math.sin(this.time * 20), 0, TAU);
-          ctx.strokeStyle = rgba('#ff7a3c', 0.5);
-          ctx.lineWidth = 1.2;
+          ctx.ellipse(a.tx, a.ty + 2, rr, rr * 0.42, 0, 0, TAU);
+          ctx.fillStyle = rgba('#000000', 0.18 + 0.32 * near);
+          ctx.fill();
+          ctx.strokeStyle = rgba('#ff7a3c', 0.25 + 0.4 * near);
+          ctx.lineWidth = 1;
           ctx.stroke();
         }
         this.icon(a.emoji ?? '☄️', a.x, a.y, size, false, size > 50 ? Math.sin(a.t * 6) * 0.2 : a.t * 4);
@@ -668,13 +673,154 @@ export class ChaosDraw {
         this.icon(a.p?.emoji ?? '⚙️', a.x, a.y, 24, false, a.t * 18);
         break;
       case 'trap': {
-        // 깔린 함정: 작게, 밟힐 수 있는 범위를 옅게
+        const col = a.p?.color ?? '#ff8a3c';
+        if (a.t < TRAP_FLY_SEC) {
+          // 자리에서 포물선으로 던져진다
+          const f = a.t / TRAP_FLY_SEC;
+          this.icon(a.emoji ?? '🪤', a.x, a.y - Math.sin(Math.PI * f) * 46, 16, false, a.t * 12);
+          ctx.beginPath();
+          ctx.ellipse(a.tx, a.ty + 3, 9 * f, 4 * f, 0, 0, TAU);
+          ctx.fillStyle = rgba('#000000', 0.3 * f);
+          ctx.fill();
+          break;
+        }
+        // 깔린 함정: 바닥 자국 + 깜빡이는 "장전" 고리 + 밟히면 터지는 범위
+        const pulse = 0.5 + 0.5 * Math.sin(this.time * 7 + a.id);
         ctx.beginPath();
-        ctx.arc(a.x, a.y, Math.min(a.r, 30) * 0.5, 0, TAU);
-        ctx.strokeStyle = rgba(a.p?.color ?? '#ff8a3c', 0.25 + 0.15 * Math.sin(this.time * 6 + a.id));
+        ctx.ellipse(a.x, a.y + 4, 13, 5, 0, 0, TAU);
+        ctx.fillStyle = rgba('#000000', 0.35);
+        ctx.fill();
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, Math.min(a.r, 40), 0, TAU);
+        ctx.strokeStyle = rgba(col, 0.18 + 0.12 * pulse);
         ctx.lineWidth = 1;
         ctx.stroke();
-        this.icon(a.emoji ?? '🪤', a.x, a.y, 14);
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 11 + 2 * pulse, 0, TAU);
+        ctx.strokeStyle = rgba(col, 0.55 + 0.35 * pulse);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        this.icon(a.emoji ?? '🪤', a.x, a.y, 19);
+        break;
+      }
+      case 'cast': {
+        // 마법진: 돌면서 커지는 이중 고리 + 눈금 + 가운데 마법 그림, 다 차면 발동
+        const f = clamp(a.t / CAST_SEC, 0, 1);
+        const spec = ARMS[a.src];
+        const R = 26 + 30 * Math.sqrt(f);
+        const rot = this.time * 2.2;
+        ctx.save();
+        ctx.translate(a.x, a.y);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.35 + 0.5 * f;
+        ctx.drawImage(this.glow.get('#c77dff'), -R * 1.3, -R * 1.3, R * 2.6, R * 2.6);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = rgba('#e0b8ff', 0.5 + 0.5 * f);
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, rot, rot + TAU * f);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 0.72, -rot, -rot + TAU);
+        ctx.stroke();
+        for (let i = 0; i < 12; i++) {
+          const g = rot + (i / 12) * TAU;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(g) * R * 0.78, Math.sin(g) * R * 0.78);
+          ctx.lineTo(Math.cos(g) * R * 0.94, Math.sin(g) * R * 0.94);
+          ctx.stroke();
+        }
+        // 삼각형 두 개 (별 모양)
+        for (const off of [0, Math.PI]) {
+          ctx.beginPath();
+          for (let i = 0; i <= 3; i++) {
+            const g = -rot * 0.5 + off + (i / 3) * TAU;
+            const px = Math.cos(g) * R * 0.66;
+            const py = Math.sin(g) * R * 0.66;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.restore();
+        if (spec) this.icon(spec.emoji, a.x, a.y, 18 + 10 * f);
+        break;
+      }
+      case 'ray': {
+        const col = a.emoji ?? '#ff3cc8';
+        const fade = Math.min(1, (a.ttl - a.t) / 0.15) * Math.min(1, a.t / 0.05 + 0.3);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        if (a.dir === -1) {
+          // 번개 줄기: 들쭉날쭉, 매 프레임 바뀐다
+          ctx.strokeStyle = rgba(col, 0.85 * fade);
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          const segs = 7;
+          for (let i = 1; i < segs; i++) {
+            const k2 = i / segs;
+            const j = (Math.sin(this.time * 90 + i * 7.3 + a.id) * 0.5) * 12;
+            ctx.lineTo(a.x + (a.tx - a.x) * k2 + j, a.y + (a.ty - a.y) * k2 - j * 0.5);
+          }
+          ctx.lineTo(a.tx, a.ty);
+          ctx.stroke();
+        } else {
+          // 빛줄기: 굵은 빛 + 하얀 심, 살짝 떨린다
+          const wob = 1 + 0.15 * Math.sin(this.time * 50 + a.id);
+          ctx.strokeStyle = rgba(col, 0.45 * fade);
+          ctx.lineWidth = a.r * 3 * wob;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(a.tx, a.ty);
+          ctx.stroke();
+          ctx.strokeStyle = rgba('#ffffff', 0.9 * fade);
+          ctx.lineWidth = Math.max(1, a.r * 0.7);
+          ctx.stroke();
+          ctx.globalAlpha = 0.7 * fade;
+          ctx.drawImage(this.glow.get(col), a.tx - 12, a.ty - 12, 24, 24);
+          ctx.globalAlpha = 1;
+        }
+        ctx.lineCap = 'butt';
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'tossed': {
+        // 통통: 처음 던질 땐 높게, 튕길 땐 낮게
+        const y = a.y - Math.sin(Math.PI * k) * (a.dir === 0 ? 26 : 58);
+        this.icon(a.emoji ?? '🪨', a.x, y, a.dir === 0 ? 16 : 18, false, a.t * 14);
+        break;
+      }
+      case 'swarm': {
+        // 구름: 옅은 그늘 + 작은 것들이 제멋대로 맴돈다
+        const fade = Math.min(1, (a.ttl - a.t) / 0.4) * Math.min(1, a.t / 0.2);
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r, 0, TAU);
+        ctx.fillStyle = rgba('#000000', 0.16 * fade);
+        ctx.fill();
+        const size = a.p?.size ?? 10;
+        for (let i = 0; i < a.n; i++) {
+          const g = i * 2.399 + this.time * (1.6 + (i % 3) * 0.5) * (i % 2 ? 1 : -1);
+          const rad = a.r * (0.3 + 0.7 * ((i * 0.618) % 1)) * (0.85 + 0.15 * Math.sin(this.time * 4 + i));
+          this.icon(a.emoji ?? '🦟', a.x + Math.cos(g) * rad, a.y + Math.sin(g) * rad * 0.8, size, Math.cos(g) > 0, 0, fade);
+        }
+        break;
+      }
+      case 'soul': {
+        // 혼: 정령 색 작은 불꽃이 꼬리를 끌며 날아간다
+        const col = a.emoji ?? '#b4a0ff';
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.9;
+        ctx.drawImage(this.glow.get(col), a.x - 9, a.y - 9, 18, 18);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 2.2, 0, TAU);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
         break;
       }
       case 'vortex': {
@@ -704,9 +850,19 @@ export class ChaosDraw {
           ctx.stroke();
         }
         break;
-      case 'drone':
-        this.icon(a.p?.emoji ?? '🚁', a.x, a.y, 20, Math.cos(this.time * 2 + a.n) > 0);
+      case 'drone': {
+        const full = clamp(a.left / SOUL_BURST, 0, 1);
+        if (full > 0) {
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.25 + 0.5 * full + 0.15 * Math.sin(this.time * (6 + 10 * full));
+          const gr = 16 + 22 * full;
+          ctx.drawImage(this.glow.get(a.p?.color ?? '#b4a0ff'), a.x - gr, a.y - gr, gr * 2, gr * 2);
+          ctx.globalAlpha = 1;
+          ctx.globalCompositeOperation = 'source-over';
+        }
+        this.icon(a.p?.emoji ?? '🚁', a.x, a.y, 20 * (1 + 0.7 * full), Math.cos(this.time * 2 + a.n) > 0);
         break;
+      }
       case 'storm':
         this.icon('⛈️', a.x + Math.sin(this.time * 2) * 80, 36, 54);
         break;

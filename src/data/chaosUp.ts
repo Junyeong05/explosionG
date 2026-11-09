@@ -195,4 +195,6 @@ export const UP_KIND: Record<string, UpStep[]> = {
   nuke: [dmg(0.3), cool(0.1), range(30), dmg(0.4)],
   drone: [more(1, '마리'), dmg(0.3), rate(0.2), more(1, '마리')],
   trap: [more(1, '함정'), dmg(0.3), boom(10), more(1, '함정')],
+  toss: [bounce(1), dmg(0.3), bounce(1), dmg(0.4)],
+  swarm: [more(1, '떼 크기'), dmg(0.3), ttl(1), more(1, '떼 크기')],
 };

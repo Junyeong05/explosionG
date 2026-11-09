@@ -35,6 +35,10 @@ export interface Section {
   id: string;
   title: string;
   lead?: string;
+  /** 카드 앞에 놓는 표 (첫 줄이 머리) */
+  table?: string[][];
+  /** 카드 앞에 놓는 목록 */
+  list?: string[];
   scenes: Scene[];
 }
 
@@ -203,6 +207,23 @@ export function mount(page: Page): void {
     h.id = sec.id;
     main.append(h);
     if (sec.lead) main.append(el('p', 'lead', sec.lead));
+    if (sec.table) {
+      const wrap = el('div', 'tablewrap');
+      const tb = el('table');
+      sec.table.forEach((row, i) => {
+        const tr = el('tr');
+        for (const c of row) tr.append(el(i === 0 ? 'th' : 'td', '', c));
+        tb.append(tr);
+      });
+      wrap.append(tb);
+      main.append(wrap);
+    }
+    if (sec.list) {
+      const ul = el('ul', 'list');
+      for (const li of sec.list) ul.append(el('li', '', li));
+      main.append(ul);
+    }
+    if (sec.scenes.length === 0) continue;
     const grid = el('div', 'grid');
     main.append(grid);
     for (const sc of sec.scenes) {

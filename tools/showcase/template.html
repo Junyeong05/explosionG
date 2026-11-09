@@ -36,6 +36,14 @@ h2 { font-size:21px; margin:40px 0 4px; padding-top:8px; border-top:2px solid va
 .tag { display:inline-block; font-size:12px; color:var(--accent); border:1px solid currentColor; border-radius:999px; padding:0 8px; font-weight:500; vertical-align:2px }
 .card p { margin:4px 0 0; color:var(--mute); font-size:13.5px }
 .card p.weap { color:var(--fg); font-size:13px }
+.tablewrap { overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--card) }
+table { border-collapse:collapse; font-size:13.5px; min-width:640px; width:100% }
+th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); vertical-align:top }
+th { color:var(--mute); font-weight:600; font-size:12.5px; white-space:nowrap }
+tr:last-child td { border-bottom:0 }
+td:first-child { font-weight:600; white-space:nowrap }
+.list { margin:10px 0 0; padding-left:20px; max-width:80ch; font-size:14px }
+.list li { margin:2px 0 }
 @media (max-width:560px) { .grid { grid-template-columns:1fr } .card canvas { max-width:380px; margin:0 auto } }
 </style>
 <!--/PAGE-->
