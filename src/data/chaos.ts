@@ -450,8 +450,8 @@ export const WEAPONS: readonly WeaponSpec[] = [
   // ════ 11-08 새 갈래 ═══════════════════════════════════════
   // ── 함정: 적이 올 길에 깔아 두고, 밟으면 터진다 ──
   W('trap', 'tr_mines', '💣', '지뢰밭', 'trap', 2.5, { range: 260, count: 2, dmg: 3, boom: 44, emoji: '💣' }, '지뢰 두 개를 깔아 둔다', true),
-  W('trap', 'tr_bear', '🪤', '덫', 'trap', 2, { range: 240, count: 1, dmg: 6, boom: 18, freeze: 1.5, emoji: '🪤' }, '밟으면 꽉 물고 멈춘다', true),
-  W('trap', 'tr_spikes', '📍', '가시 바닥', 'trap', 1.6, { range: 260, count: 2, dmg: 1.4, boom: 26, melee: 4, emoji: '📍' }, '네 번 밟혀도 남는다'),
+  W('trap', 'tr_bear', '🪤', '덫', 'trap', 2, { range: 240, count: 1, dmg: 6, boom: 18, freeze: 1.5, emoji: '🪤' }, '밟으면 꽉 물고 멈춘다'),
+  W('trap', 'tr_spikes', '📍', '가시 바닥', 'trap', 1.6, { range: 260, count: 2, dmg: 1.4, boom: 26, melee: 4, emoji: '📍' }, '네 번 밟혀도 남는다', true),
   W('trap', 'tr_glue', '🫙', '끈끈이', 'trap', 3, { range: 260, count: 2, dmg: 0.4, boom: 40, freeze: 1.2, melee: 3, emoji: '🫙' }, '넓게 붙잡는다'),
   W('trap', 'tr_ember', '🕯️', '불씨 함정', 'trap', 2.5, { range: 260, count: 2, dmg: 1.5, boom: 36, ignite: true, emoji: '🕯️' }, '밟으면 불이 붙는다'),
   W('trap', 'tr_ice', '🧊', '얼음 함정', 'trap', 3, { range: 260, count: 2, dmg: 0.8, boom: 40, freeze: 2, emoji: '🧊', color: '#9fe8ff' }, '밟으면 얼어붙는다'),

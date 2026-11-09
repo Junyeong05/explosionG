@@ -206,6 +206,28 @@ export const BALANCE = {
     packIntervalMin: 0.45,
     /** 경험치 배율 (무기 6개 × 5레벨 + 강화를 판 안에 다 채우려면 레벨 업이 잦아야 한다) */
     xpMul: 1.6,
+    /**
+     * 갈래 기능 (11-09 "연출 말고 기능적으로 확 다르게").
+     * 떼: 구름이 덮은 적은 infestSec 동안 느려지고(×infestSlow) 모든 피해를 ×infestDamageMul 받는다.
+     * 포탑: 앞에 설치돼 체력 turretHp(레벨마다 +50%)로 닿은 적을 막는다. 막힌 적 하나가 초당 turretBite(보스 ×5)씩 깎고,
+     *   부서지면 turretDownSec 뒤 다시 선다. 근처(turretAggro) 위쪽 적은 포탑 쪽으로 끌려온다.
+     * 마법: 쿨다운이 끝나도 몰린 곳(80px 안 magicCrowd 마리)이 생기거나 magicMaxHold 초가 될 때까지 모으고, 모은 만큼 세진다(최대 ×2).
+     * 함정: 적이 없어도 깔리고(ttl trapSec), 밟은 적은 trapRootSec 동안 묶인다.
+     * 광선: 한 적에 붙어 오래 지질수록 세진다 (rayRampPerSec, 최대 ×rayRampMax).
+     */
+    infestSec: 1.2,
+    infestSlow: 0.5,
+    infestDamageMul: 1.5,
+    turretHp: 60,
+    turretBite: 5,
+    turretDownSec: 6,
+    turretAggro: 70,
+    magicCrowd: 7,
+    magicMaxHold: 4,
+    trapSec: 30,
+    trapRootSec: 1,
+    rayRampPerSec: 0.6,
+    rayRampMax: 4,
     /** 황금 쿠키: 이 웨이브부터, 이 간격 (행운 강화로 빨라짐) */
     cookieFromWave: 3,
     cookieEverySec: 40,

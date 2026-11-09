@@ -139,13 +139,14 @@ describe('도파민 모드: 카테고리 무기고', () => {
     expect(w.chaos!.selected).toBeNull();
   });
 
-  it('무기는 방어선 뒤 한 줄에 가운데부터 좌우로 놓인다 (손공격·강화는 자리 없음)', () => {
+  it('무기는 방어선 뒤 한 줄에 가운데부터 좌우로 놓이고, 포탑만 방어선 앞 전장에 선다 (손공격·강화는 자리 없음)', () => {
     const w = arena();
-    for (const id of ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor', 'arm_zap', 'arm_power']) w.augments.acquire(id, w);
+    for (const id of ['arm_pistol', 'arm_dog', 'arm_sheep', 'arm_meteor', 'arm_cannon', 'arm_zap', 'arm_power']) w.augments.acquire(id, w);
     stepFor(w, 0.05);
-    const xs = ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.x);
-    const ys = ['arm_pistol', 'arm_cannon', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.y);
+    const xs = ['arm_pistol', 'arm_dog', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.x);
+    const ys = ['arm_pistol', 'arm_dog', 'arm_sheep', 'arm_meteor'].map((id) => w.chaos!.mountOf(id)!.y);
     expect(new Set(ys).size).toBe(1);
+    expect(w.chaos!.mountOf('arm_cannon')!.y).toBeLessThan(ys[0] - 100);
     expect(Math.abs(xs[0] - w.field.width / 2)).toBeLessThan(25);
     expect(xs[1]).toBeLessThan(xs[0]);
     expect(xs[2]).toBeGreaterThan(xs[0]);
@@ -278,8 +279,12 @@ describe('도파민 모드: 카테고리 무기고', () => {
   it('갈래마다 행동이 다르다: 마법은 마법진 뒤 발동, 투척은 튕겨 여럿을 맞힘, 떼는 구름, 광선은 이어진 줄기', () => {
     const w = arena();
     w.augments.acquire('arm_meteor', w);
-    stepFor(w, 0.85);
-    expect(w.chaos!.actors.some((a) => a.kind === 'cast')).toBe(true);
+    let cast = false;
+    for (let i = 0; i < 360 && !cast; i++) {
+      stepFor(w, 1 / 60);
+      cast = w.chaos!.actors.some((a) => a.kind === 'cast');
+    }
+    expect(cast).toBe(true);
     stepFor(w, 1);
     expect(w.chaos!.actors.some((a) => a.kind === 'cast')).toBe(false);
 
@@ -299,7 +304,7 @@ describe('도파민 모드: 카테고리 무기고', () => {
     stepFor(r, 0.9);
     const ray = r.chaos!.actors.find((a) => a.kind === 'ray');
     expect(ray).toBeDefined();
-    expect(ray!.ttl).toBeGreaterThan(0.5);
+    expect(ray!.target).not.toBeNull();
   });
 
   it('소환수는 방어선 여기저기서 나와 각자 다른 적을 맡는다', () => {
@@ -330,6 +335,96 @@ describe('도파민 모드: 카테고리 무기고', () => {
     stepFor(w, 1 / 60);
     expect(fairy.left).toBe(0);
     expect(w.chaos!.actors.filter((a) => a.kind === 'bullet').length).toBeGreaterThanOrEqual(bullets + 16);
+  });
+
+  it('포탑은 앞에 서서 닿은 적을 막고, 깎이다 부서지면 잠시 뒤 다시 선다', () => {
+    const w = arena();
+    w.augments.acquire('arm_cannon', w);
+    stepFor(w, 0.05);
+    const m = w.chaos!.mountOf('arm_cannon')!;
+    const e = w.spawnEnemy('armored', m.x, m.y - 30, 50)!;
+    e.speed = e.def.speed;
+    stepFor(w, 1.5);
+    // 포탑에 닿아 멈춰 있다 (지나가지 못함)
+    expect(e.y).toBeLessThan(m.y + 5);
+    const st = w.chaos!.turrets.get('arm_cannon')!;
+    expect(st.hp).toBeLessThan(st.max);
+    st.hp = 0.01;
+    stepFor(w, 0.1);
+    expect(st.down).toBeGreaterThan(0);
+    stepFor(w, BALANCE.chaos.turretDownSec + 0.1);
+    expect(st.down).toBe(0);
+    expect(st.hp).toBe(st.max);
+  });
+
+  it('마법은 몰린 곳이 없으면 쿨다운이 끝나도 기다렸다가, 기다린 만큼 세게 쓴다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    // 흩어진 적 몇 마리 (80px 안에 7마리가 안 됨)
+    for (let i = 0; i < 4; i++) w.spawnEnemy('normal', 40 + i * 90, 380, 50);
+    freeze(w);
+    w.augments.acquire('arm_meteor', w);
+    stepFor(w, 1.5);
+    expect(w.chaos!.charging.has('arm_meteor')).toBe(true);
+    expect(w.chaos!.actors.some((a) => a.kind === 'cast')).toBe(false);
+    let cast: { left: number } | undefined;
+    for (let i = 0; i < 300 && !cast; i++) {
+      stepFor(w, 1 / 60);
+      cast = w.chaos!.actors.find((a) => a.kind === 'cast');
+    }
+    expect(cast).toBeDefined();
+    expect(cast!.left).toBeGreaterThanOrEqual(17);
+  });
+
+  it('함정은 적이 없어도 깔리고, 밟은 적은 묶인다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    w.augments.acquire('arm_tr_bear', w);
+    stepFor(w, 1.5);
+    const traps = w.chaos!.actors.filter((a) => a.kind === 'trap');
+    expect(traps.length).toBeGreaterThan(0);
+    const t = traps[0];
+    const e = w.spawnEnemy('armored', t.tx, t.ty - 2, 50)!;
+    e.speed = 0;
+    stepFor(w, 0.1);
+    expect(e.held).toBeGreaterThan(0.5);
+  });
+
+  it('광선은 한 적에 오래 붙을수록 세진다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    const e = w.spawnEnemy('armored', 180, 420, 500)!;
+    e.speed = 0;
+    w.augments.acquire('arm_r_flashlight', w);
+    stepFor(w, 0.5);
+    const a = e.maxHp - e.hp;
+    stepFor(w, 3);
+    const b = e.maxHp - e.hp;
+    stepFor(w, 0.5);
+    const c = e.maxHp - e.hp;
+    // 처음 0.5초보다 3.5초 뒤 0.5초 동안 훨씬 많이 깎는다
+    expect(c - b).toBeGreaterThan(a * 2.5);
+  });
+
+  it('떼가 덮은 적은 느려지고 모든 피해를 1.5배 받는다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    const e = w.spawnEnemy('armored', 180, 300, 50)!;
+    const before = e.hp;
+    w.hitFromExp(e, 2, w.newChain(1), 0);
+    const plain = before - e.hp;
+    e.infest = 1;
+    const mid = e.hp;
+    w.hitFromExp(e, 2, w.newChain(1), 0);
+    expect(mid - e.hp).toBeCloseTo(plain * BALANCE.chaos.infestDamageMul);
+    const y0 = e.y;
+    e.infest = 5;
+    stepFor(w, 1);
+    const slowMove = e.y - y0;
+    e.infest = 0;
+    const y1 = e.y;
+    stepFor(w, 1);
+    expect(slowMove).toBeLessThan((e.y - y1) * 0.7);
   });
 
   it('봇이 도파민 모드 엔드리스 한 판을 끝까지 돌려도 터지지 않고, 판 끝엔 무기가 여럿이다', () => {

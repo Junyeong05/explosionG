@@ -85,6 +85,9 @@ const MAX_TRAPS = 36;
 export const TRAP_FLY_SEC = 0.45;
 /** 마법은 마법진을 이만큼 먼저 띄우고 발동한다 (포탑과 확 다르게, 예고가 보이게) */
 export const CAST_SEC = 0.7;
+/** 포탑이 서는 줄 (방어선에서 위로), 막는 몸 반지름 */
+export const TURRET_ROW_Y = 150;
+const TURRET_BODY = 15;
 /** 정령이 혼을 이만큼 모으면 터진다 */
 export const SOUL_BURST = 10;
 const MAX_SOULS = 40;
@@ -110,6 +113,10 @@ export class Chaos {
   readonly aim = new Map<string, number>();
   readonly firedAt = new Map<string, number>();
   private mounts = new Map<string, Mount>();
+  /** 포탑 체력 (앞에 설치돼 적을 막는다). down > 0 이면 부서져 다시 서는 중 */
+  readonly turrets = new Map<string, { hp: number; max: number; down: number }>();
+  /** 마법이 힘을 모으기 시작한 시각 (쿨다운이 끝난 뒤, 몰린 곳이 생길 때까지) */
+  readonly charging = new Map<string, number>();
   /** 눌러서 고른 무기 (사거리·정보 표시, until 까지) */
   selected: { id: string; until: number } | null = null;
   private nextId = 1;
@@ -451,6 +458,7 @@ export class Chaos {
     }
     for (const [id, t] of this.cooldowns) this.cooldowns.set(id, t - dt);
     this.layoutMounts();
+    this.updateTurrets(dt);
     this.updateWeapons();
     this.updateGate();
     for (let i = this.actors.length - 1; i >= 0; i--) {
@@ -472,10 +480,18 @@ export class Chaos {
     const perRow = 10;
     const gap = (W - 24) / (perRow - 1);
     const m = new Map<string, Mount>();
+    // 포탑: 방어선 앞 전장에 한 줄(5칸)씩 고르게 선다 (총은 방어선 뒤에서 쏘고, 포탑은 앞에 서서 막는다)
+    const turrets = this.owned().filter((id) => ARMS[id].cat === 'turret');
+    turrets.forEach((id, j) => {
+      const row = Math.floor(j / 5);
+      const inRow = Math.min(5, turrets.length - row * 5);
+      const k = j % 5;
+      m.set(id, { x: (W * (k + 1)) / (inRow + 1), y: this.LINE - TURRET_ROW_Y - row * 60, wall: 0 });
+    });
     let i = 0;
     for (const id of this.owned()) {
       const spec = ARMS[id];
-      if (spec.cat === 'hand' || spec.cat === 'passive') continue;
+      if (spec.cat === 'hand' || spec.cat === 'passive' || spec.cat === 'turret') continue;
       const row = Math.floor(i / perRow);
       const y = row === 0 ? this.LINE + 16 : this.LINE - 14 - (row - 1) * 30;
       const gun = (spec.kind === 'gun' || spec.kind === 'beam') && !!spec.p.look;
@@ -523,6 +539,11 @@ export class Chaos {
         this.keepDrones(spec);
         continue;
       }
+      if (spec.kind === 'beam' || spec.kind === 'zap') {
+        this.keepRays(spec);
+        continue;
+      }
+      if (spec.cat === 'turret' && (this.turrets.get(id)?.down ?? 0) > 0) continue;
       const left = this.cooldowns.get(id);
       if (left === undefined) {
         // 얻자마자 처음 한 번은 금방
@@ -533,13 +554,28 @@ export class Chaos {
       this.curMul = this.dmgMul(spec);
       this.curRange = this.rangeOf(spec);
       if (spec.cat === 'magic') {
-        // 마법: 마법진을 먼저 띄우고 CAST_SEC 뒤 발동 (step 'cast')
-        const spot = this.pickTarget('dense', undefined, this.curRange);
-        if (spot) {
-          const a = this.add('cast', spot.x, spot.y, { ttl: CAST_SEC });
-          if (a) a.src = id;
+        // 마법: 쿨다운이 끝나도 바로 안 쓰고 모은다. 몰린 곳이 생기거나 magicMaxHold 초가 되면,
+        // 모은 만큼 세게 (최대 ×2) 마법진을 띄우고 CAST_SEC 뒤 발동 (step 'cast')
+        const C = BALANCE.chaos;
+        let start = this.charging.get(id);
+        if (start === undefined) {
+          start = this.w.time;
+          this.charging.set(id, start);
         }
-        this.cooldowns.set(id, spot ? this.cooldownOf(id) : 0.2);
+        const hold = this.w.time - start;
+        const spot = this.pickTarget('dense', undefined, this.curRange);
+        const crowd = spot ? this.w.enemiesNear(spot.x, spot.y, 80).length : 0;
+        if (spot && (crowd >= C.magicCrowd || hold >= C.magicMaxHold)) {
+          const mult = 1 + Math.min(1, hold / C.magicMaxHold);
+          this.curMul *= mult;
+          const a = this.add('cast', spot.x, spot.y, { ttl: CAST_SEC });
+          if (a) {
+            a.src = id;
+            a.left = Math.round(mult * 10);
+          }
+          this.charging.delete(id);
+          this.cooldowns.set(id, this.cooldownOf(id));
+        }
         this.curMul = 1;
         this.curRange = DEFAULT_RANGE;
         continue;
@@ -582,25 +618,6 @@ export class Chaos {
         w.emit({ type: 'gunFire', x: mx, y: my, angle: ang, big: (p.dmg ?? 1) >= 3 || !!p.boom });
         return true;
       }
-      case 'beam': {
-        // 광선: 빛줄기가 ttl 동안 이어진 채 부채꼴로 훑으며 닿는 적을 계속 지진다 (총은 탄, 광선은 줄기)
-        const t = this.pickTarget(p.target ?? 'front', mount, range);
-        if (!t) return false;
-        const ang = Math.atan2(t.y - from.y, t.x - from.x);
-        this.aim.set(spec.id, ang);
-        this.firedAt.set(spec.id, w.time);
-        const dur = p.ttl ?? 0.8;
-        const sweep = 0.55 * (w.rng.chance(0.5) ? 1 : -1);
-        const a = this.add('ray', from.x, from.y, { ttl: dur, p, dmg: (p.dmg ?? 2) * D * 0.3, r: p.width ?? 3, n: ang - sweep / 2 });
-        if (a) {
-          a.vx = sweep / dur;
-          a.left = range;
-          a.emoji = p.color ?? '#ff3cc8';
-          a.src = spec.id;
-        }
-        w.emit({ type: 'gunFire', x: from.x, y: from.y, angle: ang, big: true });
-        return true;
-      }
       case 'lob': {
         const t = this.pickTarget(p.target ?? 'dense', mount, range);
         if (!t) return false;
@@ -616,23 +633,6 @@ export class Chaos {
           }
         }
         return true;
-      }
-      case 'zap': {
-        // 번개 줄기: 여러 적에게 동시에 이어져 0.6초 지진다 (광선 갈래)
-        const used = new Set<number>();
-        for (let i = 0; i < (p.count ?? 3) + this.extra; i++) {
-          const e = this.pickTarget('random', mount, range);
-          if (!e || used.has(e.id)) continue;
-          used.add(e.id);
-          const a = this.add('ray', from.x, from.y - 10, { ttl: 0.6, p, dmg: (p.dmg ?? 1) * D * 0.35, r: 2 });
-          if (a) {
-            a.target = e;
-            a.dir = -1;
-            a.emoji = p.color ?? '#9fe8ff';
-            a.src = spec.id;
-          }
-        }
-        return used.size > 0;
       }
       case 'column': {
         const t = this.pickTarget('dense', undefined, range);
@@ -745,17 +745,15 @@ export class Chaos {
       }
       case 'trap': {
         // 함정: 자리에서 던져 적이 걸어올 길(조금 아래) 바닥에 꽂아 두고, 밟히면 터진다. 화면에 너무 많으면 오래된 것부터 걷는다
-        let any = false;
+        // 적이 없어도 깐다 (미리 깔아 두는 준비형: 웨이브 사이에도 쌓인다)
         for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
-          const t = this.pickTarget(i === 0 ? (p.target ?? 'front') : 'random', mount, range);
-          if (!t) break;
-          any = true;
+          const t = this.pickTarget(i === 0 ? (p.target ?? 'front') : 'random', mount, range) ?? this.randomPoint(Math.min(range, 300));
           const traps = this.actors.filter((a) => a.kind === 'trap');
           if (traps.length >= MAX_TRAPS) this.actors.splice(this.actors.indexOf(traps[0]), 1);
           // 적이 걸어올 길 위 (적보다 조금 아래). 깔린 게 보이게 바로 밑이 아니라 한 걸음 앞
           const x = clamp(t.x + w.rng.range(-12, 12), 12, w.field.width - 12);
           const y = clamp(t.y + w.rng.range(45, 90), 40, this.LINE - 16);
-          const a = this.add('trap', from.x, from.y - 6, { ttl: (p.ttl ?? 12) * this.durMul + TRAP_FLY_SEC, p, emoji: p.emoji ?? '🪤', dmg: (p.dmg ?? 3) * D, r: (p.boom ?? 40) * this.areaMul, left: p.melee ?? 1, tx: x, ty: y });
+          const a = this.add('trap', from.x, from.y - 6, { ttl: (p.ttl ?? BALANCE.chaos.trapSec) * this.durMul + TRAP_FLY_SEC, p, emoji: p.emoji ?? '🪤', dmg: (p.dmg ?? 3) * D, r: (p.boom ?? 40) * this.areaMul, left: p.melee ?? 1, tx: x, ty: y });
           if (a) {
             a.src = spec.id;
             // 던진 자리 (날아가는 동안 쓴다)
@@ -763,7 +761,7 @@ export class Chaos {
             a.vy = from.y - 6;
           }
         }
-        return any;
+        return true;
       }
       case 'walker': {
         if (!this.pickTarget('front', undefined, range)) return false;
@@ -888,6 +886,77 @@ export class Chaos {
       }
     }
     return false;
+  }
+
+  /**
+   * 포탑: 앞에 서서 닿은 적을 막는다 (멈춤). 막힌 적은 포탑을 깎고, 부서지면 turretDownSec 뒤 다시 선다.
+   * 포탑 근처 위쪽 적은 포탑 쪽으로 조금씩 끌려와 포탑 앞에 뭉친다.
+   */
+  private updateTurrets(dt: number): void {
+    const C = BALANCE.chaos;
+    const w = this.w;
+    for (const id of this.turrets.keys()) if (this.lv(id) <= 0) this.turrets.delete(id);
+    for (const id of this.owned('turret')) {
+      const m = this.mounts.get(id);
+      if (!m) continue;
+      const max = C.turretHp * (1 + 0.5 * (this.lv(id) - 1)) * (1 + 0.15 * this.lv('arm_duration'));
+      let st = this.turrets.get(id);
+      if (!st) {
+        st = { hp: max, max, down: 0 };
+        this.turrets.set(id, st);
+      }
+      if (st.max !== max) {
+        st.hp += max - st.max;
+        st.max = max;
+      }
+      if (st.down > 0) {
+        st.down -= dt;
+        if (st.down <= 0) {
+          st.down = 0;
+          st.hp = st.max;
+          this.add('ring', m.x, m.y, { ttl: 0.4, r: 22, emoji: '#ffc94d' });
+        }
+        continue;
+      }
+      for (const e of w.enemies) {
+        if (e.dead || e.def.boss || e.pileCol >= 0) continue;
+        const dx = m.x - e.x;
+        const dy = m.y - e.y;
+        if (Math.abs(dx) < C.turretAggro && dy > 0 && dy < C.turretAggro * 1.8) {
+          // 끌려온다: 포탑 쪽으로 옆걸음
+          e.x += Math.sign(dx) * Math.min(Math.abs(dx), 45 * dt);
+        }
+        if (dx * dx + dy * dy <= (TURRET_BODY + e.radius) ** 2) {
+          e.held = Math.max(e.held, 0.1);
+          e.pack = null;
+          st.hp -= C.turretBite * (e.def.boss ? 5 : 1) * dt;
+        }
+      }
+      if (st.hp <= 0) {
+        st.hp = 0;
+        st.down = C.turretDownSec;
+        this.add('ring', m.x, m.y, { ttl: 0.5, r: 34, emoji: '#ff6b6b' });
+        w.emit({ type: 'shake', power: 0.3 });
+      }
+    }
+  }
+
+  /**
+   * 광선: 무기마다 늘 이어진 줄기. 빛(beam)은 가장 단단한 적 하나에, 번개(zap)는 count 마리에 매달려
+   * 0.1초마다 지진다. 한 적에 오래 붙어 있을수록 세진다 (rayRampPerSec, 최대 ×rayRampMax)
+   */
+  private keepRays(spec: WeaponSpec): void {
+    const want = spec.kind === 'zap' ? (this.eff(spec).p.count ?? 3) + this.extra : 1;
+    let have = 0;
+    for (const a of this.actors) if (a.kind === 'ray' && a.src === spec.id) have++;
+    for (let i = have; i < want; i++) {
+      const a = this.add('ray', this.w.field.width / 2, this.LINE, { ttl: Number.POSITIVE_INFINITY, r: spec.p.width ?? 3 });
+      if (a) {
+        a.src = spec.id;
+        a.dir = spec.kind === 'zap' ? -1 : 1;
+        a.emoji = spec.p.color ?? (spec.kind === 'zap' ? '#9fe8ff' : '#ff3cc8');
+      }
+    }
   }
 
   /** 드론: 레벨 + 다중 만큼 떠서 돌며 쏜다 */
@@ -1096,7 +1165,15 @@ export class Chaos {
         }
         if (w.enemiesNear(a.x, a.y, 16).length === 0) return true;
         const p = a.p ?? {};
-        if (p.knock) for (const e of w.enemiesNear(a.x, a.y, a.r)) this.push(e, a.x, a.y, p.knock);
+        // 밟은 자리 근처 적은 묶인다 (멈춤). 스프링은 묶는 대신 날린다
+        for (const e of [...w.enemiesNear(a.x, a.y, Math.max(20, a.r * 0.6))]) {
+          if (e.def.boss) continue;
+          if (p.knock) this.push(e, a.x, a.y, p.knock);
+          else {
+            e.held = Math.max(e.held, BALANCE.chaos.trapRootSec);
+            e.pack = null;
+          }
+        }
         this.boom(a.x, a.y, a.r, a.dmg, p);
         this.add('ring', a.x, a.y, { ttl: 0.3, r: a.r, emoji: p.color ?? '#ffb347' });
         a.left--;
@@ -1119,31 +1196,45 @@ export class Chaos {
         return false;
       }
       case 'ray': {
-        // 이어진 줄기: 적에게 매달리거나(번개) 부채꼴로 훑는다(빛). 0.1초마다 닿은 적을 지진다
-        const p = a.p ?? {};
-        if (a.target) {
-          if (a.target.dead) return false;
-          a.tx = a.target.x;
-          a.ty = a.target.y;
-        } else {
-          a.n += a.vx * dt;
-          a.tx = a.x + Math.cos(a.n) * a.left;
-          a.ty = a.y + Math.sin(a.n) * a.left;
+        // 늘 이어진 줄기 (keepRays). 무기 자리에서 나가 표적에 붙고, 오래 붙을수록 세진다. a.n = 같은 적에 붙은 시간
+        const spec = ARMS[a.src];
+        if (!spec || this.lv(a.src) <= 0) return false;
+        const C = BALANCE.chaos;
+        const m = this.mounts.get(a.src);
+        if (m) {
+          a.x = m.x;
+          a.y = m.y - (a.dir === -1 ? 10 : 0);
+        }
+        const range = this.rangeOf(spec);
+        let t = a.target && !a.target.dead && this.visible(a.target) && dist2(a.x, a.y, a.target.x, a.target.y) <= range * range ? a.target : null;
+        if (!t) {
+          a.n = 0;
+          if (a.dir === -1) {
+            // 번개: 같은 무기의 다른 줄기가 안 잡은 적
+            const taken = new Set<number>();
+            for (const o of this.actors) if (o !== a && o.kind === 'ray' && o.src === a.src && o.target) taken.add(o.target.id);
+            const pool = this.inZone(m, range).filter((e) => !taken.has(e.id));
+            t = pool.length ? pool[this.w.rng.int(pool.length)] : null;
+          } else t = this.pickTarget('strong', m, range);
+          a.target = t;
+        }
+        if (!t) return true;
+        a.tx = t.x;
+        a.ty = t.y;
+        a.n += dt;
+        if (a.dir !== -1) {
+          this.aim.set(a.src, Math.atan2(t.y - a.y, t.x - a.x));
+          this.firedAt.set(a.src, w.time);
         }
         a.cd -= dt;
         if (a.cd <= 0) {
           a.cd = 0.1;
-          const chainId = w.newChain(1);
-          if (a.target) this.hit(a.target, a.dmg, p, chainId);
-          else {
-            let first: Enemy | null = null;
-            for (const e of [...w.enemies]) {
-              if (e.dead || segDist(a.x, a.y, a.tx, a.ty, e.x, e.y) > a.r + e.radius) continue;
-              first ??= e;
-              this.hit(e, a.dmg, p, chainId);
-            }
-            if (first && p.chain && a.t < 0.1) this.chainZap(first, p.chain, a.dmg);
-          }
+          const p = this.eff(spec).p;
+          const ramp = Math.min(C.rayRampMax, 1 + C.rayRampPerSec * a.n);
+          a.m = ramp;
+          const dmg = ((p.dmg ?? 2) * this.D * this.dmgMul(spec) / Math.max(0.3, this.cooldownOf(a.src))) * 0.1 * 0.5 * ramp;
+          this.hit(t, dmg, p, w.newChain(1));
+          if (p.chain && a.n < 0.1) this.chainZap(t, p.chain, dmg);
         }
         return true;
       }
@@ -1210,7 +1301,13 @@ export class Chaos {
           a.cd = 0.25;
           const chainId = w.newChain(1);
           const under = [...w.enemiesNear(a.x, a.y, a.r)];
-          for (const e of under) if (!e.dead) this.hit(e, a.dmg, p, chainId);
+          for (const e of under) {
+            if (e.dead) continue;
+            // 붙은 적: 느려지고 모든 피해를 더 받는다 (다른 무기를 돕는 약화). 직접 피해는 작게
+            e.infest = Math.max(e.infest, BALANCE.chaos.infestSec);
+            e.pack = null;
+            this.hit(e, a.dmg * 0.5, p, chainId);
+          }
           if (p.chain && under.length > 0 && w.rng.chance(0.3)) this.chainZap(under[0], p.chain, a.dmg);
         }
         return true;
@@ -1945,13 +2042,4 @@ export class Chaos {
   private randomPoint(range: number): { x: number; y: number } {
     return { x: this.w.rng.range(40, this.w.field.width - 40), y: this.w.rng.range(this.LINE - range, this.LINE - 30) };
   }
-}
-
-/** 점 (px, py) 에서 선분 (x1,y1)-(x2,y2) 까지 거리 */
-function segDist(x1: number, y1: number, x2: number, y2: number, px: number, py: number): number {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const len2 = dx * dx + dy * dy || 1;
-  const t = clamp(((px - x1) * dx + (py - y1) * dy) / len2, 0, 1);
-  return Math.hypot(px - (x1 + dx * t), py - (y1 + dy * t));
 }

@@ -61,6 +61,8 @@ export interface Enemy {
   frozen: number;
   /** 블랙홀·토네이도·UFO·거품에 붙잡혀 멈춘 시간 (얼림과 달리 받는 피해는 그대로) */
   held: number;
+  /** 도파민 모드 떼가 붙어 약해진 남은 시간: 느려지고 받는 피해가 커진다 (BALANCE.chaos.infest*) */
+  infest: number;
   burn: number;
   color: number;
   inflate: number;

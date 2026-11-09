@@ -210,6 +210,30 @@ export class ChaosDraw {
         ctx.lineWidth = 2;
         ctx.stroke();
       }
+      if (spec.cat === 'turret') {
+        // 포탑: 전장에 박힌 받침 + 체력 막대. 부서지면 회색, 다시 서기까지 고리
+        const st = c.turrets.get(id);
+        const down = (st?.down ?? 0) > 0;
+        ctx.beginPath();
+        ctx.ellipse(m.x, m.y + 9, 17, 6, 0, 0, TAU);
+        ctx.fillStyle = rgba('#000000', 0.45);
+        ctx.fill();
+        ctx.fillStyle = down ? '#3a3a42' : '#5a5f73';
+        ctx.fillRect(m.x - 13, m.y + 1, 26, 8);
+        ctx.strokeStyle = rgba(CATEGORY_COLOR.turret, down ? 0.25 : 0.7);
+        ctx.lineWidth = 1;
+        ctx.strokeRect(m.x - 13, m.y + 1, 26, 8);
+        this.icon(spec.emoji, m.x, m.y - 6, 22, false, 0, down ? 0.3 : 1);
+        if (st) {
+          const f = down ? 1 - st.down / BALANCE.chaos.turretDownSec : st.hp / st.max;
+          ctx.fillStyle = rgba('#000000', 0.6);
+          ctx.fillRect(m.x - 14, m.y + 12, 28, 3);
+          ctx.fillStyle = down ? '#8a8fa3' : f > 0.5 ? '#7dff9a' : f > 0.25 ? '#ffd36b' : '#ff6b6b';
+          ctx.fillRect(m.x - 14, m.y + 12, 28 * clamp(f, 0, 1), 3);
+        }
+        this.pips(m.x, m.y + 19, L);
+        continue;
+      }
       if (m.wall !== 0 && spec.p.look) {
         this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? -Math.PI / 2, 0, w.time - (c.firedAt.get(id) ?? -9));
       } else {
@@ -220,6 +244,16 @@ export class ChaosDraw {
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'source-over';
         this.icon(spec.emoji, m.x, m.y + bob, 19);
+        // 마법: 힘을 모으는 중이면 보라 고리가 차오른다
+        const start = c.charging.get(id);
+        if (start !== undefined) {
+          const f = clamp((w.time - start) / BALANCE.chaos.magicMaxHold, 0, 1);
+          ctx.beginPath();
+          ctx.arc(m.x, m.y + bob, 12, -Math.PI / 2, -Math.PI / 2 + TAU * f);
+          ctx.strokeStyle = rgba('#e0b8ff', 0.6 + 0.4 * f);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
       }
       this.pips(m.x, m.y + 12, L);
     }
@@ -354,6 +388,22 @@ export class ChaosDraw {
     if (!c) return;
     const ctx = this.ctx;
     for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
+    // 떼가 붙어 약해진 적: 연두 점이 맴돌고 테두리가 옅게 빛난다
+    for (const e of w.enemies) {
+      if (e.dead || e.infest <= 0) continue;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.radius + 3, 0, TAU);
+      ctx.strokeStyle = rgba(CATEGORY_COLOR.swarm, 0.45);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      for (let i = 0; i < 4; i++) {
+        const g = this.time * 6 + i * 1.57 + e.id;
+        ctx.beginPath();
+        ctx.arc(e.x + Math.cos(g) * (e.radius + 2), e.y + Math.sin(g) * (e.radius + 2), 1.4, 0, TAU);
+        ctx.fillStyle = CATEGORY_COLOR.swarm;
+        ctx.fill();
+      }
+    }
     // 총구 불꽃
     ctx.globalCompositeOperation = 'lighter';
     for (const f of this.flashes) {
@@ -747,11 +797,19 @@ export class ChaosDraw {
         ctx.globalCompositeOperation = 'source-over';
         ctx.restore();
         if (spec) this.icon(spec.emoji, a.x, a.y, 18 + 10 * f);
+        if (a.left >= 11) {
+          ctx.font = `900 ${10 + 3 * f}px ${FONT}`;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = rgba('#f3e2ff', 0.6 + 0.4 * f);
+          ctx.fillText(`×${(a.left / 10).toFixed(1)}`, a.x, a.y - R - 4);
+        }
         break;
       }
       case 'ray': {
+        if (!a.target) break;
         const col = a.emoji ?? '#ff3cc8';
-        const fade = Math.min(1, (a.ttl - a.t) / 0.15) * Math.min(1, a.t / 0.05 + 0.3);
+        const ramp = Math.max(1, a.m);
+        const fade = Math.min(1, 0.55 + 0.15 * ramp);
         ctx.globalCompositeOperation = 'lighter';
         ctx.lineCap = 'round';
         if (a.dir === -1) {
@@ -770,7 +828,7 @@ export class ChaosDraw {
           ctx.stroke();
         } else {
           // 빛줄기: 굵은 빛 + 하얀 심, 살짝 떨린다
-          const wob = 1 + 0.15 * Math.sin(this.time * 50 + a.id);
+          const wob = (1 + 0.15 * Math.sin(this.time * 50 + a.id)) * (0.7 + 0.35 * ramp);
           ctx.strokeStyle = rgba(col, 0.45 * fade);
           ctx.lineWidth = a.r * 3 * wob;
           ctx.beginPath();
@@ -786,6 +844,12 @@ export class ChaosDraw {
         }
         ctx.lineCap = 'butt';
         ctx.globalCompositeOperation = 'source-over';
+        if (ramp >= 2) {
+          ctx.font = `900 9px ${FONT}`;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = rgba('#ffffff', 0.85);
+          ctx.fillText(`×${ramp.toFixed(1)}`, a.tx, a.ty - 14);
+        }
         break;
       }
       case 'tossed': {

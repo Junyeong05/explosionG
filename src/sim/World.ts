@@ -649,8 +649,10 @@ export class World implements SimApi {
         e.x = p.x + e.packOx;
         e.y = p.y + e.packOy;
       } else {
-        e.x += e.dx * e.speed * dt + wind * dt;
-        e.y += e.dy * e.speed * dt;
+        // 떼가 붙은 적은 느리다 (붙을 때 무리에서 떨어져 혼자 움직인다)
+        const slow = e.infest > 0 ? BALANCE.chaos.infestSlow : 1;
+        e.x += e.dx * e.speed * slow * dt + wind * dt;
+        e.y += e.dy * e.speed * slow * dt;
       }
       // 밀어내기: 받은 속도로 날아가다 점점 멈춘다
       if (e.kx !== 0 || e.ky !== 0) {
@@ -876,6 +878,8 @@ export class World implements SimApi {
     if (!isDirect(source) && e.def.indirectDamageTakenMul !== undefined) dmg *= e.def.indirectDamageTakenMul;
     // 쌓이는 바닥: 무너지는 블록의 폭발은 옆 블록을 바로 무너뜨린다
     if (source === 'pile' && e.pileCol >= 0) dmg = Math.max(dmg, e.hp);
+    // 도파민 모드 떼가 붙은 적은 모든 피해를 더 받는다
+    if (e.infest > 0) dmg *= BALANCE.chaos.infestDamageMul;
     e.hp -= dmg;
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
     e.def.boss?.onDamaged?.(this, e);
@@ -1089,6 +1093,7 @@ export class World implements SimApi {
       ky: 0,
       frozen: 0,
       held: 0,
+      infest: 0,
       burn: 0,
       color: -1,
       inflate: 0,
