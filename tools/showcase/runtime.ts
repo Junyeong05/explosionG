@@ -70,7 +70,7 @@ class Stage {
   visible = false;
 
   constructor(
-    private readonly canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement,
     private readonly scene: Scene,
     private readonly stat: HTMLElement,
   ) {
