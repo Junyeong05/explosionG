@@ -18,10 +18,13 @@ export interface Run2 {
   fired: number;
   kills: number;
   maxActors: number;
+  /** 방어선에 닿은 적 (막아 낸 정도) */
+  leaks: number;
 }
 
 export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number } = {}): Run2 {
-  const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true } });
+  const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
+  let leaks = 0;
   const skip = () => {
     const a = w as unknown as { offerQueue: unknown[]; offer: unknown; phase: string };
     a.offerQueue.length = 0;
@@ -55,10 +58,11 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     skip();
     (w as unknown as { life: number }).life = w.stats.maxLife;
     maxActors = Math.max(maxActors, w.chaos!.actors.length);
+    for (const ev of w.drainEvents()) if (ev.type === 'leak') leaks++;
   }
   let fired = 0;
   for (const n of w.chaos!.fusion.fired.values()) fired += n;
-  return { fired, kills: w.kills, maxActors };
+  return { fired, kills: w.kills, maxActors, leaks };
 }
 
 
@@ -78,13 +82,13 @@ if (process.argv[1]?.endsWith('check2.ts')) {
     const f2 = run2([A, B, ...extra], [[A, B]], { input, seed: 31 });
     const a1 = run2([A, B, ...extra], [], { input, seed: 12 });
     const a2 = run2([A, B, ...extra], [], { input, seed: 31 });
-    const fused = { fired: f1.fired + f2.fired, kills: f1.kills + f2.kills, maxActors: Math.max(f1.maxActors, f2.maxActors) };
-    const apart = { kills: a1.kills + a2.kills };
+    const fused = { fired: f1.fired + f2.fired, kills: f1.kills + f2.kills, maxActors: Math.max(f1.maxActors, f2.maxActors), leaks: f1.leaks + f2.leaks };
+    const apart = { kills: a1.kills + a2.kills, leaks: a1.leaks + a2.leaks };
     if (fused.fired === 0) zero++;
     const ratio = fused.kills / Math.max(1, apart.kills);
     ratios.push(ratio);
     res.push([r.key, ratio, fused.fired]);
-    out.push(`${r.key.padEnd(16)} ${r.name.padEnd(10)} 해냄 ${String(fused.fired).padStart(4)}  처치 ${String(fused.kills).padStart(3)} / 따로 ${String(apart.kills).padStart(3)}  (×${ratio.toFixed(2)})  물체 ${fused.maxActors}`);
+    out.push(`${r.key.padEnd(16)} ${r.name.padEnd(10)} 해냄 ${String(fused.fired).padStart(4)}  처치 ${String(fused.kills).padStart(3)} / 따로 ${String(apart.kills).padStart(3)}  (×${ratio.toFixed(2)})  놓침 ${fused.leaks} / 따로 ${apart.leaks}  물체 ${fused.maxActors}`);
   }
   console.log(out.join('\n'));
   if (process.argv.includes('--write') && !arg) {

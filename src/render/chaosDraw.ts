@@ -113,6 +113,10 @@ export class ChaosDraw {
         if (spec) this.banner(`${spec.name}!`, '', '#c77dff');
         break;
       }
+      case 'fusion':
+        // 합성 v2: 처음 해낸 짝은 이름만 (규칙은 직접 보고 알아낸다)
+        this.banner(`새 합성 · ${e.name}`, `${ARMS[e.a]?.name ?? ''} + ${ARMS[e.b]?.name ?? ''}`, '#7dff9a');
+        break;
       case 'augment': {
         const spec = ARMS[e.id];
         if (spec?.fusion) {
@@ -229,6 +233,14 @@ export class ChaosDraw {
         ctx.drawImage(this.glow.get(glowCol), m.x - 14, m.y - 14 + bob, 28, 28);
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'source-over';
+        // 합친 무기: 안에 든 갈래 색 고리를 겹쳐 그린다 (무엇을 합쳤는지 한눈에)
+        (c.fusion.kids.get(id) ?? []).forEach((k, i) => {
+          ctx.beginPath();
+          ctx.arc(m.x, m.y + bob, 12 + i * 3, 0, TAU);
+          ctx.strokeStyle = rgba(CATEGORY_COLOR[ARMS[k].cat], 0.9);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
         this.icon(spec.emoji, m.x, m.y + bob, 19);
       }
       this.pips(m.x, m.y + 12, L);

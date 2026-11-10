@@ -1,5 +1,8 @@
 import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../data/chaos';
-import { V2 } from '../data/combineV2';
+import { V2, rulesV2 } from '../data/combineV2';
+
+/** 짝 이름 (갈래 A>B → 이름) */
+const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
 import { clamp, dist2 } from '../core/math';
 import type { Actor, Chaos } from './chaos';
 import type { Enemy } from './types';
@@ -90,7 +93,9 @@ export class Fusion {
   presses: { x: number; y: number; t: number }[] = [];
   holding: { x: number; y: number; t: number } | null = null;
   /** 폭발·장판이 낸 처치를 누구 몫으로 칠지 */
-  private credit: { x: number; y: number; r: number; src: string; depth: number; until: number }[] = [];
+  private credit: { x: number; y: number; r: number; src: string; depth: number; until: number; actor: Actor | null }[] = [];
+  /** 정령을 합친 무기의 처치 혼 (겹친 합성에서 안쪽 정령이 터지게) */
+  private relay = new Map<string, number>();
   /** 둘레를 도는 날 */
   private orbits = new Map<number, { cx: number; cy: number; follow: Actor | null; rad: number; ang: number; spd: number }>();
   /** 날려 보낸 적 (부딪친 적도 피해) */
@@ -160,7 +165,7 @@ export class Fusion {
         this.curKey = sKey;
       }
       if (r === true) any = true;
-      if (r === true || c.actors.length > n0) this.fired.set(`${src}>${b}`, (this.fired.get(`${src}>${b}`) ?? 0) + 1);
+      if (r === true || c.actors.length > n0) this.bump(`${src}>${b}`);
     }
     return any;
   }
@@ -168,7 +173,17 @@ export class Fusion {
   /** 규칙이 액터를 만들지 않고 해낸 일 (주문·약화 등) 도 센다 */
   did(x?: Ctx): void {
     const k = x ? `${x.A.id}>${x.B.id}` : this.curKey;
-    if (k) this.fired.set(k, (this.fired.get(k) ?? 0) + 1);
+    if (k) this.bump(k);
+  }
+
+  /** 해낸 횟수 +1. 이 판에서 처음이면 이름을 알린다 (게임 안 발견: 이름만, 규칙 문장은 숨김) */
+  private bump(k: string): void {
+    const n = this.fired.get(k) ?? 0;
+    this.fired.set(k, n + 1);
+    if (n > 0) return;
+    const [a, b] = k.split('>');
+    const name = NAME.get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`);
+    if (name) this.c.w.emit({ type: 'fusion', name, a, b });
   }
 
   // ─── Chaos 가 부르는 사건 ──────────────────────────────
@@ -188,17 +203,21 @@ export class Fusion {
     if (this.deaths.length > 40) this.deaths.shift();
     let src = c.curSrc;
     let depth = c.curDepth;
+    let by: Actor | null = c.curActor && c.curActor.src === src ? c.curActor : null;
     if (!src || !this.kids.has(src)) {
       const cr = this.creditAt(e.x, e.y);
       if (cr) {
         src = cr.src;
         depth = cr.depth;
+        by = cr.actor && c.actors.includes(cr.actor) ? cr.actor : null;
       }
     }
     const sd = c.curDepth;
     c.curDepth = depth;
-    const by = c.curActor && c.curActor.src === src ? c.curActor : null;
-    if (src) this.run(src, (h, x) => h.kill?.(x, e, by));
+    if (src) {
+      this.run(src, (h, x) => h.kill?.(x, e, by));
+      this.spiritRelay(src, e);
+    }
     c.curDepth = sd;
     for (const a of this.kids.keys()) this.run(a, (h, x) => h.anyKill?.(x, e), false);
   }
@@ -234,6 +253,55 @@ export class Fusion {
   move(src: string, a: Actor, d: number): void {
     this.run(src, (h, x) => h.move?.(x, a, d));
   }
+  /** 공중의 '닿음' (낙하물이 아닌 공중 무기: 레이저 기둥·번개·폭풍·공습·핵) */
+  impact(src: string, x: number, y: number, r: number, dmg: number, p?: WeaponParams): void {
+    if (!this.every(`imp:${src}`, 0.12)) return;
+    this.land(src, x, y, this.ghost(x, y, r, dmg, p));
+  }
+  /** 투척의 '맞음' (투척물이 아닌 투척 무기: 분열 폭탄) */
+  throwImpact(src: string, x: number, y: number): void {
+    const e = this.nearest(x, y, 50);
+    if (e && this.every(`thi:${src}`, 0.1)) this.hit(src, e, x, y, null);
+  }
+  /** 목록에 없는 임시 물체 (사건을 넘길 때) */
+  ghost(x: number, y: number, r: number, dmg: number, p?: WeaponParams): Actor {
+    return { id: -1, kind: 'ring', x, y, vx: 0, vy: 0, t: 0, ttl: 0, tx: x, ty: y, n: 0, dir: 1, m: 1, gated: false, hits: null, grabbed: null, reels: null, p: p ?? null, emoji: null, dmg, left: 0, r, cd: 0, src: '', target: null, depth: this.c.curDepth, tag: 0, trail: 0 };
+  }
+  /** A 가 정령 B 를 합쳤고 B 가 또 무엇을 합쳤으면: A 의 처치마다 혼이 B 로, 여섯이면 B 가 그 자리에서 터진다 */
+  private spiritRelay(src: string, e: Enemy): void {
+    const kids = this.kids.get(src);
+    if (!kids) return;
+    for (const b of kids) {
+      if (ARMS[b].cat !== 'spirit' || !this.kids.has(b) || this.c.curDepth >= V2.maxDepth) continue;
+      const n = (this.relay.get(b) ?? 0) + 1;
+      const g = this.ghost(e.x, e.y, 0, this.dmg(ARMS[b]));
+      g.left = n;
+      this.soul(b, g, e.x, e.y);
+      if (n >= V2.spiritBurst) {
+        this.relay.set(b, 0);
+        const s = this.c.curSrc;
+        this.c.curSrc = b;
+        if (!this.burst(b, g)) this.radial(ARMS[b], e.x, e.y, 8, 1, 200);
+        this.c.curSrc = s;
+        this.ring(e.x, e.y, 40, this.col(ARMS[b]), 0.4);
+      } else this.relay.set(b, n);
+    }
+  }
+  /** src 의 kind 물체 중 (x, y) 에서 가장 가까운 것 */
+  nearestOf(src: string, kind: Actor['kind'], x: number, y: number, r: number): Actor | null {
+    let best: Actor | null = null;
+    let bd = r * r;
+    for (const a of this.c.actors) {
+      if (a.src !== src || a.kind !== kind) continue;
+      const d = dist2(a.x, a.y, x, y);
+      if (d < bd) {
+        bd = d;
+        best = a;
+      }
+    }
+    return best;
+  }
+
   /** 달리는 몸이 움직임: 화면 안에서 80 마다 move */
   moved(a: Actor, px: number, py: number): void {
     const c = this.c;
@@ -261,7 +329,7 @@ export class Fusion {
       z.src = src;
       z.cd = 0.5;
     }
-    this.credit.push({ x: px, y: py, r, src, depth: this.c.curDepth, until: this.c.w.time + ttl });
+    this.credit.push({ x: px, y: py, r, src, depth: this.c.curDepth, until: this.c.w.time + ttl, actor: null });
     this.run(src, (h, x) => h.zone?.(x, px, py, r, ttl));
   }
   zoneTick(z: Actor, on: Enemy[]): void {
@@ -404,11 +472,11 @@ export class Fusion {
   noteBoom(x: number, y: number, r: number): void {
     const c = this.c;
     if (!c.curSrc || !this.kids.has(c.curSrc)) return;
-    this.credit.push({ x, y, r: r + 10, src: c.curSrc, depth: c.curDepth, until: c.w.time + 0.6 });
+    this.credit.push({ x, y, r: r + 10, src: c.curSrc, depth: c.curDepth, until: c.w.time + 0.6, actor: c.curActor });
     if (this.credit.length > 80) this.credit.shift();
   }
 
-  private creditAt(x: number, y: number): { src: string; depth: number } | null {
+  private creditAt(x: number, y: number): { src: string; depth: number; actor: Actor | null } | null {
     const t = this.c.w.time;
     for (let i = this.credit.length - 1; i >= 0; i--) {
       const k = this.credit[i];
@@ -434,7 +502,7 @@ export class Fusion {
         this.curKey = x.key;
         const n0 = c.actors.length;
         x.fn();
-        if (c.actors.length > n0 && x.key) this.fired.set(x.key, (this.fired.get(x.key) ?? 0) + 1);
+        if (c.actors.length > n0 && x.key) this.bump(x.key);
         c.curSrc = s[0];
         c.curDepth = s[1];
         this.curKey = s[2];
@@ -557,7 +625,10 @@ export class Fusion {
   // ─── B 를 쓰는 것들 ─────────────────────────────────────
 
   bulletAt(B: WeaponSpec, x: number, y: number, ang: number, mul = 1, range = 240, p?: WeaponParams): Actor | null {
-    return this.c.bullet(B.id, x, y, ang, p ?? this.p(B), this.dmg(B, mul), range, 0);
+    const b = this.c.bullet(B.id, x, y, ang, p ?? this.p(B), this.dmg(B, mul), range, 0);
+    // 낸 것은 B 의 것: B 가 합친 '쏠 때' 규칙도 걸린다 (겹친 합성)
+    if (b && B.cat === 'gun' && this.kids.has(B.id)) this.shot(B.id, b);
+    return b;
   }
   radial(B: WeaponSpec, x: number, y: number, n: number, mul = 1, range = 240): void {
     const off = this.c.w.rng.range(0, 1);
@@ -581,7 +652,7 @@ export class Fusion {
     return n;
   }
   /** 아군으로 일어난다 (소환수 B 의 모습, 다른 적을 맡음) */
-  ally(B: WeaponSpec, x: number, y: number, ttl = 6, mul = 1): Actor | null {
+  ally(B: WeaponSpec, x: number, y: number, ttl: number = V2.allySec, mul = 1): Actor | null {
     if (this.allies() >= V2.allyCap) return null;
     const base = B.cat === 'summon' ? this.p(B) : this.p(ARMS.arm_dog);
     const p = { ...base, melee: Math.max(3, base.melee ?? 0) };
@@ -595,6 +666,7 @@ export class Fusion {
     const p = this.p(B.cat === 'summon' ? B : ARMS.arm_dog);
     const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'summon' ? B : ARMS.arm_dog, mul), r: this.c.LINE - 20, left: p.melee ?? 0 });
     if (a && target) a.target = target;
+    if (a && B.cat === 'summon' && this.kids.has(B.id) && this.c.curSrc === B.id) this.unitSpawn(B.id, a);
     this.ring(x, y, 14, '#7dff9a');
     return a;
   }
@@ -612,6 +684,13 @@ export class Fusion {
     const c = this.c;
     const kind = this.spellKind(B);
     const t = this.now();
+    // 낸 주문은 B 의 시전: B 가 합친 것이 따라간다 (겹친 합성)
+    const live = es.filter((e) => !e.dead);
+    if (B.cat === 'magic' && this.kids.has(B.id) && c.curSrc === B.id && live.length && this.every(`nest:${B.id}`, 0.5)) {
+      const cx = live.reduce((s, e) => s + e.x, 0) / live.length;
+      const cy = live.reduce((s, e) => s + e.y, 0) / live.length;
+      this.cast(B.id, cx, cy, live);
+    }
     switch (kind) {
       case 'clone':
         c.cloned.set(rootId, Math.max(c.cloned.get(rootId) ?? 0, t + dur));
@@ -679,13 +758,16 @@ export class Fusion {
     const p = this.p(B.cat === 'air' ? B : ARMS.arm_a_piano);
     const a = this.c.add('faller', x + 24, y - 240, { tx: x, ty: y, ttl: 3 + delay, p, emoji: look ?? p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'air' ? B : ARMS.arm_a_piano, mul), r: Math.max(24, ((p.radius ?? 40) + (p.boom ?? 0)) * rMul) });
     if (a) a.t = -delay;
+    if (a && B.cat === 'air' && this.kids.has(B.id) && this.c.curSrc === B.id) this.shot(B.id, a);
     return a;
   }
   dash(B: WeaponSpec, x: number, y: number, ang: number, ttl = 1.6, mul = 1, look?: string, speedMul = 1.2): Actor | null {
     const p = this.p(B.cat === 'charge' ? B : ARMS.arm_c_bikers);
     const sp = (p.speed ?? 230) * speedMul;
     const vx = Math.cos(ang) * sp;
-    return this.c.add('stamp', x, y, { vx, vy: Math.sin(ang) * sp, dir: vx >= 0 ? 1 : -1, ttl, p, emoji: look ?? p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'charge' ? B : ARMS.arm_c_bikers, mul), hits: true });
+    const a = this.c.add('stamp', x, y, { vx, vy: Math.sin(ang) * sp, dir: vx >= 0 ? 1 : -1, ttl, p, emoji: look ?? p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'charge' ? B : ARMS.arm_c_bikers, mul), hits: true });
+    if (a && B.cat === 'charge' && this.kids.has(B.id) && this.c.curSrc === B.id) this.shot(B.id, a);
+    return a;
   }
   /** 둘레를 밀어내고 멈칫 (음파) */
   shock(x: number, y: number, r: number, knock: number, stun: number, dmg = 0, color = '#ffd36b'): Enemy[] {
@@ -702,12 +784,17 @@ export class Fusion {
       }
     }
     this.ring(x, y, r, color, 0.4);
+    // 낸 충격파는 B 의 고리: B 가 합친 것이 따라간다 (겹친 합성)
+    const src = c.curSrc;
+    if (src && ARMS[src]?.cat === 'sound' && this.kids.has(src) && this.every(`nestp:${src}`, 0.3)) this.pulse(src, x, y, r, es);
     return es;
   }
   blade(B: WeaponSpec, x: number, y: number, ang: number, ttl: number, mul = 1, speed?: number, look?: WeaponParams): Actor | null {
     const p = look ?? this.p(B.cat === 'spinner' ? B : ARMS.arm_sp_disc);
     const sp = speed ?? p.speed ?? 260;
-    return this.c.add('saw', x, y, { vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, ttl, p, dmg: this.dmg(B.cat === 'spinner' ? B : ARMS.arm_sp_disc, mul), hits: true, r: this.c.LINE - 30 });
+    const a = this.c.add('saw', x, y, { vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, ttl, p, dmg: this.dmg(B.cat === 'spinner' ? B : ARMS.arm_sp_disc, mul), hits: true, r: this.c.LINE - 30 });
+    if (a && sp > 0 && B.cat === 'spinner' && this.kids.has(B.id) && this.c.curSrc === B.id) this.shot(B.id, a);
+    return a;
   }
   /** 무엇의 둘레를 도는 날 */
   orbit(B: WeaponSpec, cx: number, cy: number, rad: number, ttl: number, follow: Actor | null = null, ang = 0, mul = 0.8): Actor | null {
@@ -743,7 +830,9 @@ export class Fusion {
         c.w.addZone({ x, y, radius: rr, dps: (p.dps ?? 1) * c.D * c.dmgMul(F) * mul, ttl, chainId: c.w.newChain(1), source: 'exp' });
         this.ring(x, y, rr, p.color ?? '#ff8a3c', 0.35);
     }
-    if (c.curSrc) this.credit.push({ x, y, r: rr, src: c.curSrc, depth: c.curDepth, until: this.now() + ttl });
+    if (c.curSrc) this.credit.push({ x, y, r: rr, src: c.curSrc, depth: c.curDepth, until: this.now() + ttl, actor: null });
+    // 장판을 낸 무기가 장판이고 무엇을 합쳤으면, 이 장판도 그 장판이다 (겹친 합성)
+    if (F.cat === 'field' && c.curSrc === F.id && this.kids.has(F.id)) this.zone(F.id, x, y, rr, Math.max(3, ttl));
   }
   /** 두 점을 잇는 줄 (지나는 적을 dps 로 지짐). 끝이 적을 따라갈 수 있음 */
   tether(x1: number, y1: number, x2: number, y2: number, ttl: number, color: string, dps: number, e1: Enemy | null = null, e2: Enemy | null = null, w = 2): Actor | null {
@@ -768,6 +857,7 @@ export class Fusion {
       a.left = n;
       a.hits = new Set(exclude ? [exclude.id] : []);
       a.dir = 0;
+      if (T === B && this.kids.has(T.id) && this.c.curSrc === T.id) this.shot(T.id, a);
     }
     return a;
   }
@@ -781,6 +871,7 @@ export class Fusion {
     const p = this.p(S);
     const a = this.c.add('swarm', x, y, { ttl, p, emoji: p.emoji ?? '🦟', dmg: this.dmg(S, mul), r: r * this.c.areaMul, n: Math.round(6 + r / 6) });
     if (a) a.target = target ?? this.nearest(x, y, 120);
+    if (a && S === B && this.kids.has(S.id) && this.c.curSrc === S.id) this.shot(S.id, a);
     return a;
   }
   /** 작은 정령 (혼 다섯이면 터짐) */
@@ -802,6 +893,7 @@ export class Fusion {
       a.p = pp;
       a.emoji = pp.emoji ?? null;
       a.dmg = this.dmg(T, mul);
+      if (this.kids.has(T.id) && this.c.curSrc === T.id) this.shot(T.id, a);
     }
     return a;
   }
@@ -898,6 +990,8 @@ export class Fusion {
 // 문장은 src/data/combineV2.ts. 여기는 그 문장을 실제로 하는 것.
 
 const W = 360;
+/** 돌격 갈래에서 달리는 것 (chaos.ts MOVERS 와 같게) */
+const RUN = new Set<Actor['kind']>(['stamp', 'sweep', 'dino', 'cow', 'train', 'dragon', 'tornado', 'donkey']);
 /** 연속으로 누른 점들 (잇기·삼각형·경로) */
 function recent(f: Fusion, sec: number, n: number): (Pt & { t: number })[] {
   const t = f.now();
@@ -1571,8 +1665,10 @@ const RULES: Record<string, H> = {
   },
   'summon>throw': {
     // 도약: 쓰러뜨리면 다음 적으로 뛰어 덮침
-    kill({ f, B }, e, by) {
-      if (!by || by.kind !== 'walker') return;
+    kill({ f, A, B }, e, by0) {
+      // 자폭 소환수는 터지고 없어서 가장 가까운 다른 소환수가 뛴다
+      const by = by0 && by0.kind === 'walker' ? by0 : f.nearestOf(A.id, 'walker', e.x, e.y, 200);
+      if (!by) return;
       const t = f.nearest(e.x, e.y, 200, e);
       if (!t) return;
       f.ring(by.x, by.y, 12, f.col(B));
@@ -1593,8 +1689,9 @@ const RULES: Record<string, H> = {
   },
   'summon>spirit': {
     // 혼 먹는 짐승: 처치마다 커짐
-    kill({ f }, _e, by) {
-      if (!by || by.kind !== 'walker') return;
+    kill({ f, A }, e, by0) {
+      const by = by0 && by0.kind === 'walker' ? by0 : f.nearestOf(A.id, 'walker', e.x, e.y, 200);
+      if (!by) return;
       by.dmg *= 1.2;
       by.p = { ...(by.p ?? {}), size: Math.min(48, (by.p?.size ?? 20) * 1.2) };
       by.trail++;
@@ -1914,7 +2011,14 @@ const RULES: Record<string, H> = {
           best = a;
         }
       }
-      if (!best) return;
+      if (!best) {
+        // 떨어지는 것이 없는 공중 무기: 탭한 곳에 하나를 바로 부른다
+        const p = f.p(A);
+        const d = f.c.add('faller', x + 20, y - 220, { tx: x, ty: y, ttl: 3, p, emoji: A.emoji, dmg: (p.dmg ?? 3) * f.c.D * f.c.dmgMul(A), r: Math.max(30, (p.radius ?? 40) * 0.8) });
+        if (d) d.src = A.id;
+        f.mark(x, y, 22, '#ffffff', 0.6);
+        return;
+      }
       best.tx = x;
       best.ty = y;
       best.dmg *= 1.5;
@@ -1923,6 +2027,11 @@ const RULES: Record<string, H> = {
     },
   },
   'air>gun': {
+    // 떨어지는 것이 없는 공중 무기: 닿은 자리 위에서 아래로 한 번 쏟는다
+    land({ f, B }, x, y, a) {
+      if (a.kind === 'faller' || a.kind === 'thrown') return;
+      for (const e of f.near(x, y, 120, 5)) f.shootAt(B, x + f.c.w.rng.range(-30, 30), y - 90, e, 0.8);
+    },
     // 기총 소사: 떨어지는 동안 아래로
     tick({ f, A, B }) {
       const cd = Math.max(0.06, f.c.cooldownOf(B.id) * 0.5);
@@ -1945,6 +2054,11 @@ const RULES: Record<string, H> = {
     },
   },
   'air>magic': {
+    land({ f, A, B }, x, y, a) {
+      if (a.kind === 'faller' || a.kind === 'thrown') return;
+      f.spellAt(A, B, x, y, Math.max(40, a.r));
+      f.did();
+    },
     // 하늘 낙인: 그림자 안 적은 떨어지기 전부터
     tick({ f, A, B }) {
       for (const a of f.of(A.id, 'faller')) {
@@ -2017,10 +2131,18 @@ const RULES: Record<string, H> = {
     },
   },
   'air>throw': {
-    shot(x, a) {
-      x.f.did(x);
-      a.tag |= TAG_HOP;
-      a.trail = 3;
+    // 되튀는 폭격: 떨어진 것이 터진 뒤 다음 적 위로 (세 번까지)
+    land({ f, A }, x, y, a) {
+      if (a.tag & TAG_HOP) return;
+      const t = f.nearest(x, y, 200);
+      if (!t) return;
+      const d = f.c.add('faller', t.x + 16, t.y - 160, { tx: t.x, ty: t.y, ttl: 3, p: a.p ?? f.p(A), emoji: a.emoji ?? A.emoji, dmg: (a.dmg || f.dmg(A)) * 0.8, r: Math.max(24, a.r * 0.8) });
+      if (d) {
+        d.tag |= TAG_HOP;
+        d.trail = 1;
+        d.src = A.id + '#';
+      }
+      f.did();
     },
   },
   'air>swarm': {
@@ -2046,7 +2168,7 @@ const RULES: Record<string, H> = {
     // 핸들: 달리는 돌격을 탭한 쪽으로
     press({ f, A }, x, y) {
       for (const a of f.c.actors) {
-        if (a.src !== A.id || (a.kind !== 'stamp' && a.kind !== 'sweep') || a.trail >= 2) continue;
+        if (a.src !== A.id || !RUN.has(a.kind) || a.trail >= 2) continue;
         if (a.x < 0 || a.x > W) continue;
         const sp = Math.hypot(a.vx, a.vy) || 200;
         const g = Math.atan2(y - a.y, x - a.x);
@@ -2065,7 +2187,7 @@ const RULES: Record<string, H> = {
     tick({ f, A, B }) {
       const cd = Math.max(0.08, f.c.cooldownOf(B.id) * 0.6);
       for (const a of f.of(A.id)) {
-        if ((a.kind !== 'stamp' && a.kind !== 'sweep') || a.x < 0 || a.x > W || !f.every(`cg:${a.id}`, cd)) continue;
+        if (!RUN.has(a.kind) || a.x < 0 || a.x > W || !f.every(`cg:${a.id}`, cd)) continue;
         for (const s of [-1, 1]) {
           const g = Math.atan2(a.vy, a.vx) + (s * Math.PI) / 2;
           const e = f.nearest(a.x + Math.cos(g) * 60, a.y + Math.sin(g) * 60, 90);
@@ -2114,9 +2236,13 @@ const RULES: Record<string, H> = {
     },
   },
   'charge>spinner': {
-    shot({ f, B }, a) {
-      f.orbit(B, a.x, a.y, 30, a.ttl + 3, a, 0, 0.8);
-      f.orbit(B, a.x, a.y, 30, a.ttl + 3, a, Math.PI, 0.8);
+    tick({ f, A, B }) {
+      for (const a of f.of(A.id)) {
+        if (!RUN.has(a.kind) || f.st.get(`cs:${a.id}`)) continue;
+        f.st.set(`cs:${a.id}`, 1);
+        f.orbit(B, a.x, a.y, 30, a.ttl + 3, a, 0, 0.8);
+        f.orbit(B, a.x, a.y, 30, a.ttl + 3, a, Math.PI, 0.8);
+      }
     },
   },
   'charge>field': {
@@ -2128,7 +2254,7 @@ const RULES: Record<string, H> = {
     // 견인: 옆 적에 줄을 걸어 끌고 간다
     tick({ f, A, B }, dt) {
       for (const a of f.of(A.id)) {
-        if ((a.kind !== 'stamp' && a.kind !== 'sweep') || a.x < 0 || a.x > W) continue;
+        if (!RUN.has(a.kind) || a.x < 0 || a.x > W) continue;
         for (const e of f.near(a.x, a.y, 90, 3)) {
           if (e.def.boss) continue;
           if (f.every(`crc:${a.id}`, 1)) f.did();
@@ -2171,7 +2297,7 @@ const RULES: Record<string, H> = {
   },
   'charge>spirit': {
     kill({ f }, _e, by) {
-      if (!by || (by.kind !== 'stamp' && by.kind !== 'sweep')) return;
+      if (!by || !RUN.has(by.kind)) return;
       by.vx *= 1.1;
       by.vy *= 1.1;
       by.dmg *= 1.1;
@@ -2224,8 +2350,12 @@ const RULES: Record<string, H> = {
     },
   },
   'sound>summon': {
-    kill({ f, B }, e) {
-      f.ally(B, e.x, e.y);
+    // 징집 나팔: 맞은 적 수만큼 고리 끝에서
+    pulse({ f, B }, x, y, r, hits) {
+      for (const e of hits.filter((h) => !h.dead).slice(0, 4)) {
+        const g = angTo(x, y, e);
+        f.unit(B, x + Math.cos(g) * r * 0.8, y + Math.sin(g) * r * 0.8, 6, 1, e);
+      }
     },
   },
   'sound>magic': {
@@ -2281,10 +2411,16 @@ const RULES: Record<string, H> = {
     },
   },
   'sound>swarm': {
-    pulse({ f, A, B }, _x, _y, _r, hits) {
+    // 떼 고리: 고리 끝에 구름 고리
+    pulse({ f, B }, x, y, r, hits) {
       for (const e of hits) f.infest(e, 1.5);
-      for (const e of hits.slice(0, 2)) f.cloud(B, e.x, e.y, 20, 1.2, 0.4, e);
-      if (hits.length) f.did({ f, A, B });
+      for (let i = 0; i < 6; i++) {
+        const g = (i / 6) * Math.PI * 2;
+        const py = y + Math.sin(g) * r;
+        if (py > f.c.LINE - 6) continue;
+        const c = f.cloud(B, x + Math.cos(g) * r, py, 18, 2, 0.5);
+        if (c) c.target = null;
+      }
     },
   },
   'sound>spirit': {
@@ -2367,15 +2503,22 @@ const RULES: Record<string, H> = {
         a.vy = Math.sin(g) * sp;
       }
     },
-    kill({ f, B }, e) {
-      f.ally(B, e.x, e.y);
+    removed({ f, B }, a) {
+      if (a.kind === 'saw' && a.y < f.c.LINE - 10) f.unit(B, a.x, a.y, 6);
     },
   },
   'spinner>magic': {
-    hit({ f, A, B }, e) {
-      if (!f.every(`spm:${A.id}:${e.id}`, 1)) return;
-      f.spellOn(B, [e], f.spellDur(A, B, 0.6), f.root(A.id));
-      f.did({ f, A, B });
+    // 주문 궤적: 날이 지나간 자리가 1초 동안 주문 선
+    tick({ f, A, B }) {
+      for (const a of f.of(A.id, 'saw')) {
+        if (!f.every(`spm:${a.id}`, 0.2)) continue;
+        const prev = f.st.get(`spmp:${a.id}`) as Pt | undefined;
+        f.st.set(`spmp:${a.id}`, { x: a.x, y: a.y });
+        if (!prev) continue;
+        f.tether(prev.x, prev.y, a.x, a.y, 1, '#c77dff', 0, null, null, 1.5);
+        const es = f.onSegment(prev.x, prev.y, a.x, a.y, 8).filter((e) => f.every(`spme:${e.id}`, 1));
+        if (es.length) f.spellOn(B, es, f.spellDur(A, B, 0.6), f.root(A.id));
+      }
     },
   },
   'spinner>trap': {
@@ -2521,13 +2664,10 @@ const RULES: Record<string, H> = {
     },
   },
   'field>summon': {
-    kill({ f, A, B }, e) {
-      for (const z of f.of(A.id, 'fzone')) {
-        if (dist2(z.x, z.y, e.x, e.y) <= z.r * z.r) {
-          f.ally(B, e.x, e.y);
-          return;
-        }
-      }
+    // 둥지 바닥: 깔린 동안 1.5초마다 한가운데서
+    zoneTick({ f, B }, z, on) {
+      if (!f.every(`fsu:${z.id}`, 1.4)) return;
+      f.unit(B, z.x, z.y, 6, 1, on[0] ?? null);
     },
   },
   'field>magic': {
@@ -2604,9 +2744,9 @@ const RULES: Record<string, H> = {
   'field>ray': {
     tick({ f, A, B }) {
       if (!f.every(`fr:${A.id}`, 0.25)) return;
-      const zs = f.of(A.id, 'fzone');
+      const zs: Pt[] = [f.mount(A.id), ...f.of(A.id, 'fzone')];
       for (let i = 1; i < zs.length; i++) {
-        if (dist2(zs[i - 1].x, zs[i - 1].y, zs[i].x, zs[i].y) > 300 * 300) continue;
+        if (dist2(zs[i - 1].x, zs[i - 1].y, zs[i].x, zs[i].y) > 320 * 320) continue;
         f.tether(zs[i - 1].x, zs[i - 1].y, zs[i].x, zs[i].y, 0.27, B.p.color ?? '#9fe8ff', f.dmg(B, 0.8), null, null, 3);
       }
     },
@@ -2687,9 +2827,14 @@ const RULES: Record<string, H> = {
     },
   },
   'ray>summon': {
-    kill({ f, B }, e, by) {
-      const ramp = by && by.kind === 'ray' ? Math.max(1, by.m) : 1;
-      f.ally(B, e.x, e.y, 6 * Math.max(1, ramp / 2));
+    // 조종 광선: ×1.5 부터 붙은 적을 2초 조종 (매혹)
+    ray({ f, A, B }, a, t, ramp) {
+      if (ramp < 1.5 || t.def.boss || t.charm > 0 || !f.every(`rsu:${a.id}`, 2.5)) return;
+      if (f.allies() + f.charmed() >= V2.allyCap) return;
+      t.charm = 2;
+      t.pack = null;
+      f.ring(t.x, t.y, 18, '#ff6fb5', 0.5);
+      f.did({ f, A, B });
     },
   },
   'ray>magic': {
@@ -2817,9 +2962,11 @@ const RULES: Record<string, H> = {
     },
   },
   'throw>magic': {
-    hit({ f, A, B }, e, _x, _y, a) {
-      const hop = a?.hits?.size ?? 1;
-      f.spellOn(B, [e], f.spellDur(A, B, 0.6 * Math.pow(1.2, hop - 1)), f.root(A.id));
+    // 주문 폭발: 마지막 튕김 자리에서 반경 90 에
+    tossEnd({ f, A, B }, a) {
+      const n = Math.max(1, a.hits?.size ?? 1);
+      f.spellAt(A, B, a.tx, a.ty, 90, 0.5 + 0.3 * n);
+      f.ring(a.tx, a.ty, 90, '#c77dff', 0.5);
       f.did({ f, A, B });
     },
   },
@@ -2956,8 +3103,10 @@ const RULES: Record<string, H> = {
     },
   },
   'swarm>summon': {
-    kill({ f, B }, e) {
-      f.ally(B, e.x, e.y);
+    // 떼 군단: 구름에서 하나씩 떨어져 나와 덮인 적을
+    cloud({ f, B }, a, under) {
+      if (!under.length || !f.every(`ssu:${a.id}`, 1.6 / (1 + a.r / 60))) return;
+      f.unit(B, a.x, a.y, 5, 0.8, under[0]);
     },
   },
   'swarm>magic': {

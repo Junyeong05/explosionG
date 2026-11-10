@@ -181,6 +181,8 @@ export class Chaos {
   curActor: Actor | null = null;
   /** 마지막 주문에 걸린 적 */
   lastSpell: Enemy[] = [];
+  /** 낙하물·포탄이 닿아 터지는 중 (합성 v2 '닿음' 을 두 번 세지 않게) */
+  landing = false;
 
   constructor(readonly w: World) {
     this.cookieTimer = BALANCE.chaos.cookieEverySec;
@@ -213,7 +215,7 @@ export class Chaos {
     let m = this.eff(spec).dmg;
     if (spec.cat === 'summon') m *= 1 + 0.2 * this.lv('arm_summoner');
     // 합성 v2: 합친 무기는 둘의 힘을 다 받는다
-    if (this.fusion?.has(spec.id)) m *= V2.bonusDmg;
+    if (this.fusion?.has(spec.id)) m *= V2.bonusDmg * (spec.cat === 'passive' ? 1 : V2.bonusA[spec.cat] ?? 1);
     return m;
   }
 
@@ -962,6 +964,8 @@ export class Chaos {
       if (alive && a.tag & TAG_TRAIL) this.trailStep(a, px, py);
       const fused = this.fusion.active && this.fusion.has(a.src);
       if (alive && fused && MOVERS.has(a.kind)) this.fusion.moved(a, px, py);
+      // 갈래 약속: 달리는 것은 무엇이든 끝에 닿으면 '끝' (핀볼 등이 다시 달리게 할 수 있다)
+      if ((!alive || a.t >= a.ttl) && fused && MOVERS.has(a.kind) && this.fusion.edge(a.src, a)) continue;
       if (!alive || a.t >= a.ttl) {
         if (fused) this.fusion.removed(a);
         const j = this.actors.indexOf(a);
@@ -1156,7 +1160,7 @@ export class Chaos {
         }
         this.add('ring', t.x, t.y, { ttl: 0.5, r, emoji: '#9fe8ff' });
         this.fieldMark(spec.id, t.x, t.y, r, p.freeze ?? 2);
-        if (this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, r, Math.max(1.5, p.freeze ?? 2));
+        if (this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, r, Math.max(3, p.freeze ?? 2));
         return true;
       }
       case 'zoneAt': {
@@ -1185,7 +1189,7 @@ export class Chaos {
         if (!t) return false;
         this.add('vortex', t.x, t.y, { ttl: p.ttl ?? 1.2, r: (p.radius ?? 100) * this.areaMul, p, dmg: (p.dmg ?? 2) * D });
         if (spec.cat === 'field') this.fieldMark(spec.id, t.x, t.y, (p.radius ?? 100) * this.areaMul, p.ttl ?? 1.2);
-        if (spec.cat === 'field' && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, (p.radius ?? 100) * this.areaMul, Math.max(1.5, p.ttl ?? 1.2));
+        if (spec.cat === 'field' && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, (p.radius ?? 100) * this.areaMul, Math.max(3, p.ttl ?? 1.2));
         if (spec.cat === 'magic') w.emit({ type: 'magic', id: spec.id, x: t.x, y: t.y });
         return true;
       }
@@ -1195,7 +1199,7 @@ export class Chaos {
         const a = this.add('bubble', t.x, t.y, { ttl: (p.ttl ?? 2) * this.durMul, r: (p.radius ?? 50) * this.areaMul, p, dmg: (p.dmg ?? 3) * D, grabbed: true });
         if (a) for (const e of w.enemiesNear(t.x, t.y, a.r)) if (!e.def.boss) a.grabbed!.push(e);
         if (a) this.fieldMark(spec.id, t.x, t.y, a.r, a.ttl);
-        if (a && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, a.r, a.ttl);
+        if (a && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, a.r, Math.max(3, a.ttl));
         return true;
       }
       case 'pulse': {
@@ -1461,6 +1465,11 @@ export class Chaos {
           }
           this.hit(e, (p.dmg ?? 1) * D, p, chainId);
         }
+        if (this.fusion.active && this.fusion.has(spec.id)) {
+          if (spec.kind === 'nuke') for (const e of targets.slice(0, 3)) this.fusion.impact(spec.id, e.x, e.y, 40, (p.dmg ?? 8) * D);
+          else if (spec.kind === 'quake') this.fusion.pulse(spec.id, w.field.width / 2, this.LINE, range, targets);
+          else if (spec.cat === 'magic') this.lastSpell = targets;
+        }
         if (spec.kind === 'nuke') w.emit({ type: 'nuke' });
         else w.emit({ type: 'shake', power: spec.kind === 'quake' ? 0.8 : 0.3 });
         w.emit({ type: 'magic', id: spec.id, x: w.field.width / 2, y: this.LINE - range / 2 });
@@ -1712,7 +1721,10 @@ export class Chaos {
         if (a.cd > 0) return true;
         a.cd = 0.25;
         const chainId = w.newChain(1);
-        for (const e of this.fusion.onSegment(a.x, a.y, a.tx, a.ty, Math.max(4, a.r * 2))) this.hit(e, a.dmg * 0.25, {}, chainId);
+        const on = this.fusion.onSegment(a.x, a.y, a.tx, a.ty, Math.max(4, a.r * 2));
+        for (const e of on) this.hit(e, a.dmg * 0.25, {}, chainId);
+        // 광선이 낸 줄은 줄기다: 광선에 합쳐 둔 것이 따라간다 (겹친 합성)
+        if (on.length && this.fusion.has(a.src) && ARMS[a.src]?.cat === 'ray' && !on[0].dead) this.fusion.ray(a.src, a, on[0], 1 + 0.6 * a.t);
         return true;
       }
       case 'czone': {
@@ -1736,7 +1748,9 @@ export class Chaos {
         if (a.t + dt >= a.ttl - 0.02) {
           if (this.fusion.active && (this.fusion.has(a.src) || a.tag & (TAG_HOP | TAG_HOPTOSS)) && this.fusion.land(a.src, a.tx, a.ty, a)) return false;
           const p = a.p ?? {};
+          this.landing = true;
           this.boom(a.tx, a.ty, (p.boom ?? 40) * this.areaMul, a.dmg || 2 * D, p);
+          this.landing = false;
           if (p.chain) {
             const first = w.enemiesNear(a.tx, a.ty, 60)[0];
             if (first) this.chainZap(first, p.chain, (a.dmg || 2 * D) * 0.6);
@@ -1758,7 +1772,9 @@ export class Chaos {
         if (d <= k) {
           if (this.fusion.active && (this.fusion.has(a.src) || a.tag & (TAG_HOP | TAG_HOPTOSS)) && this.fusion.land(a.src, a.tx, a.ty, a)) return false;
           const r = (a.r || a.p?.radius || 30) * this.areaMul;
+          this.landing = true;
           this.boom(a.tx, a.ty, r, a.dmg, a.p ?? undefined);
+          this.landing = false;
           if (r >= 80) w.emit({ type: 'shake', power: 0.6 });
           return false;
         }
@@ -1813,12 +1829,17 @@ export class Chaos {
         if (spec && this.lv(a.src) > 0) {
           this.curMul = a.m;
           this.curRange = this.rangeOf(spec);
+          this.lastSpell = [];
           const ok = this.fire(spec);
           this.curMul = 1;
           this.curRange = DEFAULT_RANGE;
           // 나르는 주문: 마법진 둘레 세 곳에서 연다
           if (ok && this.carried.has(a.src)) for (let i = 0; i < 3; i++) this.carry(a.src, a.x + w.rng.range(-34, 34), a.y + w.rng.range(-24, 24));
-          if (ok && this.fusion.active && this.fusion.has(a.src)) this.fusion.cast(a.src, a.x, a.y, this.lastSpell.filter((e) => !e.dead));
+          // 갈래 약속: 주문이 아닌 주문(얼음 폭풍·블랙홀·공중 부양…)도 '걸린 적' 을 낸다 (마법진 둘레)
+          if (ok && this.fusion.active && this.fusion.has(a.src)) {
+            const got = this.lastSpell.filter((e) => !e.dead);
+            this.fusion.cast(a.src, a.x, a.y, got.length ? got : this.fusion.near(a.x, a.y, 140));
+          }
         }
         return false;
       }
@@ -2353,10 +2374,13 @@ export class Chaos {
           const chainId = w.newChain(1);
           const top = a.ty < a.y ? 0 : a.ty;
           const dmg = a.dmg || 4 * D;
+          let lowest: Enemy | null = null;
           for (const e of [...w.enemies]) {
             if (e.dead || Math.abs(e.x - a.x) > (a.r || 20) + e.radius || e.y < Math.max(0, top)) continue;
+            if (!lowest || e.y > lowest.y) lowest = e;
             this.hit(e, dmg, {}, chainId);
           }
+          if (this.fusion.active && this.fusion.has(a.src)) this.fusion.impact(a.src, a.x, lowest ? lowest.y : this.LINE - 120, a.r || 20, dmg);
         }
         return true;
       }
@@ -2602,7 +2626,15 @@ export class Chaos {
   /** 폭발 (연쇄 1단계). 다시 터짐 강화면 가끔 한 번 더 */
   boom(x: number, y: number, radius: number, damage: number, p?: WeaponParams, _direct = false, chainId?: number): void {
     const w = this.w;
-    if (this.fusion.active) this.fusion.noteBoom(x, y, radius);
+    if (this.fusion.active) {
+      this.fusion.noteBoom(x, y, radius);
+      // 갈래 약속: 공중의 모든 공격은 '닿음', 투척의 모든 터짐은 '맞음' (낙하물·투척물이 아닌 무기도)
+      if (this.curSrc && !this.landing && this.fusion.has(this.curSrc) && this.curActor?.kind !== 'tossed') {
+        const cat = ARMS[this.curSrc]?.cat;
+        if (cat === 'air') this.fusion.impact(this.curSrc, x, y, radius, damage, p);
+        else if (cat === 'throw') this.fusion.throwImpact(this.curSrc, x, y);
+      }
+    }
     // 나르는 공중·포격: 떨어져 터진 자리
     if (this.curSrc && this.carried.has(this.curSrc)) {
       const c = ARMS[this.curSrc]?.cat;

@@ -34,3 +34,4 @@
   - `links` (실어 나르기 210, 처음 설계): https://claude.ai/artifact/1xUzTwMAgk5wDjt1B2Gnrb
   - `combine` (합성 210 v1 보관본: 실제로 도는 210가지 + 공통 규칙): https://claude.ai/artifact/AtSVCwsWaX3ELXV5LjcLe7
   - `combine2` (합성 210 v2: 합치면 새 무기, 210 카드 + 겹친 합성 + 손 입력 자동): https://claude.ai/artifact/VMhpAbmPPryyLMV5MV8XjU
+  - `combine-live` (합성 실전: 무기 12개 판에서 합성 0·3·5 비교): https://claude.ai/artifact/Fx7y4R4tgo7vwktwW8vPz6

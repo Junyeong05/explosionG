@@ -37,6 +37,8 @@ export type SimEvent =
   /** 도파민 모드: 총이 쏨 (총구 불꽃·탄피), 마법 무기 발동 (배너), 화면 흔들림 */
   | { type: 'gunFire'; x: number; y: number; angle: number; big: boolean }
   | { type: 'magic'; id: string; x: number; y: number }
+  /** 합성 v2: 이 판에서 처음 해낸 짝 (이름만 보여 준다, 규칙 문장은 숨김) */
+  | { type: 'fusion'; name: string; a: string; b: string }
   | { type: 'shake'; power: number }
   /** 11-07 실험 묶음 */
   | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }
