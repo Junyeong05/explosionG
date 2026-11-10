@@ -38,7 +38,7 @@ export type SimEvent =
   | { type: 'gunFire'; x: number; y: number; angle: number; big: boolean }
   | { type: 'magic'; id: string; x: number; y: number }
   /** 합성 v2: 이 판에서 처음 해낸 짝 (이름만 보여 준다, 규칙 문장은 숨김) */
-  | { type: 'fusion'; name: string; a: string; b: string }
+  | { type: 'fusion'; name: string; a: string; b: string; x: number; y: number }
   | { type: 'shake'; power: number }
   /** 11-07 실험 묶음 */
   | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }

@@ -99,6 +99,7 @@ export class Fusion {
   /** 지금 사건이 일어난 자리 (울림: 동사가 A 를 바꾼 그 자리) */
   private where: Pt | null = null;
   private bumps = 0;
+  private pruned = 0;
   /** 둘레를 도는 날 */
   private orbits = new Map<number, { cx: number; cy: number; follow: Actor | null; rad: number; ang: number; spd: number }>();
   /** 날려 보낸 적 (부딪친 적도 피해) */
@@ -207,7 +208,7 @@ export class Fusion {
     if (n > 0) return;
     const [a, b] = k.split('>');
     const name = NAME.get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`);
-    if (name) this.c.w.emit({ type: 'fusion', name, a, b });
+    if (name) this.c.w.emit({ type: 'fusion', name, a, b, x: this.where?.x ?? this.c.w.field.width / 2, y: this.where?.y ?? 200 });
   }
 
   // ─── Chaos 가 부르는 사건 ──────────────────────────────
@@ -607,6 +608,22 @@ export class Fusion {
       }
     }
     this.credit = this.credit.filter((k) => k.until >= t);
+    // 긴 판에서 기억이 쌓이지 않게 10초마다 정리 (지난 간격·사라진 물체·적의 상태)
+    if (t - this.pruned > 10) {
+      this.pruned = t;
+      for (const [k, v] of this.thr) if (t - v > 10) this.thr.delete(k);
+      const live = new Set<number>();
+      for (const a of c.actors) live.add(a.id);
+      for (const e of c.w.enemies) if (!e.dead) live.add(e.id);
+      for (const k of this.st.keys()) {
+        const m = /:(\d+)$/.exec(k);
+        if (m && !live.has(Number(m[1]))) this.st.delete(k);
+      }
+      for (const k of this.cnt.keys()) {
+        const m = /:(\d+)$/.exec(k);
+        if (m && !live.has(Number(m[1]))) this.cnt.delete(k);
+      }
+    }
     this.shares = this.shares.filter((s) => s.until >= t);
     // 도는 날
     for (const [id, o] of this.orbits) {
@@ -760,7 +777,7 @@ export class Fusion {
     if (this.allies() >= V2.allyCap) return null;
     const base = B.cat === 'summon' ? this.p(B) : this.p(ARMS.arm_dog);
     const p = { ...base, melee: Math.max(3, base.melee ?? 0) };
-    const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: (p.dmg ?? 2) * this.c.D * this.c.dmgMul(B) * mul, r: this.c.LINE - 20, left: p.melee });
+    const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: (p.dmg ?? 2) * this.c.D * this.c.dmgMul(B) * mul * V2.unitDmg, r: this.c.LINE - 20, left: p.melee });
     if (a) a.tag |= TAG_ALLY;
     this.ring(x, y, 16, '#7dff9a', 0.45);
     return a;
@@ -769,7 +786,7 @@ export class Fusion {
   unit(B: WeaponSpec, x: number, y: number, ttl = 8, mul = 1, target: Enemy | null = null): Actor | null {
     if (this.countUnits(B.id) >= V2.unitCap) return null;
     const p = this.p(B.cat === 'summon' ? B : ARMS.arm_dog);
-    const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'summon' ? B : ARMS.arm_dog, mul), r: this.c.LINE - 20, left: p.melee ?? 0 });
+    const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'summon' ? B : ARMS.arm_dog, mul) * V2.unitDmg, r: this.c.LINE - 20, left: p.melee ?? 0 });
     if (a && target) a.target = target;
     if (a && B.cat === 'summon' && this.kids.has(B.id) && this.c.curSrc === B.id) this.unitSpawn(B.id, a);
     this.ring(x, y, 14, '#7dff9a');
@@ -2764,11 +2781,13 @@ const RULES: Record<string, H> = {
     },
   },
   'field>turret': {
-    // 폭발 바닥: 1초 버틴 적 자리가 터진다
-    zoneTick({ f, B }, z, on) {
-      const prev = (f.st.get(`ft:${z.id}`) as Set<number> | undefined) ?? new Set<number>();
-      for (const e of on) if (prev.has(e.id)) f.blast(e.x, e.y, 40, f.dmg(B, 0.6), f.col(B));
-      f.st.set(`ft:${z.id}`, new Set(on.map((e) => e.id)));
+    // 폭발 바닥: 장판이 깔릴 때 그 한가운데로 포탄, 그 뒤로 장판 위 적 발밑이 1초마다 터진다
+    zone({ f, A, B }, x, y) {
+      const m = f.mount(A.id);
+      f.shell(B, m.x, m.y, x, y, 1.2);
+    },
+    zoneTick({ f, B }, _z, on) {
+      for (const e of on.slice(0, 4)) f.blast(e.x, e.y, 30, f.dmg(B, 0.55), f.col(B));
     },
   },
   'field>summon': {
@@ -3251,8 +3270,8 @@ const RULES: Record<string, H> = {
     },
   },
   'swarm>charge': {
-    // 행군: 한 줄로 가로지르며 덮는다
-    tick({ f, A }, dt) {
+    // 행군: 몰린 줄을 오가며 덮고 들이받는다
+    tick({ f, A, B }, dt) {
       for (const a of f.of(A.id, 'swarm')) {
         let st = f.st.get(`march:${a.id}`) as { vx: number; y: number } | undefined;
         if (!st) {
@@ -3265,8 +3284,19 @@ const RULES: Record<string, H> = {
         if (f.every(`marchc:${a.id}`, 1)) f.did();
         a.x += st.vx * dt;
         a.y += (st.y - a.y) * Math.min(1, 4 * dt);
-        if (a.x < 0 || a.x > W) st.vx = -st.vx;
+        if (a.x < 10 || a.x > W - 10) {
+          st.vx = -st.vx;
+          // 다시 몰린 줄을 찾아 돌아선다
+          const t = f.dense();
+          if (t) st.y = t.y;
+        }
         a.r = Math.max(a.r, 36);
+        // 지나가는 적을 들이받는다
+        for (const e of f.near(a.x, a.y, a.r)) {
+          if (!f.every(`marchh:${a.id}:${e.id}`, 0.5)) continue;
+          f.c.hit(e, f.dmg(B, 0.45), {}, f.c.w.newChain(1));
+          if (!e.def.boss) f.c.push(e, a.x - st.vx, a.y, 30);
+        }
       }
     },
   },

@@ -1,7 +1,8 @@
 import { ARMS, ATTACK_CATEGORIES, CATEGORY_LABEL } from '../../../src/data/chaos';
 import { HELPER, OBJECT, V2, VERB, inputFor, rulesV2, samplesV2, type InputPattern } from '../../../src/data/combineV2';
 import { SAMPLE, type AttackCat } from '../../../src/data/links';
-import { mount, type Page, type Scene, type Section } from '../runtime';
+import { discovered, mount, type Page, type Scene, type Section } from '../runtime';
+import { CATEGORY_COLOR } from '../../../src/data/chaos';
 import { RESULTS } from './combine2-results';
 
 /**
@@ -57,6 +58,66 @@ const sections: Section[] = [
       '게임 안에서는 규칙 문장을 보여 주지 않는다 (직접 찾아가는 맛). 이 페이지는 검증용',
     ],
     scenes: [],
+  },
+  {
+    id: 'book',
+    title: '도감',
+    lead: '게임 안에서는 처음 해낸 짝만 이름이 뜬다 (규칙 문장은 숨김). 이 페이지의 카드가 도는 만큼 칸이 채워진다: 아래로 내려가며 카드를 보면 "?" 가 이름으로 바뀐다. 줄 = 몸(A), 칸 = 동사(B).',
+    scenes: [],
+    render(host) {
+      const count = document.createElement('p');
+      count.className = 'note';
+      host.append(count);
+      const wrap = document.createElement('div');
+      wrap.className = 'matrixwrap';
+      const tb = document.createElement('table');
+      tb.className = 'matrix';
+      const head = document.createElement('tr');
+      head.append(document.createElement('th'));
+      for (const b of CATS) {
+        const th = document.createElement('th');
+        th.textContent = L(b);
+        head.append(th);
+      }
+      tb.append(head);
+      const cells = new Map<string, HTMLTableCellElement>();
+      for (const a of CATS) {
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.className = 'rowh';
+        th.textContent = L(a);
+        tr.append(th);
+        for (const b of CATS) {
+          const td = document.createElement('td');
+          if (a === b) td.textContent = '—';
+          else {
+            td.textContent = '?';
+            td.style.opacity = '0.45';
+            cells.set(`${a}>${b}`, td);
+          }
+          tr.append(td);
+        }
+        tb.append(tr);
+      }
+      wrap.append(tb);
+      host.append(wrap);
+      const names = new Map(rules.map((r) => [r.key, r.name] as const));
+      const paint = () => {
+        for (const k of discovered) {
+          const td = cells.get(k);
+          if (!td || td.dataset.found) continue;
+          td.dataset.found = '1';
+          td.textContent = names.get(k) ?? k;
+          td.style.opacity = '1';
+          td.style.fontWeight = '700';
+          td.style.borderLeft = `3px solid ${CATEGORY_COLOR[k.split('>')[1] as AttackCat]}`;
+          td.title = k;
+        }
+        count.textContent = `발견 ${discovered.size} / 210`;
+      };
+      paint();
+      setInterval(paint, 600);
+    },
   },
   { id: 'deep', title: '겹친 합성', lead: '합친 무기를 또 합친다. B 가 낸 것은 B 의 것이라 B 가 합친 것까지 따라간다.', scenes: deep },
 ];

@@ -53,6 +53,8 @@ export interface Section {
   list?: string[];
   /** 카드를 작게 (한 줄에 더 많이) */
   compact?: boolean;
+  /** 표·목록 대신 직접 그리는 칸 (도감 등) */
+  render?: (host: HTMLElement) => void;
   scenes: Scene[];
 }
 
@@ -68,6 +70,8 @@ export interface Page {
 
 const FW = BALANCE.field.width;
 let speed = 1;
+/** 합성 v2: 이 페이지의 카드들이 지금까지 해낸 짝 (갈래 A>B) — 도감이 읽는다 */
+export const discovered = new Set<string>();
 
 /** 레벨 업·시작 무기 고르기 창은 건너뛴다 (카드는 정해진 무기만 보여 준다) */
 function skipOffers(w: World): void {
@@ -189,7 +193,13 @@ class Stage {
     let opens = 0;
     if (this.scene.attach) for (const n of this.w.chaos!.opened.values()) opens += n;
     let fired = 0;
-    if (this.scene.fuse) for (const n of this.w.chaos!.fusion.fired.values()) fired += n;
+    if (this.scene.fuse) {
+      for (const [k, n] of this.w.chaos!.fusion.fired) {
+        fired += n;
+        const [a, b] = k.split('>');
+        if (n > 0 && ARMS[a] && ARMS[b]) discovered.add(`${ARMS[a].cat}>${ARMS[b].cat}`);
+      }
+    }
     const pre = this.scene.attach ? `열림 ${opens} · ` : this.scene.fuse ? `합성 ${fired} · ` : '';
     this.stat.textContent = `${pre}처치 ${this.w.kills} · 놓침 ${this.leaks} · 다시 시작까지 ${left.toFixed(0)}초`;
   }
@@ -254,6 +264,11 @@ export function mount(page: Page): void {
       });
       wrap.append(tb);
       main.append(wrap);
+    }
+    if (sec.render) {
+      const host = el('div');
+      main.append(host);
+      sec.render(host);
     }
     if (sec.list) {
       const ul = el('ul', 'list');

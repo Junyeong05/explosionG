@@ -116,6 +116,8 @@ export class ChaosDraw {
       case 'fusion':
         // 합성 v2: 처음 해낸 짝은 이름만 (규칙은 직접 보고 알아낸다)
         this.banner(`새 합성 · ${e.name}`, `${ARMS[e.a]?.name ?? ''} + ${ARMS[e.b]?.name ?? ''}`, '#7dff9a');
+        // 처음 해낸 그 자리에 이름이 떠오른다 (두 갈래 색)
+        this.pop(e.x, e.y - 18, e.name, CATEGORY_COLOR[ARMS[e.b]?.cat ?? 'gun']);
         break;
       case 'augment': {
         const spec = ARMS[e.id];
