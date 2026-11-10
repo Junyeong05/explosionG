@@ -327,14 +327,19 @@ export const V2 = {
   bonusCd: 0.7,
   /** B 동사 효과의 피해 배율 (깎지 않고 더) */
   verbMul: 1.8,
+  /** 합친 무기 안에 든 무기의 자리 지킴: 적이 방어선 guardRange 안에 오면 그 자리에서 쿨다운 × guardCd 로 직접 싸운다 */
+  guardRange: 150,
+  guardCd: 2.5,
   /** 합친 무기 갈래별 피해 더 (몸이 약하게 나온 갈래) */
-  bonusA: { trap: 1.3, magic: 1.3, field: 1.25 } as Partial<Record<AttackCat, number>>,
+  bonusA: { trap: 1.6, magic: 1.5, field: 1.4, sound: 1.3 } as Partial<Record<AttackCat, number>>,
   /** 아군으로 일어난 것의 수명 (초) */
-  allySec: 5,
+  allySec: 4,
+  /** 합성이 낸 소환수 동시 수 (B 하나당) */
+  unitCap: 6,
   /** 합친 정령은 혼 여섯이면 터진다 (열 개 대신) */
   spiritBurst: 6,
   /** 아군으로 일어난 적 동시 수 */
-  allyCap: 6,
+  allyCap: 5,
   /** 겹친 합성 깊이 (뿌리 0 → 1 → 2) */
   maxDepth: 2,
 } as const;

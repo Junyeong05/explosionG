@@ -197,7 +197,19 @@ export class ChaosDraw {
     }
     const sel = c.selected && c.selected.until > w.time ? c.selected.id : null;
     for (const { id, m } of mounts) {
-      const spec = ARMS[id];
+      // 합친 무기 안에 든 무기의 자리: 합친 무기가 그 자리에서도 쏜다 (합친 무기 그림 + 제 갈래 색 점선)
+      const root = c.fusion.isKid(id) ? c.rootOf(id) : id;
+      const spec = ARMS[root];
+      if (root !== id) {
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 14, 0, TAU);
+        ctx.strokeStyle = rgba(CATEGORY_COLOR[ARMS[id].cat], 0.85);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
       const L = w.augments.stacks(id);
       const glowCol = spec.fusion ? '#ff3cc8' : CATEGORY_COLOR[spec.cat];
       if (spec.fusion) {
@@ -225,7 +237,7 @@ export class ChaosDraw {
         this.icon(spec.emoji, m.x + 5, m.y - 5, 17, false, 0, 0.35);
       }
       if (m.wall !== 0 && spec.p.look) {
-        this.gun(spec.p.look, m.x, m.y, c.aim.get(id) ?? -Math.PI / 2, 0, w.time - (c.firedAt.get(id) ?? -9));
+        this.gun(spec.p.look, m.x, m.y, c.aim.get(root) ?? -Math.PI / 2, 0, w.time - (c.firedAt.get(root) ?? -9));
       } else {
         const bob = spec.cat === 'magic' ? Math.sin(this.time * 2 + m.x) * 2 : 0;
         ctx.globalCompositeOperation = 'lighter';

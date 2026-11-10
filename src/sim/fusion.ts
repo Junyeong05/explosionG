@@ -96,6 +96,9 @@ export class Fusion {
   private credit: { x: number; y: number; r: number; src: string; depth: number; until: number; actor: Actor | null }[] = [];
   /** 정령을 합친 무기의 처치 혼 (겹친 합성에서 안쪽 정령이 터지게) */
   private relay = new Map<string, number>();
+  /** 지금 사건이 일어난 자리 (울림: 동사가 A 를 바꾼 그 자리) */
+  private where: Pt | null = null;
+  private bumps = 0;
   /** 둘레를 도는 날 */
   private orbits = new Map<number, { cx: number; cy: number; follow: Actor | null; rad: number; ang: number; spd: number }>();
   /** 날려 보낸 적 (부딪친 적도 피해) */
@@ -136,6 +139,19 @@ export class Fusion {
     return this.kids.has(id);
   }
 
+  /** 이 무기가 v2 로 다른 무기 안에 합쳐졌나 */
+  isKid(id: string): boolean {
+    const p = this.c.parent.get(id);
+    return !!p && (this.kids.get(p)?.includes(id) ?? false);
+  }
+
+  /** 합친 무기가 쓰는 자리들: 자기 자리 + 안에 든 무기들이 지키던 자리 (막는 쪽이 비지 않게) */
+  slotsOf(id: string): string[] {
+    const out = [id];
+    for (const k of this.kids.get(id) ?? []) out.push(...this.slotsOf(k));
+    return out;
+  }
+
   /** src 의 짝 규칙을 차례로. 그동안 새로 생기는 것은 B 의 것 (src = B, 깊이 +1) */
   private run(src: string, fn: (h: H, x: Ctx) => unknown, deep = true): boolean {
     const kids = this.kids.get(src);
@@ -165,7 +181,14 @@ export class Fusion {
         this.curKey = sKey;
       }
       if (r === true) any = true;
+      const b0 = this.bumps;
       if (r === true || c.actors.length > n0) this.bump(`${src}>${b}`);
+      // 울림: B 의 동사가 A 의 몸을 바꾼 그 자리에서, B 에 합쳐 둔 것도 쓴다 (겹친 합성)
+      if (this.bumps > b0 && this.where && ECHO.has(B.cat) && this.kids.has(b)) {
+        c.curDepth = sDepth + 1;
+        this.echo(B, this.where.x, this.where.y);
+        c.curDepth = sDepth;
+      }
     }
     return any;
   }
@@ -178,6 +201,7 @@ export class Fusion {
 
   /** 해낸 횟수 +1. 이 판에서 처음이면 이름을 알린다 (게임 안 발견: 이름만, 규칙 문장은 숨김) */
   private bump(k: string): void {
+    this.bumps++;
     const n = this.fired.get(k) ?? 0;
     this.fired.set(k, n + 1);
     if (n > 0) return;
@@ -189,12 +213,15 @@ export class Fusion {
   // ─── Chaos 가 부르는 사건 ──────────────────────────────
 
   shot(src: string, a: Actor): void {
+    this.where = { x: a.x, y: a.y };
     this.run(src, (h, x) => h.shot?.(x, a), false);
   }
   hit(src: string, e: Enemy, px: number, py: number, a: Actor | null): void {
+    this.where = { x: px, y: py };
     this.run(src, (h, x) => h.hit?.(x, e, px, py, a));
   }
   removed(a: Actor): void {
+    this.where = { x: a.x, y: a.y };
     this.run(a.src, (h, x) => h.removed?.(x, a));
   }
   kill(e: Enemy): void {
@@ -215,6 +242,7 @@ export class Fusion {
     const sd = c.curDepth;
     c.curDepth = depth;
     if (src) {
+      this.where = { x: e.x, y: e.y };
       this.run(src, (h, x) => h.kill?.(x, e, by));
       this.spiritRelay(src, e);
     }
@@ -225,6 +253,7 @@ export class Fusion {
     // 다음 적으로 다시 튀는 포탄·낙하물
     if (a.tag & TAG_HOP && a.trail > 0) this.nextHop(a, px, py);
     if (a.tag & TAG_HOPTOSS) this.tossFrom(a, px, py);
+    this.where = { x: px, y: py };
     return this.run(src, (h, x) => h.land?.(x, px, py, a));
   }
   trapPlace(src: string, a: Actor): void {
@@ -236,6 +265,7 @@ export class Fusion {
     if (egg) this.cloud(egg, a.x, a.y, 26, 2);
     const blade = this.st.get(`tblade:${a.id}`) as WeaponSpec | undefined;
     if (blade) this.blade(blade, a.x, a.y, this.c.w.rng.range(0, Math.PI * 2), 3, 0.8);
+    this.where = { x: a.x, y: a.y };
     this.run(src, (h, x) => h.trigger?.(x, a));
   }
   unitSpawn(src: string, a: Actor): void {
@@ -245,14 +275,74 @@ export class Fusion {
     this.run(src, (h, x) => h.unitReach?.(x, a, e));
   }
   cast(src: string, px: number, py: number, targets: Enemy[]): void {
+    this.where = { x: px, y: py };
     this.run(src, (h, x) => h.cast?.(x, px, py, targets));
   }
   edge(src: string, a: Actor): boolean {
+    this.where = { x: a.x, y: a.y };
     return this.run(src, (h, x) => h.edge?.(x, a), false);
   }
   move(src: string, a: Actor, d: number): void {
+    this.where = { x: a.x, y: a.y };
     this.run(src, (h, x) => h.move?.(x, a, d));
   }
+  /**
+   * 울림: 동사형 B (튕긴다·터진다·꿰뚫는다·울린다·돈다·혼·잇는다) 는 B 가 따로 낸 것이 없어서, 그 동사가 일어난 자리에서
+   * B 의 대표 사건을 한 번 일으켜 B 에 합쳐 둔 것이 따라가게 한다.
+   */
+  private echo(B: WeaponSpec, x: number, y: number): void {
+    if (!this.every(`echo:${B.id}`, 0.25)) return;
+    const e = this.nearest(x, y, 70);
+    const g = this.ghost(x, y, 30, this.dmg(B));
+    const s = this.c.curSrc;
+    this.c.curSrc = B.id;
+    this.where = { x, y };
+    const turn = this.count(`echoT:${B.id}`);
+    switch (B.cat) {
+      case 'throw':
+        // 튕김 → 맞음, 다음엔 끝 (번갈아)
+        if (turn % 2 === 0) {
+          if (e) this.hit(B.id, e, x, y, null);
+        } else {
+          g.kind = 'tossed';
+          g.hits = new Set(e ? [e.id] : []);
+          this.tossEnd(B.id, g);
+        }
+        break;
+      case 'spinner':
+        // 벰 → 튕김 → 수명 끝 (돌아가며)
+        g.kind = 'saw';
+        if (turn % 3 === 0) {
+          if (e) this.hit(B.id, e, x, y, g);
+        } else if (turn % 3 === 1) this.bounce(B.id, g);
+        else this.removed(g);
+        break;
+      case 'turret':
+        this.land(B.id, x, y, g);
+        break;
+      case 'charge':
+        this.move(B.id, g, 80);
+        break;
+      case 'sound':
+        this.pulse(B.id, x, y, 60, this.near(x, y, 60));
+        break;
+      case 'ray':
+        if (e) this.ray(B.id, g, e, 1.5);
+        break;
+      case 'spirit': {
+        const n = (this.relay.get(B.id) ?? 0) + 1;
+        g.left = n;
+        this.soul(B.id, g, x, y);
+        if (n >= 3) {
+          this.relay.set(B.id, 0);
+          if (!this.burst(B.id, g)) this.radial(B, x, y, 8, 1, 200);
+        } else this.relay.set(B.id, n);
+        break;
+      }
+    }
+    this.c.curSrc = s;
+  }
+
   /** 공중의 '닿음' (낙하물이 아닌 공중 무기: 레이저 기둥·번개·폭풍·공습·핵) */
   impact(src: string, x: number, y: number, r: number, dmg: number, p?: WeaponParams): void {
     if (!this.every(`imp:${src}`, 0.12)) return;
@@ -316,9 +406,11 @@ export class Fusion {
     this.move(a.src, a, d);
   }
   pulse(src: string, px: number, py: number, r: number, hits: Enemy[]): void {
+    this.where = { x: px, y: py };
     this.run(src, (h, x) => h.pulse?.(x, px, py, r, hits));
   }
   bounce(src: string, a: Actor): void {
+    this.where = { x: a.x, y: a.y };
     this.run(src, (h, x) => h.bounce?.(x, a));
   }
   zone(src: string, px: number, py: number, r: number, ttl: number): void {
@@ -333,9 +425,11 @@ export class Fusion {
     this.run(src, (h, x) => h.zone?.(x, px, py, r, ttl));
   }
   zoneTick(z: Actor, on: Enemy[]): void {
+    this.where = { x: z.x, y: z.y };
     this.run(z.src, (h, x) => h.zoneTick?.(x, z, on));
   }
   ray(src: string, a: Actor, t: Enemy, ramp: number): void {
+    this.where = { x: t.x, y: t.y };
     this.run(src, (h, x) => h.ray?.(x, a, t, ramp));
     // 배율이 0.5 오를 때마다 (×1.5 → 3, ×2 → 4 … ×4 → 8)
     const k = `rl:${a.id}`;
@@ -354,6 +448,7 @@ export class Fusion {
     this.run(src, (h, x) => h.rayRetarget?.(x, a), false);
   }
   tossEnd(src: string, a: Actor): void {
+    this.where = { x: a.tx, y: a.ty };
     this.run(src, (h, x) => h.tossEnd?.(x, a));
   }
   cloud(src: string, a: Actor, under: Enemy[]): void;
@@ -362,15 +457,18 @@ export class Fusion {
     if (typeof a1 === 'string') {
       const a = a2 as Actor;
       const under = a3 as Enemy[];
+      this.where = { x: a.x, y: a.y };
       this.run(a1, (h, x) => h.cloud?.(x, a, under));
       return;
     }
     return this.spawnCloud(a1, a2 as number, a3 as number, r!, ttl!, mul, target);
   }
   soul(src: string, d: Actor, px: number, py: number): void {
+    this.where = { x: px, y: py };
     this.run(src, (h, x) => h.soul?.(x, d, px, py));
   }
   burst(src: string, d: Actor): boolean {
+    this.where = { x: d.x, y: d.y };
     return this.run(src, (h, x) => h.burst?.(x, d));
   }
 
@@ -546,6 +644,7 @@ export class Fusion {
       }
     }
     this.flung = this.flung.filter((fl) => !fl.e.dead && fl.until >= t);
+    this.where = null;
     for (const a of this.kids.keys()) this.run(a, (h, x) => h.tick?.(x, dt), false);
   }
 
@@ -646,6 +745,11 @@ export class Fusion {
     this.c.boom(x, y, r * this.c.areaMul, dmg, p);
     this.ring(x, y, r, color, 0.3);
   }
+  countUnits(src: string): number {
+    let n = 0;
+    for (const a of this.c.actors) if (a.kind === 'walker' && a.src === src && a.depth > 0) n++;
+    return n;
+  }
   allies(): number {
     let n = 0;
     for (const a of this.c.actors) if (a.tag & TAG_ALLY) n++;
@@ -663,6 +767,7 @@ export class Fusion {
   }
   /** 소환수 B (맡을 적을 정해 줄 수 있음) */
   unit(B: WeaponSpec, x: number, y: number, ttl = 8, mul = 1, target: Enemy | null = null): Actor | null {
+    if (this.countUnits(B.id) >= V2.unitCap) return null;
     const p = this.p(B.cat === 'summon' ? B : ARMS.arm_dog);
     const a = this.c.add('walker', x, y, { ttl, p, emoji: p.emoji ?? B.emoji, dmg: this.dmg(B.cat === 'summon' ? B : ARMS.arm_dog, mul), r: this.c.LINE - 20, left: p.melee ?? 0 });
     if (a && target) a.target = target;
@@ -990,6 +1095,8 @@ export class Fusion {
 // 문장은 src/data/combineV2.ts. 여기는 그 문장을 실제로 하는 것.
 
 const W = 360;
+/** 동사형 B: B 가 따로 낸 것 없이 A 의 몸을 바꾸는 갈래 (울림으로 겹친 합성을 잇는다) */
+const ECHO = new Set<WeaponSpec['cat']>(['throw', 'turret', 'charge', 'sound', 'spinner', 'spirit', 'ray']);
 /** 돌격 갈래에서 달리는 것 (chaos.ts MOVERS 와 같게) */
 const RUN = new Set<Actor['kind']>(['stamp', 'sweep', 'dino', 'cow', 'train', 'dragon', 'tornado', 'donkey']);
 /** 연속으로 누른 점들 (잇기·삼각형·경로) */
@@ -2352,9 +2459,10 @@ const RULES: Record<string, H> = {
   'sound>summon': {
     // 징집 나팔: 맞은 적 수만큼 고리 끝에서
     pulse({ f, B }, x, y, r, hits) {
-      for (const e of hits.filter((h) => !h.dead).slice(0, 4)) {
+      // 맞고 쓰러진 적이 있어도 그 자리 쪽으로 (고리가 셀수록 바로 쓰러진다)
+      for (const e of hits.slice(0, 4)) {
         const g = angTo(x, y, e);
-        f.unit(B, x + Math.cos(g) * r * 0.8, y + Math.sin(g) * r * 0.8, 6, 1, e);
+        f.unit(B, x + Math.cos(g) * r * 0.8, y + Math.sin(g) * r * 0.8, 6, 1, e.dead ? null : e);
       }
     },
   },

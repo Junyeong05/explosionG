@@ -166,6 +166,9 @@ export class Chaos {
   curDepth = 0;
   /** 실린 것이 자리에서 쏠 때: 그 자리 (없으면 무기 자리) */
   private link: { at: Mount } | null = null;
+  /** 합친 무기가 이번에 쏘는 자리 (자기 자리와 안에 든 무기 자리를 돌아가며) */
+  private slotOverride: Mount | null = null;
+  private slotTurn = new Map<string, number>();
 
   // 합성 (data/links.ts): 나르는 무기 → 실은 무기들 (나를 때마다 돌아가며 연다)
   private readonly carried = new Map<string, string[]>();
@@ -992,7 +995,9 @@ export class Chaos {
     let i = 0;
     for (const id of this.owned()) {
       const spec = ARMS[id];
-      if (spec.cat === 'hand' || spec.cat === 'passive' || this.parent.has(id)) continue;
+      if (spec.cat === 'hand' || spec.cat === 'passive') continue;
+      // 합친 무기 안에 든 무기(v2)는 자리를 남겨 둔다: 합친 무기가 그 자리에서도 쏜다
+      if (this.parent.has(id) && !this.fusion.isKid(id)) continue;
       const row = Math.floor(i / perRow);
       const y = row === 0 ? this.LINE + 16 : this.LINE - 14 - (row - 1) * 30;
       const gun = (spec.kind === 'gun' || spec.kind === 'beam') && !!spec.p.look;
@@ -1035,7 +1040,19 @@ export class Chaos {
   private updateWeapons(): void {
     for (const id of this.owned()) {
       const spec = ARMS[id];
-      if (spec.cat === 'hand' || spec.cat === 'passive' || this.parent.has(id)) continue;
+      if (spec.cat === 'hand' || spec.cat === 'passive') continue;
+      // 합친 무기 안에 든 무기(v2): 적이 방어선 가까이 오면 제 자리에서 느리게 직접 지킨다 (막는 쪽이 비지 않게)
+      const guard = this.parent.has(id) && this.fusion.isKid(id);
+      if (this.parent.has(id) && !guard) continue;
+      // 정령은 합쳐도 하나가 남아 자리를 돈다 (혼을 모으는 몸)
+      if (guard && spec.kind === 'drone') {
+        this.keepDrones(spec, 1);
+        continue;
+      }
+      if (guard && (spec.kind === 'beam' || spec.kind === 'zap' || !this.inZone(undefined, V2.guardRange).length)) {
+        if ((this.cooldowns.get(id) ?? 0) <= 0) this.cooldowns.set(id, 0.2);
+        continue;
+      }
       if (this.fusion.active && this.fusion.blocks(id)) continue;
       this.curSrc = id;
       this.curDepth = 0;
@@ -1068,9 +1085,17 @@ export class Chaos {
         this.curRange = DEFAULT_RANGE;
         continue;
       }
+      // 합친 무기: 자기 자리와 안에 든 무기들이 지키던 자리를 돌아가며 쏜다
+      if (this.fusion.active && this.fusion.has(id)) {
+        const slots = this.fusion.slotsOf(id).map((s) => this.mounts.get(s)).filter((m): m is Mount => !!m);
+        const turn = (this.slotTurn.get(id) ?? 0) + 1;
+        this.slotTurn.set(id, turn);
+        this.slotOverride = slots.length ? slots[turn % slots.length] : null;
+      }
       const fired = this.fire(spec);
+      this.slotOverride = null;
       // 사거리 안에 적이 없어서 못 쐈으면 조금 뒤 다시 본다
-      this.cooldowns.set(id, fired ? this.cooldownOf(id) : 0.2);
+      this.cooldowns.set(id, fired ? this.cooldownOf(id) * (guard ? V2.guardCd : 1) : 0.2);
       this.curMul = 1;
       this.curRange = DEFAULT_RANGE;
     }
@@ -1083,7 +1108,7 @@ export class Chaos {
     const p = this.eff(spec).p;
     const D = this.D * this.curMul;
     const range = this.curRange;
-    const mount = this.link?.at ?? this.mounts.get(spec.id);
+    const mount = this.link?.at ?? this.slotOverride ?? this.mounts.get(spec.id);
     const from = mount ?? { x: w.field.width / 2, y: this.LINE - 12, wall: 0 };
     switch (spec.kind) {
       case 'gun': {
@@ -1523,8 +1548,8 @@ export class Chaos {
   }
 
   /** 드론: 레벨 + 다중 만큼 떠서 돌며 쏜다 */
-  private keepDrones(spec: WeaponSpec): void {
-    const want = (this.eff(spec).p.count ?? 1) + this.extra;
+  private keepDrones(spec: WeaponSpec, max = 99): void {
+    const want = Math.min(max, (this.eff(spec).p.count ?? 1) + this.extra);
     let have = 0;
     for (const a of this.actors) if (a.kind === 'drone' && a.src === spec.id) have++;
     // 정령 갈래가 생겨 떠다니는 무기가 여럿: 무기마다 도는 자리를 엇갈리게
