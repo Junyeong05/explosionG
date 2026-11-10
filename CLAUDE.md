@@ -31,4 +31,5 @@
 - 브라우저(Playwright)로 열어 오류 없이 도는지, 폰 너비(390px)에서 가로 스크롤이 없는지 보고 나서 파일을 보낸다
 - 페이지 주소
   - `categories` (갈래 15개): https://claude.ai/artifact/HT8y53kpe6NNSaMiPXjcBM
-  - `links` (실어 나르기 210): https://claude.ai/artifact/1xUzTwMAgk5wDjt1B2Gnrb
+  - `links` (실어 나르기 210, 처음 설계): https://claude.ai/artifact/1xUzTwMAgk5wDjt1B2Gnrb
+  - `combine` (합성 210, 실제로 도는 210가지 + 공통 규칙): https://claude.ai/artifact/AtSVCwsWaX3ELXV5LjcLe7

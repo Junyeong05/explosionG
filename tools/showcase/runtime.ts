@@ -29,6 +29,12 @@ export interface Scene {
   hpMul?: number;
   /** 카드를 한 줄 전체로 */
   wide?: boolean;
+  /** 합성: [나르는 무기, 실을 무기] 순서대로 싣는다 (Chaos.attach) */
+  attach?: [string, string][];
+  /** 설명 아래 작은 줄들 (특이점 등) */
+  extra?: string[];
+  /** 카드 맨 아래 작은 고정폭 글씨 (알려 줄 때 쓰는 이름, 예: gun>summon) */
+  code?: string;
 }
 
 export interface Section {
@@ -39,6 +45,8 @@ export interface Section {
   table?: string[][];
   /** 카드 앞에 놓는 목록 */
   list?: string[];
+  /** 카드를 작게 (한 줄에 더 많이) */
+  compact?: boolean;
   scenes: Scene[];
 }
 
@@ -66,8 +74,8 @@ function skipOffers(w: World): void {
 }
 
 class Stage {
-  private w!: World;
-  private readonly r: Renderer;
+  private w: World | null = null;
+  private r: Renderer | null = null;
   private t = 0;
   private spawnT = 0;
   private tapT = 0;
@@ -77,15 +85,28 @@ class Stage {
   visible = false;
 
   constructor(
-    canvas: HTMLCanvasElement,
+    private readonly canvas: HTMLCanvasElement,
     private readonly scene: Scene,
     private readonly stat: HTMLElement,
-  ) {
-    this.r = new Renderer(canvas, () => ({ w: canvas.clientWidth || 300, h: canvas.clientHeight || 533 }));
-    this.reset();
+  ) {}
+
+  /** 보일 때 처음 만들고, 안 보이면 놓는다 (카드가 수백 장이어도 보이는 것만 메모리를 쓴다) */
+  show(on: boolean): void {
+    this.visible = on;
+    if (on && !this.r) {
+      const cv = this.canvas;
+      this.r = new Renderer(cv, () => ({ w: cv.clientWidth || 300, h: cv.clientHeight || 533 }));
+      this.reset();
+    } else if (!on && this.r) {
+      this.r = null;
+      this.w = null;
+      this.canvas.width = 1;
+      this.canvas.height = 1;
+    }
   }
 
   reset(): void {
+    if (!this.r) return;
     this.runs++;
     const w = new World({ seed: 11 + this.runs, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
     skipOffers(w);
@@ -93,6 +114,7 @@ class Stage {
       if (!ARMS[id]) throw new Error(`무기 없음: ${id}`);
       for (let i = 0; i < (this.scene.level ?? 3); i++) w.augments.acquire(id, w);
     }
+    for (const [a, b] of this.scene.attach ?? []) if (!w.chaos!.attach(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
     this.w = w;
     this.r.reset();
     this.t = 0;
@@ -102,11 +124,11 @@ class Stage {
   }
 
   resize(): void {
-    this.r.resize();
+    this.r?.resize();
   }
 
   private stepOnce(): void {
-    const w = this.w;
+    const w = this.w!;
     const sc = this.scene;
     const cmds: Command[] = [];
     // 살아 있는 적이 keep 보다 적으면 위쪽 절반 아무 데서나 하나씩 (초당 최대 8마리)
@@ -135,7 +157,7 @@ class Stage {
     skipOffers(w);
     const evs = w.drainEvents();
     for (const e of evs) if (e.type === 'leak') this.leaks++;
-    if (evs.length) this.r.consume(evs);
+    if (evs.length) this.r!.consume(evs);
     // 판이 끝나지 않게 (놓친 수만 센다)
     (w as unknown as { life: number }).life = w.stats.maxLife;
     this.t += FIXED_DT;
@@ -143,7 +165,7 @@ class Stage {
   }
 
   frame(realDt: number): void {
-    if (!this.visible) return;
+    if (!this.visible || !this.r || !this.w) return;
     this.acc += realDt * speed;
     let n = 0;
     while (this.acc >= FIXED_DT && n < 6) {
@@ -154,7 +176,9 @@ class Stage {
     if (n === 6) this.acc = 0;
     this.r.draw(this.w, realDt * speed);
     const left = Math.max(0, (this.scene.seconds ?? 18) - this.t);
-    this.stat.textContent = `처치 ${this.w.kills} · 놓침 ${this.leaks} · 다시 시작까지 ${left.toFixed(0)}초`;
+    let opens = 0;
+    if (this.scene.attach) for (const n of this.w.chaos!.opened.values()) opens += n;
+    this.stat.textContent = `${this.scene.attach ? `열림 ${opens} · ` : ''}처치 ${this.w.kills} · 놓침 ${this.leaks} · 다시 시작까지 ${left.toFixed(0)}초`;
   }
 }
 
@@ -198,7 +222,7 @@ export function mount(page: Page): void {
   const io = new IntersectionObserver((ents) => {
     for (const en of ents) {
       const st = (en.target as HTMLElement & { stage?: Stage }).stage;
-      if (st) st.visible = en.isIntersecting;
+      if (st) st.show(en.isIntersecting);
     }
   }, { rootMargin: '120px' });
 
@@ -224,7 +248,7 @@ export function mount(page: Page): void {
       main.append(ul);
     }
     if (sec.scenes.length === 0) continue;
-    const grid = el('div', 'grid');
+    const grid = el('div', sec.compact ? 'grid compact' : 'grid');
     main.append(grid);
     for (const sc of sec.scenes) {
       const card = el('div', sc.wide ? 'card wide' : 'card');
@@ -235,6 +259,8 @@ export function mount(page: Page): void {
       if (sc.tag) h4.append(' ', el('span', 'tag', sc.tag));
       const names = sc.weapons.map((id) => ARMS[id].name).join(' · ');
       card.append(cv, stat, h4, el('p', 'weap', `무기 (${sc.level ?? 3}레벨): ${names}`), el('p', '', sc.desc));
+      for (const x of sc.extra ?? []) card.append(el('p', 'extra', x));
+      if (sc.code) card.append(el('p', 'code', sc.code));
       grid.append(card);
       const st = new Stage(cv, sc, stat);
       (cv as HTMLCanvasElement & { stage?: Stage }).stage = st;

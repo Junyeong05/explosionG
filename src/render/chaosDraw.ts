@@ -1,7 +1,7 @@
 import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
-import { CAST_SEC, SOUL_BURST, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
+import { CAST_SEC, SOUL_BURST, TAG_MINI, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
 import { glyphFor, paintGlyph } from './glyphs';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
@@ -777,11 +777,48 @@ export class ChaosDraw {
         this.icon(a.emoji ?? '🪤', a.x, a.y, 19);
         break;
       }
+      case 'open': {
+        // 합성: 실린 것이 열리는 자리. 나르는 갈래 색 고리가 조여 들고, 실린 갈래 색 고리가 퍼진다
+        const f = 1 - k;
+        const outer = a.p?.color ?? '#ffffff';
+        const inner = a.emoji ?? '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = rgba(outer, 0.9 * f);
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r * (1.8 - 1.2 * k), 0, TAU);
+        ctx.stroke();
+        ctx.strokeStyle = rgba(inner, f);
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r * (0.2 + 1.2 * Math.sqrt(k)), 0, TAU);
+        ctx.stroke();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.8 * f;
+        ctx.drawImage(this.glow.get(inner), a.x - a.r * 1.4, a.y - a.r * 1.4, a.r * 2.8, a.r * 2.8);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'post': {
+        // 실린 총: 잠깐 떠서 쏘는 작은 총구
+        const fade = Math.min(1, (a.ttl - a.t) / 0.3) * Math.min(1, a.t / 0.15);
+        ctx.beginPath();
+        ctx.ellipse(a.x, a.y + 9, 10, 3.5, 0, 0, TAU);
+        ctx.fillStyle = rgba('#000000', 0.35 * fade);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 11, 0, TAU);
+        ctx.strokeStyle = rgba(CATEGORY_COLOR.gun, 0.7 * fade);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        this.icon(a.emoji ?? '🔫', a.x, a.y, 16, false, 0, fade);
+        break;
+      }
       case 'cast': {
-        // 마법진: 돌면서 커지는 이중 고리 + 눈금 + 가운데 마법 그림, 다 차면 발동
-        const f = clamp(a.t / CAST_SEC, 0, 1);
+        // 마법진: 돌면서 커지는 이중 고리 + 눈금 + 가운데 마법 그림, 다 차면 발동 (실려서 열린 것은 작고 빠르게)
+        const f = clamp(a.t / a.ttl, 0, 1);
         const spec = ARMS[a.src];
-        const R = 26 + 30 * Math.sqrt(f);
+        const R = (26 + 30 * Math.sqrt(f)) * (a.ttl < CAST_SEC ? 0.55 : 1);
         const rot = this.time * 2.2;
         ctx.save();
         ctx.translate(a.x, a.y);
@@ -818,7 +855,7 @@ export class ChaosDraw {
         }
         ctx.globalCompositeOperation = 'source-over';
         ctx.restore();
-        if (spec) this.icon(spec.emoji, a.x, a.y, 18 + 10 * f);
+        if (spec) this.icon(spec.emoji, a.x, a.y, (18 + 10 * f) * (a.ttl < CAST_SEC ? 0.6 : 1));
         break;
       }
       case 'ray': {
@@ -931,7 +968,7 @@ export class ChaosDraw {
         }
         break;
       case 'drone': {
-        const full = clamp(a.left / SOUL_BURST, 0, 1);
+        const full = clamp(a.left / (a.tag & TAG_MINI ? SOUL_BURST / 2 : SOUL_BURST), 0, 1);
         if (full > 0) {
           ctx.globalCompositeOperation = 'lighter';
           ctx.globalAlpha = 0.25 + 0.5 * full + 0.15 * Math.sin(this.time * (6 + 10 * full));

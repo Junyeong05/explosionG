@@ -36,6 +36,12 @@ h2 { font-size:21px; margin:40px 0 4px; padding-top:8px; border-top:2px solid va
 .tag { display:inline-block; font-size:12px; color:var(--accent); border:1px solid currentColor; border-radius:999px; padding:0 8px; font-weight:500; vertical-align:2px }
 .card p { margin:4px 0 0; color:var(--mute); font-size:13.5px }
 .card p.weap { color:var(--fg); font-size:13px }
+.card p.extra { font-size:12.5px }
+.card p.code { font:12px ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--mute); margin-top:6px; opacity:.85 }
+.grid.compact { grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px }
+.grid.compact .card { padding:8px }
+.grid.compact .card h4 { font-size:14px }
+.grid.compact .card p { font-size:12.5px }
 .tablewrap { overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:var(--card) }
 table { border-collapse:collapse; font-size:13.5px; min-width:640px; width:100% }
 th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); vertical-align:top }
@@ -69,6 +75,7 @@ details.group summary { cursor:pointer; font-size:14px; color:var(--mute) }
 details.group summary .chip { margin-right:4px }
 details.group .linkgrid { margin-bottom:4px }
 @media (max-width:560px) { .grid { grid-template-columns:1fr } .card canvas { max-width:380px; margin:0 auto } }
+@media (max-width:560px) { .grid.compact { grid-template-columns:repeat(2, minmax(0, 1fr)) } .top { gap:6px 10px } .top nav { flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; white-space:nowrap; min-width:0; scrollbar-width:none; padding-bottom:2px } }
 </style>
 <!--/PAGE-->
 </head>

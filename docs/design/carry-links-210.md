@@ -1,5 +1,7 @@
 # 실어 나르기 210가지 (2026-11-09)
 
+> 11-10: 처음 설계 문장. 실제로 도는 규칙은 [`combine-210.md`](combine-210.md) (나를 때 15 × 실릴 때 15, 세기·깊이·상한). 이 표의 조각 문장과 다를 수 있다.
+
 `npx tsx tools/carry/doc.ts` 로 `src/data/links.ts` 에서 뽑은 표. 손으로 고치지 말고 데이터를 고친다.
 연결 A → B = A가 나를 때(언제·어디서) × B가 실릴 때(무엇이). 이름 붙은 것은 대표 조합(조각을 그냥 이은 것보다 낫게 다시 쓴 것).
 미리보기 페이지: https://claude.ai/artifact/1xUzTwMAgk5wDjt1B2Gnrb

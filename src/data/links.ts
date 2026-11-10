@@ -1,4 +1,4 @@
-import { ATTACK_CATEGORIES, CATEGORY_COLOR, CATEGORY_LABEL, type ArmCategory } from './chaos';
+import { ARMS, ATTACK_CATEGORIES, CATEGORY_COLOR, CATEGORY_LABEL, type ArmCategory } from './chaos';
 
 /**
  * 실어 나르기 (갈래 둘을 잇는 연결) 설계 데이터 — docs/design/carry-links.md, 210가지 표는 carry-links-210.md.
@@ -227,3 +227,179 @@ export function allLinks(): Link[] {
 }
 
 export const LINK_COLORS = CATEGORY_COLOR;
+
+// ─── 합성 규칙 (실제로 도는 것: src/sim/chaos.ts 가 읽는다) ─────────────────
+//
+// 11-10 유저: "15P2 라 210개. 모든 조합을 짜 두는 게 아니라 210개에서 공통으로 성립하는 규칙만.
+//   주문이면 몇 번째 총알마다 멈춤·변이, 지속시간은 데미지에 비례, 발동 간격은 공격 속도를 따라가게. 광선은 특수하게.
+//   규칙은 유저에게 다 공개하지 않고 직접 찾아가는 맛."
+// 그래서: A 가 나를 때(CARRY, 갈래마다 하나) × B 가 실릴 때(PAYLOAD, 갈래마다 하나) = 210 규칙.
+// 합친 무기는 뿌리(A) 갈래로 친다. B 가 또 무엇을 실었으면 열린 B 도 그것을 나른다 (깊이 LINK.maxDepth 까지).
+// 게임 안에서는 이 문장을 보여 주지 않는다 (미리보기·문서는 검증용).
+
+export type AttackCat = Exclude<ArmCategory, 'passive'>;
+
+/** 겹침 안전장치와 세기 */
+export const LINK = {
+  /** 실린 것의 피해 = B 의 피해 × dmg × k (k = 나르는 무기의 한 방 세기, 같은 갈래 가운데값 대비) */
+  dmg: 0.6,
+  /** 실린 주문의 지속 = 그 주문 지속 × spellDur × k */
+  spellDur: 0.5,
+  /** k 범위: 같은 갈래에서 한 방이 약한 무기 ×0.5 ~ 센 무기 ×2 */
+  kMin: 0.5,
+  kMax: 2,
+  /** 깊이가 하나 깊어질 때마다 세기·지속 × depthMul */
+  depthMul: 0.6,
+  /** 뿌리 = 0, 실린 것 = 1, 실린 것이 실은 것 = 2 까지 연다 */
+  maxDepth: 2,
+  /** 나르는 무기 하나가 열 수 있는 횟수: 최대 cap 번 몰아서, 초당 rate 번씩 다시 찬다 */
+  cap: 3,
+  rate: 2,
+} as const;
+
+export interface CarryRule {
+  /** 이 일이 every 번 일어날 때마다 한 번 연다 (빠르게 쏘는 무기일수록 자주) */
+  every: number;
+  /** 무엇이 일어날 때, 어디서 */
+  when: string;
+}
+
+/** A 가 나를 때 (15) */
+export const CARRY: Record<AttackCat, CarryRule> = {
+  hand: { every: 1, when: '탭할 때마다, 탭한 자리에서' },
+  gun: { every: 5, when: '총탄이 다섯 발 맞을 때마다, 다섯째 탄이 맞은 적 자리에서' },
+  turret: { every: 1, when: '포탄이 떨어져 터질 때마다, 터진 자리에서' },
+  summon: { every: 1, when: '소환수가 맡은 적에 처음 닿을 때마다 (맡은 적 하나에 한 번), 그 자리에서' },
+  magic: { every: 1, when: '주문이 발동할 때, 마법진 둘레 세 곳에서' },
+  trap: { every: 1, when: '함정이 밟혀 터질 때마다, 밟힌 자리에서' },
+  air: { every: 2, when: '떨어진 것이 두 번 닿을 때마다, 닿은 자리에서' },
+  charge: { every: 1, when: '돌격이 화면 안을 110 달릴 때마다, 달리던 자리에서' },
+  sound: { every: 1, when: '고리가 퍼질 때마다, 가장 가까운 적 둘 자리에서' },
+  spinner: { every: 3, when: '날이 적을 세 번 벨 때마다, 벤 자리에서' },
+  field: { every: 1, when: '장판이 깔려 있는 동안 1초마다, 장판 위 적 하나 자리에서' },
+  ray: { every: 1, when: '같은 적에 붙어 배율이 0.5 오를 때마다 (×1.5·×2·…·×4), ×4 뒤로는 1.2초마다, 붙은 적 자리에서' },
+  throw: { every: 1, when: '던진 것이 적에 맞을 때마다 (튕겨 맞은 것까지), 맞은 자리에서' },
+  swarm: { every: 4, when: '구름이 적을 1초 덮을 때마다 (0.25초 갉기 네 번), 덮인 적 하나 자리에서' },
+  spirit: { every: 2, when: '정령이 혼을 두 개 받을 때마다, 그 혼이 빠져나온 (적이 죽은) 자리에서' },
+};
+
+/** B 가 실릴 때 (15). 초·피해는 세기 k 를 곱한다 */
+export const PAYLOAD: Record<AttackCat, string> = {
+  hand: '그 손 기술이 그 자리를 탭한 것처럼 한 번 터진다 (폭탄 탭은 작은 폭발 하나)',
+  gun: '작은 총구가 떠서 2초 동안 근처(170) 적에게 그 총을 쏜다 (쿨다운 절반)',
+  turret: '그 자리에서 근처(240) 무리로 포탄이 날아가 터진다 (실린 포격은 가까워도 친다)',
+  summon: '그 자리에서 소환수 한 마리가 나와 아직 아무도 안 맡은 적을 맡는다 (6초)',
+  magic: '작은 마법진(반경 70)이 0.35초 뒤 열려 그 주문을 짧게 건다 (지속 = 주문 지속 × 0.5 × k). 멈춤·변이·매혹·되돌리기는 그 자리 적에게, 분신·가속은 나르는 무기에',
+  trap: '그 자리 바로 앞 바닥에 함정 하나가 꽂혀 기다린다 (12초)',
+  air: '그 자리 위로 하나가 더 떨어진다 (그림자 예고 짧게, 폭발 반경 70%)',
+  charge: '그 자리에서 작은 돌격 하나가 적이 많은 쪽으로 가로지른다 (1.6초)',
+  sound: '그 자리에서 작은 고리(반경 70)가 한 번 퍼져 밀고 멈칫하게 한다',
+  spinner: '그 자리에서 날 하나가 가까운 적 쪽으로 튀어나가 튕겨 다닌다 (지속 절반)',
+  field: '그 자리에 작은 장판(반경 70%)이 2초 깔린다',
+  ray: '그 자리에서 가장 가까운 적에게 짧은 줄기가 1.5초 이어진다 (붙어 있는 동안 세짐)',
+  throw: '그 자리에서 투척물이 튀어 가까운 적 둘을 차례로 맞힌다',
+  swarm: '그 자리에 작은 구름이 피어 1.5초 덮는다 (느림·받는 피해 ×1.5)',
+  spirit: '그 자리에 작은 정령이 6초 떠서 쏘다가, 근처에서 죽은 적의 혼 다섯을 모으면 터진다',
+};
+
+/** 미리보기·검증에 쓰는 갈래별 대표 무기 */
+export const SAMPLE: Record<AttackCat, string> = {
+  hand: 'arm_zap',
+  gun: 'arm_g_carbine',
+  turret: 'arm_cannon',
+  summon: 'arm_dog',
+  magic: 'arm_m_poly',
+  trap: 'arm_tr_mines',
+  air: 'arm_a_bomber',
+  charge: 'arm_c_bikers',
+  sound: 'arm_s_guitar',
+  spinner: 'arm_sp_disc',
+  field: 'arm_f_lava',
+  ray: 'arm_laser',
+  throw: 'arm_th_volley',
+  swarm: 'arm_sw_mosquito',
+  spirit: 'arm_sl_fairy',
+};
+
+/** 주문을 실을 때 나르는 갈래마다 다른 주문을 보여 준다 (여섯 가지가 다 나오게) */
+export const SAMPLE_SPELL: Record<AttackCat, string> = {
+  hand: 'arm_m_charm',
+  gun: 'arm_m_timestop',
+  turret: 'arm_m_poly',
+  summon: 'arm_m_clone',
+  magic: 'arm_m_poly',
+  trap: 'arm_m_poly',
+  air: 'arm_m_recall',
+  charge: 'arm_m_haste',
+  sound: 'arm_m_timestop',
+  spinner: 'arm_m_charm',
+  field: 'arm_m_poly',
+  ray: 'arm_m_timestop',
+  throw: 'arm_m_recall',
+  swarm: 'arm_m_charm',
+  spirit: 'arm_m_clone',
+};
+
+/** 나르는 쪽 갈래 특이점 (검증할 때 볼 것) */
+export const CARRY_NOTE: Partial<Record<AttackCat, string>> = {
+  hand: '탭을 안 하면 안 열린다 (미리보기는 자동 탭)',
+  magic: '쿨다운이 길어 드물게 열리는 대신 한 번에 셋',
+  ray: '특수: 단단한 적에 오래 붙어야 열린다. 표적이 바뀌면 처음부터',
+  spirit: '적이 죽어야 열린다 (다른 무기가 잡은 것도 혼은 정령에게 간다)',
+  turret: '먼 뒷줄에서만 열린다',
+  trap: '적이 밟아야 열린다 (미리 깔아 둔 만큼 한꺼번에)',
+};
+
+/** 실리는 쪽 갈래 특이점 */
+export const PAYLOAD_NOTE: Partial<Record<AttackCat, string>> = {
+  spirit: '근처에서 적이 죽어야 혼이 모인다',
+};
+
+export interface LinkRule {
+  key: string;
+  from: AttackCat;
+  to: AttackCat;
+  title: string;
+  /** 이름 붙은 대표 조합 (SIGNATURE) */
+  name: string | null;
+  when: string;
+  what: string;
+  notes: string[];
+  /** 대표 무기: 나르는 것, 실리는 것 */
+  carrier: string;
+  payload: string;
+}
+
+/** 210 규칙 (A 순서, A 안에서 B 순서) */
+export function linkRules(): LinkRule[] {
+  const out: LinkRule[] = [];
+  for (const a of CATS) {
+    for (const b of CATS) {
+      if (a === b) continue;
+      const notes: string[] = [];
+      const cn = CARRY_NOTE[a];
+      const pn = PAYLOAD_NOTE[b];
+      if (cn) notes.push(cn);
+      if (pn) notes.push(pn);
+      const payload = b === 'magic' ? SAMPLE_SPELL[a] : SAMPLE[b];
+      out.push({
+        key: `${a}>${b}`,
+        from: a,
+        to: b,
+        title: `${CATEGORY_LABEL[a]} → ${CATEGORY_LABEL[b]}`,
+        name: SIGNATURE[`${a}>${b}`]?.name ?? null,
+        when: CARRY[a].when,
+        what: PAYLOAD[b],
+        notes,
+        carrier: SAMPLE[a],
+        payload,
+      });
+    }
+  }
+  return out;
+}
+
+/** 무기 이름 (문서·미리보기) */
+export function armName(id: string): string {
+  return ARMS[id]?.name ?? id;
+}
