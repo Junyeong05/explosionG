@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/data/balance';
 import { ARMS, ATTACK_CATEGORIES } from '../src/data/chaos';
 import { CARRY, LINK, PAYLOAD, linkRules } from '../src/data/links';
+import { rulesV2 } from '../src/data/combineV2';
 import { Rng } from '../src/core/rng';
 import { runCombo } from '../tools/carry/check';
 import { sandbox } from './helpers';
@@ -105,5 +106,13 @@ describe('합성: 갈래 둘을 합치면', () => {
       const res = runCombo(pick, attach, { seconds: 10, seed: n + 1, taps: true });
       expect(res.maxActors).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
     }
+  });
+
+  it('v2 설계: 210가지 모두 손으로 쓴 규칙이 있고 이름이 겹치지 않는다', () => {
+    const r = rulesV2();
+    expect(r).toHaveLength(210);
+    expect(new Set(r.map((x) => x.key)).size).toBe(210);
+    expect(new Set(r.map((x) => x.name)).size).toBe(210);
+    for (const x of r) expect(x.text.length, x.key).toBeGreaterThan(15);
   });
 });

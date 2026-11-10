@@ -1,4 +1,4 @@
-// 합성 210 규칙표(마크다운) 뽑기: npx tsx tools/carry/rules.ts > docs/design/combine-210.md
+// 합성 210 v1 규칙표(마크다운) 뽑기: npx tsx tools/carry/rules.ts > docs/design/combine-210-v1.md (보관본. 머리말은 손으로 붙임)
 // 규칙은 src/data/links.ts (CARRY × PAYLOAD), 열림 횟수는 tools/carry/check.ts 로 실제로 돌려 잰 값
 import { ARMS, ATTACK_CATEGORIES, CATEGORY_LABEL } from '../../src/data/chaos';
 import { CARRY, CARRY_NOTE, LINK, PAYLOAD, PAYLOAD_NOTE, SAMPLE, linkRules, type AttackCat } from '../../src/data/links';

@@ -32,4 +32,4 @@
 - 페이지 주소
   - `categories` (갈래 15개): https://claude.ai/artifact/HT8y53kpe6NNSaMiPXjcBM
   - `links` (실어 나르기 210, 처음 설계): https://claude.ai/artifact/1xUzTwMAgk5wDjt1B2Gnrb
-  - `combine` (합성 210, 실제로 도는 210가지 + 공통 규칙): https://claude.ai/artifact/AtSVCwsWaX3ELXV5LjcLe7
+  - `combine` (합성 210 v1 보관본: 실제로 도는 210가지 + 공통 규칙): https://claude.ai/artifact/AtSVCwsWaX3ELXV5LjcLe7

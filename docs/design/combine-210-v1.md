@@ -1,4 +1,6 @@
-# 합성 210: 규칙 전부 (2026-11-10)
+# 합성 210 v1: 규칙 전부 (2026-11-10, 보관)
+
+> **보관본.** 유저 11-10 피드백: "합쳤으면 둘을 따로 가진 것(100% + 100%)보다 확 좋아야 한다. v1 은 실린 것이 작게 가끔 열려 그보다 약하다." → 새 규칙은 [`combine-210-v2.md`](combine-210-v2.md). v1 코드는 커밋 `12a3fb9` (`src/data/links.ts` CARRY·PAYLOAD, `src/sim/chaos.ts` attach·carry·payload), 미리보기 https://claude.ai/artifact/AtSVCwsWaX3ELXV5LjcLe7
 
 `npx tsx tools/carry/rules.ts` 로 `src/data/links.ts` 에서 뽑은 표. 손으로 고치지 말고 데이터를 고친다. 동작은 `src/sim/chaos.ts` (attach · carry · payload).
 미리보기 (210가지가 실제로 도는 카드): docs/showcase/combine.html
