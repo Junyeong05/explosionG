@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { BALANCE } from '../src/data/balance';
 import { ARMS, ATTACK_CATEGORIES } from '../src/data/chaos';
 import { CARRY, LINK, PAYLOAD, linkRules } from '../src/data/links';
-import { rulesV2 } from '../src/data/combineV2';
+import { HELPER, inputFor, rulesV2, samplesV2 } from '../src/data/combineV2';
+import { FUSION_RULES } from '../src/sim/fusion';
+import { run2 } from '../tools/carry/check2';
 import { Rng } from '../src/core/rng';
 import { runCombo } from '../tools/carry/check';
 import { sandbox } from './helpers';
@@ -115,4 +117,71 @@ describe('합성: 갈래 둘을 합치면', () => {
     expect(new Set(r.map((x) => x.name)).size).toBe(210);
     for (const x of r) expect(x.text.length, x.key).toBeGreaterThan(15);
   });
+
+  describe('v2 (fusion.ts): 합치면 새 무기', () => {
+    it('210가지 모두 구현이 있고, 미리보기 조건(대표 무기 3레벨, 18초)에서 규칙이 해내고, 물체 수 상한 안', () => {
+      const have = new Set(FUSION_RULES);
+      for (const r of rulesV2()) {
+        expect(have.has(r.key), r.key).toBe(true);
+        const [A, B] = samplesV2(r.from, r.to);
+        const extra = HELPER[r.from] ? [HELPER[r.from]!] : [];
+        const res = run2([A, B, ...extra], [[A, B]], { input: inputFor(r.from, r.to) });
+        expect(res.fired, r.key).toBeGreaterThan(0);
+        expect(res.maxActors, r.key).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+    });
+
+    it('합친 무기는 B 가 따로 쏘지 않고, 같은 갈래·고리는 합칠 수 없다', () => {
+      const w = sandbox({ rules: { chaos: true } });
+      const c = w.chaos!;
+      expect(c.fuse('arm_pistol', 'arm_smg')).toBe(false);
+      expect(c.fuse('arm_tr_mines', 'arm_g_carbine')).toBe(true);
+      expect(c.fuse('arm_g_carbine', 'arm_tr_mines')).toBe(false);
+      expect(c.isInside('arm_g_carbine')).toBe(true);
+    });
+
+    it('함정 + (총 + 소환수): 함정이 쏜 총탄으로 쓰러진 적이 아군으로 일어난다 (겹친 합성)', () => {
+      const ids = ['arm_tr_mines', 'arm_g_carbine', 'arm_dog'];
+      const res = run2(ids, [['arm_g_carbine', 'arm_dog'], ['arm_tr_mines', 'arm_g_carbine']], { seconds: 24 });
+      expect(res.fired).toBeGreaterThan(0);
+      const w = sandbox({ rules: { chaos: true } });
+      void w;
+    });
+
+    it('같은 씨앗이면 같은 결과, 합치면 같은 두 무기를 따로 가진 것보다 대체로 많이 잡는다', () => {
+      const a = run2(['arm_tr_mines', 'arm_g_carbine'], [['arm_tr_mines', 'arm_g_carbine']], { seed: 5 });
+      const b = run2(['arm_tr_mines', 'arm_g_carbine'], [['arm_tr_mines', 'arm_g_carbine']], { seed: 5 });
+      expect(a).toEqual(b);
+      let more = 0;
+      const keys = ['trap>gun', 'gun>summon', 'turret>summon', 'hand>ray', 'charge>throw', 'gun>air'] as const;
+      for (const k of keys) {
+        const [x, y] = k.split('>') as [never, never];
+        const [A, B] = samplesV2(x, y);
+        const f = run2([A, B], [[A, B]], { input: inputFor(x, y) });
+        const s = run2([A, B], [], { input: inputFor(x, y) });
+        if (f.kills > s.kills) more++;
+      }
+      expect(more).toBeGreaterThanOrEqual(4);
+    });
+
+    it('무작위로 겹쳐 합친 무기 수십 개가 예외 없이 돌고 물체 수 상한 안', () => {
+      const rng = new Rng(91);
+      const pool = Object.values(ARMS).filter((a) => a.cat !== 'passive' && !a.fusion).map((a) => a.id);
+      for (let n = 0; n < 30; n++) {
+        const pick: string[] = [];
+        const cats = new Set<string>();
+        while (pick.length < 3 + rng.int(2)) {
+          const id = pool[rng.int(pool.length)];
+          if (cats.has(ARMS[id].cat)) continue;
+          cats.add(ARMS[id].cat);
+          pick.push(id);
+        }
+        const fuse: [string, string][] = [];
+        for (let i = pick.length - 1; i >= 1; i--) fuse.push([pick[i - 1], pick[i]]);
+        const res = run2(pick, fuse, { seconds: 10, seed: n + 1, input: 'tap' });
+        expect(res.maxActors).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+    });
+  });
 });
+

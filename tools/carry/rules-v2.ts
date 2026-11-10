@@ -1,15 +1,16 @@
 // 합성 210 v2 규칙표(마크다운) 뽑기: npx tsx tools/carry/rules-v2.ts > docs/design/combine-210-v2.md
-// 규칙은 src/data/combineV2.ts (손으로 쓴 210, OBJECT × VERB). 아직 sim 에 없는 설계
+// 규칙은 src/data/combineV2.ts (손으로 쓴 210, OBJECT × VERB), 동작은 src/sim/fusion.ts
 import { ATTACK_CATEGORIES, CATEGORY_LABEL } from '../../src/data/chaos';
 import type { AttackCat } from '../../src/data/links';
 import { OBJECT, V2, VERB, rulesV2 } from '../../src/data/combineV2';
+import { RESULTS } from '../showcase/pages/combine2-results';
 
 const CATS = ATTACK_CATEGORIES as readonly AttackCat[];
 const L = (c: AttackCat) => CATEGORY_LABEL[c];
 const rules = rulesV2();
 const o: string[] = [];
-o.push('# 합성 210 v2: 합치면 새 무기가 된다 (2026-11-10, 설계)', '');
-o.push('`npx tsx tools/carry/rules-v2.ts` 로 `src/data/combineV2.ts` 에서 뽑은 표. 손으로 고치지 말고 데이터를 고친다. 아직 게임 코드(sim)에 없는 설계다.');
+o.push('# 합성 210 v2: 합치면 새 무기가 된다 (2026-11-10)', '');
+o.push('`npx tsx tools/carry/rules-v2.ts` 로 `src/data/combineV2.ts` 에서 뽑은 표. 손으로 고치지 말고 데이터를 고친다. 동작은 `src/sim/fusion.ts` (210가지 전부), 미리보기 "합성 210 v2" https://claude.ai/artifact/VMhpAbmPPryyLMV5MV8XjU');
 o.push('v1(보관본): [`combine-210-v1.md`](combine-210-v1.md), 코드는 커밋 `12a3fb9`.', '');
 o.push('> 기준 (유저 11-10): "합쳤으면 둘을 따로 가진 것(100% + 100%)보다 확실히 좋아야 한다. 무기 수 제한이 없어서 합쳐서 150% 가 되는 선택을 할 이유가 없다. 갈래 합성이 이 게임의 메인." / "함정 + 총은 함정이 터질 때 전방향으로 총알을 퐉. 함정 + (총 + 소환수) 면 소환수가 담긴 총알." / "손공격에 나머지 효과가 그냥 딱 붙어 있는 정도는 아쉽다. 손으로 클릭해서 공격하는 건 그것만의 아이덴티티가 있어야 한다."', '');
 o.push('## v1 에서 무엇이 문제였나', '');
@@ -30,7 +31,9 @@ o.push(`- **B 를 깎지 않는다** (v1 은 ×0.6). B 의 레벨 업도 그대�
 o.push('- **A 의 빈도·수를 B 가 탄다.** 총탄 하나하나가 B 가 되고(유탄·도탄·벌레탄), 함정·포탄·낙하물 하나하나가 B 를 터뜨리고, 소환수 수만큼 B 가 여러 자리에서 쓰인다. B 혼자 쿨다운을 돌 때보다 훨씬 자주.');
 o.push('- **눈덩이**: 쓰러뜨린 적이 아군으로(전향탄·포획·숙주), 처치할수록 커지고 늘어난다(영혼 날·혼 먹는 짐승·포식·혼 튕김).');
 o.push('- **곱하기 약화·규칙**: 떼(받는 피해 ×1.5)·광선(연속 명중 ×3)·주문(멈춤·변이)이 A 의 빈도로 걸려 다른 모든 무기까지 세진다.');
-o.push(`- 목표 수치: 합친 무기 하나의 초당 피해 ≥ (A 혼자 + B 혼자) × ${V2.goal}. 구현하면 측정 도구로 210가지를 돌려 맞춘다. 아군 동시 ${V2.allyCap}, 겹침 깊이 ${V2.maxDepth}.`, '');
+const rs = Object.values(RESULTS).map((x) => x[0]).sort((a, b) => a - b);
+o.push(`- 지금 값: 합친 무기(A) 피해 ×${V2.bonusDmg}, 쿨다운 ×${V2.bonusCd}, B 동사 효과 B 피해 ×${V2.verbMul}, 합친 정령은 혼 ${V2.spiritBurst}개에 터짐. 아군 동시 ${V2.allyCap}, 겹침 깊이 ${V2.maxDepth}.`);
+o.push(`- 측정 (\`npx tsx tools/carry/check2.ts\`, 대표 무기 3레벨·18초·두 판): 같은 두 무기를 따로 가진 판 대비 처치 가운데값 ×${rs[Math.floor(rs.length / 2)].toFixed(2)}, ${rs.filter((x) => x >= 1).length}/210 이 따로보다 많이 잡는다. 목표 ×${V2.goal}. ×1 아래는 주로 밀어내기·멈칫처럼 처치로 안 잡히는 쓸모가 큰 짝 (아래 표 맨 끝 칸).`, '');
 o.push('## 겹친 합성', '');
 o.push('B 가 이미 합친 무기면 B 의 동사가 함께 따라간다. 어느 깊이든 같은 210 규칙을 다시 쓴다.');
 o.push('- **함정 + (총 + 소환수)**: 함정이 터질 때 전방향 총탄 열두 발 (산탄 지뢰), 그 총탄이 전향탄이라 쓰러진 적이 아군으로 일어난다.');
@@ -40,10 +43,11 @@ o.push('- **떼 + (광선 + 주문)**: 구름이 덮은 적들이 줄로 이어�
 o.push('## 정할 것', '');
 o.push('- 합치는 순간 보상: 둘 다 레벨 +1 을 줄지 (합치는 선택이 바로 "확" 느껴지게)');
 o.push('- 합성 카드: 레벨 업에 짝 제안 / 유저가 직접 고르기 / 둘 다');
-o.push('- 손 입력(두 탭 잇기·꾹 누르기·연타·박자)을 게임 입력에 넣기 (지금은 탭만 씀)');
+o.push('- 손 입력(두 탭 잇기·꾹 누르기·연타·박자): sim 은 받게 해 뒀다 (누름·뗌·움직임). 게임 화면 입력에 그대로 이어질지');
+o.push('- ×1 아래 짝을 더 세게 할지, 처치 말고 다른 잣대(막아 낸 적 수 등)로도 볼지');
 for (const a of CATS) {
   o.push('', `## ${L(a)} + (14)`, '', `> ${L(a)}의 몸: ${OBJECT[a]}`, '');
-  o.push('| 짝 | 이름 | 규칙 |', '| --- | --- | --- |');
-  for (const r of rules.filter((x) => x.from === a)) o.push(`| \`${r.key}\` ${r.title} | **${r.name}** | ${r.text} |`);
+  o.push('| 짝 | 이름 | 규칙 | 따로 대비 처치 |', '| --- | --- | --- | --- |');
+  for (const r of rules.filter((x) => x.from === a)) o.push(`| \`${r.key}\` ${r.title} | **${r.name}** | ${r.text} | ×${(RESULTS[r.key]?.[0] ?? 0).toFixed(2)} |`);
 }
 console.log(o.join('\n'));

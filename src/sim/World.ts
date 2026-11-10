@@ -222,6 +222,7 @@ export class World implements SimApi {
         if (this.phase === 'playing') this.onPress(c.x, c.y);
         break;
       case 'move':
+        this.chaos?.onMove(c.x, c.y);
         // 과충전 중에는 손가락을 따라 조준이 움직인다
         if (this.charging) {
           this.charging.x = clamp(c.x, 0, this.field.width);
@@ -229,6 +230,7 @@ export class World implements SimApi {
         }
         break;
       case 'release':
+        if (this.phase === 'playing') this.chaos?.onRelease(c.x, c.y);
         if (this.charging && this.phase === 'playing') {
           const at = this.charging;
           this.charging = null;

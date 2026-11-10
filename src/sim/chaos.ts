@@ -5,6 +5,8 @@ import {
   ATTACK_CATEGORIES, CATEGORY_COLOR, type ArmCategory, type ChaosEventId, type WeaponParams, type WeaponSpec,
 } from '../data/chaos';
 import { CARRY, LINK } from '../data/links';
+import { V2 } from '../data/combineV2';
+import { Fusion, TAG_BURSTB, TAG_HOP, TAG_HOPTOSS, TAG_ORBIT, TAG_RICO } from './fusion';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
 import type { Enemy, OfferKind } from './types';
@@ -23,7 +25,9 @@ export type ActorKind =
   | 'bullet' | 'beam' | 'thrown' | 'walker' | 'stamp' | 'saw' | 'vortex' | 'bubble' | 'drone' | 'storm'
   | 'faller' | 'sweep' | 'ring' | 'chill' | 'trap' | 'ray' | 'tossed' | 'swarm' | 'soul' | 'cast'
   /** 합성: 실린 것이 열리는 고리 / 실린 총·음파가 잠깐 서는 자리 / 실린 장판이 나르는 구역 (안 그림) */
-  | 'open' | 'post' | 'czone';
+  | 'open' | 'post' | 'czone'
+  /** 합성 v2: 두 점을 잇는 줄 / 표식 / 장판 위 적을 보는 표시 (안 그림) */
+  | 'tether' | 'mark' | 'fzone';
 
 export interface Actor {
   id: number;
@@ -144,7 +148,7 @@ export class Chaos {
   /** 총: 겨누는 각도와 마지막으로 쏜 시각 (그리기용) */
   readonly aim = new Map<string, number>();
   readonly firedAt = new Map<string, number>();
-  private mounts = new Map<string, Mount>();
+  mounts = new Map<string, Mount>();
   /** 주문 분신: 이 시각까지 그 무기가 두 배로 자주 쓴다 */
   readonly cloned = new Map<string, number>();
   /** 주문 가속: 이 시각까지 모든 무기 쿨다운이 짧아진다 */
@@ -155,32 +159,39 @@ export class Chaos {
   selected: { id: string; until: number } | null = null;
   private nextId = 1;
   /** 지금 만드는 물체의 피해 배율·사거리 (마법 효과가 쓰는 것) */
-  private curMul = 1;
-  private curRange = DEFAULT_RANGE;
+  curMul = 1;
+  curRange = DEFAULT_RANGE;
   /** 지금 쏘거나 움직이는 무기 id 와 합성 깊이 (새 물체가 물려받는다) */
-  private curSrc = '';
-  private curDepth = 0;
+  curSrc = '';
+  curDepth = 0;
   /** 실린 것이 자리에서 쏠 때: 그 자리 (없으면 무기 자리) */
   private link: { at: Mount } | null = null;
 
   // 합성 (data/links.ts): 나르는 무기 → 실은 무기들 (나를 때마다 돌아가며 연다)
   private readonly carried = new Map<string, string[]>();
-  private readonly parent = new Map<string, string>();
+  readonly parent = new Map<string, string>();
   private readonly carryCount = new Map<string, number>();
   private readonly carryTokens = new Map<string, number>();
   private readonly carryTurn = new Map<string, number>();
   /** 연 횟수 ("나르는 id>실린 id" 별, 검증·미리보기용) */
   readonly opened = new Map<string, number>();
+  /** 합성 v2 (fusion.ts) */
+  readonly fusion: Fusion;
+  /** 지금 움직이는 물체 (처치를 낸 것) */
+  curActor: Actor | null = null;
+  /** 마지막 주문에 걸린 적 */
+  lastSpell: Enemy[] = [];
 
-  constructor(private readonly w: World) {
+  constructor(readonly w: World) {
     this.cookieTimer = BALANCE.chaos.cookieEverySec;
+    this.fusion = new Fusion(this);
   }
 
-  private get D(): number {
+  get D(): number {
     return this.w.stats.tapDamage;
   }
 
-  private get LINE(): number {
+  get LINE(): number {
     return this.w.field.defenseLineY;
   }
 
@@ -198,14 +209,16 @@ export class Chaos {
   }
 
   /** 무기 피해 배율: 레벨 업 효과 + 소환술 */
-  private dmgMul(spec: WeaponSpec): number {
+  dmgMul(spec: WeaponSpec): number {
     let m = this.eff(spec).dmg;
     if (spec.cat === 'summon') m *= 1 + 0.2 * this.lv('arm_summoner');
+    // 합성 v2: 합친 무기는 둘의 힘을 다 받는다
+    if (this.fusion?.has(spec.id)) m *= V2.bonusDmg;
     return m;
   }
 
   /** 다중 강화: 수 + (1·3·5레벨) */
-  private get extra(): number {
+  get extra(): number {
     if (this.link) return 0;
     return Math.floor((this.lv('arm_multi') + 1) / 2);
   }
@@ -218,13 +231,14 @@ export class Chaos {
     const t = this.w.time;
     if ((this.cloned.get(id) ?? -1) > t) cd *= 0.5;
     if (this.hasteUntil > t && spec.cat !== 'magic') cd *= 0.6;
+    if (this.fusion?.has(id)) cd *= V2.bonusCd;
     return cd;
   }
 
   /** 사거리: 총·포탑만 (소환수·마법은 화면 전체, 플레이 피드백) */
   rangeOf(spec: WeaponSpec): number {
     if (!hasRange(spec.cat)) return this.LINE - 50;
-    return (this.eff(spec).p.range ?? DEFAULT_RANGE) * (1 + 0.12 * this.lv('arm_range'));
+    return (this.eff(spec).p.range ?? DEFAULT_RANGE) * (1 + 0.12 * this.lv('arm_range')) * this.fusion.rangeMul(spec.id);
   }
 
   /** 가진 무기 (카테고리별) */
@@ -263,6 +277,36 @@ export class Chaos {
     return true;
   }
 
+  /** 합성 v2: b 를 a 안에 합친다 (fusion.ts) */
+  fuse(a: string, b: string): boolean {
+    return this.fusion.fuse(a, b);
+  }
+
+  /** 함정 하나를 (fx, fy) 에서 던져 (tx, ty) 에 꽂는다 */
+  spawnTrap(p: WeaponParams, dmg: number, r: number, left: number, fx: number, fy: number, tx: number, ty: number, ttl: number, emoji?: string): Actor | null {
+    const a = this.add('trap', fx, fy, { ttl: ttl + TRAP_FLY_SEC, p, emoji: emoji ?? p.emoji ?? '🪤', dmg, r: r * this.areaMul, left, tx, ty });
+    if (a) {
+      a.vx = fx;
+      a.vy = fy;
+      if (this.fusion.active) this.fusion.trapPlace(a.src, a);
+    }
+    return a;
+  }
+
+  /** 손을 뗌 (합성 v2 의 꾹 누르기) */
+  onRelease(x: number, y: number): void {
+    this.fusion.release(x, y);
+  }
+
+  /** 누른 채 움직임 */
+  onMove(x: number, y: number): void {
+    const h = this.fusion.holding;
+    if (h) {
+      h.x = x;
+      h.y = y;
+    }
+  }
+
   /** 이 무기가 실은 무기들 */
   carriedBy(id: string): readonly string[] {
     return this.carried.get(id) ?? [];
@@ -274,14 +318,14 @@ export class Chaos {
   }
 
   /** 맨 바깥 나르는 무기 */
-  private rootOf(id: string): string {
+  rootOf(id: string): string {
     let c = id;
     for (let p = this.parent.get(c); p; p = this.parent.get(c)) c = p;
     return c;
   }
 
   /** 합성 세기 k: 나르는 무기의 한 방(레벨 포함)이 같은 갈래 가운데값의 몇 배인가 (0.5 ~ 2) */
-  private carryPower(spec: WeaponSpec): number {
+  carryPower(spec: WeaponSpec): number {
     const e = this.eff(spec);
     const hit = (e.p.dmg ?? e.p.dps ?? 1) * e.dmg;
     return clamp(hit / (CAT_MID[spec.cat] ?? 1), LINK.kMin, LINK.kMax);
@@ -345,7 +389,7 @@ export class Chaos {
   }
 
   /** (x, y) 에서 가장 가까운 적 (반경 r 안) */
-  private nearestTo(x: number, y: number, r: number): Enemy | null {
+  nearestTo(x: number, y: number, r: number): Enemy | null {
     let best: Enemy | null = null;
     let bd = r * r;
     for (const e of this.w.enemiesNear(x, y, r)) {
@@ -360,7 +404,7 @@ export class Chaos {
   }
 
   /** 실린 무기가 at 자리에서 한 번 쏜다 (사거리 range, 다중 강화 없음) */
-  private fireAt(spec: WeaponSpec, at: Mount, range: number): boolean {
+  fireAt(spec: WeaponSpec, at: Mount, range: number): boolean {
     const save = { link: this.link, range: this.curRange };
     this.link = { at };
     this.curRange = range;
@@ -535,7 +579,7 @@ export class Chaos {
   }
 
   /** 실린 주문: (x, y) 반경 r 에 dur 초 */
-  private spellAt(B: WeaponSpec, x: number, y: number, r: number, dur: number): void {
+  spellAt(B: WeaponSpec, x: number, y: number, r: number, dur: number): void {
     const w = this.w;
     const p = this.eff(B).p;
     const pool = w.enemiesNear(x, y, r).filter((e) => !e.dead && !e.def.boss && e.charm <= 0);
@@ -696,6 +740,7 @@ export class Chaos {
   onTap(x: number, y: number): boolean {
     const w = this.w;
     let any = false;
+    this.fusion.press(x, y);
     for (const id of this.owned('hand')) {
       const spec = ARMS[id];
       if (spec.kind === 'bomb' || this.parent.has(id) || (this.cooldowns.get(id) ?? 0) > 0) continue;
@@ -716,7 +761,7 @@ export class Chaos {
   }
 
   /** 손 기술 하나가 (x, y) 에서 터진다 (탭, 또는 실려서 열릴 때) */
-  private tapEffect(spec: WeaponSpec, p: WeaponParams, D: number, x: number, y: number): void {
+  tapEffect(spec: WeaponSpec, p: WeaponParams, D: number, x: number, y: number): void {
     const w = this.w;
     const id = spec.id;
     switch (spec.kind) {
@@ -828,6 +873,7 @@ export class Chaos {
 
   onKill(e: Enemy): void {
     this.heat++;
+    if (this.fusion.active) this.fusion.kill(e);
     // 정령이 있으면 처치한 적의 혼이 아무 정령에게나 빨려 간다 (정령은 혼을 모아 터진다)
     let drones = 0;
     let souls = 0;
@@ -858,11 +904,11 @@ export class Chaos {
     }
   }
 
-  private get areaMul(): number {
+  get areaMul(): number {
     return 1 + 0.1 * this.lv('arm_area');
   }
 
-  private get durMul(): number {
+  get durMul(): number {
     return 1 + 0.15 * this.lv('arm_duration');
   }
 
@@ -909,14 +955,23 @@ export class Chaos {
       // 움직이는 동안 새로 생기는 물체는 이 무기·깊이를 물려받는다 (합성이 나를 때 쓴다)
       this.curSrc = a.src;
       this.curDepth = a.depth;
+      this.curActor = a;
       const px = a.x;
       const py = a.y;
       const alive = this.step(a, dt);
       if (alive && a.tag & TAG_TRAIL) this.trailStep(a, px, py);
-      if (!alive || a.t >= a.ttl) this.actors.splice(i, 1);
+      const fused = this.fusion.active && this.fusion.has(a.src);
+      if (alive && fused && MOVERS.has(a.kind)) this.fusion.moved(a, px, py);
+      if (!alive || a.t >= a.ttl) {
+        if (fused) this.fusion.removed(a);
+        const j = this.actors.indexOf(a);
+        if (j >= 0) this.actors.splice(j, 1);
+      }
     }
     this.curSrc = '';
     this.curDepth = 0;
+    this.curActor = null;
+    this.fusion.update(dt);
   }
 
   // ─── 자리 ──────────────────────────────────────────────
@@ -977,6 +1032,7 @@ export class Chaos {
     for (const id of this.owned()) {
       const spec = ARMS[id];
       if (spec.cat === 'hand' || spec.cat === 'passive' || this.parent.has(id)) continue;
+      if (this.fusion.active && this.fusion.blocks(id)) continue;
       this.curSrc = id;
       this.curDepth = 0;
       if (spec.kind === 'drone') {
@@ -1018,7 +1074,7 @@ export class Chaos {
   }
 
   /** 무기 한 번 쓰기. 쏠 대상이 없으면 false */
-  private fire(spec: WeaponSpec): boolean {
+  fire(spec: WeaponSpec): boolean {
     const w = this.w;
     const p = this.eff(spec).p;
     const D = this.D * this.curMul;
@@ -1042,6 +1098,7 @@ export class Chaos {
             const a = ang + (p.spread ?? 0) * (count > 1 ? i / (count - 1) - 0.5 : w.rng.range(-0.5, 0.5));
             const bl = this.bullet(spec.id, mx, my, a, p, (p.dmg ?? 1) * D, range, b * BURST_GAP);
             if (bl && p.homing) bl.target = t;
+            if (bl && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, bl);
           }
         }
         w.emit({ type: 'gunFire', x: mx, y: my, angle: ang, big: (p.dmg ?? 1) >= 3 || !!p.boom });
@@ -1062,6 +1119,7 @@ export class Chaos {
             a.emoji = p.emoji ?? null;
             a.dmg = (p.dmg ?? 2) * D;
             a.src = spec.id;
+            if (this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, a);
           }
         }
         return true;
@@ -1098,6 +1156,7 @@ export class Chaos {
         }
         this.add('ring', t.x, t.y, { ttl: 0.5, r, emoji: '#9fe8ff' });
         this.fieldMark(spec.id, t.x, t.y, r, p.freeze ?? 2);
+        if (this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, r, Math.max(1.5, p.freeze ?? 2));
         return true;
       }
       case 'zoneAt': {
@@ -1107,6 +1166,7 @@ export class Chaos {
         w.addZone({ x: t.x, y: t.y, radius: r, dps: (p.dps ?? 1) * D, ttl: (p.ttl ?? 3) * this.durMul, chainId: w.newChain(1), source: 'exp' });
         this.add('ring', t.x, t.y, { ttl: 0.4, r, emoji: p.color ?? '#ff8a3c' });
         this.fieldMark(spec.id, t.x, t.y, r, (p.ttl ?? 3) * this.durMul);
+        if (this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, r, (p.ttl ?? 3) * this.durMul);
         return true;
       }
       case 'saw': {
@@ -1115,7 +1175,8 @@ export class Chaos {
         for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
           const ang = Math.atan2(t.y - from.y, t.x - from.x) + i * 0.6;
           const speed = p.speed ?? 260;
-          this.add('saw', from.x, from.y - 10, { vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ttl: (p.ttl ?? 5) * this.durMul, p, dmg: (p.dmg ?? 1.5) * D, hits: true, r: range });
+          const sw = this.add('saw', from.x, from.y - 10, { vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ttl: (p.ttl ?? 5) * this.durMul, p, dmg: (p.dmg ?? 1.5) * D, hits: true, r: range });
+          if (sw && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, sw);
         }
         return true;
       }
@@ -1124,6 +1185,7 @@ export class Chaos {
         if (!t) return false;
         this.add('vortex', t.x, t.y, { ttl: p.ttl ?? 1.2, r: (p.radius ?? 100) * this.areaMul, p, dmg: (p.dmg ?? 2) * D });
         if (spec.cat === 'field') this.fieldMark(spec.id, t.x, t.y, (p.radius ?? 100) * this.areaMul, p.ttl ?? 1.2);
+        if (spec.cat === 'field' && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, (p.radius ?? 100) * this.areaMul, Math.max(1.5, p.ttl ?? 1.2));
         if (spec.cat === 'magic') w.emit({ type: 'magic', id: spec.id, x: t.x, y: t.y });
         return true;
       }
@@ -1133,12 +1195,14 @@ export class Chaos {
         const a = this.add('bubble', t.x, t.y, { ttl: (p.ttl ?? 2) * this.durMul, r: (p.radius ?? 50) * this.areaMul, p, dmg: (p.dmg ?? 3) * D, grabbed: true });
         if (a) for (const e of w.enemiesNear(t.x, t.y, a.r)) if (!e.def.boss) a.grabbed!.push(e);
         if (a) this.fieldMark(spec.id, t.x, t.y, a.r, a.ttl);
+        if (a && this.fusion.active) this.fusion.zone(spec.id, t.x, t.y, a.r, a.ttl);
         return true;
       }
       case 'pulse': {
         const r = range;
         const near = w.enemiesNear(from.x, from.y, r);
-        if (near.length === 0) return false;
+        // 합친 음파는 맞을 적이 없어도 울린다 (실린 것이 고리를 탄다)
+        if (near.length === 0 && !this.fusion.has(spec.id)) return false;
         const chainId = w.newChain(1);
         for (const e of near) {
           if (p.freeze && !e.def.boss) e.frozen = Math.max(e.frozen, p.freeze);
@@ -1150,6 +1214,7 @@ export class Chaos {
           const first = [...near].sort((a, b) => dist2(a.x, a.y, from.x, from.y) - dist2(b.x, b.y, from.x, from.y)).slice(0, 2);
           for (const e of first) this.carry(spec.id, e.x, e.y);
         }
+        if (this.fusion.active) this.fusion.pulse(spec.id, from.x, from.y, r, [...near]);
         return true;
       }
       case 'spell': {
@@ -1158,6 +1223,7 @@ export class Chaos {
         const n = (p.count ?? 1) + this.extra;
         const dur = (p.ttl ?? 3) * this.durMul;
         const pool = this.inZone(undefined, range).filter((e) => !e.def.boss);
+        this.lastSpell = [];
         switch (p.spell) {
           case 'stop':
             // 시간 정지: 사거리 안 적 전부 멈춤 (얼림과 달리 피해 배율 없음)
@@ -1166,6 +1232,7 @@ export class Chaos {
               e.held = Math.max(e.held, dur);
               e.pack = null;
             }
+            this.lastSpell = pool;
             w.emit({ type: 'shake', power: 0.2 });
             break;
           case 'poly':
@@ -1173,6 +1240,7 @@ export class Chaos {
             // 변이: 아주 느리고 받는 피해 ×2 / 매혹: 잠깐 우리 편 (거슬러 올라가며 부딪친 적을 친다)
             if (pool.length === 0) return false;
             const picks = [...pool].sort((a, b) => b.y - a.y).slice(0, n);
+            this.lastSpell = picks;
             for (const e of picks) {
               e.pack = null;
               if (p.spell === 'poly') e.poly = Math.max(e.poly, dur);
@@ -1185,6 +1253,7 @@ export class Chaos {
             // 되돌리기: 앞줄 적을 화면 위쪽으로 순간이동 (시간을 번다)
             if (pool.length === 0) return false;
             const picks = [...pool].sort((a, b) => b.y - a.y).slice(0, n);
+            this.lastSpell = picks;
             for (const e of picks) {
               this.add('ring', e.x, e.y, { ttl: 0.4, r: 18, emoji: '#9fd8ff' });
               e.pack = null;
@@ -1233,6 +1302,7 @@ export class Chaos {
             a.left = p.bounce ?? 3;
             a.hits = new Set();
             a.dir = 1;
+            if (this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, a);
           }
         }
         return true;
@@ -1246,6 +1316,7 @@ export class Chaos {
         if (a) {
           a.target = t;
           a.src = spec.id;
+          if (this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, a);
         }
         return true;
       }
@@ -1265,6 +1336,7 @@ export class Chaos {
             // 던진 자리 (날아가는 동안 쓴다)
             a.vx = from.x;
             a.vy = from.y - 6;
+            if (this.fusion.active) this.fusion.trapPlace(spec.id, a);
           }
         }
         return true;
@@ -1276,8 +1348,9 @@ export class Chaos {
         for (let i = 0; i < n; i++) {
           const x = w.rng.range(20, w.field.width - 20);
           const y = this.LINE - 4;
-          this.add('walker', x, y, { ttl: 12 * this.durMul, p, emoji: p.emoji ?? '💂', dmg: (p.dmg ?? 2) * D, r: range, left: p.melee ?? 0 });
+          const wk = this.add('walker', x, y, { ttl: 12 * this.durMul, p, emoji: p.emoji ?? '💂', dmg: (p.dmg ?? 2) * D, r: range, left: p.melee ?? 0 });
           this.add('ring', x, y, { ttl: 0.35, r: 14, emoji: '#7dff9a' });
+          if (wk && this.fusion.active && this.fusion.has(spec.id)) this.fusion.unitSpawn(spec.id, wk);
         }
         return true;
       }
@@ -1291,12 +1364,14 @@ export class Chaos {
           const dir = w.rng.chance(0.5) ? 1 : -1;
           for (let i = 0; i < n; i++) {
             const y = clamp(t.y + w.rng.range(-40, 40), this.LINE - range, this.LINE - 20);
-            this.add('stamp', dir > 0 ? -30 - i * 45 : W + 30 + i * 45, y, { vx: speed * dir, dir, ttl: 5, p, emoji: p.emoji ?? '🦖', dmg: (p.dmg ?? 3) * D, hits: true });
+            const st = this.add('stamp', dir > 0 ? -30 - i * 45 : W + 30 + i * 45, y, { vx: speed * dir, dir, ttl: 5, p, emoji: p.emoji ?? '🦖', dmg: (p.dmg ?? 3) * D, hits: true });
+            if (st && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, st);
           }
         } else {
           for (let i = 0; i < n; i++) {
             const x = clamp(t.x + (i - (n - 1) / 2) * 34, 20, W - 20);
-            this.add('stamp', x, this.LINE + 10 + i * 14, { vy: -speed, ttl: (range + 40) / speed + i * 0.06, p, emoji: p.emoji ?? '🐄', dmg: (p.dmg ?? 2.5) * D, hits: true });
+            const st = this.add('stamp', x, this.LINE + 10 + i * 14, { vy: -speed, ttl: (range + 40) / speed + i * 0.06, p, emoji: p.emoji ?? '🐄', dmg: (p.dmg ?? 2.5) * D, hits: true });
+            if (st && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, st);
           }
         }
         return true;
@@ -1313,7 +1388,8 @@ export class Chaos {
         if (!t) return false;
         for (let i = 0; i < (p.count ?? 1) + this.extra; i++) {
           const tt = i === 0 ? t : this.pickTarget('random', undefined, range) ?? t;
-          this.add('faller', tt.x + 40, -60 - i * 80, { tx: tt.x, ty: tt.y, ttl: 5, p, emoji: p.emoji ?? '🔨', dmg: (p.dmg ?? 6) * D, r: (p.radius ?? 80) + (p.boom ?? 0) });
+          const fa = this.add('faller', tt.x + 40, -60 - i * 80, { tx: tt.x, ty: tt.y, ttl: 5, p, emoji: p.emoji ?? '🔨', dmg: (p.dmg ?? 6) * D, r: (p.radius ?? 80) + (p.boom ?? 0) });
+          if (fa && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, fa);
         }
         if (spec.cat === 'magic') w.emit({ type: 'magic', id: spec.id, x: t.x, y: t.y });
         return true;
@@ -1333,7 +1409,8 @@ export class Chaos {
               a.t = -i * 0.08;
             }
           } else {
-            this.add('faller', t.x + w.rng.range(-30, 30), -30 - i * 22, { tx: t.x, ty: t.y, ttl: 5, p, emoji: p.emoji ?? '☄️', dmg: (p.dmg ?? 2) * D, r: blast });
+            const fa = this.add('faller', t.x + w.rng.range(-30, 30), -30 - i * 22, { tx: t.x, ty: t.y, ttl: 5, p, emoji: p.emoji ?? '☄️', dmg: (p.dmg ?? 2) * D, r: blast });
+            if (fa && this.fusion.active && this.fusion.has(spec.id)) this.fusion.shot(spec.id, fa);
           }
         }
         w.emit({ type: 'magic', id: spec.id, x: w.field.width / 2, y: this.LINE - range / 2 });
@@ -1529,7 +1606,7 @@ export class Chaos {
     }
   }
 
-  private add(
+  add(
     kind: ActorKind, x: number, y: number,
     o: {
       vx?: number; vy?: number; ttl: number; tx?: number; ty?: number; n?: number; dir?: number; hits?: boolean; grabbed?: boolean;
@@ -1551,7 +1628,7 @@ export class Chaos {
   }
 
   /** 포물선 비행: 출발 → 목표까지 */
-  private lob(kind: ActorKind, x: number, y: number, tx: number, ty: number, speed: number): Actor | null {
+  lob(kind: ActorKind, x: number, y: number, tx: number, ty: number, speed: number): Actor | null {
     const dur = Math.max(0.2, Math.hypot(tx - x, ty - y) / speed);
     const a = this.add(kind, x, y, { tx, ty, ttl: dur + 0.02 });
     if (a) {
@@ -1562,7 +1639,7 @@ export class Chaos {
   }
 
   /** 총알 하나 */
-  private bullet(src: string, x: number, y: number, ang: number, p: WeaponParams, dmg: number, range: number, delay: number): Actor | null {
+  bullet(src: string, x: number, y: number, ang: number, p: WeaponParams, dmg: number, range: number, delay: number): Actor | null {
     const speed = (p.speed ?? 800) * (1 + 0.15 * this.lv('arm_velocity'));
     const a = this.add('bullet', x, y, {
       vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ttl: p.pullOrb ? range / speed : Math.min(4, range / speed + 0.05),
@@ -1606,6 +1683,38 @@ export class Chaos {
         a.cd = ok ? Math.max(0.08, this.cooldownOf(a.src) * 0.5) : 0.15;
         return true;
       }
+      case 'mark':
+        return true;
+      case 'fzone': {
+        // 합성 v2: 장판 위 적을 1초마다 본다
+        a.cd -= dt;
+        if (a.cd > 0) return true;
+        a.cd = 1;
+        if (!this.fusion.has(a.src)) return true;
+        this.fusion.zoneTick(a, w.enemiesNear(a.x, a.y, a.r).filter((e) => !e.dead));
+        return true;
+      }
+      case 'tether': {
+        // 합성 v2: 두 점을 잇는 줄. 끝이 적을 따라가고, dmg 가 있으면 줄에 걸친 적을 지진다
+        if (a.target) {
+          if (a.target.dead) return false;
+          a.x = a.target.x;
+          a.y = a.target.y;
+        }
+        const e2 = a.grabbed?.[0];
+        if (e2) {
+          if (e2.dead) return false;
+          a.tx = e2.x;
+          a.ty = e2.y;
+        }
+        if (a.dmg <= 0) return true;
+        a.cd -= dt;
+        if (a.cd > 0) return true;
+        a.cd = 0.25;
+        const chainId = w.newChain(1);
+        for (const e of this.fusion.onSegment(a.x, a.y, a.tx, a.ty, Math.max(4, a.r * 2))) this.hit(e, a.dmg * 0.25, {}, chainId);
+        return true;
+      }
       case 'czone': {
         // 나르는 장판: 깔린 동안 1초마다 위에 선 적 하나 자리에서 연다
         a.cd -= dt;
@@ -1625,6 +1734,7 @@ export class Chaos {
         a.x += a.vx * dt;
         a.y += a.vy * dt;
         if (a.t + dt >= a.ttl - 0.02) {
+          if (this.fusion.active && (this.fusion.has(a.src) || a.tag & (TAG_HOP | TAG_HOPTOSS)) && this.fusion.land(a.src, a.tx, a.ty, a)) return false;
           const p = a.p ?? {};
           this.boom(a.tx, a.ty, (p.boom ?? 40) * this.areaMul, a.dmg || 2 * D, p);
           if (p.chain) {
@@ -1646,6 +1756,7 @@ export class Chaos {
         const dy = a.ty - a.y;
         const d = Math.hypot(dx, dy);
         if (d <= k) {
+          if (this.fusion.active && (this.fusion.has(a.src) || a.tag & (TAG_HOP | TAG_HOPTOSS)) && this.fusion.land(a.src, a.tx, a.ty, a)) return false;
           const r = (a.r || a.p?.radius || 30) * this.areaMul;
           this.boom(a.tx, a.ty, r, a.dmg, a.p ?? undefined);
           if (r >= 80) w.emit({ type: 'shake', power: 0.6 });
@@ -1683,6 +1794,7 @@ export class Chaos {
         this.boom(a.x, a.y, a.r, a.dmg, p);
         this.add('ring', a.x, a.y, { ttl: 0.3, r: a.r, emoji: p.color ?? '#ffb347' });
         this.carry(a.src, a.x, a.y);
+        if (this.fusion.active) this.fusion.trigger(a.src, a);
         a.left--;
         a.cd = 0.4;
         return a.left > 0;
@@ -1706,6 +1818,7 @@ export class Chaos {
           this.curRange = DEFAULT_RANGE;
           // 나르는 주문: 마법진 둘레 세 곳에서 연다
           if (ok && this.carried.has(a.src)) for (let i = 0; i < 3; i++) this.carry(a.src, a.x + w.rng.range(-34, 34), a.y + w.rng.range(-24, 24));
+          if (ok && this.fusion.active && this.fusion.has(a.src)) this.fusion.cast(a.src, a.x, a.y, this.lastSpell.filter((e) => !e.dead));
         }
         return false;
       }
@@ -1736,6 +1849,7 @@ export class Chaos {
             t = pool.length ? pool[this.w.rng.int(pool.length)] : null;
           } else t = this.pickTarget('strong', from, range);
           a.target = t;
+          if (t && this.fusion.active && this.fusion.has(a.src)) this.fusion.rayRetarget(a.src, a);
         }
         if (!t) return true;
         a.tx = t.x;
@@ -1754,6 +1868,7 @@ export class Chaos {
           const dmg = ((p.dmg ?? 2) * this.D * this.dmgMul(spec) / Math.max(0.3, this.cooldownOf(a.src))) * 0.1 * 0.5 * ramp * (mini ? a.dmg : 1);
           this.hit(t, dmg, p, w.newChain(1));
           if (p.chain && a.n < 0.1) this.chainZap(t, p.chain, dmg);
+          if (this.fusion.active && this.fusion.has(a.src) && !t.dead) this.fusion.ray(a.src, a, t, ramp);
           // 나르는 줄기 (특수): 같은 적에 붙어 배율이 0.5 오를 때마다 (×1.5·×2·…·×4), ×4 뒤로는 1.2초마다 붙은 적 자리에서 연다
           if (this.carried.has(a.src)) {
             const lvl = Math.floor(ramp * 2);
@@ -1785,7 +1900,9 @@ export class Chaos {
           if (p.chain) this.chainZap(hitE, p.chain, a.dmg * 0.5);
           this.add('ring', a.tx, a.ty, { ttl: 0.2, r: 12, emoji: '#ffd36b' });
           this.carry(a.src, a.tx, a.ty);
+          if (this.fusion.active && this.fusion.has(a.src)) this.fusion.hit(a.src, hitE, a.tx, a.ty, a);
         }
+        let hopped = false;
         if (a.left > 0) {
           // 아직 안 맞힌 가장 가까운 적에게 통 튕겨 간다
           let next: Enemy | null = null;
@@ -1809,9 +1926,11 @@ export class Chaos {
               b.hits = a.hits;
               b.m = a.m;
               b.dir = 0;
+              hopped = true;
             }
           }
         }
+        if (!hopped && this.fusion.active && this.fusion.has(a.src)) this.fusion.tossEnd(a.src, a);
         return false;
       }
       case 'swarm': {
@@ -1847,6 +1966,7 @@ export class Chaos {
             const e = under[w.rng.int(under.length)];
             this.carry(a.src, e.x, e.y);
           }
+          if (this.fusion.active && this.fusion.has(a.src)) this.fusion.cloud(a.src, a, under.filter((e) => !e.dead));
         }
         return true;
       }
@@ -1866,6 +1986,10 @@ export class Chaos {
             this.curDepth = d.depth;
             this.carry(d.src, a.tx, a.ty);
           }
+          if (this.fusion.active && this.fusion.has(d.src)) {
+            this.curDepth = d.depth;
+            this.fusion.soul(d.src, d, a.tx, a.ty);
+          }
           return false;
         }
         a.x += (dx / dist) * sp * dt;
@@ -1883,15 +2007,25 @@ export class Chaos {
           this.hit(e, a.dmg, a.p ?? {}, w.newChain(1));
           this.add('ring', e.x, e.y, { ttl: 0.25, r: 14, emoji: '#ffd36b' });
         }
-        if (a.vy < 0) return a.y > -40;
-        return a.dir > 0 ? a.x < W + 140 : a.x > -140;
+        const inside = a.vy < 0 ? a.y > -40 : a.dir > 0 ? a.x < W + 140 : a.x > -140;
+        // 합성 v2: 화면 끝에 닿았을 때 (핀볼 등). 들어오는 중인 것은 빼고
+        if (this.fusion.active && this.fusion.has(a.src) && a.t > 0.3 && ((a.vx > 0 && a.x > W) || (a.vx < 0 && a.x < 0) || (a.vy < 0 && a.y < 0)) && this.fusion.edge(a.src, a)) return true;
+        return inside;
       }
       case 'saw': {
         a.x += a.vx * dt;
         a.y += a.vy * dt;
-        if ((a.x < 10 && a.vx < 0) || (a.x > W - 10 && a.vx > 0)) a.vx = -a.vx;
+        let bounced = false;
+        if ((a.x < 10 && a.vx < 0) || (a.x > W - 10 && a.vx > 0)) {
+          a.vx = -a.vx;
+          bounced = true;
+        }
         const top = LINE - a.r;
-        if ((a.y < top && a.vy < 0) || (a.y > LINE - 10 && a.vy > 0)) a.vy = -a.vy;
+        if ((a.y < top && a.vy < 0) || (a.y > LINE - 10 && a.vy > 0)) {
+          a.vy = -a.vy;
+          bounced = true;
+        }
+        if (bounced && !(a.tag & TAG_ORBIT) && this.fusion.active && this.fusion.has(a.src)) this.fusion.bounce(a.src, a);
         a.cd -= dt;
         if (a.cd <= 0) {
           a.cd = 0.3;
@@ -1902,6 +2036,7 @@ export class Chaos {
           a.hits!.add(e.id);
           this.hit(e, a.dmg, a.p ?? {}, w.newChain(1));
           this.carry(a.src, e.x, e.y);
+          if (this.fusion.active && this.fusion.has(a.src)) this.fusion.hit(a.src, e, e.x, e.y, a);
         }
         return true;
       }
@@ -1956,16 +2091,22 @@ export class Chaos {
           const p = this.eff(spec).p;
           if (!mini) a.dmg = (p.dmg ?? 0.6) * this.D * this.dmgMul(spec);
           const t = this.pickTarget('front', { x: a.x, y: a.y, wall: 0 }, a.r);
-          a.cd = this.cooldownOf(a.src);
+          a.cd = this.cooldownOf(a.src) * (this.fusion.active ? this.fusion.droneRate(a) : 1);
           if (t) this.bullet(a.src, a.x, a.y, Math.atan2(t.y - a.y, t.x - a.x), p, a.dmg, a.r, 0);
         }
         // 혼을 SOUL_BURST 개 모으면 터진다: 사방으로 혼탄 열여섯 발 (실린 정령은 다섯 개에 여덟 발, 터지면 끝)
-        if (a.left >= (mini ? SOUL_BURST / 2 : SOUL_BURST)) {
+        if (a.left >= (mini ? SOUL_BURST / 2 : this.fusion.has(a.src) ? V2.spiritBurst : SOUL_BURST)) {
           a.left = 0;
           const p = this.eff(ARMS[a.src]).p;
           const bp = { ...p, pierce: (p.pierce ?? 0) + 1 };
           const n = mini ? 8 : 16;
-          for (let i = 0; i < n; i++) this.bullet(a.src, a.x, a.y, (i / n) * Math.PI * 2, bp, a.dmg * 2.5, mini ? 220 : 360, 0);
+          const replaced = this.fusion.active && this.fusion.has(a.src) && this.fusion.burst(a.src, a);
+          if (!replaced) {
+            for (let i = 0; i < n; i++) {
+              const b = this.bullet(a.src, a.x, a.y, (i / n) * Math.PI * 2, bp, a.dmg * 2.5, mini ? 220 : 360, 0);
+              if (b) b.tag |= TAG_BURSTB;
+            }
+          }
           this.add('ring', a.x, a.y, { ttl: 0.5, r: mini ? 36 : 60, emoji: p.color ?? '#b4a0ff' });
           if (!mini) w.emit({ type: 'shake', power: 0.25 });
           if (mini) return false;
@@ -2282,6 +2423,10 @@ export class Chaos {
       a.hits!.add(e.id);
       // 나르는 총: 맞은 탄을 센다
       if (this.carried.has(a.src) && ARMS[a.src]?.cat === 'gun') this.carry(a.src, e.x, e.y);
+      if (this.fusion.active) {
+        if (a.tag & TAG_RICO && a.trail > 0) this.fusion.ricochet(a.x, a.y, e, a.dmg * 0.85, p, a.trail, a.src);
+        if (this.fusion.has(a.src)) this.fusion.hit(a.src, e, a.x, a.y, a);
+      }
       if (p.boom) {
         this.boom(a.x, a.y, p.boom * this.areaMul, a.dmg, p);
         return false;
@@ -2331,6 +2476,7 @@ export class Chaos {
         if (!(a.tag & TAG_REACHED)) {
           a.tag |= TAG_REACHED;
           this.carry(a.src, a.x, a.y);
+          if (this.fusion.active && this.fusion.has(a.src)) this.fusion.unitReach(a.src, a, t);
         }
         if (!p.melee) {
           this.boom(a.x, a.y, (p.boom ?? 40) * this.areaMul, a.dmg, p);
@@ -2435,7 +2581,7 @@ export class Chaos {
   // ─── 피해 ──────────────────────────────────────────────
 
   /** 직접 피해 + 무기 효과(얼림·불·폭약) + 강화(치명타·폭약) */
-  private hit(e: Enemy, dmg: number, p: WeaponParams, chainId: number): void {
+  hit(e: Enemy, dmg: number, p: WeaponParams, chainId: number): void {
     const rng = this.w.rng;
     if (this.lv('arm_crit') > 0 && rng.chance(0.06 * this.lv('arm_crit'))) dmg *= 2.5;
     // 약점 공략: 불타거나 언 적에게 더
@@ -2443,6 +2589,7 @@ export class Chaos {
     if (weak > 0 && (e.burn > 0 || e.frozen > 0)) dmg *= 1 + 0.12 * weak;
     // 피해를 먼저 주고 얼린다 (먼저 얼리면 그 한 방부터 언 적 피해 2.5배가 붙어서 얼리는 무기가 다 셌다)
     this.w.hitFromExp(e, dmg, chainId, 0);
+    if (this.fusion.active) this.fusion.damaged(e, dmg);
     if (e.dead) return;
     if (p.freeze && !e.def.boss) {
       e.frozen = Math.max(e.frozen, p.freeze);
@@ -2453,8 +2600,9 @@ export class Chaos {
   }
 
   /** 폭발 (연쇄 1단계). 다시 터짐 강화면 가끔 한 번 더 */
-  private boom(x: number, y: number, radius: number, damage: number, p?: WeaponParams, _direct = false, chainId?: number): void {
+  boom(x: number, y: number, radius: number, damage: number, p?: WeaponParams, _direct = false, chainId?: number): void {
     const w = this.w;
+    if (this.fusion.active) this.fusion.noteBoom(x, y, radius);
     // 나르는 공중·포격: 떨어져 터진 자리
     if (this.curSrc && this.carried.has(this.curSrc)) {
       const c = ARMS[this.curSrc]?.cat;
@@ -2468,7 +2616,7 @@ export class Chaos {
     if (re > 0 && w.rng.chance(0.06 * re)) w.spawnExplosion({ x, y, radius, damage, chainId: w.newChain(1), source: 'exp', delay: 0.2, tag });
   }
 
-  private push(e: Enemy, fromX: number, fromY: number, force: number): void {
+  push(e: Enemy, fromX: number, fromY: number, force: number): void {
     if (e.def.boss || e.pileCol >= 0) return;
     let dx = e.x - fromX;
     let dy = e.y - fromY;
@@ -2485,7 +2633,7 @@ export class Chaos {
     e.pack = null;
   }
 
-  private chainZap(from: Enemy, n: number, dmg: number): void {
+  chainZap(from: Enemy, n: number, dmg: number): void {
     const w = this.w;
     let cur = from;
     const done = new Set<number>([from.id]);
@@ -2510,12 +2658,12 @@ export class Chaos {
 
   // ─── 대상 고르기 (사거리 안만) ─────────────────────────
 
-  private visible(e: Enemy): boolean {
+  visible(e: Enemy): boolean {
     return !e.dead && e.charm <= 0 && e.y > 10 && e.y < this.LINE + 10 && e.x > 0 && e.x < this.w.field.width;
   }
 
   /** 사거리 안의 적. from 이 있으면 그 자리에서 반경, 없으면 방어선에서 위로 range 까지 */
-  private inZone(from: { x: number; y: number } | undefined, range: number): Enemy[] {
+  inZone(from: { x: number; y: number } | undefined, range: number): Enemy[] {
     const out: Enemy[] = [];
     const r2 = range * range;
     const top = this.LINE - range;
@@ -2526,7 +2674,7 @@ export class Chaos {
     return out;
   }
 
-  private pickTarget(mode: 'front' | 'near' | 'strong' | 'random' | 'dense', from: Mount | { x: number; y: number; wall: number } | undefined, range: number, minRange = 0): Enemy | null {
+  pickTarget(mode: 'front' | 'near' | 'strong' | 'random' | 'dense', from: Mount | { x: number; y: number; wall: number } | undefined, range: number, minRange = 0): Enemy | null {
     let pool = this.inZone(from, range);
     if (minRange > 0 && from) pool = pool.filter((e) => dist2(from.x, from.y, e.x, e.y) >= minRange * minRange);
     if (pool.length === 0) return null;

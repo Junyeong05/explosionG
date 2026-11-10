@@ -2,6 +2,7 @@ import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
 import { TAU, clamp } from '../core/math';
 import { CAST_SEC, SOUL_BURST, TAG_MINI, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
+import { TAG_ALLY } from '../sim/fusion';
 import { glyphFor, paintGlyph } from './glyphs';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
@@ -736,8 +737,51 @@ export class ChaosDraw {
         break;
       }
       case 'walker':
+        if (a.tag & TAG_ALLY) {
+          // 합성으로 아군이 된 것: 초록 테
+          ctx.beginPath();
+          ctx.ellipse(a.x, a.y + 7, 11, 4, 0, 0, TAU);
+          ctx.strokeStyle = rgba('#7dff9a', 0.85);
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
         this.icon(a.emoji ?? '💂', a.x, a.y + Math.abs(Math.sin(a.t * 12)) * -4, a.p?.size ?? 20, a.dir > 0);
         break;
+      case 'tether': {
+        // 합성: 두 점을 잇는 줄 (줄기·사슬·철조망)
+        const fade = Math.min(1, (a.ttl - a.t) / 0.15) * Math.min(1, a.t / 0.05 + 0.3);
+        const col = a.emoji ?? '#9fe8ff';
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = rgba(col, 0.55 * fade);
+        ctx.lineWidth = a.r * 2.2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(a.tx, a.ty);
+        ctx.stroke();
+        ctx.strokeStyle = rgba('#ffffff', 0.8 * fade);
+        ctx.lineWidth = Math.max(0.8, a.r * 0.5);
+        ctx.stroke();
+        ctx.lineCap = 'butt';
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      }
+      case 'mark': {
+        // 합성: 표식·조준 (점선 고리가 돈다)
+        const fade = Math.min(1, (a.ttl - a.t) / 0.2);
+        ctx.save();
+        ctx.translate(a.x, a.y);
+        ctx.rotate(this.time * 2);
+        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = rgba(a.emoji ?? '#ffffff', 0.8 * fade);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, a.r, 0, TAU);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+        break;
+      }
       case 'stamp':
         this.icon(a.emoji ?? '🦖', a.x, a.y + Math.abs(Math.sin(a.t * 14)) * -3, a.p?.size ? a.p.size + 8 : 30, a.dir > 0, a.vy < 0 ? 0 : 0);
         break;

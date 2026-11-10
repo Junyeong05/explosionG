@@ -9,6 +9,8 @@ import { Renderer } from '../../src/render/Renderer';
 import { NO_META } from '../../src/sim/stats';
 import type { Command } from '../../src/sim/types';
 import { World } from '../../src/sim/World';
+import type { InputPattern } from '../../src/data/combineV2';
+import { InputDriver } from '../carry/input';
 
 export interface Scene {
   /** 카드 제목 (이모지 포함) */
@@ -35,6 +37,10 @@ export interface Scene {
   extra?: string[];
   /** 카드 맨 아래 작은 고정폭 글씨 (알려 줄 때 쓰는 이름, 예: gun>summon) */
   code?: string;
+  /** 합성 v2: [A, B] 순서대로 B 를 A 안에 합친다 (Chaos.fuse) */
+  fuse?: [string, string][];
+  /** 손 입력을 이 모양으로 자동으로 누른다 (taps 대신) */
+  input?: InputPattern;
 }
 
 export interface Section {
@@ -82,6 +88,7 @@ class Stage {
   private acc = 0;
   private runs = 0;
   private leaks = 0;
+  private drv: InputDriver | null = null;
   visible = false;
 
   constructor(
@@ -115,6 +122,8 @@ class Stage {
       for (let i = 0; i < (this.scene.level ?? 3); i++) w.augments.acquire(id, w);
     }
     for (const [a, b] of this.scene.attach ?? []) if (!w.chaos!.attach(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
+    for (const [a, b] of this.scene.fuse ?? []) if (!w.chaos!.fuse(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
+    this.drv = this.scene.input ? new InputDriver(this.scene.input) : null;
     this.w = w;
     this.r.reset();
     this.t = 0;
@@ -143,7 +152,8 @@ class Stage {
         w.spawnEnemy(kind, w.rng.range(30, FW - 30), w.rng.range(90, BALANCE.field.height * 0.52), sc.hpMul ?? 3);
       }
     }
-    if (sc.taps) {
+    if (this.drv) cmds.push(...this.drv.step(w, FIXED_DT));
+    else if (sc.taps) {
       this.tapT -= FIXED_DT;
       if (this.tapT <= 0) {
         this.tapT = 0.45;
@@ -178,7 +188,10 @@ class Stage {
     const left = Math.max(0, (this.scene.seconds ?? 18) - this.t);
     let opens = 0;
     if (this.scene.attach) for (const n of this.w.chaos!.opened.values()) opens += n;
-    this.stat.textContent = `${this.scene.attach ? `열림 ${opens} · ` : ''}처치 ${this.w.kills} · 놓침 ${this.leaks} · 다시 시작까지 ${left.toFixed(0)}초`;
+    let fired = 0;
+    if (this.scene.fuse) for (const n of this.w.chaos!.fusion.fired.values()) fired += n;
+    const pre = this.scene.attach ? `열림 ${opens} · ` : this.scene.fuse ? `합성 ${fired} · ` : '';
+    this.stat.textContent = `${pre}처치 ${this.w.kills} · 놓침 ${this.leaks} · 다시 시작까지 ${left.toFixed(0)}초`;
   }
 }
 
