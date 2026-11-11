@@ -39,6 +39,8 @@ export interface Scene {
   code?: string;
   /** 합성 v2: [A, B] 순서대로 B 를 A 안에 합친다 (Chaos.fuse) */
   fuse?: [string, string][];
+  /** 합성 v3 (융합): fuse 를 Chaos.fuse3 로 합친다 */
+  fuse3?: boolean;
   /** 손 입력을 이 모양으로 자동으로 누른다 (taps 대신) */
   input?: InputPattern;
 }
@@ -126,7 +128,7 @@ class Stage {
       for (let i = 0; i < (this.scene.level ?? 3); i++) w.augments.acquire(id, w);
     }
     for (const [a, b] of this.scene.attach ?? []) if (!w.chaos!.attach(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
-    for (const [a, b] of this.scene.fuse ?? []) if (!w.chaos!.fuse(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
+    for (const [a, b] of this.scene.fuse ?? []) if (!(this.scene.fuse3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
     this.drv = this.scene.input ? new InputDriver(this.scene.input) : null;
     this.w = w;
     this.r.reset();

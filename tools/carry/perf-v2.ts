@@ -9,7 +9,7 @@ import { World } from '../../src/sim/World';
 const W12 = ['arm_g_carbine', 'arm_dog', 'arm_tr_mines', 'arm_a_bomber', 'arm_f_lava', 'arm_s_guitar', 'arm_sw_mosquito', 'arm_sp_disc', 'arm_laser', 'arm_th_volley', 'arm_cannon', 'arm_sl_fairy'];
 const FUSE: [string, string][] = [['arm_g_carbine', 'arm_dog'], ['arm_tr_mines', 'arm_g_carbine'], ['arm_a_bomber', 'arm_f_lava'], ['arm_s_guitar', 'arm_sw_mosquito'], ['arm_laser', 'arm_sl_fairy'], ['arm_th_volley', 'arm_sp_disc'], ['arm_cannon', 'arm_th_volley']];
 
-export function perf(seconds: number, fuse: boolean): { msPerStep: number; worstMs: number; maxActors: number; memo: number; kills: number } {
+export function perf(seconds: number, fuse: boolean, mode: 2 | 3 = 2): { msPerStep: number; worstMs: number; maxActors: number; memo: number; kills: number } {
   const w = new World({ seed: 7, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true } });
   const a = w as unknown as { offerQueue: unknown[]; offer: unknown; phase: string };
   const skip = () => {
@@ -21,7 +21,7 @@ export function perf(seconds: number, fuse: boolean): { msPerStep: number; worst
   };
   skip();
   for (const id of W12) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
-  if (fuse) for (const [x, y] of FUSE) w.chaos!.fuse(x, y);
+  if (fuse) for (const [x, y] of FUSE) if (mode === 3) w.chaos!.fuse3(x, y); else w.chaos!.fuse(x, y);
   let spawnT = 0;
   let total = 0;
   let worst = 0;
@@ -52,8 +52,9 @@ export function perf(seconds: number, fuse: boolean): { msPerStep: number; worst
 
 if (process.argv[1]?.endsWith('perf-v2.ts')) {
   const sec = Number(process.argv[2] ?? 120);
+  const mode: 2 | 3 = process.argv.includes('--v3') ? 3 : 2;
   for (const fuse of [false, true]) {
-    const r = perf(sec, fuse);
-    console.log(`${fuse ? '합성 다섯' : '합성 없음'} ${sec}초: 스텝 평균 ${r.msPerStep.toFixed(3)}ms, 최악 ${r.worstMs.toFixed(2)}ms, 물체 최대 ${r.maxActors}, 합성 기억 ${r.memo}, 처치 ${r.kills}`);
+    const r = perf(sec, fuse, mode);
+    console.log(`${fuse ? (mode === 3 ? '융합 다섯' : '합성 다섯') : '합성 없음'} ${sec}초: 스텝 평균 ${r.msPerStep.toFixed(3)}ms, 최악 ${r.worstMs.toFixed(2)}ms, 물체 최대 ${r.maxActors}, 합성 기억 ${r.memo}, 처치 ${r.kills}`);
   }
 }

@@ -1,8 +1,11 @@
 import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../data/chaos';
 import { V2, rulesV2 } from '../data/combineV2';
+import { V3, keepOf, rulesV3 } from '../data/combineV3';
 
 /** 짝 이름 (갈래 A>B → 이름) */
 const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
+/** v3 융합 짝 이름 */
+const NAME3 = new Map(rulesV3().map((r) => [r.key, r.name] as const));
 import { clamp, dist2 } from '../core/math';
 import type { Actor, Chaos } from './chaos';
 import type { Enemy } from './types';
@@ -30,6 +33,8 @@ export const TAG_RICO = 64;
 export const TAG_HOP = 128;
 /** 떨어진 뒤 투척으로 이어지는 낙하물 (trail = 튕김 수) */
 export const TAG_HOPTOSS = 256;
+/** 붙어 있는 동안 세지는 줄 (v3 광선 성질) */
+export const TAG_RAMP = 512;
 
 type Pt = { x: number; y: number };
 export interface Ctx {
@@ -110,6 +115,15 @@ export class Fusion {
 
   constructor(readonly c: Chaos) {}
 
+  /** 2 = v2 (짝 규칙 210, A 는 그대로 + B 를 얹음), 3 = v3 융합 (A 가 작용하는 순간 A 대신 B 가 된다) */
+  mode: 2 | 3 = 2;
+
+  /** v3 융합으로 b 를 a 안에 합친다 (한 판에 v2 와 섞지 않는다) */
+  fuse3(a: string, b: string): boolean {
+    this.mode = 3;
+    return this.fuse(a, b);
+  }
+
   get active(): boolean {
     return this.kids.size > 0;
   }
@@ -155,6 +169,7 @@ export class Fusion {
 
   /** src 의 짝 규칙을 차례로. 그동안 새로 생기는 것은 B 의 것 (src = B, 깊이 +1) */
   private run(src: string, fn: (h: H, x: Ctx) => unknown, deep = true): boolean {
+    if (this.mode === 3) return false;
     const kids = this.kids.get(src);
     if (!kids) return false;
     const c = this.c;
@@ -207,7 +222,7 @@ export class Fusion {
     this.fired.set(k, n + 1);
     if (n > 0) return;
     const [a, b] = k.split('>');
-    const name = NAME.get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`);
+    const name = (this.mode === 3 ? NAME3 : NAME).get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`);
     if (name) this.c.w.emit({ type: 'fusion', name, a, b, x: this.where?.x ?? this.c.w.field.width / 2, y: this.where?.y ?? 200 });
   }
 
@@ -251,6 +266,7 @@ export class Fusion {
     for (const a of this.kids.keys()) this.run(a, (h, x) => h.anyKill?.(x, e), false);
   }
   land(src: string, px: number, py: number, a: Actor): boolean {
+    if (this.mode === 3) return this.kids.has(src) && this.act3(src, px, py, this.nearest(px, py, 60), a) !== 0;
     // 다음 적으로 다시 튀는 포탄·낙하물
     if (a.tag & TAG_HOP && a.trail > 0) this.nextHop(a, px, py);
     if (a.tag & TAG_HOPTOSS) this.tossFrom(a, px, py);
@@ -352,7 +368,10 @@ export class Fusion {
   /** 투척의 '맞음' (투척물이 아닌 투척 무기: 분열 폭탄) */
   throwImpact(src: string, x: number, y: number): void {
     const e = this.nearest(x, y, 50);
-    if (e && this.every(`thi:${src}`, 0.1)) this.hit(src, e, x, y, null);
+    if (e && this.every(`thi:${src}`, 0.1)) {
+      if (this.mode === 3) this.act3(src, e.x, e.y, e, null);
+      else this.hit(src, e, x, y, null);
+    }
   }
   /** 목록에 없는 임시 물체 (사건을 넘길 때) */
   ghost(x: number, y: number, r: number, dmg: number, p?: WeaponParams): Actor {
@@ -396,6 +415,20 @@ export class Fusion {
   /** 달리는 몸이 움직임: 화면 안에서 80 마다 move */
   moved(a: Actor, px: number, py: number): void {
     const c = this.c;
+    // v3: 밟는 판정이 없는 달리기(드래곤·기관차·토네이도)는 80 마다 곁의 적에게 작용
+    if (this.mode === 3) {
+      if (a.kind === 'stamp') return;
+      const k3 = `mv3:${a.id}`;
+      const d3 = ((this.st.get(k3) as number | undefined) ?? 0) + Math.hypot(a.x - px, a.y - py);
+      if (d3 < 80) {
+        this.st.set(k3, d3);
+        return;
+      }
+      this.st.set(k3, 0);
+      const e = this.nearest(a.x, a.y, 60);
+      if (e) this.act3(a.src, e.x, e.y, e, a);
+      return;
+    }
     if (a.x < 0 || a.x > c.w.field.width || a.y < 0 || a.y > c.LINE) return;
     const k = `mv:${a.id}`;
     const d = ((this.st.get(k) as number | undefined) ?? 0) + Math.hypot(a.x - px, a.y - py);
@@ -408,6 +441,11 @@ export class Fusion {
   }
   pulse(src: string, px: number, py: number, r: number, hits: Enemy[]): void {
     this.where = { x: px, y: py };
+    // v3: 고리에 맞은 적마다 (지진처럼 따로 울리는 음파)
+    if (this.mode === 3) {
+      for (const e of hits.slice(0, 6)) this.act3(src, e.x, e.y, e.dead ? null : e, null);
+      return;
+    }
     this.run(src, (h, x) => h.pulse?.(x, px, py, r, hits));
   }
   bounce(src: string, a: Actor): void {
@@ -426,6 +464,10 @@ export class Fusion {
     this.run(src, (h, x) => h.zone?.(x, px, py, r, ttl));
   }
   zoneTick(z: Actor, on: Enemy[]): void {
+    if (this.mode === 3) {
+      for (const e of on.slice(0, 4)) this.act3(z.src, e.x, e.y, e, z);
+      return;
+    }
     this.where = { x: z.x, y: z.y };
     this.run(z.src, (h, x) => h.zoneTick?.(x, z, on));
   }
@@ -481,6 +523,10 @@ export class Fusion {
     this.presses.push({ x: px, y: py, t });
     if (this.presses.length > 8) this.presses.shift();
     this.holding = { x: px, y: py, t };
+    if (this.mode === 3) {
+      this.press3(px, py);
+      return;
+    }
     for (const [a, kids] of this.kids) {
       const A = ARMS[a];
       if (A.cat === 'hand') {
@@ -503,6 +549,10 @@ export class Fusion {
   }
 
   release(px: number, py: number): void {
+    if (this.mode === 3) {
+      this.holding = null;
+      return;
+    }
     if (!this.active || !this.holding) return;
     const held = this.c.w.time - this.holding.t;
     this.holding = null;
@@ -533,7 +583,7 @@ export class Fusion {
     const A = ARMS[id];
     for (const b of kids) {
       if (ARMS[b].cat !== 'hand') continue;
-      if (A.cat === 'magic') return true;
+      if (A.cat === 'magic' && this.mode !== 3) return true;
       if (A.cat === 'sound' && this.holding) return true;
     }
     return false;
@@ -662,7 +712,266 @@ export class Fusion {
     }
     this.flung = this.flung.filter((fl) => !fl.e.dead && fl.until >= t);
     this.where = null;
+    if (this.mode === 3) this.tick3(dt);
     for (const a of this.kids.keys()) this.run(a, (h, x) => h.tick?.(x, dt), false);
+  }
+
+  // ─── v3 융합 엔진 ───────────────────────────────────────
+  //
+  // 공통 규칙 하나: A 가 작용하는 순간(맞음·착탄·밟힘·때림·고리·장판 틱·줄기 틱·구름 틱·벰·들이받음·튕김·탭)마다
+  // A 의 피해 대신 그 자리에서 그것이 B 가 된다 (content3). B 가 된 그것은 B 의 것(src = B)이라, B 에 C 를
+  // 합쳤으면 B 가 작용하는 순간 같은 규칙으로 C 가 된다. 짝마다 따로 짠 동작은 없다 (몸 15 × 성질 15).
+
+  private tokens3 = new Map<string, number>();
+  private turn3 = new Map<string, number>();
+  /** 손이 성질일 때: 그 자리에서 기다리는 것들 */
+  private held3: { x: number; y: number; s: number; B: WeaponSpec; m: Actor | null }[] = [];
+
+  /**
+   * A(src) 가 (x, y) 에서 작용한다 (적 e). 합친 것이 있으면 A 의 피해 대신 그것이 B 가 된다.
+   * 돌려주는 값: 0 = 합친 것 없음 (A 가 원래대로), 1 = 대신함 (A 의 피해·물체는 끝), 2 = 대신하고 A 의 물체는 계속 (관통)
+   */
+  act3(src: string, x: number, y: number, e: Enemy | null, a: Actor | null, scale = 1): 0 | 1 | 2 {
+    if (this.mode !== 3) return 0;
+    const kids = this.kids.get(src);
+    if (!kids || kids.length === 0) return 0;
+    const c = this.c;
+    const A = ARMS[src];
+    const turn = (this.turn3.get(src) ?? 0) + 1;
+    const B = ARMS[kids[turn % kids.length]];
+    const pierce = B.cat === 'charge' && a?.kind === 'bullet' ? 2 : 1;
+    // 깊이 상한: 더 깊으면 원래대로 (끝없이 갈라지지 않게)
+    if (c.curDepth >= V3.maxDepth) return 0;
+    // 같은 적에게는 잠깐 쉬고, 한 무기가 1초에 되는 수에 상한 (그래도 A 의 원래 피해는 없다)
+    if (e && !this.every(`a3:${src}:${e.id}`, V3.perTarget)) return pierce;
+    const tok = this.tokens3.get(src) ?? V3.perSec;
+    if (tok < 1) return pierce;
+    this.tokens3.set(src, tok - 1);
+    this.turn3.set(src, turn);
+    const s = this.k(A) * V3.mul * ((V3.mulA as Record<string, number>)[A.cat] ?? 1) * ((V3.mulB as Record<string, number>)[B.cat] ?? 1) * scale;
+    // 그것이 B 가 되는 순간에도 A 의 한 방은 반만 남는다 (한 물체가 맞히며 바뀐다)
+    if (a && a.dmg > 0 && a.kind !== 'tether' && a.kind !== 'cast' && a.kind !== 'fzone') {
+      if (a.kind === 'thrown' || a.kind === 'faller' || a.kind === 'trap') c.boom(x, y, Math.max(24, (a.r || a.p?.boom || 40) * 0.6), a.dmg * keepOf(A.cat), a.p ?? undefined);
+      else if (e && !e.dead) c.hit(e, a.dmg * keepOf(A.cat) * (pierce === 2 ? 0.6 : 1), a.p ?? {}, c.w.newChain(1));
+    }
+    const sSrc = c.curSrc;
+    const sDepth = c.curDepth;
+    const sKey = this.curKey;
+    c.curSrc = B.id;
+    c.curDepth = sDepth + 1;
+    this.curKey = `${src}>${B.id}`;
+    this.where = { x, y };
+    try {
+      this.content3(A, B, x, y, e, a, s);
+    } finally {
+      c.curSrc = sSrc;
+      c.curDepth = sDepth;
+      this.curKey = sKey;
+    }
+    this.bump(`${src}>${B.id}`);
+    return pierce;
+  }
+
+  /** 그 자리에서 그것이 B 가 된다 (B 의 성질 15) */
+  private content3(A: WeaponSpec, B: WeaponSpec, x: number, y: number, e: Enemy | null, a: Actor | null, s: number): void {
+    const c = this.c;
+    const p = this.p(B);
+    const toward = e ? angTo(x, y, e) : a && (a.vx || a.vy) ? Math.atan2(a.vy, a.vx) : -Math.PI / 2;
+    switch (B.cat) {
+      case 'hand': {
+        // 그 자리에 멈춰 기다린다 → 내가 탭하면 탭한 곳으로 (press3)
+        if (this.held3.length >= 10) {
+          const old = this.held3.shift();
+          if (old?.m) old.m.ttl = 0;
+        }
+        const m = this.mark(x, y, 9, this.col(A), 30);
+        this.held3.push({ x, y, s, B, m });
+        break;
+      }
+      case 'gun': {
+        if (this.countMini(B.id, 'post') >= 4) return;
+        const post = c.add('post', x, y - 6, { ttl: 1.2, r: 170, p, emoji: B.emoji });
+        if (post) post.m = c.dmgMul(B) * s * 0.6;
+        break;
+      }
+      case 'turret': {
+        const t = c.pickTarget('dense', { x, y, wall: 0 }, 240) ?? e;
+        if (t) this.shell(B, x, y, t.x, t.y, s);
+        break;
+      }
+      case 'summon':
+        this.unit(B, x, y, 5, s * 0.8, e && !e.dead ? e : null);
+        break;
+      case 'magic': {
+        const es = this.near(x, y, 60, 3);
+        this.spellOn(B, es, (p.ttl ?? p.freeze ?? 2) * 0.5 * Math.min(2.5, s), this.root(A.id));
+        // 주문이 된 그것도 맞힌다 (주문 피해)
+        for (const q of es) c.hit(q, this.dmg(B, s * 0.6), {}, c.w.newChain(1));
+        this.mark(x, y, 26, '#c77dff', 0.35);
+        // B 가 무엇을 합쳤으면 주문이 걸리는 순간 그것도 (겹친 합성)
+        if (this.kids.has(B.id)) for (const q of es) this.act3(B.id, q.x, q.y, q, null);
+        break;
+      }
+      case 'trap':
+        this.trap(B, x + c.w.rng.range(-8, 8), Math.min(c.LINE - 16, y + 14), 10, s, x, y);
+        break;
+      case 'air':
+        this.drop(B, x, y, 0.25, s, 0.8);
+        break;
+      case 'charge':
+        if (a?.kind === 'bullet' && e) {
+          // 총탄이 들이받으며 계속 나간다 (관통)
+          c.hit(e, this.dmg(B, s * 0.5), {}, c.w.newChain(1));
+          if (!e.def.boss) c.push(e, x - a.vx, y - a.vy, 40);
+        } else this.dash(B, x, y, toward, 1.3, s);
+        break;
+      case 'sound': {
+        const kn = (p.knock ?? 40) * Math.min(1.6, s);
+        if (this.kids.has(B.id)) {
+          this.ring(x, y, 60, this.col(B), 0.4);
+          for (const q of this.near(x, y, 60, 4)) this.act3(B.id, q.x, q.y, q, null);
+        } else this.shock(x, y, 60, kn, 0.3, this.dmg(B, s * 0.6), this.col(B));
+        break;
+      }
+      case 'spinner':
+        this.blade(B, x, y, toward + c.w.rng.range(-0.6, 0.6), 2.5 * Math.min(1.6, Math.sqrt(s)), s);
+        break;
+      case 'field':
+        this.zoneAt(B, x, y, 34, 2.5, s);
+        break;
+      case 'ray': {
+        const t = e && !e.dead ? e : this.nearest(x, y, 140);
+        if (!t || this.countMini(B.id, 'tether') >= 6) return;
+        const tt = this.tether(x, y, t.x, t.y, 1.6, B.p.color ?? '#ff3cc8', this.dmg(B, s * 2), null, t, 2);
+        if (tt) tt.tag |= TAG_RAMP;
+        break;
+      }
+      case 'throw':
+        this.hop(B, x, y, 2, s, e);
+        break;
+      case 'swarm':
+        this.cloud(B, x, y, 24, 2.2, s, e && !e.dead ? e : null);
+        break;
+      case 'spirit':
+        if (this.countMini(B.id, 'drone') < 3) this.orb(B, x, y, 5, s);
+        break;
+    }
+  }
+
+  /** 총탄은 날아가는 동안부터 B 의 모양이 된다 (포격·공중·회전체는 몸이 바뀐다) */
+  shape3(src: string, a: Actor): void {
+    if (this.mode !== 3 || a.kind !== 'bullet') return;
+    const kids = this.kids.get(src);
+    if (!kids) return;
+    const c = this.c;
+    const A = ARMS[src];
+    const B = ARMS[kids[((this.turn3.get(src) ?? 0) + 1) % kids.length]];
+    const s = this.k(A) * V3.mul * ((V3.mulB as Record<string, number>)[B.cat] ?? 1);
+    const sSrc = c.curSrc;
+    c.curSrc = B.id;
+    c.curDepth++;
+    try {
+      switch (B.cat) {
+        case 'turret': {
+          // 포물선 기관포: 탄이 작은 포탄이 되어 뒷줄로
+          const t = c.pickTarget('random', undefined, c.LINE - 30);
+          if (!t) break;
+          a.ttl = 0;
+          const pp = this.p(B);
+          const sh = c.lob('thrown', a.x, a.y, t.x, t.y, 560);
+          if (sh) {
+            sh.p = { ...pp, boom: (pp.boom ?? 40) * 0.55 };
+            sh.emoji = pp.emoji ?? null;
+            sh.dmg = this.dmg(B, s * 0.35);
+          }
+          this.bump(`${src}>${B.id}`);
+          break;
+        }
+        case 'air': {
+          // 곡사총: 탄이 솟았다가 내리꽂힌다
+          const t = c.pickTarget('random', undefined, c.LINE - 30);
+          if (!t) break;
+          a.ttl = 0;
+          const d = this.drop(B, t.x, t.y, 0, s * 0.35, 0.4);
+          if (d) d.p = { ...(d.p ?? {}), size: 14 };
+          this.bump(`${src}>${B.id}`);
+          break;
+        }
+        case 'spinner': {
+          // 원반총: 탄 대신 날
+          if (this.countMini(B.id, 'saw') >= 10) break;
+          a.ttl = 0;
+          this.blade(B, a.x, a.y, Math.atan2(a.vy, a.vx), 2, s * 0.5, 320);
+          this.bump(`${src}>${B.id}`);
+          break;
+        }
+        case 'charge':
+          a.left = 99;
+          break;
+      }
+    } finally {
+      c.curSrc = sSrc;
+      c.curDepth--;
+    }
+  }
+
+  /** 손: 손이 몸이면 탭한 자리에서 B 가 되고(두 탭 잇기면 선을 따라), 손이 성질이면 기다리던 것들이 탭한 곳으로 */
+  private press3(px: number, py: number): void {
+    const c = this.c;
+    for (const [a] of this.kids) {
+      if (ARMS[a].cat !== 'hand') continue;
+      if ((c.cooldowns.get(a) ?? 0) > 0) continue;
+      c.cooldowns.set(a, c.cooldownOf(a));
+      const prev = this.presses.length >= 2 ? this.presses[this.presses.length - 2] : null;
+      // 손은 입력: 몸이 손이면 탭 공격도 반은 남는다
+      {
+        const H = ARMS[a];
+        c.tapEffect(H, c.eff(H).p, c.D * c.dmgMul(H) * V3.keepA, px, py);
+      }
+      if (prev && c.w.time - prev.t < 1.2 && Math.hypot(prev.x - px, prev.y - py) > 50) {
+        // 두 탭을 이은 선을 따라
+        this.tether(prev.x, prev.y, px, py, 0.4, '#ffffff', 0);
+        for (const q of along(prev.x, prev.y, px, py, 42, 5)) this.act3(a, q.x, q.y, this.nearest(q.x, q.y, 50), null, 0.7);
+      } else this.act3(a, px, py, this.nearest(px, py, 90), null);
+    }
+    // A + 손: 손은 입력이라 합쳐도 탭 공격은 그대로 (손 쿨다운마다)
+    for (const [a, kids] of this.kids) {
+      if (ARMS[a].cat === 'hand') continue;
+      for (const b of kids) {
+        if (ARMS[b].cat !== 'hand' || (c.cooldowns.get(b) ?? 0) > 0) continue;
+        c.cooldowns.set(b, c.cooldownOf(b));
+        const H = ARMS[b];
+        const sSrc = c.curSrc;
+        c.curSrc = b;
+        c.tapEffect(H, c.eff(H).p, c.D * c.dmgMul(H), px, py);
+        c.curSrc = sSrc;
+      }
+    }
+    if (this.held3.length) {
+      // 기다리던 것들이 탭한 곳으로 몰려가 손 기술로
+      const go = this.held3.splice(0, 8);
+      for (const h of go) {
+        this.tether(h.x, h.y, px, py, 0.3, CATEGORY_COLOR.hand, 0);
+        if (h.m) h.m.ttl = 0;
+        const sSrc = c.curSrc;
+        c.curSrc = h.B.id;
+        c.tapEffect(h.B, c.eff(h.B).p, c.D * c.dmgMul(h.B) * h.s * 0.6, px + c.w.rng.range(-12, 12), py + c.w.rng.range(-12, 12));
+        c.curSrc = sSrc;
+      }
+      this.ring(px, py, 40, CATEGORY_COLOR.hand, 0.4);
+    }
+  }
+
+  /** v3 매 스텝: 횟수 상한이 다시 차고, 손을 꾹 누르는 동안 손가락 자리에서 계속 */
+  private tick3(dt: number): void {
+    for (const [k, t] of this.tokens3) if (t < V3.perSec) this.tokens3.set(k, Math.min(V3.perSec, t + dt * V3.perSec));
+    const h = this.holding;
+    if (!h || this.c.w.time - h.t < 0.35) return;
+    for (const [a] of this.kids) {
+      if (ARMS[a].cat !== 'hand') continue;
+      if (!this.every(`hold3:${a}`, Math.max(0.15, this.c.cooldownOf(a) * 0.6))) continue;
+      this.act3(a, h.x, h.y, this.nearest(h.x, h.y, 90), null, 0.6);
+    }
   }
 
   // ─── 도구 ──────────────────────────────────────────────
@@ -761,6 +1070,11 @@ export class Fusion {
   blast(x: number, y: number, r: number, dmg: number, color = '#ffb347', p?: WeaponParams): void {
     this.c.boom(x, y, r * this.c.areaMul, dmg, p);
     this.ring(x, y, r, color, 0.3);
+  }
+  countMini(src: string, kind: Actor['kind']): number {
+    let n = 0;
+    for (const a of this.c.actors) if (a.kind === kind && a.src === src && a.depth > 0) n++;
+    return n;
   }
   countUnits(src: string): number {
     let n = 0;

@@ -11,6 +11,7 @@ import { World } from '../../src/sim/World';
 import { run2 } from './check2';
 
 const CATS = ATTACK_CATEGORIES as readonly AttackCat[];
+const mode: 2 | 3 = process.argv.includes('--v3') ? 3 : 2;
 
 // 1) 갈래 안 무기 모양마다
 const byKind = new Map<string, string[]>();
@@ -32,7 +33,7 @@ for (const cat of CATS) {
       const [, B] = samplesV2(r.from, r.to);
       const alt = byKind.get(k)![0];
       const extra = HELPER[r.from] ? [HELPER[r.from]!] : [];
-      if (run2([alt, B, ...extra], [[alt, B]], { input: inputFor(r.from, r.to) }).fired > 0) kOk++;
+      if (run2([alt, B, ...extra], [[alt, B]], { input: inputFor(r.from, r.to), mode }).fired > 0) kOk++;
     }
     ok += kOk;
     n += 14;
@@ -63,7 +64,7 @@ for (const b of CATS) {
     const B = b === 'magic' ? 'arm_m_timestop' : SAMPLE[b];
     const C = c === 'magic' ? 'arm_m_poly' : SAMPLE[c];
     const extra = a === 'magic' || b === 'magic' ? ['arm_pistol'] : [];
-    run2([A, B, C, ...extra], [[B, C], [A, B]], { input: inputFor(a, b) ?? inputFor(b, c) });
+    run2([A, B, C, ...extra], [[B, C], [A, B]], { input: inputFor(a, b) ?? inputFor(b, c), mode });
     if ((lastFired.get(`${B}>${C}`) ?? 0) > 0) ok++;
   }
   all += pick.length;
