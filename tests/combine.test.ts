@@ -4,6 +4,7 @@ import { ARMS, ATTACK_CATEGORIES } from '../src/data/chaos';
 import { CARRY, LINK, PAYLOAD, linkRules } from '../src/data/links';
 import { HELPER, inputFor, rulesV2, samplesV2 } from '../src/data/combineV2';
 import { BECOME, DELIVERY, rulesV3 } from '../src/data/combineV3';
+import { CEIL, CEIL_KEYS } from '../src/data/combineCeil';
 import { FUSION_RULES } from '../src/sim/fusion';
 import { run2 } from '../tools/carry/check2';
 import { Rng } from '../src/core/rng';
@@ -245,6 +246,38 @@ describe('합성: 갈래 둘을 합치면', () => {
         const res = run2(pick, fuse, { seconds: 10, seed: n + 1, input: 'tap', mode: 3 });
         expect(res.maxActors).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
       }
+    });
+  });
+
+  describe('천장 후보 (combineCeil): 짝마다 손으로 짠 새 동작', () => {
+    it('여섯 모두 미리보기 조건에서 해내고, 물체 수 상한 안', () => {
+      expect(CEIL_KEYS.length).toBe(6);
+      expect(new Set(CEIL_KEYS.map((k) => CEIL[k]!.name)).size).toBe(6);
+      for (const k of CEIL_KEYS) {
+        const [a, b] = k.split('>') as [never, never];
+        const [A, B] = samplesV2(a, b);
+        const res = run2([A, B], [[A, B]], { mode: 3, ceil: true, seconds: 24 });
+        expect(res.fired, k).toBeGreaterThan(0);
+        expect(res.maxActors, k).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+    });
+
+    it('끄면 v3 그대로 (같은 씨앗 같은 결과), 켜면 같은 씨앗에서 결정적', () => {
+      const [A, B] = samplesV2('trap', 'charge');
+      const off = run2([A, B], [[A, B]], { mode: 3, seed: 7 });
+      const off2 = run2([A, B], [[A, B]], { mode: 3, seed: 7, ceil: false });
+      expect(off).toEqual(off2);
+      const on1 = run2([A, B], [[A, B]], { mode: 3, seed: 7, ceil: true });
+      const on2 = run2([A, B], [[A, B]], { mode: 3, seed: 7, ceil: true });
+      expect(on1).toEqual(on2);
+    });
+
+    it('겹친 합성에서도 예외 없이 돈다 (함정 + (돌격 + 소환수), 소환수 + (포격 + 함정))', () => {
+      const r1 = run2(['arm_tr_mines', 'arm_c_bikers', 'arm_dog'], [['arm_c_bikers', 'arm_dog'], ['arm_tr_mines', 'arm_c_bikers']], { mode: 3, ceil: true, seconds: 20 });
+      const r2 = run2(['arm_dog', 'arm_cannon', 'arm_tr_mines'], [['arm_cannon', 'arm_tr_mines'], ['arm_dog', 'arm_cannon']], { mode: 3, ceil: true, seconds: 20 });
+      expect(r1.fired).toBeGreaterThan(0);
+      expect(r2.fired).toBeGreaterThan(0);
+      expect(Math.max(r1.maxActors, r2.maxActors)).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
     });
   });
 });

@@ -1,6 +1,7 @@
 import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../data/chaos';
 import { V2, rulesV2 } from '../data/combineV2';
 import { V3, keepOf, rulesV3 } from '../data/combineV3';
+import { CEIL } from '../data/combineCeil';
 
 /** 짝 이름 (갈래 A>B → 이름) */
 const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
@@ -117,6 +118,8 @@ export class Fusion {
 
   /** 2 = v2 (짝 규칙 210, A 는 그대로 + B 를 얹음), 3 = v3 융합 (A 가 작용하는 순간 A 대신 B 가 된다) */
   mode: 2 | 3 = 2;
+  /** 천장 후보 (src/data/combineCeil.ts): 켜면 그 짝은 v3 공통 규칙 대신 손으로 짠 새 동작 */
+  ceil = false;
 
   /** v3 융합으로 b 를 a 안에 합친다 (한 판에 v2 와 섞지 않는다) */
   fuse3(a: string, b: string): boolean {
@@ -222,7 +225,9 @@ export class Fusion {
     this.fired.set(k, n + 1);
     if (n > 0) return;
     const [a, b] = k.split('>');
-    const name = (this.mode === 3 ? NAME3 : NAME).get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`);
+    const ck = `${ARMS[a]?.cat}>${ARMS[b]?.cat}`;
+    const ce = this.mode === 3 && this.ceil ? CEIL[ck as keyof typeof CEIL] : undefined;
+    const name = ce ? ce.name : (this.mode === 3 ? NAME3 : NAME).get(ck);
     if (name) this.c.w.emit({ type: 'fusion', name, a, b, x: this.where?.x ?? this.c.w.field.width / 2, y: this.where?.y ?? 200 });
   }
 
@@ -742,6 +747,27 @@ export class Fusion {
     const pierce = B.cat === 'charge' && a?.kind === 'bullet' ? 2 : 1;
     // 깊이 상한: 더 깊으면 원래대로 (끝없이 갈라지지 않게)
     if (c.curDepth >= V3.maxDepth) return 0;
+    // 천장: 이 짝은 공통 규칙 대신 손으로 짠 새 동작 (간격·상한은 동작마다)
+    const ck = `${A.cat}>${B.cat}` as keyof typeof CEIL;
+    if (this.ceil && CEIL[ck]) {
+      this.turn3.set(src, turn);
+      const sSrc0 = c.curSrc;
+      const sDepth0 = c.curDepth;
+      const sKey0 = this.curKey;
+      c.curSrc = B.id;
+      c.curDepth = sDepth0 + 1;
+      this.curKey = `${src}>${B.id}`;
+      this.where = { x, y };
+      let r: 0 | 1 | 2 = 0;
+      try {
+        r = this.ceil3(ck, src, A, B, x, y, e, a, this.k(A) * V3.mul * ((V3.mulA as Record<string, number>)[A.cat] ?? 1) * ((V3.mulB as Record<string, number>)[B.cat] ?? 1) * scale);
+      } finally {
+        c.curSrc = sSrc0;
+        c.curDepth = sDepth0;
+        this.curKey = sKey0;
+      }
+      return r;
+    }
     // 같은 적에게는 잠깐 쉬고, 한 무기가 1초에 되는 수에 상한 (그래도 A 의 원래 피해는 없다)
     if (e && !this.every(`a3:${src}:${e.id}`, V3.perTarget)) return pierce;
     const tok = this.tokens3.get(src) ?? V3.perSec;
@@ -770,6 +796,145 @@ export class Fusion {
     }
     this.bump(`${src}>${B.id}`);
     return pierce;
+  }
+
+  /** A 의 한 방 (mul 만큼): 터지는 몸은 그 자리 폭발, 맞히는 몸은 그 적 */
+  private keepHit(a: Actor | null, x: number, y: number, e: Enemy | null, mul: number): void {
+    const c = this.c;
+    if (!a || a.dmg <= 0 || a.kind === 'tether' || a.kind === 'cast' || a.kind === 'fzone') return;
+    if (a.kind === 'thrown' || a.kind === 'faller' || a.kind === 'trap') c.boom(x, y, Math.max(24, (a.r || a.p?.boom || 40) * 0.6), a.dmg * mul, a.p ?? undefined);
+    else if (e && !e.dead) c.hit(e, a.dmg * mul, a.p ?? {}, c.w.newChain(1));
+  }
+
+  /**
+   * 천장 후보 여섯 (src/data/combineCeil.ts). 리서치: 확 좋아지는 합성은 한쪽이 다른 쪽의 빈틈을 없애고 새 동작으로 보인다.
+   * 돌려주는 값은 act3 와 같다. 해낸 때만 bump (도감·이름).
+   */
+  private ceil3(k: keyof typeof CEIL, src: string, A: WeaponSpec, B: WeaponSpec, x: number, y: number, e: Enemy | null, a: Actor | null, s: number): 0 | 1 | 2 {
+    const c = this.c;
+    const fire = () => this.bump(`${src}>${B.id}`);
+    switch (k) {
+      case 'trap>charge': {
+        // 올가미 돌파: 밟은 적과 그 뒤로 줄지어 오던 적들을 올가미로 묶어 한 줄로 세우고, 돌격이 그 줄을 거슬러 끝까지
+        this.keepHit(a, x, y, e, 1);
+        const col = c.w.enemies
+          .filter((q) => !q.dead && !q.def.boss && q.charm <= 0 && Math.abs(q.x - x) < 46 && q.y < y + 24 && q.y > 0)
+          .sort((p, q) => q.y - p.y)
+          .slice(0, 8);
+        for (const q of col) {
+          q.x = x + (q.x - x) * 0.2;
+          q.kx = q.ky = 0;
+          q.held = Math.max(q.held, 1.6);
+          q.pack = null;
+        }
+        for (let i = 0; i + 1 < col.length; i++) this.tether(col[i].x, col[i].y, col[i + 1].x, col[i + 1].y, 1.4, '#ffe08a', 0, col[i], col[i + 1], 2);
+        this.ring(x, y, 34, '#ffe08a', 0.5);
+        const sp = (this.p(B).speed ?? 230) * 1.7;
+        this.later(0.35, () => this.dash(B, x, Math.min(c.LINE - 8, y + 20), -Math.PI / 2, (y + 60) / sp, s * 2, undefined, 1.7));
+        fire();
+        return 1;
+      }
+      case 'trap>spinner': {
+        // 톱니 올가미: 둘레를 끌어당기고, 날 셋이 그 자리를 축으로 돈다
+        this.keepHit(a, x, y, e, 1);
+        c.add('vortex', x, y, { ttl: 3, r: 140 * c.areaMul, p: { boom: 20 }, dmg: 0 });
+        this.orbit(B, x, y, 0, 3.4, null, 0, s * 0.8);
+        for (let i = 0; i < 3; i++) this.orbit(B, x, y, 24, 3.4, null, (i * Math.PI * 2) / 3, s * 0.8);
+        this.ring(x, y, 140 * c.areaMul, '#9fe8ff', 0.5);
+        fire();
+        return 1;
+      }
+      case 'trap>summon': {
+        // 전향 덫: 밟은 적이 돌아서서 제 무리를 들이받는다. 짐승 하나가 함께
+        let n = 0;
+        for (const q of this.near(x, y, 48, 5)) {
+          if (q.dead || q.def.boss || q.charm > 0) {
+            if (!q.dead) c.hit(q, (a?.dmg ?? 0) * 0.9, a?.p ?? {}, c.w.newChain(1));
+            continue;
+          }
+          if (n >= 4 || this.allies() + this.charmed() >= V2.allyCap + 4) {
+            c.hit(q, (a?.dmg ?? 0) * 0.9, a?.p ?? {}, c.w.newChain(1));
+            continue;
+          }
+          q.charm = 6;
+          q.pack = null;
+          q.held = 0;
+          this.ring(q.x, q.y, 16, '#ff6fb5', 0.6);
+          // 돌아선 적은 제 무리 속으로 걸어 들어가 6초 뒤 그 한가운데서 터진다
+          const boomDmg = (a?.dmg ?? this.dmg(A, s)) * 1.5;
+          this.later(5.9, () => {
+            if (q.dead) return;
+            q.charm = 0;
+            c.boom(q.x, q.y, 52 * c.areaMul, boomDmg);
+            if (!q.dead) c.hit(q, q.hp + 1, {}, c.w.newChain(1));
+          });
+          n++;
+        }
+        this.unit(B, x, y, 5, s * 0.8, this.nearest(x, y, 140));
+        this.ring(x, y, 48, '#ff6fb5', 0.45);
+        fire();
+        return 1;
+      }
+      case 'summon>turret': {
+        // 표적 포격: 짐승은 원래대로 물고, 문 적을 붙잡으면 그 위로 포탄이 바로
+        this.keepHit(a, x, y, e, 1);
+        if (!e || e.dead || !this.every(`ct:${a?.id ?? src}`, 0.5)) return 1;
+        if (!e.def.boss) {
+          e.held = Math.max(e.held, 0.9);
+          e.pack = null;
+        }
+        this.ring(e.x, e.y, 18, '#ff4d4d', 0.45);
+        this.mark(e.x, e.y, 5, '#ff4d4d', 0.45);
+        this.shell(B, e.x + 14, e.y - 120, e.x, e.y, s * 2.2, { ...this.p(B), boom: (this.p(B).boom ?? 40) * 1.5 });
+        fire();
+        return 1;
+      }
+      case 'gun>magic': {
+        // 주문탄: 총은 원래대로 맞히고, 열 발마다 다음 한 발이 주문탄
+        const n = this.count(`ce:${src}`);
+        const m = this.mount(A.id);
+        // 장전 표시: 총 위에 보라 고리가 맞힌 수만큼 커진다
+        if (n < 8) {
+          this.ring(m.x, m.y - 6, 8 + n * 2.5, '#c77dff', 0.3);
+          return 0;
+        }
+        this.setCount(`ce:${src}`, 0);
+        const es = this.spellAt(A, B, x, y, 80, 3);
+        for (const q of es) c.hit(q, this.dmg(B, s * 0.8), {}, c.w.newChain(1));
+        this.tether(m.x, m.y - 6, x, y, 0.45, '#c77dff', 0, null, null, 4);
+        this.ring(x, y, 80, '#c77dff', 0.7);
+        this.mark(x, y, 80, '#c77dff', 0.5);
+        fire();
+        return 0;
+      }
+      case 'sound>field': {
+        // 용암 해자: 울릴 때마다 고리 끝을 따라 장판이 반원으로 깔린다. 다가오던 적은 해자를 건너야 하고,
+        // 고리에 밀려난 적은 그 해자 위로 되돌아가 멈칫한다 (음파의 한 방·밀침은 chaos 가 그대로)
+        if (this.every(`moat:${src}`, 0.6)) {
+          const m = this.mount(A.id);
+          const W = c.w.field.width;
+          const R = c.rangeOf(A) * 0.95;
+          const n = clamp(Math.round((Math.PI * R) / 46), 5, 14);
+          for (let i = 0; i < n; i++) {
+            const ang = -Math.PI + (Math.PI * (i + 0.5)) / n;
+            const zx = m.x + Math.cos(ang) * R;
+            const zy = m.y + Math.sin(ang) * R;
+            if (zx < 8 || zx > W - 8 || zy < 20) continue;
+            this.zoneAt(B, zx, zy, 26, 6, s);
+          }
+          fire();
+        }
+        if (e && !e.dead && !e.def.boss) {
+          this.later(0.3, () => {
+            if (e.dead) return;
+            e.held = Math.max(e.held, 0.6);
+            e.pack = null;
+          });
+        }
+        return 1;
+      }
+    }
+    return 0;
   }
 
   /** 그 자리에서 그것이 B 가 된다 (B 의 성질 15) */
