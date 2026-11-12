@@ -11,7 +11,7 @@ import { World } from '../../src/sim/World';
 import { run2 } from './check2';
 
 const CATS = ATTACK_CATEGORIES as readonly AttackCat[];
-const mode: 2 | 3 = process.argv.includes('--v3') ? 3 : 2;
+const mode: 2 | 3 | 4 = process.argv.includes('--v4') ? 4 : process.argv.includes('--v3') ? 3 : 2;
 
 // 1) 갈래 안 무기 모양마다
 const byKind = new Map<string, string[]>();

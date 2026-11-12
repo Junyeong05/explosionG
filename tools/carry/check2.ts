@@ -8,6 +8,7 @@ import { writeFileSync } from 'node:fs';
 import { BALANCE, FIXED_DT } from '../../src/data/balance';
 import { HELPER, inputFor, rulesV2, samplesV2 } from '../../src/data/combineV2';
 import { rulesV3 } from '../../src/data/combineV3';
+import { rulesV4 } from '../../src/data/combineV4';
 import { NO_META } from '../../src/sim/stats';
 import type { Command } from '../../src/sim/types';
 import { World } from '../../src/sim/World';
@@ -25,7 +26,7 @@ export interface Run2 {
   keys: string[];
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3; ceil?: boolean } = {}): Run2 {
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
   const skip = () => {
@@ -38,7 +39,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
   };
   skip();
   for (const id of weapons) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
-  for (const [a, b] of fuse) if (!(opt.mode === 3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
+  for (const [a, b] of fuse) if (!(opt.mode === 4 ? w.chaos!.fuse4(a, b) : opt.mode === 3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
   if (opt.ceil) w.chaos!.fusion.ceil = true;
   const drv = opt.input ? new InputDriver(opt.input) : null;
   let spawnT = 0;
@@ -76,9 +77,9 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
 
 if (process.argv[1]?.endsWith('check2.ts')) {
   const arg = process.argv[2]?.startsWith('--') ? undefined : process.argv[2];
-  const mode: 2 | 3 = process.argv.includes('--v3') ? 3 : 2;
+  const mode: 2 | 3 | 4 = process.argv.includes('--v4') ? 4 : process.argv.includes('--v3') ? 3 : 2;
   const rows = rulesV2().filter((r) => !arg || r.key === arg);
-  const names3 = new Map(rulesV3().map((r) => [r.key, r.name] as const));
+  const names3 = new Map((mode === 4 ? rulesV4() : rulesV3()).map((r) => [r.key, r.name] as const));
   const out: string[] = [];
   let zero = 0;
   const ratios: number[] = [];
@@ -98,12 +99,12 @@ if (process.argv[1]?.endsWith('check2.ts')) {
     const ratio = fused.kills / Math.max(1, apart.kills);
     ratios.push(ratio);
     res.push([r.key, ratio, fused.fired]);
-    out.push(`${r.key.padEnd(16)} ${(mode === 3 ? names3.get(r.key) ?? r.name : r.name).padEnd(10)} 해냄 ${String(fused.fired).padStart(4)}  처치 ${String(fused.kills).padStart(3)} / 따로 ${String(apart.kills).padStart(3)}  (×${ratio.toFixed(2)})  놓침 ${fused.leaks} / 따로 ${apart.leaks}  물체 ${fused.maxActors}`);
+    out.push(`${r.key.padEnd(16)} ${(mode >= 3 ? names3.get(r.key) ?? r.name : r.name).padEnd(10)} 해냄 ${String(fused.fired).padStart(4)}  처치 ${String(fused.kills).padStart(3)} / 따로 ${String(apart.kills).padStart(3)}  (×${ratio.toFixed(2)})  놓침 ${fused.leaks} / 따로 ${apart.leaks}  물체 ${fused.maxActors}`);
   }
   console.log(out.join('\n'));
   if (process.argv.includes('--write') && !arg) {
     const lines = res.map(([k, r, n]) => `  '${k}': [${r.toFixed(2)}, ${n}],`);
-    writeFileSync(mode === 3 ? 'tools/showcase/pages/combine3-results.ts' : 'tools/showcase/pages/combine2-results.ts', `// npx tsx tools/carry/check2.ts --write 로 만든 측정값: [처치 비율 (합침 ÷ 따로, 18초 두 판), 규칙이 해낸 횟수]\nexport const RESULTS: Record<string, [number, number]> = {\n${lines.join('\n')}\n};\n`);
+    writeFileSync(mode === 4 ? 'tools/showcase/pages/combine4-results.ts' : mode === 3 ? 'tools/showcase/pages/combine3-results.ts' : 'tools/showcase/pages/combine2-results.ts', `// npx tsx tools/carry/check2.ts --write 로 만든 측정값: [처치 비율 (합침 ÷ 따로, 18초 두 판), 규칙이 해낸 횟수]\nexport const RESULTS: Record<string, [number, number]> = {\n${lines.join('\n')}\n};\n`);
   }
   ratios.sort((a, b) => a - b);
   const med = ratios[Math.floor(ratios.length / 2)] ?? 0;

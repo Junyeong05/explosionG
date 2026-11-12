@@ -37,3 +37,4 @@
   - `combine-live` (합성 실전: 무기 12개 판에서 합성 0·3·5 비교): https://claude.ai/artifact/Fx7y4R4tgo7vwktwW8vPz6
   - `combine3` (합성 210 v3 융합: 공통 규칙 하나, 210 카드 + v2·v3 비교 + 겹친 합성 + 도감): https://claude.ai/artifact/962LuJnT3FAXLZaNgU4nzV
   - `ceil` (합성 천장 후보 여섯: 짝마다 v3 와 새 동작 나란히): https://claude.ai/artifact/96ZCmgRZQVbverTXw4mPEW
+  - `combine4` (합성 v4 상태 반응 샘플: 공통 규칙만, 손 vs 규칙 비교 + 2+2 + 밋밋한 짝 + 210): https://claude.ai/artifact/Y2nb9ZxaWCnZw4nnmK6G4f

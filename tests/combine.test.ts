@@ -5,6 +5,8 @@ import { CARRY, LINK, PAYLOAD, linkRules } from '../src/data/links';
 import { HELPER, inputFor, rulesV2, samplesV2 } from '../src/data/combineV2';
 import { BECOME, DELIVERY, rulesV3 } from '../src/data/combineV3';
 import { CEIL, CEIL_KEYS } from '../src/data/combineCeil';
+import { CAT4, rulesV4 } from '../src/data/combineV4';
+import { DEEP4 } from '../tools/showcase/pages/combine4-deep';
 import { FUSION_RULES } from '../src/sim/fusion';
 import { run2 } from '../tools/carry/check2';
 import { Rng } from '../src/core/rng';
@@ -278,6 +280,44 @@ describe('합성: 갈래 둘을 합치면', () => {
       expect(r1.fired).toBeGreaterThan(0);
       expect(r2.fired).toBeGreaterThan(0);
       expect(Math.max(r1.maxActors, r2.maxActors)).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+    });
+  });
+
+  describe('v4 (상태 반응): 갈래 15줄 + 공통 규칙', () => {
+    it('210 이름이 모두 다르고 갈래 표에서 나온다', () => {
+      const rs = rulesV4();
+      expect(rs.length).toBe(210);
+      expect(new Set(rs.map((r) => r.name)).size).toBe(210);
+      for (const r of rs) expect(r.name).toBe(`${CAT4[r.from].pre} ${CAT4[r.to].noun}`);
+    });
+
+    it('210 모두 예외 없이 돌고 물체 수 상한 안, 대부분 A 의 순간에 B 가 나간다', () => {
+      let fired = 0;
+      for (const r of rulesV4()) {
+        const [A, B] = samplesV2(r.from, r.to);
+        const extra = HELPER[r.from] ? [HELPER[r.from]!] : [];
+        const res = run2([A, B, ...extra], [[A, B]], { input: inputFor(r.from, r.to), mode: 4 });
+        if (res.fired > 0) fired++;
+        expect(res.maxActors, r.key).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+      expect(fired).toBeGreaterThanOrEqual(195);
+    });
+
+    it('2+2 · 깊이 3 샘플이 돌고, 안쪽 짝도 해낸다 (함정 + (소환수 + (포격 + 장판)))', () => {
+      for (const d of DEEP4) {
+        const res = run2(d.weapons, d.fuse, { mode: 4, input: d.input, seconds: 20 });
+        expect(res.fired, d.code).toBeGreaterThan(0);
+        expect(res.maxActors, d.code).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+      const chain = run2(['arm_tr_mines', 'arm_dog', 'arm_cannon', 'arm_f_lava'], [['arm_cannon', 'arm_f_lava'], ['arm_dog', 'arm_cannon'], ['arm_tr_mines', 'arm_dog']], { mode: 4, seconds: 24 });
+      expect(chain.keys).toContain('arm_tr_mines>arm_dog');
+      expect(chain.keys).toContain('arm_dog>arm_cannon');
+    });
+
+    it('같은 씨앗이면 같은 결과', () => {
+      const a = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
+      const b = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
+      expect(a).toEqual(b);
     });
   });
 });

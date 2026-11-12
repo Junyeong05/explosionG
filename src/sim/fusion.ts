@@ -2,11 +2,14 @@ import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../dat
 import { V2, rulesV2 } from '../data/combineV2';
 import { V3, keepOf, rulesV3 } from '../data/combineV3';
 import { CEIL } from '../data/combineCeil';
+import { CAT4, ST_COLOR, V4, rulesV4, type St } from '../data/combineV4';
 
 /** 짝 이름 (갈래 A>B → 이름) */
 const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
 /** v3 융합 짝 이름 */
 const NAME3 = new Map(rulesV3().map((r) => [r.key, r.name] as const));
+/** v4 상태 반응 짝 이름 */
+const NAME4 = new Map(rulesV4().map((r) => [r.key, r.name] as const));
 import { clamp, dist2 } from '../core/math';
 import type { Actor, Chaos } from './chaos';
 import type { Enemy } from './types';
@@ -38,6 +41,10 @@ export const TAG_HOPTOSS = 256;
 export const TAG_RAMP = 512;
 
 type Pt = { x: number; y: number };
+/** v4: 넓게 치는 B (노리는 상태 가운데서도 몰린 곳을 고른다) */
+const AREA4 = new Set(['turret', 'air', 'sound', 'magic', 'field', 'swarm', 'spinner', 'trap']);
+/** v4: A 의 모양 (놓는 B 가 따른다) */
+export type Shape4 = { kind: 'ring'; cx: number; cy: number; r: number } | { kind: 'line'; x1: number; y1: number; x2: number; y2: number };
 export interface Ctx {
   f: Fusion;
   A: WeaponSpec;
@@ -117,7 +124,7 @@ export class Fusion {
   constructor(readonly c: Chaos) {}
 
   /** 2 = v2 (짝 규칙 210, A 는 그대로 + B 를 얹음), 3 = v3 융합 (A 가 작용하는 순간 A 대신 B 가 된다) */
-  mode: 2 | 3 = 2;
+  mode: 2 | 3 | 4 = 2;
   /** 천장 후보 (src/data/combineCeil.ts): 켜면 그 짝은 v3 공통 규칙 대신 손으로 짠 새 동작 */
   ceil = false;
 
@@ -125,6 +132,13 @@ export class Fusion {
   fuse3(a: string, b: string): boolean {
     this.mode = 3;
     return this.fuse(a, b);
+  }
+  /** v4 상태 반응으로 b 를 a 안에 (처음엔 한 번 쓸 만큼 차 있다) */
+  fuse4(a: string, b: string): boolean {
+    this.mode = 4;
+    const ok = this.fuse(a, b);
+    if (ok) this.energy4.set(`${a}>${b}`, 1);
+    return ok;
   }
 
   get active(): boolean {
@@ -172,7 +186,7 @@ export class Fusion {
 
   /** src 의 짝 규칙을 차례로. 그동안 새로 생기는 것은 B 의 것 (src = B, 깊이 +1) */
   private run(src: string, fn: (h: H, x: Ctx) => unknown, deep = true): boolean {
-    if (this.mode === 3) return false;
+    if (this.mode !== 2) return false;
     const kids = this.kids.get(src);
     if (!kids) return false;
     const c = this.c;
@@ -227,7 +241,7 @@ export class Fusion {
     const [a, b] = k.split('>');
     const ck = `${ARMS[a]?.cat}>${ARMS[b]?.cat}`;
     const ce = this.mode === 3 && this.ceil ? CEIL[ck as keyof typeof CEIL] : undefined;
-    const name = ce ? ce.name : (this.mode === 3 ? NAME3 : NAME).get(ck);
+    const name = ce ? ce.name : (this.mode === 4 ? NAME4 : this.mode === 3 ? NAME3 : NAME).get(ck);
     if (name) this.c.w.emit({ type: 'fusion', name, a, b, x: this.where?.x ?? this.c.w.field.width / 2, y: this.where?.y ?? 200 });
   }
 
@@ -272,6 +286,10 @@ export class Fusion {
   }
   land(src: string, px: number, py: number, a: Actor): boolean {
     if (this.mode === 3) return this.kids.has(src) && this.act3(src, px, py, this.nearest(px, py, 60), a) !== 0;
+    if (this.mode === 4) {
+      if (this.kids.has(src)) this.act4(src, px, py, this.nearest(px, py, 60), a);
+      return false;
+    }
     // 다음 적으로 다시 튀는 포탄·낙하물
     if (a.tag & TAG_HOP && a.trail > 0) this.nextHop(a, px, py);
     if (a.tag & TAG_HOPTOSS) this.tossFrom(a, px, py);
@@ -374,7 +392,8 @@ export class Fusion {
   throwImpact(src: string, x: number, y: number): void {
     const e = this.nearest(x, y, 50);
     if (e && this.every(`thi:${src}`, 0.1)) {
-      if (this.mode === 3) this.act3(src, e.x, e.y, e, null);
+      if (this.mode === 4) this.act4(src, e.x, e.y, e, null);
+      else if (this.mode === 3) this.act3(src, e.x, e.y, e, null);
       else this.hit(src, e, x, y, null);
     }
   }
@@ -421,7 +440,7 @@ export class Fusion {
   moved(a: Actor, px: number, py: number): void {
     const c = this.c;
     // v3: 밟는 판정이 없는 달리기(드래곤·기관차·토네이도)는 80 마다 곁의 적에게 작용
-    if (this.mode === 3) {
+    if (this.mode === 3 || this.mode === 4) {
       if (a.kind === 'stamp') return;
       const k3 = `mv3:${a.id}`;
       const d3 = ((this.st.get(k3) as number | undefined) ?? 0) + Math.hypot(a.x - px, a.y - py);
@@ -431,7 +450,8 @@ export class Fusion {
       }
       this.st.set(k3, 0);
       const e = this.nearest(a.x, a.y, 60);
-      if (e) this.act3(a.src, e.x, e.y, e, a);
+      if (e && this.mode === 4) this.act4(a.src, e.x, e.y, e, a);
+      else if (e) this.act3(a.src, e.x, e.y, e, a);
       return;
     }
     if (a.x < 0 || a.x > c.w.field.width || a.y < 0 || a.y > c.LINE) return;
@@ -449,6 +469,10 @@ export class Fusion {
     // v3: 고리에 맞은 적마다 (지진처럼 따로 울리는 음파)
     if (this.mode === 3) {
       for (const e of hits.slice(0, 6)) this.act3(src, e.x, e.y, e.dead ? null : e, null);
+      return;
+    }
+    if (this.mode === 4) {
+      for (const e of hits.slice(0, 6)) this.act4(src, e.x, e.y, e.dead ? null : e, null, { kind: 'ring', cx: px, cy: py, r });
       return;
     }
     this.run(src, (h, x) => h.pulse?.(x, px, py, r, hits));
@@ -469,6 +493,10 @@ export class Fusion {
     this.run(src, (h, x) => h.zone?.(x, px, py, r, ttl));
   }
   zoneTick(z: Actor, on: Enemy[]): void {
+    if (this.mode === 4) {
+      for (const e of on.slice(0, 2)) this.act4(z.src, e.x, e.y, e, z);
+      return;
+    }
     if (this.mode === 3) {
       for (const e of on.slice(0, 4)) this.act3(z.src, e.x, e.y, e, z);
       return;
@@ -517,6 +545,10 @@ export class Fusion {
   }
   burst(src: string, d: Actor): boolean {
     this.where = { x: d.x, y: d.y };
+    if (this.mode === 4) {
+      this.act4(src, d.x, d.y, this.nearest(d.x, d.y, 80), d);
+      return false;
+    }
     return this.run(src, (h, x) => h.burst?.(x, d));
   }
 
@@ -530,6 +562,10 @@ export class Fusion {
     this.holding = { x: px, y: py, t };
     if (this.mode === 3) {
       this.press3(px, py);
+      return;
+    }
+    if (this.mode === 4) {
+      this.press4(px, py);
       return;
     }
     for (const [a, kids] of this.kids) {
@@ -554,7 +590,7 @@ export class Fusion {
   }
 
   release(px: number, py: number): void {
-    if (this.mode === 3) {
+    if (this.mode === 3 || this.mode === 4) {
       this.holding = null;
       return;
     }
@@ -588,7 +624,7 @@ export class Fusion {
     const A = ARMS[id];
     for (const b of kids) {
       if (ARMS[b].cat !== 'hand') continue;
-      if (A.cat === 'magic' && this.mode !== 3) return true;
+      if (A.cat === 'magic' && this.mode === 2) return true;
       if (A.cat === 'sound' && this.holding) return true;
     }
     return false;
@@ -718,6 +754,7 @@ export class Fusion {
     this.flung = this.flung.filter((fl) => !fl.e.dead && fl.until >= t);
     this.where = null;
     if (this.mode === 3) this.tick3(dt);
+    if (this.mode === 4) this.tick4(dt);
     for (const a of this.kids.keys()) this.run(a, (h, x) => h.tick?.(x, dt), false);
   }
 
@@ -1136,6 +1173,374 @@ export class Fusion {
       if (ARMS[a].cat !== 'hand') continue;
       if (!this.every(`hold3:${a}`, Math.max(0.15, this.c.cooldownOf(a) * 0.6))) continue;
       this.act3(a, h.x, h.y, this.nearest(h.x, h.y, 90), null, 0.6);
+    }
+  }
+
+  // ─── v4 상태 반응 ───────────────────────────────────────
+  //
+  // 짝마다 짠 동작 없음 (src/data/combineV4.ts 의 갈래 15줄). A 는 원래대로 다 하고, A 가 작용하는 순간마다
+  // A 는 제 상태(묶임·표식·약점)를 남기고, 합쳐 둔 B 는 에너지가 찼으면 그 근처에서 제가 노리는 상태의 적을 친다 (그 적에게 ×2).
+  // B 가 낸 것은 B 의 것이라 B 에 C 를 합쳤으면 같은 규칙이 한 번 더 (2+2 도 같다).
+
+  private st4 = new Map<number, { hold: number; mark: number; weak: number }>();
+  private energy4 = new Map<string, number>();
+
+  /** 적이 그 상태인가 (실제 멈춤·약화도 센다) */
+  has4(e: Enemy | null, s: St): boolean {
+    if (!e || e.dead) return false;
+    const t = this.now();
+    const m = this.st4.get(e.id);
+    switch (s) {
+      case 'hold':
+        return e.held > 0 || e.frozen > 0 || (m?.hold ?? 0) > t;
+      case 'mark':
+        return (m?.mark ?? 0) > t;
+      case 'weak':
+        return e.infest > 0 || (m?.weak ?? 0) > t;
+      case 'crowd':
+        return this.near(e.x, e.y, 50, 5).length >= 4;
+    }
+  }
+
+  /** A 가 작용한 적에게 A 의 상태를 남긴다 */
+  private leave4(cat: string, e: Enemy): void {
+    const L = CAT4[cat as keyof typeof CAT4];
+    if (!L?.leaves || e.dead) return;
+    const t = this.now();
+    let m = this.st4.get(e.id);
+    if (!m) {
+      m = { hold: 0, mark: 0, weak: 0 };
+      this.st4.set(e.id, m);
+    }
+    const show = this.every(`lv4:${e.id}`, 0.5);
+    switch (L.leaves) {
+      case 'hold':
+        if (!e.def.boss) {
+          e.held = Math.max(e.held, L.sec);
+          e.pack = null;
+        }
+        m.hold = Math.max(m.hold, t + L.sec);
+        break;
+      case 'mark':
+        m.mark = Math.max(m.mark, t + L.sec);
+        break;
+      case 'weak':
+        e.infest = Math.max(e.infest, L.sec);
+        m.weak = Math.max(m.weak, t + L.sec);
+        break;
+    }
+    if (show) this.ring(e.x, e.y, 11, ST_COLOR[L.leaves], 0.35);
+  }
+
+  /**
+   * A(src) 가 (x, y) 에서 작용했다 (적 e). A 의 피해는 부른 쪽이 원래대로 낸다. 여기서는 상태를 남기고,
+   * 에너지가 찬 B 마다 노리는 상태의 적을 친다. shape: A 의 모양 (놓는 B 가 따른다)
+   */
+  act4(src: string, x: number, y: number, e: Enemy | null, a: Actor | null, shape?: Shape4): void {
+    if (this.mode !== 4) return;
+    const kids = this.kids.get(src);
+    if (!kids || kids.length === 0) return;
+    const c = this.c;
+    if (c.curDepth >= V4.maxDepth) return;
+    const A = ARMS[src];
+    if (e && !e.dead) this.leave4(A.cat, e);
+    let sh = shape;
+    if (!sh && a && a.kind === 'stamp' && (a.vx || a.vy)) sh = { kind: 'line', x1: a.x - a.vx * 0.35, y1: a.y - a.vy * 0.35, x2: a.x, y2: a.y };
+    for (const b of kids) {
+      const key = `${src}>${b}`;
+      const E = this.energy4.get(key) ?? 0;
+      if (E < 1) continue;
+      const n = Math.floor(E);
+      this.energy4.set(key, E - n);
+      const B = ARMS[b];
+      const sSrc = c.curSrc;
+      const sDepth = c.curDepth;
+      const sKey = this.curKey;
+      c.curSrc = b;
+      c.curDepth = sDepth + 1;
+      this.curKey = key;
+      this.where = { x, y };
+      try {
+        this.fire4(A, B, x, y, e, n, sh);
+      } finally {
+        c.curSrc = sSrc;
+        c.curDepth = sDepth;
+        this.curKey = sKey;
+      }
+      this.bump(key);
+    }
+  }
+
+  /**
+   * 노리는 적 고르기 (k 곳): 그 상태인 적을 가까운 순으로. 넓게 치는 B 는 상태 ×3 × 둘레 수가 큰 곳부터, 서로 40 넘게 떨어진 곳.
+   * 없으면 A 가 작용한 적·가까운 적
+   */
+  private pick4(x: number, y: number, seek: St, e: Enemy | null, k: number, area = false): Enemy[] {
+    const pool = this.near(x, y, V4.reach, 40);
+    let out: Enemy[] = [];
+    if (seek === 'crowd' || area) {
+      const score = (q: Enemy) => (seek !== 'crowd' && this.has4(q, seek) ? 3 : 1) * (1 + this.near(q.x, q.y, 50, 8).length);
+      for (const q of [...pool].sort((p, r) => score(r) - score(p))) {
+        if (out.length >= k) break;
+        if (out.every((o) => Math.hypot(o.x - q.x, o.y - q.y) > 40)) out.push(q);
+      }
+    } else out = pool.filter((q) => this.has4(q, seek)).slice(0, k);
+    if (!out.length) out = e && !e.dead ? [e] : pool.slice(0, 1);
+    return out;
+  }
+
+  /** 놓는 B 가 따를 자리: A 의 고리·줄 (없으면 노리는 적 발밑) */
+  private spots4(sh: Shape4 | undefined, n: number): Pt[] {
+    if (!sh) return [];
+    const k = clamp(2 + n, 3, 9);
+    const out: Pt[] = [];
+    const W = this.c.w.field.width;
+    if (sh.kind === 'ring') {
+      for (let i = 0; i < k; i++) {
+        const ang = -Math.PI + (Math.PI * (i + 0.5)) / k;
+        const px = sh.cx + Math.cos(ang) * sh.r * 0.95;
+        const py = sh.cy + Math.sin(ang) * sh.r * 0.95;
+        if (px > 8 && px < W - 8 && py > 20) out.push({ x: px, y: py });
+      }
+    } else {
+      for (let i = 0; i < k; i++) {
+        const t = (i + 0.5) / k;
+        out.push({ x: sh.x1 + (sh.x2 - sh.x1) * t, y: sh.y1 + (sh.y2 - sh.y1) * t });
+      }
+    }
+    return out.filter((q) => q.y < this.c.LINE - 4);
+  }
+
+  /** B 를 n 번 쏜 만큼 (노리는 상태의 적에게 ×react) */
+  private fire4(A: WeaponSpec, B: WeaponSpec, x: number, y: number, e: Enemy | null, n: number, sh?: Shape4): void {
+    const c = this.c;
+    const P = CAT4[B.cat as keyof typeof CAT4];
+    const Bp = this.p(B);
+    // B 를 n 번 쏜 만큼: 원래 한 번에 몇 발이면 그만큼 흩어서 (한 적에 몰지 않는다)
+    const shots = n * Math.max(1, Bp.count ?? 1);
+    const cnt = clamp(Math.round(shots), 1, 6);
+    const unit = V4.base;
+    const per = shots / cnt;
+    const ts = this.pick4(x, y, P.seeks, e, cnt, AREA4.has(B.cat));
+    const t0 = ts[0] ?? null;
+    const re = (q: Enemy | null) => (this.has4(q, P.seeks) ? V4.react : 1);
+    // 인과가 보이게: A 의 자리에서 B 가 노린 적으로 짧은 선, 반응이면 노린 상태 색 고리
+    if (t0 && Math.hypot(t0.x - x, t0.y - y) > 18) this.tether(x, y, t0.x, t0.y, 0.25, CATEGORY_COLOR[A.cat as keyof typeof CATEGORY_COLOR] ?? '#ffffff', 0, null, t0, 1);
+    for (const q of ts) if (re(q) > 1) this.ring(q.x, q.y, 18, ST_COLOR[P.seeks], 0.45);
+    const tg = (i: number) => ts[i % Math.max(1, ts.length)] ?? null;
+    switch (B.cat) {
+      case 'hand': {
+        if (this.held3.length >= 10) {
+          const old = this.held3.shift();
+          if (old?.m) old.m.ttl = 0;
+        }
+        const q = t0;
+        const px = q?.x ?? x;
+        const py = q?.y ?? y;
+        const m = this.mark(px, py, 9, this.col(A), 30);
+        this.held3.push({ x: px, y: py, s: shots * 1.6 * re(q), B, m });
+        break;
+      }
+      case 'gun':
+        for (let i = 0; i < cnt; i++) {
+          const q = tg(i);
+          if (q) this.shootAt(B, x, y, q, per * unit * re(q));
+        }
+        break;
+      case 'turret':
+        for (let i = 0; i < cnt; i++) {
+          const q = tg(i);
+          if (!q) break;
+          // 멈춘 적이면 예고 없이 바로 그 위로, 아니면 A 의 자리에서 날아간다
+          if (this.has4(q, 'hold')) this.shell(B, q.x + 14, q.y - 120, q.x, q.y, per * unit * re(q));
+          else this.shell(B, x, y, q.x, q.y, per * unit);
+        }
+        break;
+      case 'summon':
+        for (let i = 0; i < cnt; i++) {
+          const q = tg(i);
+          if (q && this.has4(q, 'hold') && !q.def.boss && q.charm <= 0 && this.allies() + this.charmed() < V2.allyCap + 2) {
+            // 돌려세운 적은 제 무리를 들이받다가 끝나면 쓰러진다
+            const dur = 3 + per;
+            q.charm = dur;
+            q.pack = null;
+            q.held = 0;
+            this.ring(q.x, q.y, 16, '#ff6fb5', 0.6);
+            this.later(dur - 0.05, () => {
+              if (q.dead) return;
+              q.charm = 0;
+              // 제 무리 한가운데서 터진다
+              c.boom(q.x, q.y, 50 * c.areaMul, this.dmg(B, per * unit * 2));
+              if (!q.dead) c.hit(q, q.hp + 1, {}, c.w.newChain(1));
+            });
+          } else this.unit(B, x, y, 6, per * unit * re(q), q);
+        }
+        break;
+      case 'magic': {
+        const q = t0;
+        const es = q ? this.near(q.x, q.y, 70, 6) : [];
+        this.spellOn(B, es, (Bp.ttl ?? Bp.freeze ?? 2) * 0.6 * Math.min(n, 3), this.root(A.id));
+        for (const r of es) c.hit(r, this.dmg(B, unit * shots * re(q)), {}, c.w.newChain(1));
+        if (q) this.mark(q.x, q.y, 70, '#c77dff', 0.4);
+        break;
+      }
+      case 'trap': {
+        const sp = this.spots4(sh, n);
+        if (sp.length) for (const s of sp) this.trap(B, s.x, s.y, 10, (shots * unit) / sp.length);
+        else
+          for (let i = 0; i < cnt; i++) {
+            const q = tg(i);
+            this.trap(B, (q?.x ?? x) + c.w.rng.range(-6, 6), (q?.y ?? y) + 6, 10, per * unit * re(q));
+          }
+        break;
+      }
+      case 'air':
+        for (let i = 0; i < cnt; i++) {
+          const q = tg(i);
+          this.drop(B, q?.x ?? x, q?.y ?? y, this.has4(q, 'hold') ? 0.05 : 0.3, per * unit * re(q), 0.8);
+        }
+        break;
+      case 'charge': {
+        // 가장 많이 늘어선 줄 (세로: 내려오는 줄, 가로: 한 줄) 을 꿰뚫는다
+        const q = t0 ?? e;
+        if (!q) break;
+        const live = c.w.enemies.filter((r) => !r.dead && r.y > 0 && r.y < c.LINE);
+        const w8 = (r: Enemy) => (this.has4(r, 'hold') ? 2 : 1);
+        const col = live.filter((r) => Math.abs(r.x - q.x) < 22).reduce((s2, r) => s2 + w8(r), 0);
+        const row = live.filter((r) => Math.abs(r.y - q.y) < 22).reduce((s2, r) => s2 + w8(r), 0);
+        const sp = (this.p(B).speed ?? 230) * 1.6;
+        const W = c.w.field.width;
+        if (col >= row) {
+          const y0 = Math.min(c.LINE - 8, q.y + 40);
+          this.dash(B, q.x, y0, -Math.PI / 2, (y0 + 60) / sp, unit * shots * re(q), undefined, 1.6);
+        } else {
+          const left = q.x > W / 2;
+          this.dash(B, left ? -30 : W + 30, q.y, left ? 0 : Math.PI, (W + 90) / sp, unit * shots * re(q), undefined, 1.6);
+        }
+        break;
+      }
+      case 'sound': {
+        const q = t0;
+        const kn = (Bp.knock ?? 40) * Math.min(1.6, 0.7 + 0.15 * n);
+        this.shock(q?.x ?? x, q?.y ?? y, 50 + 8 * Math.min(n, 5), kn, 0.4, this.dmg(B, unit * shots * re(q)), this.col(B));
+        break;
+      }
+      case 'spinner': {
+        const sp = this.spots4(sh, n);
+        if (sp.length) {
+          for (const s of sp.slice(0, 5)) this.orbit(B, s.x, s.y, 16, 2.5, null, 0, (shots * unit) / Math.min(5, sp.length));
+          break;
+        }
+        for (let i = 0; i < cnt; i++) {
+          const q = tg(i);
+          if (q && this.has4(q, 'hold')) this.orbit(B, q.x, q.y, 18, 2.5 + 0.3 * per, null, (i * Math.PI * 2) / cnt, per * unit * re(q));
+          else this.blade(B, x, y, q ? angTo(x, y, q) : -Math.PI / 2, 2.5, per * unit);
+        }
+        break;
+      }
+      case 'field': {
+        const sp = this.spots4(sh, n);
+        if (sp.length) for (const s of sp) this.zoneAt(B, s.x, s.y, 28, 3, ((shots * unit) / sp.length) * 2);
+        else
+          for (let i = 0; i < cnt; i++) {
+            const q = tg(i);
+            this.zoneAt(B, q?.x ?? x, q?.y ?? y, 34, 2.5 + 0.5 * per, per * unit * re(q));
+          }
+        break;
+      }
+      case 'ray':
+        for (let i = 0; i < Math.min(cnt, 3); i++) {
+          const q = tg(i);
+          if (!q || this.countMini(B.id, 'tether') >= 6) break;
+          const tt = this.tether(x, y, q.x, q.y, 1 + 0.4 * per, B.p.color ?? '#ff3cc8', this.dmg(B, per * unit * re(q) * 2), null, q, 2);
+          if (tt) tt.tag |= TAG_RAMP;
+        }
+        break;
+      case 'throw':
+        this.hop(B, x, y, 1 + Math.min(n, 5), unit * re(t0) * Math.max(1, shots / 3), null);
+        break;
+      case 'swarm': {
+        const sp = this.spots4(sh, n);
+        if (sp.length) for (const s of sp.slice(0, 5)) this.cloud(B, s.x, s.y, 24, 2.5, (shots * unit) / Math.min(5, sp.length), null);
+        else this.cloud(B, t0?.x ?? x, t0?.y ?? y, 30, 2 + 0.5 * Math.min(n, 4), unit * shots * re(t0), t0);
+        break;
+      }
+      case 'spirit':
+        if (this.countMini(B.id, 'drone') < 3) this.orb(B, t0?.x ?? x, t0?.y ?? y, 4 + Math.min(n, 4), unit * shots * re(t0));
+        break;
+    }
+  }
+
+  /** v4 손: 손이 몸이면 탭한 자리에서 (손 쿨다운마다), 손이 성질이면 기다리던 것들이 탭한 곳으로 */
+  private press4(px: number, py: number): void {
+    const c = this.c;
+    for (const [a, kids] of this.kids) {
+      if (ARMS[a].cat === 'hand') {
+        if (this.every(`p4:${a}`, Math.max(0.15, c.cooldownOf(a) * 0.9))) this.act4(a, px, py, this.nearest(px, py, 90), null);
+        continue;
+      }
+      // A + 손: 손은 입력이라 합쳐도 탭 공격은 그대로 (손 쿨다운마다)
+      for (const b of kids) {
+        if (ARMS[b].cat !== 'hand' || (c.cooldowns.get(b) ?? 0) > 0) continue;
+        c.cooldowns.set(b, c.cooldownOf(b));
+        const H = ARMS[b];
+        const sSrc = c.curSrc;
+        c.curSrc = b;
+        c.tapEffect(H, c.eff(H).p, c.D * c.dmgMul(H), px, py);
+        c.curSrc = sSrc;
+      }
+    }
+    if (this.held3.length) {
+      const go = this.held3.splice(0, 8);
+      for (const h of go) {
+        this.tether(h.x, h.y, px, py, 0.3, CATEGORY_COLOR.hand, 0);
+        if (h.m) h.m.ttl = 0;
+        const sSrc = c.curSrc;
+        c.curSrc = h.B.id;
+        c.tapEffect(h.B, c.eff(h.B).p, c.D * c.dmgMul(h.B) * h.s * 0.6, px + c.w.rng.range(-12, 12), py + c.w.rng.range(-12, 12));
+        c.curSrc = sSrc;
+      }
+      this.ring(px, py, 40, CATEGORY_COLOR.hand, 0.4);
+    }
+  }
+
+  /** v4 매 스텝: B 에너지가 제 쿨다운만큼 찬다 (×gain, 상한 있음) */
+  private tick4(dt: number): void {
+    const c = this.c;
+    for (const [a, kids] of this.kids) {
+      for (const b of kids) {
+        const key = `${a}>${b}`;
+        const cd = Math.max(0.1, c.cooldownOf(b));
+        const cap = Math.max(V4.storeMin, V4.storeSec / cd);
+        const E = Math.min(cap, (this.energy4.get(key) ?? 0) + (dt * V4.gain) / cd);
+        this.energy4.set(key, E);
+        // 넘침: A 가 오래 쉬어 가득 찼으면 B 는 제 자리에서 한 번 (힘을 버리지 않는다. 방어선 가까이를 지킨다)
+        if (E >= cap && this.every(`ov4:${key}`, cd / V4.gain)) {
+          const m = c.mountOf(b) ?? c.mountOf(this.root(b));
+          if (!m) continue;
+          const B = ARMS[b];
+          const t = this.nearest(m.x, m.y - 8, Math.min(V4.reach * 1.6, c.rangeOf(B)));
+          if (!t) continue;
+          this.energy4.set(key, E - 1);
+          const sSrc = c.curSrc;
+          const sDepth = c.curDepth;
+          const sKey = this.curKey;
+          c.curSrc = b;
+          c.curDepth = 1;
+          this.curKey = key;
+          try {
+            this.fire4(ARMS[a], B, t.x, Math.min(t.y + 30, m.y - 8), t, 1);
+          } finally {
+            c.curSrc = sSrc;
+            c.curDepth = sDepth;
+            this.curKey = sKey;
+          }
+        }
+      }
+    }
+    if (this.every('st4prune', 5)) {
+      const t = this.now();
+      for (const [id, m] of this.st4) if (m.hold < t && m.mark < t && m.weak < t) this.st4.delete(id);
     }
   }
 
