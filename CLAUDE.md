@@ -38,3 +38,4 @@
   - `combine3` (합성 210 v3 융합: 공통 규칙 하나, 210 카드 + v2·v3 비교 + 겹친 합성 + 도감): https://claude.ai/artifact/962LuJnT3FAXLZaNgU4nzV
   - `ceil` (합성 천장 후보 여섯: 짝마다 v3 와 새 동작 나란히): https://claude.ai/artifact/96ZCmgRZQVbverTXw4mPEW
   - `combine4` (합성 v4 상태 반응 샘플: 공통 규칙만, 손 vs 규칙 비교 + 2+2 + 밋밋한 짝 + 210): https://claude.ai/artifact/Y2nb9ZxaWCnZw4nnmK6G4f
+  - `drama` (합성 극적 반응: 갈래마다 큰 한 방, 갈래별 15 + v4 vs 극적 + 2+2 + 210 + 웨이브): https://claude.ai/artifact/XJQNbqEqZE5t8yrT3Q3fJi
