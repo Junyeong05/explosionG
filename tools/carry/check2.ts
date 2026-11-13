@@ -26,12 +26,25 @@ export interface Run2 {
   keys: string[];
   /** 극적 반응이 터진 수 */
   reacts: number;
+  /** 적이 묶임·얼림·매혹·밀려남으로 보낸 시간 몫 (살아 있던 시간 대비) */
+  ctlShare: number;
+  /** 적이 방어선 쪽으로 다가온 평균 빠르기 (px/s, 살아 있던 시간 대비) */
+  advance: number;
+  /** 저항이 걸린 수 */
+  resists: number;
+  /** 짝마다 B 가 나간 수 · 노리던 상태의 적을 만난 수 */
+  stat: Map<string, { fires: number; matched: number; drama: number }>;
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean } = {}): Run2 {
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; hp?: number } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
   let reacts = 0;
+  let resists = 0;
+  let alive = 0;
+  let ctl = 0;
+  let adv = 0;
+  const prevY = new Map<number, number>();
   const skip = () => {
     const a = w as unknown as { offerQueue: unknown[]; offer: unknown; phase: string };
     a.offerQueue.length = 0;
@@ -58,7 +71,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
         spawnT = 1 / 8;
         const roll = w.rng.next();
         const kind = roll < 0.7 ? 'normal' : roll < 0.85 ? 'armored' : 'rusher';
-        w.spawnEnemy(kind, w.rng.range(30, FW - 30), w.rng.range(90, BALANCE.field.height * 0.52), 3);
+        w.spawnEnemy(kind, w.rng.range(30, FW - 30), w.rng.range(90, BALANCE.field.height * 0.52), opt.hp ?? 3);
       }
     }
     const cmds: Command[] = drv ? drv.step(w, FIXED_DT) : [];
@@ -70,6 +83,15 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     for (const ev of w.drainEvents()) {
       if (ev.type === 'leak') leaks++;
       else if (ev.type === 'react') reacts++;
+      else if (ev.type === 'resist') resists++;
+    }
+    for (const e of w.enemies) {
+      if (e.dead) continue;
+      alive += FIXED_DT;
+      if (e.held > 0 || e.frozen > 0 || e.charm > 0 || Math.abs(e.kx) + Math.abs(e.ky) > 40) ctl += FIXED_DT;
+      const py = prevY.get(e.id);
+      if (py !== undefined) adv += e.y - py;
+      prevY.set(e.id, e.y);
     }
   }
   let fired = 0;
@@ -78,7 +100,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     fired += n;
     if (n > 0) keys.push(k);
   }
-  return { fired, kills: w.kills, maxActors, leaks, keys, reacts };
+  return { fired, kills: w.kills, maxActors, leaks, keys, reacts, resists, ctlShare: ctl / Math.max(1e-6, alive), advance: adv / Math.max(1e-6, alive), stat: w.chaos!.fusion.stat4 };
 }
 
 

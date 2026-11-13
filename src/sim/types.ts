@@ -67,6 +67,9 @@ export interface Enemy {
   poly: number;
   /** 주문 매혹: 남은 시간 동안 우리 편. 위로 거슬러 올라가며 부딪친 적을 친다. 끝나면 사라진다 */
   charm: number;
+  /** 제어 저항 (합성 v4): 묶임·얼림·매혹·밀려남이 이어진 시간, 다 차면 ccImmune 동안 안 묶인다 */
+  cc: number;
+  ccImmune: number;
   burn: number;
   color: number;
   inflate: number;

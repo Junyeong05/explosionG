@@ -1,6 +1,6 @@
 import { ATTACK_CATEGORIES, CATEGORY_LABEL } from '../../../src/data/chaos';
 import { CEIL_KEYS } from '../../../src/data/combineCeil';
-import { HELPER, inputFor, samplesV2 } from '../../../src/data/combineV2';
+import { inputFor, samplesV2 } from '../../../src/data/combineV2';
 import { CAT4, ST_LABEL, V4D, josa, rulesV4 } from '../../../src/data/combineV4';
 import type { AttackCat } from '../../../src/data/links';
 import { mount, type Page, type Scene, type Section } from '../runtime';
@@ -51,13 +51,13 @@ const SHOW: Record<AttackCat, AttackCat> = {
 const card = (a: AttackCat, b: AttackCat, drama: boolean, title?: string): Scene => {
   const r = byKey.get(`${a}>${b}`)!;
   const [A, B] = samplesV2(a, b);
-  const help = HELPER[a];
   const input = inputFor(a, b);
   const res = (drama ? R4D : R4)[r.key];
   return {
     title: title ?? `${r.title}${drama ? '' : ' · v4'}`,
     tag: drama ? CAT4[b].drama : r.name,
-    weapons: help ? [A, B, help] : [A, B],
+    // 합친 무기만 (도움 무기 없음)
+    weapons: [A, B],
     fuse: [[A, B]],
     fuse4: true,
     drama,

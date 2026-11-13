@@ -1115,7 +1115,7 @@ export class Chaos {
         continue;
       }
       // 합친 무기: 자기 자리와 안에 든 무기들이 지키던 자리를 돌아가며 쏜다
-      if (this.fusion.active && this.fusion.has(id)) {
+      if (this.fusion.active && this.fusion.has(id) && this.fusion.mode !== 4) {
         const slots = this.fusion.slotsOf(id).map((s) => this.mounts.get(s)).filter((m): m is Mount => !!m);
         const turn = (this.slotTurn.get(id) ?? 0) + 1;
         this.slotTurn.set(id, turn);
@@ -2176,7 +2176,7 @@ export class Chaos {
       }
       case 'vortex': {
         for (const e of w.enemiesNear(a.x, a.y, a.r)) {
-          if (e.def.boss || e.pileCol >= 0) continue;
+          if (e.def.boss || e.pileCol >= 0 || e.ccImmune > 0) continue;
           e.pack = null;
           const dx = a.x - e.x;
           const dy = a.y - e.y;
@@ -2779,7 +2779,7 @@ export class Chaos {
   }
 
   push(e: Enemy, fromX: number, fromY: number, force: number): void {
-    if (e.def.boss || e.pileCol >= 0) return;
+    if (e.def.boss || e.pileCol >= 0 || e.ccImmune > 0) return;
     let dx = e.x - fromX;
     let dy = e.y - fromY;
     const d = Math.hypot(dx, dy);

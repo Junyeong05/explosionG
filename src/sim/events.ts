@@ -41,6 +41,8 @@ export type SimEvent =
   | { type: 'fusion'; name: string; a: string; b: string; x: number; y: number }
   /** 합성 v4 극적 반응: 그 자리에 반응 이름이 뜬다 */
   | { type: 'react'; text: string; color: string; x: number; y: number }
+  /** 제어 저항: 계속 묶이던 적이 잠깐 풀린다 */
+  | { type: 'resist'; x: number; y: number }
   | { type: 'shake'; power: number }
   /** 11-07 실험 묶음 */
   | { type: 'launch'; x1: number; y1: number; x2: number; y2: number; dur: number }

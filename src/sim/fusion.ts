@@ -1193,6 +1193,8 @@ export class Fusion {
   // B 가 낸 것은 B 의 것이라 B 에 C 를 합쳤으면 같은 규칙이 한 번 더 (2+2 도 같다).
 
   private st4 = new Map<number, { hold: number; mark: number; weak: number }>();
+  /** 검증용: 짝(무기 id>무기 id)마다 B 가 나간 수 · 노리던 상태의 적을 만난 수 · 극적 반응 수 */
+  readonly stat4 = new Map<string, { fires: number; matched: number; drama: number }>();
   private energy4 = new Map<string, number>();
 
   /** 적이 그 상태인가 (실제 멈춤·약화도 센다) */
@@ -1338,6 +1340,16 @@ export class Fusion {
     // 인과가 보이게: A 의 자리에서 B 가 노린 적으로 짧은 선, 반응이면 노린 상태 색 고리
     if (t0 && Math.hypot(t0.x - x, t0.y - y) > 18) this.tether(x, y, t0.x, t0.y, 0.25, CATEGORY_COLOR[A.cat as keyof typeof CATEGORY_COLOR] ?? '#ffffff', 0, null, t0, 1);
     for (const q of ts) if (re(q) > 1) this.ring(q.x, q.y, 18, ST_COLOR[P.seeks], 0.45);
+    {
+      const sk = `${A.id}>${B.id}`;
+      const st = this.stat4.get(sk) ?? { fires: 0, matched: 0, drama: 0 };
+      st.fires++;
+      if (t0 && re(t0) > 1) {
+        st.matched++;
+        if (this.drama) st.drama++;
+      }
+      this.stat4.set(sk, st);
+    }
     const tg = (i: number) => ts[i % Math.max(1, ts.length)] ?? null;
     // 극적 반응: 노리던 상태의 적을 만나면 B 갈래의 큰 한 방 (갈래마다 하나, 모든 짝에 같다)
     if (this.drama && t0 && re(t0) > 1) {
@@ -1718,7 +1730,8 @@ export class Fusion {
         this.energy4.set(key, E);
         // 넘침: A 가 오래 쉬어 가득 찼으면 B 는 제 자리에서 한 번 (힘을 버리지 않는다. 방어선 가까이를 지킨다)
         if (E >= cap && this.every(`ov4:${key}`, cd / gain)) {
-          const m = c.mountOf(b) ?? c.mountOf(this.root(b));
+          // 합친 무기 자리에서 (안에 든 무기의 자리는 보이지 않는다)
+          const m = c.mountOf(this.root(b)) ?? c.mountOf(b);
           if (!m) continue;
           const B = ARMS[b];
           const t = this.nearest(m.x, m.y - 8, Math.min(V4.reach * 1.6, c.rangeOf(B)));

@@ -6,7 +6,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { ATTACK_CATEGORIES, CATEGORY_LABEL } from '../../src/data/chaos';
-import { HELPER, inputFor, samplesV2 } from '../../src/data/combineV2';
+import { inputFor, samplesV2 } from '../../src/data/combineV2';
 import { CAT4 } from '../../src/data/combineV4';
 import type { AttackCat } from '../../src/data/links';
 import { run2 } from './check2';
@@ -54,8 +54,9 @@ function inputOf(cats: AttackCat[]): ReturnType<typeof inputFor> {
   return null;
 }
 
-function helper(cats: AttackCat[]): string[] {
-  return HELPER[cats[0]] ? [HELPER[cats[0]]!] : [];
+/** 합친 무기만 놓고 잰다 (도움 무기 없음, 11-13 유저: "합성 무기들만 놓고 해야지") */
+function helper(_cats: AttackCat[]): string[] {
+  return [];
 }
 
 const out: Fun[] = [];

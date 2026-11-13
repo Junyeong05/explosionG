@@ -121,6 +121,9 @@ export class ChaosDraw {
         // 처음 해낸 그 자리에 이름이 떠오른다 (두 갈래 색)
         this.pop(e.x, e.y - 18, e.name, CATEGORY_COLOR[ARMS[e.b]?.cat ?? 'gun']);
         break;
+      case 'resist':
+        this.pop(e.x, e.y - 16, '저항', '#cfd8dc');
+        break;
       case 'react':
         this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: e.color, t: 0, big: true });
         if (this.pops.length > 16) this.pops.shift();
@@ -208,6 +211,8 @@ export class ChaosDraw {
       // 합친 무기 안에 든 무기의 자리: 합친 무기가 그 자리에서도 쏜다 (합친 무기 그림 + 제 갈래 색 점선)
       const root = c.fusion.isKid(id) ? c.rootOf(id) : id;
       const spec = ARMS[root];
+      // v4: 합친 무기는 한 자리에서만 (안에 든 무기의 자리는 보이지 않는다)
+      if (root !== id && c.fusion.mode === 4) continue;
       if (root !== id) {
         ctx.save();
         ctx.setLineDash([3, 3]);
@@ -1202,7 +1207,7 @@ export class ChaosDraw {
     // 가진 무기: 오른쪽 위부터 줄바꿈하며 아이콘 + 레벨 + 쿨다운 (강화는 그 아래 작게)
     const perRow = 9;
     let k = 0;
-    const weapons = c.owned().filter((id) => ARMS[id].cat !== 'passive');
+    const weapons = c.owned().filter((id) => ARMS[id].cat !== 'passive' && !(c.fusion.mode === 4 && c.fusion.isKid(id)));
     for (const id of weapons) {
       const info = ARMS[id];
       const ix = FW - 16 - (k % perRow) * 20;

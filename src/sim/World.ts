@@ -637,12 +637,33 @@ export class World implements SimApi {
     }
     const pile = !!this.rules.pile;
     const damp = Math.exp(-BALANCE.experiment.knockback.damping * dt);
+    const ccResist = !!this.chaos && this.chaos.fusion.mode === 4 && this.chaos.fusion.active;
     for (const e of this.enemies) {
       if (e.dead) continue;
       // 쌓인 블록: 아래 블록이 사라졌으면 떨어진다
       if (e.pileCol >= 0) {
         if (e.y < e.pileY) e.y = Math.min(e.pileY, e.y + BALANCE.experiment.pile.fallSpeed * dt);
         continue;
+      }
+      // 제어 저항 (합성 v4): 계속 묶이거나 밀려나면 잠깐 안 묶인다. 조합으로 적이 아예 못 다가오게 되는 것을 막는다
+      if (ccResist) {
+        const C2 = BALANCE.chaos;
+        if (e.ccImmune > 0) {
+          e.ccImmune -= dt;
+          e.held = 0;
+          e.frozen = 0;
+        } else {
+          const ctl = e.held > 0 || e.frozen > 0 || e.charm > 0 || Math.abs(e.kx) + Math.abs(e.ky) > 40;
+          e.cc = ctl ? e.cc + dt : Math.max(0, e.cc - dt * C2.ccDecay);
+          if (e.cc >= C2.ccMax && !e.def.boss) {
+            e.cc = 0;
+            e.ccImmune = C2.ccImmune;
+            e.held = 0;
+            e.frozen = 0;
+            e.kx = e.ky = 0;
+            this.emit({ type: 'resist', x: e.x, y: e.y });
+          }
+        }
       }
       // 얼리고 깨기: 언 적은 멈춘다
       if (e.frozen > 0 || e.held > 0) continue;
@@ -1105,6 +1126,8 @@ export class World implements SimApi {
       infest: 0,
       poly: 0,
       charm: 0,
+      cc: 0,
+      ccImmune: 0,
       burn: 0,
       color: -1,
       inflate: 0,

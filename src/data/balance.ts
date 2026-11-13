@@ -201,6 +201,13 @@ export const BALANCE = {
     enemyHpLateFrom: 10,
     enemyHpPerFusion: 0,
     /**
+     * 제어 저항 (합성 v4 를 켠 판만): 묶임·얼림·매혹·밀려남이 이어져 ccMax 초가 차면 ccImmune 초 동안 안 묶이고 안 밀린다.
+     * 안 묶인 동안 ccDecay 배 빠르기로 줄어든다. 조합으로 적이 아예 못 다가오는 판을 막는다 (tools/carry/lock4.ts).
+     */
+    ccMax: 2.5,
+    ccImmune: 1.5,
+    ccDecay: 0.5,
+    /**
      * ⚠ 무리 간격 배율 = max(packIntervalMin, 1 - packIntervalPerWave × (웨이브-1)) (작을수록 더 많이).
      * 시작 무기 하나뿐인 초반은 일반 판과 같게, 무기가 쌓이는 후반엔 빽빽하게.
      * 처음부터 ×0.6·체력 ×1.5 였더니 기관총으로 시작한 판이 42초 만에 무너졌다.
