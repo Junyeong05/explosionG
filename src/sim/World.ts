@@ -653,8 +653,9 @@ export class World implements SimApi {
           e.held = 0;
           e.frozen = 0;
         } else {
-          const ctl = e.held > 0 || e.frozen > 0 || e.charm > 0 || Math.abs(e.kx) + Math.abs(e.ky) > 40;
-          e.cc = ctl ? e.cc + dt : Math.max(0, e.cc - dt * C2.ccDecay);
+          const stop = e.held > 0 || e.frozen > 0 || e.charm > 0 || Math.abs(e.kx) + Math.abs(e.ky) > 40;
+          const slowed = e.poly > 0 || e.infest > 0;
+          e.cc = stop ? e.cc + dt : slowed ? e.cc + dt * 0.5 : Math.max(0, e.cc - dt * C2.ccDecay);
           if (e.cc >= C2.ccMax && !e.def.boss) {
             e.cc = 0;
             e.ccImmune = C2.ccImmune;
@@ -674,7 +675,8 @@ export class World implements SimApi {
       } else {
         // 떼가 붙은 적·변이된 적은 느리다 (붙을 때 무리에서 떨어져 혼자 움직인다). 매혹된 적은 거슬러 올라간다
         const C = BALANCE.chaos;
-        const slow = (e.infest > 0 ? C.infestSlow : 1) * (e.poly > 0 ? C.polySlow : 1);
+        // 저항 중엔 감속도 안 통한다
+        const slow = e.ccImmune > 0 ? 1 : (e.infest > 0 ? C.infestSlow : 1) * (e.poly > 0 ? C.polySlow : 1);
         const dir = e.charm > 0 ? -1 : 1;
         e.x += e.dx * e.speed * slow * dt + wind * dt;
         e.y += e.dy * e.speed * slow * dt * dir;

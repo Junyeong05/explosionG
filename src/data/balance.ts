@@ -201,11 +201,12 @@ export const BALANCE = {
     enemyHpLateFrom: 10,
     enemyHpPerFusion: 0,
     /**
-     * 제어 저항 (합성 v4 를 켠 판만): 묶임·얼림·매혹·밀려남이 이어져 ccMax 초가 차면 ccImmune 초 동안 안 묶이고 안 밀린다.
-     * 안 묶인 동안 ccDecay 배 빠르기로 줄어든다. 조합으로 적이 아예 못 다가오는 판을 막는다 (tools/carry/lock4.ts).
+     * 제어 저항 (합성 v4 를 켠 판만): 묶임·얼림·매혹·밀려남(감속은 절반)이 이어져 ccMax 초가 차면 ccImmune 초 동안
+     * 안 묶이고 안 밀리고 안 느려진다. 안 묶인 동안 ccDecay 배 빠르기로 줄어든다. 묶여 있는 몫은 최대 ccMax/(ccMax+ccImmune) ≈ 43%.
+     * 조합으로 적이 아예 못 다가오는 판을 막는다 (tools/carry/lock4.ts: 2.5/1.5 일 때 주문·소환수·음파·떼·회전체 다섯 겹이 제어 60% 넘게 남았다).
      */
-    ccMax: 2.5,
-    ccImmune: 1.5,
+    ccMax: 1.5,
+    ccImmune: 2,
     ccDecay: 0.5,
     /**
      * ⚠ 무리 간격 배율 = max(packIntervalMin, 1 - packIntervalPerWave × (웨이브-1)) (작을수록 더 많이).
