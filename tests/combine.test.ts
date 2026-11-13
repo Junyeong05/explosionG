@@ -314,6 +314,24 @@ describe('합성: 갈래 둘을 합치면', () => {
       expect(chain.keys).toContain('arm_dog>arm_cannon');
     });
 
+    it('극적 반응: 갈래마다 이름이 있고, 210 이 예외 없이 돌고 물체 수 상한 안, 2+2 도 돈다', () => {
+      expect(new Set(Object.values(CAT4).map((c) => c.drama)).size).toBe(15);
+      for (const r of rulesV4()) {
+        const [A, B] = samplesV2(r.from, r.to);
+        const extra = HELPER[r.from] ? [HELPER[r.from]!] : [];
+        const res = run2([A, B, ...extra], [[A, B]], { input: inputFor(r.from, r.to), mode: 4, drama: true, seconds: 12 });
+        expect(res.maxActors, r.key).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+      for (const d of DEEP4) {
+        const res = run2(d.weapons, d.fuse, { mode: 4, drama: true, input: d.input, seconds: 20 });
+        expect(res.fired, d.code).toBeGreaterThan(0);
+        expect(res.maxActors, d.code).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+      const a = run2(['arm_tr_mines', 'arm_c_bikers'], [['arm_tr_mines', 'arm_c_bikers']], { seed: 4, mode: 4, drama: true });
+      const b = run2(['arm_tr_mines', 'arm_c_bikers'], [['arm_tr_mines', 'arm_c_bikers']], { seed: 4, mode: 4, drama: true });
+      expect(a).toEqual(b);
+    });
+
     it('같은 씨앗이면 같은 결과', () => {
       const a = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
       const b = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });

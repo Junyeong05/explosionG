@@ -1069,7 +1069,10 @@ export class World implements SimApi {
     if (this.enemies.length >= BALANCE.limits.maxEnemies) return null;
     const def = getEnemyDef(kind);
     const pileMul = this.rules.pile ? BALANCE.experiment.pile.enemyHpMul : 1;
-    const chaosMul = this.rules.chaos ? BALANCE.chaos.enemyHpMul + BALANCE.chaos.enemyHpPerWave * (this.wave - 1) : 1;
+    const C = BALANCE.chaos;
+    const chaosMul = this.rules.chaos
+      ? C.enemyHpMul + C.enemyHpPerWave * (this.wave - 1) + C.enemyHpLatePerWave * Math.max(0, this.wave - C.enemyHpLateFrom) + C.enemyHpPerFusion * (this.chaos?.parent.size ?? 0)
+      : 1;
     const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul * chaosMul;
     const e: Enemy = {
       id: this.nextId++,

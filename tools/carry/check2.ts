@@ -26,7 +26,7 @@ export interface Run2 {
   keys: string[];
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean } = {}): Run2 {
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
   const skip = () => {
@@ -41,6 +41,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
   for (const id of weapons) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
   for (const [a, b] of fuse) if (!(opt.mode === 4 ? w.chaos!.fuse4(a, b) : opt.mode === 3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
   if (opt.ceil) w.chaos!.fusion.ceil = true;
+  if (opt.drama) w.chaos!.fusion.drama = true;
   const drv = opt.input ? new InputDriver(opt.input) : null;
   let spawnT = 0;
   let maxActors = 0;
@@ -77,7 +78,8 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
 
 if (process.argv[1]?.endsWith('check2.ts')) {
   const arg = process.argv[2]?.startsWith('--') ? undefined : process.argv[2];
-  const mode: 2 | 3 | 4 = process.argv.includes('--v4') ? 4 : process.argv.includes('--v3') ? 3 : 2;
+  const drama = process.argv.includes('--drama');
+  const mode: 2 | 3 | 4 = drama || process.argv.includes('--v4') ? 4 : process.argv.includes('--v3') ? 3 : 2;
   const rows = rulesV2().filter((r) => !arg || r.key === arg);
   const names3 = new Map((mode === 4 ? rulesV4() : rulesV3()).map((r) => [r.key, r.name] as const));
   const out: string[] = [];
@@ -89,8 +91,8 @@ if (process.argv[1]?.endsWith('check2.ts')) {
     const input = inputFor(r.from, r.to);
     const extra = HELPER[r.from] ? [HELPER[r.from]!] : [];
     // 씨앗 둘의 합 (한 판은 흔들림이 커서)
-    const f1 = run2([A, B, ...extra], [[A, B]], { input, seed: 12, mode });
-    const f2 = run2([A, B, ...extra], [[A, B]], { input, seed: 31, mode });
+    const f1 = run2([A, B, ...extra], [[A, B]], { input, seed: 12, mode, drama });
+    const f2 = run2([A, B, ...extra], [[A, B]], { input, seed: 31, mode, drama });
     const a1 = run2([A, B, ...extra], [], { input, seed: 12 });
     const a2 = run2([A, B, ...extra], [], { input, seed: 31 });
     const fused = { fired: f1.fired + f2.fired, kills: f1.kills + f2.kills, maxActors: Math.max(f1.maxActors, f2.maxActors), leaks: f1.leaks + f2.leaks };
@@ -104,7 +106,7 @@ if (process.argv[1]?.endsWith('check2.ts')) {
   console.log(out.join('\n'));
   if (process.argv.includes('--write') && !arg) {
     const lines = res.map(([k, r, n]) => `  '${k}': [${r.toFixed(2)}, ${n}],`);
-    writeFileSync(mode === 4 ? 'tools/showcase/pages/combine4-results.ts' : mode === 3 ? 'tools/showcase/pages/combine3-results.ts' : 'tools/showcase/pages/combine2-results.ts', `// npx tsx tools/carry/check2.ts --write 로 만든 측정값: [처치 비율 (합침 ÷ 따로, 18초 두 판), 규칙이 해낸 횟수]\nexport const RESULTS: Record<string, [number, number]> = {\n${lines.join('\n')}\n};\n`);
+    writeFileSync(drama ? 'tools/showcase/pages/combine4d-results.ts' : mode === 4 ? 'tools/showcase/pages/combine4-results.ts' : mode === 3 ? 'tools/showcase/pages/combine3-results.ts' : 'tools/showcase/pages/combine2-results.ts', `// npx tsx tools/carry/check2.ts --write 로 만든 측정값: [처치 비율 (합침 ÷ 따로, 18초 두 판), 규칙이 해낸 횟수]\nexport const RESULTS: Record<string, [number, number]> = {\n${lines.join('\n')}\n};\n`);
   }
   ratios.sort((a, b) => a - b);
   const med = ratios[Math.floor(ratios.length / 2)] ?? 0;

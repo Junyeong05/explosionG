@@ -2,7 +2,7 @@ import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../dat
 import { V2, rulesV2 } from '../data/combineV2';
 import { V3, keepOf, rulesV3 } from '../data/combineV3';
 import { CEIL } from '../data/combineCeil';
-import { CAT4, ST_COLOR, V4, rulesV4, type St } from '../data/combineV4';
+import { CAT4, ST_COLOR, V4, V4D, rulesV4, type St } from '../data/combineV4';
 
 /** 짝 이름 (갈래 A>B → 이름) */
 const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
@@ -127,6 +127,8 @@ export class Fusion {
   mode: 2 | 3 | 4 = 2;
   /** 천장 후보 (src/data/combineCeil.ts): 켜면 그 짝은 v3 공통 규칙 대신 손으로 짠 새 동작 */
   ceil = false;
+  /** v4 극적 반응 (combineV4.ts V4D): 노리던 상태를 만나면 B 갈래의 극적 반응 */
+  drama = false;
 
   /** v3 융합으로 b 를 a 안에 합친다 (한 판에 v2 와 섞지 않는다) */
   fuse3(a: string, b: string): boolean {
@@ -263,6 +265,14 @@ export class Fusion {
     const c = this.c;
     this.deaths.push({ x: e.x, y: e.y, t: c.w.time });
     if (this.deaths.length > 40) this.deaths.shift();
+    // 극적: 안에 든 B 가 잡을 때마다 B 의 에너지가 조금 찬다 (반응이 반응을 부른다)
+    if (this.mode === 4 && this.drama && c.curSrc) {
+      const par = c.parent.get(c.curSrc);
+      if (par && this.kids.get(par)?.includes(c.curSrc)) {
+        const key = `${par}>${c.curSrc}`;
+        this.energy4.set(key, (this.energy4.get(key) ?? 0) + V4D.refund);
+      }
+    }
     let src = c.curSrc;
     let depth = c.curDepth;
     let by: Actor | null = c.curActor && c.curActor.src === src ? c.curActor : null;
@@ -1198,7 +1208,7 @@ export class Fusion {
       case 'weak':
         return e.infest > 0 || (m?.weak ?? 0) > t;
       case 'crowd':
-        return this.near(e.x, e.y, 50, 5).length >= 4;
+        return this.near(e.x, e.y, 60, 5).length >= 3;
     }
   }
 
@@ -1220,6 +1230,8 @@ export class Fusion {
           e.pack = null;
         }
         m.hold = Math.max(m.hold, t + L.sec);
+        // 극적: 함정은 밟은 적 뒤로 줄지어 오던 적도 함께 묶는다 (올가미 줄)
+        if (this.drama && cat === 'trap' && this.every(`rope:${e.id}`, 1)) this.rope4(e, L.sec);
         break;
       case 'mark':
         m.mark = Math.max(m.mark, t + L.sec);
@@ -1323,11 +1335,17 @@ export class Fusion {
     const per = shots / cnt;
     const ts = this.pick4(x, y, P.seeks, e, cnt, AREA4.has(B.cat));
     const t0 = ts[0] ?? null;
-    const re = (q: Enemy | null) => (this.has4(q, P.seeks) ? V4.react : 1);
+    const re = (q: Enemy | null) => (this.has4(q, P.seeks) ? (this.drama ? V4D.react : V4.react) : 1);
     // 인과가 보이게: A 의 자리에서 B 가 노린 적으로 짧은 선, 반응이면 노린 상태 색 고리
     if (t0 && Math.hypot(t0.x - x, t0.y - y) > 18) this.tether(x, y, t0.x, t0.y, 0.25, CATEGORY_COLOR[A.cat as keyof typeof CATEGORY_COLOR] ?? '#ffffff', 0, null, t0, 1);
     for (const q of ts) if (re(q) > 1) this.ring(q.x, q.y, 18, ST_COLOR[P.seeks], 0.45);
     const tg = (i: number) => ts[i % Math.max(1, ts.length)] ?? null;
+    // 극적 반응: 노리던 상태의 적을 만나면 B 갈래의 큰 한 방 (갈래마다 하나, 모든 짝에 같다)
+    if (this.drama && t0 && re(t0) > 1) {
+      if (this.every(`pop4:${A.id}>${B.id}`, V4D.popSec)) c.w.emit({ type: 'react', text: `${P.drama}!`, color: ST_COLOR[P.seeks], x: t0.x, y: t0.y });
+      this.drama4(A, B, x, y, t0, shots, unit * V4D.react);
+      return;
+    }
     switch (B.cat) {
       case 'hand': {
         if (this.held3.length >= 10) {
@@ -1471,6 +1489,183 @@ export class Fusion {
     }
   }
 
+  /** 올가미 줄: 그 적과 뒤로 줄지어 오던 적(같은 세로 줄, 다섯까지)을 묶어 한 줄로 */
+  private rope4(e: Enemy, sec: number): void {
+    const c = this.c;
+    const col = c.w.enemies
+      .filter((q) => q !== e && !q.dead && !q.def.boss && q.charm <= 0 && Math.abs(q.x - e.x) < 40 && q.y < e.y && q.y > e.y - 220)
+      .sort((p, q) => q.y - p.y)
+      .slice(0, 5);
+    let prev = e;
+    for (const q of col) {
+      q.x = e.x + (q.x - e.x) * 0.25;
+      q.kx = q.ky = 0;
+      q.held = Math.max(q.held, sec);
+      q.pack = null;
+      const m = this.st4.get(q.id) ?? { hold: 0, mark: 0, weak: 0 };
+      m.hold = Math.max(m.hold, this.now() + sec);
+      this.st4.set(q.id, m);
+      this.tether(prev.x, prev.y, q.x, q.y, sec, '#ffe08a', 0, prev, q, 2);
+      prev = q;
+    }
+  }
+
+  /** 극적 반응 (갈래마다 하나): q = 노리던 상태의 적, shots = 쏜 만큼, m = 한 발 세기 (반응 배율 포함) */
+  private drama4(A: WeaponSpec, B: WeaponSpec, x: number, y: number, q: Enemy, shots: number, m: number): void {
+    const c = this.c;
+    const P = CAT4[B.cat as keyof typeof CAT4];
+    const Bp = this.p(B);
+    const seekers = (r: number, k: number, s: St = P.seeks) => this.near(q.x, q.y, r, 30).filter((o) => this.has4(o, s)).slice(0, k);
+    const pow = m * Math.max(1, shots);
+    switch (B.cat) {
+      case 'hand': {
+        const mk = this.mark(q.x, q.y, 12, this.col(A), 30);
+        this.held3.push({ x: q.x, y: q.y, s: shots * 3.2 * V4D.react, B, m: mk });
+        break;
+      }
+      case 'gun': {
+        const es = seekers(220, 8);
+        for (const o of es.length ? es : [q]) this.shootAt(B, x, y, o, pow / Math.max(1, es.length) * 1.5);
+        const post = c.add('post', q.x + (q.x < c.w.field.width / 2 ? 34 : -34), Math.min(c.LINE - 20, q.y + 40), { ttl: 1.6, r: 190, p: Bp, emoji: B.emoji });
+        if (post) post.m = c.dmgMul(B) * m * 0.5;
+        break;
+      }
+      case 'turret': {
+        this.shell(B, q.x + 14, q.y - 140, q.x, q.y, pow, { ...Bp, boom: (Bp.boom ?? 40) * 1.6 });
+        const qx = q.x;
+        const qy = q.y;
+        this.later(0.35, () => {
+          for (let i = 0; i < 4; i++) {
+            const ang = (i / 4) * Math.PI * 2 + 0.4;
+            this.shell(B, qx, qy, qx + Math.cos(ang) * 60, qy + Math.sin(ang) * 50, pow * 0.3, { ...Bp, boom: (Bp.boom ?? 40) * 0.7 });
+          }
+        });
+        c.w.emit({ type: 'shake', power: 0.35 });
+        break;
+      }
+      case 'summon': {
+        let n = 0;
+        for (const o of seekers(80, 6, 'hold')) {
+          if (n >= 3 || o.def.boss || o.charm > 0 || this.allies() + this.charmed() >= V2.allyCap + 4) continue;
+          const dur = 4;
+          o.charm = dur;
+          o.pack = null;
+          o.held = 0;
+          this.ring(o.x, o.y, 18, '#ff6fb5', 0.6);
+          this.later(dur - 0.05, () => {
+            if (o.dead) return;
+            o.charm = 0;
+            c.boom(o.x, o.y, 56 * c.areaMul, this.dmg(B, m * 2));
+            if (!o.dead) c.hit(o, o.hp + 1, {}, c.w.newChain(1));
+          });
+          n++;
+        }
+        this.unit(B, q.x, q.y, 6, m, q);
+        break;
+      }
+      case 'magic': {
+        const cast = (cx: number, cy: number) => {
+          const es = this.near(cx, cy, 100, 10);
+          this.spellOn(B, es, (Bp.ttl ?? Bp.freeze ?? 2) * 0.8, this.root(A.id));
+          for (const o of es) c.hit(o, this.dmg(B, pow * 0.6), {}, c.w.newChain(1));
+          this.mark(cx, cy, 100, '#c77dff', 0.5);
+          this.ring(cx, cy, 100, '#c77dff', 0.6);
+        };
+        cast(q.x, q.y);
+        const qx = q.x;
+        const qy = q.y;
+        this.later(0.6, () => cast(qx, qy));
+        break;
+      }
+      case 'trap': {
+        const es = seekers(120, 5, 'hold');
+        for (const o of es.length ? es : [q]) this.trap(B, o.x + c.w.rng.range(-4, 4), o.y + 4, 8, pow / Math.max(1, es.length) * 1.4);
+        break;
+      }
+      case 'air': {
+        for (let i = 0; i < 5; i++) {
+          const ty = Math.min(c.LINE - 20, q.y + i * 44);
+          this.drop(B, q.x + c.w.rng.range(-10, 10), ty, i === 0 ? 0.02 : 0.1 + i * 0.12, (pow / 5) * 1.6, 0.9);
+        }
+        break;
+      }
+      case 'charge': {
+        const col = c.w.enemies
+          .filter((o) => !o.dead && !o.def.boss && o.charm <= 0 && Math.abs(o.x - q.x) < 46 && o.y > 0 && o.y < c.LINE)
+          .sort((a2, b2) => b2.y - a2.y)
+          .slice(0, 8);
+        for (const o of col) {
+          o.x = q.x + (o.x - q.x) * 0.2;
+          o.kx = o.ky = 0;
+          o.held = Math.max(o.held, 1.3);
+          o.pack = null;
+        }
+        for (let i = 0; i + 1 < col.length; i++) this.tether(col[i].x, col[i].y, col[i + 1].x, col[i + 1].y, 1.2, '#ffe08a', 0, col[i], col[i + 1], 2);
+        const sp = (Bp.speed ?? 230) * 1.7;
+        const y0 = Math.min(c.LINE - 8, (col[0]?.y ?? q.y) + 30);
+        const qx = q.x;
+        this.later(0.3, () => this.dash(B, qx, y0, -Math.PI / 2, (y0 + 60) / sp, pow, undefined, 1.7));
+        break;
+      }
+      case 'sound': {
+        const es = this.near(q.x, q.y, 80, 10);
+        for (const o of es) if (!o.def.boss) this.fling(o, q.x, q.y + 6, 260, this.dmg(B, m * 0.6), 0.5);
+        for (const o of es) c.hit(o, this.dmg(B, pow * 0.5), {}, c.w.newChain(1));
+        this.ring(q.x, q.y, 80, this.col(B), 0.5);
+        this.ring(q.x, q.y, 120, this.col(B), 0.7);
+        c.w.emit({ type: 'shake', power: 0.3 });
+        break;
+      }
+      case 'spinner': {
+        c.add('vortex', q.x, q.y, { ttl: 2.6, r: 120 * c.areaMul, p: { boom: 20 }, dmg: 0 });
+        this.orbit(B, q.x, q.y, 0, 3, null, 0, pow * 0.3);
+        for (let i = 0; i < 3; i++) this.orbit(B, q.x, q.y, 24, 3, null, (i * Math.PI * 2) / 3, pow * 0.3);
+        this.ring(q.x, q.y, 120 * c.areaMul, '#9fe8ff', 0.5);
+        break;
+      }
+      case 'field': {
+        const es = seekers(120, 5, 'hold');
+        this.zoneAt(B, q.x, q.y, 60, 4, pow * 0.5);
+        for (const o of es) if (o !== q) this.zoneAt(B, o.x, o.y, 36, 3.5, pow * 0.25);
+        break;
+      }
+      case 'ray': {
+        const main = this.tether(x, y, q.x, q.y, 1.8, B.p.color ?? '#ff3cc8', this.dmg(B, pow * 1.2), null, q, 3);
+        if (main) main.tag |= TAG_RAMP;
+        const es = this.near(q.x, q.y, 140, 30).filter((o) => o !== q && (this.has4(o, 'hold') || this.has4(o, 'mark'))).slice(0, 5);
+        for (const o of es) {
+          const t2 = this.tether(q.x, q.y, o.x, o.y, 1.6, B.p.color ?? '#ff3cc8', this.dmg(B, pow * 0.8), q, o, 2);
+          if (t2) t2.tag |= TAG_RAMP;
+        }
+        break;
+      }
+      case 'throw': {
+        const marked = this.near(q.x, q.y, 240, 30).filter((o) => this.has4(o, 'mark')).length;
+        this.hop(B, x, y, clamp(marked + 1, 3, 9), pow * 0.7, null);
+        break;
+      }
+      case 'swarm': {
+        const spots: Enemy[] = [];
+        const pool = this.near(q.x, q.y, 220, 30).sort((a2, b2) => this.near(b2.x, b2.y, 50, 8).length - this.near(a2.x, a2.y, 50, 8).length);
+        for (const o of pool) {
+          if (spots.length >= 3) break;
+          if (spots.every((s2) => Math.hypot(s2.x - o.x, s2.y - o.y) > 60)) spots.push(o);
+        }
+        for (const o of spots.length ? spots : [q]) this.cloud(B, o.x, o.y, 34, 3, pow / 3, o);
+        break;
+      }
+      case 'spirit': {
+        const es = this.near(q.x, q.y, 160, 30).filter((o) => this.has4(o, 'weak')).slice(0, 6);
+        for (const o of es.length ? es : [q]) {
+          c.hit(o, this.dmg(B, pow * 0.5), {}, c.w.newChain(1));
+          this.tether(q.x, q.y - 30, o.x, o.y, 0.25, '#b388ff', 0, null, o, 2);
+        }
+        if (this.countMini(B.id, 'drone') < 3) this.orb(B, q.x, q.y, 6, m);
+        break;
+      }
+    }
+  }
+
   /** v4 손: 손이 몸이면 탭한 자리에서 (손 쿨다운마다), 손이 성질이면 기다리던 것들이 탭한 곳으로 */
   private press4(px: number, py: number): void {
     const c = this.c;
@@ -1512,10 +1707,11 @@ export class Fusion {
         const key = `${a}>${b}`;
         const cd = Math.max(0.1, c.cooldownOf(b));
         const cap = Math.max(V4.storeMin, V4.storeSec / cd);
-        const E = Math.min(cap, (this.energy4.get(key) ?? 0) + (dt * V4.gain) / cd);
+        const gain = this.drama ? V4D.gain : V4.gain;
+        const E = Math.min(cap, (this.energy4.get(key) ?? 0) + (dt * gain) / cd);
         this.energy4.set(key, E);
         // 넘침: A 가 오래 쉬어 가득 찼으면 B 는 제 자리에서 한 번 (힘을 버리지 않는다. 방어선 가까이를 지킨다)
-        if (E >= cap && this.every(`ov4:${key}`, cd / V4.gain)) {
+        if (E >= cap && this.every(`ov4:${key}`, cd / gain)) {
           const m = c.mountOf(b) ?? c.mountOf(this.root(b));
           if (!m) continue;
           const B = ARMS[b];

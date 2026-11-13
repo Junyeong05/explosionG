@@ -22,6 +22,7 @@ export function perf(seconds: number, fuse: boolean, mode: 2 | 3 | 4 = 2): { msP
   skip();
   for (const id of W12) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
   if (fuse) for (const [x, y] of FUSE) if (mode === 4) w.chaos!.fuse4(x, y); else if (mode === 3) w.chaos!.fuse3(x, y); else w.chaos!.fuse(x, y);
+  if (fuse && process.argv.includes('--drama')) w.chaos!.fusion.drama = true;
   let spawnT = 0;
   let total = 0;
   let worst = 0;

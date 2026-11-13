@@ -193,6 +193,14 @@ export const BALANCE = {
     enemyHpMul: 1,
     enemyHpPerWave: 0.4,
     /**
+     * ⚠ 합성(v4 극적 반응)을 넣을 때 쓸 후반 상승치 (지금 0 = 꺼짐, 게임은 그대로).
+     * 체력 배율에 + enemyHpLatePerWave × max(0, 웨이브 - enemyHpLateFrom) + enemyHpPerFusion × 합친 무기 수.
+     * 상승치를 처음부터 올리면 합치기 전 초반에 무너져서 (봇: +0.7 이면 웨이브 14.7), 후반·합친 만큼만 올린다 (tools/chaos/fusion-sweep.ts).
+     */
+    enemyHpLatePerWave: 0,
+    enemyHpLateFrom: 10,
+    enemyHpPerFusion: 0,
+    /**
      * ⚠ 무리 간격 배율 = max(packIntervalMin, 1 - packIntervalPerWave × (웨이브-1)) (작을수록 더 많이).
      * 시작 무기 하나뿐인 초반은 일반 판과 같게, 무기가 쌓이는 후반엔 빽빽하게.
      * 처음부터 ×0.6·체력 ×1.5 였더니 기관총으로 시작한 판이 42초 만에 무너졌다.

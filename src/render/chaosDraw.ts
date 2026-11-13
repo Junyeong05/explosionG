@@ -52,6 +52,8 @@ interface Pop {
   x: number;
   y: number;
   text: string;
+  /** 극적 반응: 크게, 테두리, 살짝 튀어오름 */
+  big?: boolean;
   color: string;
   t: number;
 }
@@ -118,6 +120,10 @@ export class ChaosDraw {
         this.banner(`새 합성 · ${e.name}`, `${ARMS[e.a]?.name ?? ''} + ${ARMS[e.b]?.name ?? ''}`, '#7dff9a');
         // 처음 해낸 그 자리에 이름이 떠오른다 (두 갈래 색)
         this.pop(e.x, e.y - 18, e.name, CATEGORY_COLOR[ARMS[e.b]?.cat ?? 'gun']);
+        break;
+      case 'react':
+        this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: e.color, t: 0, big: true });
+        if (this.pops.length > 16) this.pops.shift();
         break;
       case 'augment': {
         const spec = ARMS[e.id];
@@ -467,8 +473,19 @@ export class ChaosDraw {
     for (const p of this.pops) {
       const k = p.t / 0.8;
       ctx.globalAlpha = 1 - k;
-      ctx.font = `900 13px ${FONT}`;
       ctx.textAlign = 'center';
+      if (p.big) {
+        // 극적 반응 이름: 처음에 크게 튀었다가 올라가며 사라진다
+        const sc = k < 0.15 ? 1 + (0.15 - k) * 4 : 1;
+        ctx.font = `900 ${Math.round(17 * sc)}px ${FONT}`;
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+        ctx.strokeText(p.text, p.x, p.y - k * 22);
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x, p.y - k * 22);
+        continue;
+      }
+      ctx.font = `900 13px ${FONT}`;
       ctx.fillStyle = p.color;
       ctx.fillText(p.text, p.x, p.y - k * 18);
     }
