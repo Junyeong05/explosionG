@@ -461,5 +461,6 @@ describe('도파민 모드: 카테고리 무기고', () => {
     for (let i = 0; i < 60 * 60 * 15 && w.phase !== 'ended'; i++) w.step(FIXED_DT, bot.think(w, FIXED_DT));
     expect(w.phase).toBe('ended');
     expect(w.chaos!.owned().filter((id) => ARMS[id].cat !== 'passive').length).toBeGreaterThanOrEqual(4);
-  });
+    // 판 하나를 끝까지 돌리는 무거운 테스트 (합성이 들어가 판이 길어졌다: CI 에서 5초를 넘긴 적이 있다)
+  }, 30000);
 });

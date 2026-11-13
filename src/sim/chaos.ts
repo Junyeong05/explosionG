@@ -742,9 +742,15 @@ export class Chaos {
    * 갈래 합성 후보 [A, B]: 가진 무기 둘 (다른 갈래, 둘 다 3레벨 이상). B 는 아직 다른 무기 안에 든 적 없는 무기
    * (B 가 이미 합친 무기면 통째로 들어간다: 2+2). A 는 무엇이든 (안에 든 무기에 또 합치면 사슬). 고리는 안 된다
    */
-  fuseCandidates(): [string, string][] {
+  fuseCandidates(limit = 60): [string, string][] {
     const need = this.w.config.fusionLab ? 1 : 3;
     const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need);
+    // 무기가 많으면 짝이 수만이라 (무기 342개면 11만 짝), 섞어서 앞에서 limit 짝까지만 본다 (고를 땐 한두 장이면 된다)
+    const rng = this.w.rng;
+    for (let i = ws.length - 1; i > 0; i--) {
+      const j = rng.int(i + 1);
+      [ws[i], ws[j]] = [ws[j], ws[i]];
+    }
     const out: [string, string][] = [];
     for (const a of ws) {
       for (const b of ws) {
@@ -752,6 +758,7 @@ export class Chaos {
         let cyc = false;
         for (let x: string | undefined = a; x; x = this.parent.get(x)) if (x === b) cyc = true;
         if (!cyc) out.push([a, b]);
+        if (out.length >= limit) return out;
       }
     }
     return out;

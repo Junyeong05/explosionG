@@ -17,5 +17,6 @@ export default defineConfig({
   define: { __BUILD_ID__: JSON.stringify(buildId()) },
   server: { host: true, port: 5173 },
   build: { target: 'es2022', sourcemap: true },
-  test: { include: ['tests/**/*.test.ts'], environment: 'node' },
+  // 테스트 대부분이 판을 실제로 돌리는 시뮬레이션이라 (210짝 · 봇 한 판) CI 에서 기본 5초를 넘긴 적이 있다 (11-13)
+  test: { include: ['tests/**/*.test.ts'], environment: 'node', testTimeout: 20000 },
 });
