@@ -1,0 +1,5544 @@
+[
+ {
+  "id": "arm_zap",
+  "name": "번개 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 81,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 81,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_mine",
+  "name": "지뢰 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 76,
+    "leaks": 0,
+    "first": 0.3333333333333333
+   },
+   {
+    "kills": 76,
+    "leaks": 0,
+    "first": 0.3333333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_slash",
+  "name": "베기 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 79,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 79,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_flame",
+  "name": "화염 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 1.5166666666666662
+   },
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 1.5166666666666662
+   }
+  ]
+ },
+ {
+  "id": "arm_snipe",
+  "name": "저격 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_frostHand",
+  "name": "얼음 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 1.6833333333333322
+   },
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 1.6833333333333322
+   }
+  ]
+ },
+ {
+  "id": "arm_shock",
+  "name": "충격파 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 6.016666666666651
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 6.016666666666651
+   }
+  ]
+ },
+ {
+  "id": "arm_poison",
+  "name": "독 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 2.2666666666666635
+   },
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 2.2666666666666635
+   }
+  ]
+ },
+ {
+  "id": "arm_punch",
+  "name": "충격 타격",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 77,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 77,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_grenade",
+  "name": "수류탄 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 80,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 80,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_strike",
+  "name": "낙뢰 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_missile",
+  "name": "미사일 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 71,
+    "leaks": 0,
+    "first": 1.3333333333333335
+   },
+   {
+    "kills": 71,
+    "leaks": 0,
+    "first": 1.3333333333333335
+   }
+  ]
+ },
+ {
+  "id": "arm_hole",
+  "name": "블랙홀 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.183333333333334
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.183333333333334
+   }
+  ]
+ },
+ {
+  "id": "arm_coins",
+  "name": "파편 비",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 34,
+    "leaks": 0,
+    "first": 0.16666666666666666
+   },
+   {
+    "kills": 34,
+    "leaks": 0,
+    "first": 0.16666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_pistol",
+  "name": "권총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.20000000000036
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 10.500000000000101
+   }
+  ]
+ },
+ {
+  "id": "arm_revolver",
+  "name": "리볼버",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.716666666666978
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 8.566666666666672
+   }
+  ]
+ },
+ {
+  "id": "arm_dual",
+  "name": "쌍권총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.266666666666968
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 12.283333333333523
+   }
+  ]
+ },
+ {
+  "id": "arm_smg",
+  "name": "기관단총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.933333333333596
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 12.96666666666689
+   }
+  ]
+ },
+ {
+  "id": "arm_rifle",
+  "name": "돌격소총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.616666666666923
+   },
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 7.033333333333314
+   }
+  ]
+ },
+ {
+  "id": "arm_shotgun",
+  "name": "산탄총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.650000000000166
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.43333333333368
+   }
+  ]
+ },
+ {
+  "id": "arm_double",
+  "name": "더블배럴",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.700000000000106
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.116666666666976
+   }
+  ]
+ },
+ {
+  "id": "arm_sniper",
+  "name": "저격총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 6.883333333333314
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_amr",
+  "name": "대물저격총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 4.4499999999999895
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_minigun",
+  "name": "미니건",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.733333333333665
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 11.216666666666804
+   }
+  ]
+ },
+ {
+  "id": "arm_gatling",
+  "name": "개틀링",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.8333333333337
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 10.200000000000086
+   }
+  ]
+ },
+ {
+  "id": "arm_glauncher",
+  "name": "유탄발사기",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.000000000000325
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 8.98333333333336
+   }
+  ]
+ },
+ {
+  "id": "arm_rocket",
+  "name": "로켓 런처",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 12.866666666666886
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 6.083333333333317
+   }
+  ]
+ },
+ {
+  "id": "arm_mlrs",
+  "name": "다연장 로켓",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 12.016666666666843
+   },
+   {
+    "kills": 46,
+    "leaks": 0,
+    "first": 4.849999999999988
+   }
+  ]
+ },
+ {
+  "id": "arm_flamer",
+  "name": "화염방사기",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 21.85000000000004
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.416666666666902
+   }
+  ]
+ },
+ {
+  "id": "arm_laser",
+  "name": "레이저 소총",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 13.10000000000023
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 5.949999999999984
+   }
+  ]
+ },
+ {
+  "id": "arm_railgun",
+  "name": "레일건",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 3.9333333333333242
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 0.8333333333333343
+   }
+  ]
+ },
+ {
+  "id": "arm_plasma",
+  "name": "플라즈마건",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.566666666667007
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.916666666666789
+   }
+  ]
+ },
+ {
+  "id": "arm_crossbow",
+  "name": "석궁",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 12.36666666666686
+   },
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 5.349999999999986
+   }
+  ]
+ },
+ {
+  "id": "arm_nailgun",
+  "name": "네일건",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.433333333333568
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.750000000000263
+   }
+  ]
+ },
+ {
+  "id": "arm_musket",
+  "name": "머스킷",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 13.650000000000258
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 7.066666666666647
+   }
+  ]
+ },
+ {
+  "id": "arm_water",
+  "name": "고압 수포",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_freezegun",
+  "name": "냉동총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.483333333333622
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 12.200000000000186
+   }
+  ]
+ },
+ {
+  "id": "arm_dart",
+  "name": "독침총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 16.733333333333665
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 11.016666666666794
+   }
+  ]
+ },
+ {
+  "id": "arm_teslagun",
+  "name": "번개총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 16.566666666667007
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 10.833333333333451
+   }
+  ]
+ },
+ {
+  "id": "arm_bouncer",
+  "name": "도탄총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.3499999999999965
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.3499999999999965
+   }
+  ]
+ },
+ {
+  "id": "arm_popcorn",
+  "name": "파쇄 기관총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.56666666666695
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 12.283333333333523
+   }
+  ]
+ },
+ {
+  "id": "arm_orbgun",
+  "name": "블랙홀 건",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.383333333333628
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 12.283333333333523
+   }
+  ]
+ },
+ {
+  "id": "arm_missilepod",
+  "name": "미사일 포대",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 11.066666666666796
+   },
+   {
+    "kills": 35,
+    "leaks": 0,
+    "first": 3.5333333333333257
+   }
+  ]
+ },
+ {
+  "id": "arm_cannon",
+  "name": "대포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 12.70000000000021
+   },
+   {
+    "kills": 32,
+    "leaks": 0,
+    "first": 5.816666666666651
+   }
+  ]
+ },
+ {
+  "id": "arm_mortar",
+  "name": "박격포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 10.033333333333411
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 2.499999999999996
+   }
+  ]
+ },
+ {
+  "id": "arm_tesla",
+  "name": "테슬라 코일",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.216666666666914
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 12.400000000000196
+   }
+  ]
+ },
+ {
+  "id": "arm_satellite",
+  "name": "위성 레이저",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_frost",
+  "name": "냉각탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.48333333333351
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.200000000000236
+   }
+  ]
+ },
+ {
+  "id": "arm_flametower",
+  "name": "화염탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.71666666666683
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 14.733333333333645
+   }
+  ]
+ },
+ {
+  "id": "arm_gas",
+  "name": "독가스탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.800000000000214
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 12.950000000000223
+   }
+  ]
+ },
+ {
+  "id": "arm_saw",
+  "name": "회전톱",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.333333333333625
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 8.24999999999999
+   }
+  ]
+ },
+ {
+  "id": "arm_magnet",
+  "name": "자석탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 15.650000000000357
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 9.366666666666712
+   }
+  ]
+ },
+ {
+  "id": "arm_bolttower",
+  "name": "낙뢰탑",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 51,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   },
+   {
+    "kills": 51,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_bubble",
+  "name": "거품 발생기",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.450000000000347
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.166666666666751
+   }
+  ]
+ },
+ {
+  "id": "arm_bell",
+  "name": "종탑",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.800000000000214
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.466666666666965
+   }
+  ]
+ },
+ {
+  "id": "arm_soldier",
+  "name": "자폭 병사",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 5.433333333333319
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 5.433333333333319
+   }
+  ]
+ },
+ {
+  "id": "arm_sheep",
+  "name": "숫양 돌격대",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 3.7833333333333248
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 3.7833333333333248
+   }
+  ]
+ },
+ {
+  "id": "arm_chicken",
+  "name": "폭탄 까마귀",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 3.383333333333326
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 3.383333333333326
+   }
+  ]
+ },
+ {
+  "id": "arm_granny",
+  "name": "폭파 공병",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 8.833333333333352
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 8.833333333333352
+   }
+  ]
+ },
+ {
+  "id": "arm_rats",
+  "name": "역병 쥐떼",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 3.2499999999999933
+   },
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 3.2499999999999933
+   }
+  ]
+ },
+ {
+  "id": "arm_bees",
+  "name": "말벌 떼",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 44,
+    "leaks": 0,
+    "first": 3.0333333333333274
+   },
+   {
+    "kills": 44,
+    "leaks": 0,
+    "first": 3.0333333333333274
+   }
+  ]
+ },
+ {
+  "id": "arm_dog",
+  "name": "군견",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 3.6333333333333253
+   },
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 3.6333333333333253
+   }
+  ]
+ },
+ {
+  "id": "arm_bear",
+  "name": "전투 곰",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 5.899999999999984
+   },
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 5.899999999999984
+   }
+  ]
+ },
+ {
+  "id": "arm_robot",
+  "name": "전투 로봇",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 6.516666666666649
+   },
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 6.516666666666649
+   }
+  ]
+ },
+ {
+  "id": "arm_knight",
+  "name": "기사단",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 2.966666666666661
+   },
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 2.966666666666661
+   }
+  ]
+ },
+ {
+  "id": "arm_dino",
+  "name": "공룡",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_cows",
+  "name": "들소 떼",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 2.749999999999995
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 2.749999999999995
+   }
+  ]
+ },
+ {
+  "id": "arm_rhino",
+  "name": "코뿔소",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   },
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_elephant",
+  "name": "전투 코끼리",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 3.9166666666666576
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 3.9166666666666576
+   }
+  ]
+ },
+ {
+  "id": "arm_penguin",
+  "name": "빙판 돌격대",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 2.3833333333333298
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 2.3833333333333298
+   }
+  ]
+ },
+ {
+  "id": "arm_cat",
+  "name": "화염 술사",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 14.016666666666943
+   },
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 7.566666666666645
+   }
+  ]
+ },
+ {
+  "id": "arm_monkey",
+  "name": "투척병",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_octopus",
+  "name": "점액 투척병",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 16.100000000000367
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 10.483333333333434
+   }
+  ]
+ },
+ {
+  "id": "arm_wizard",
+  "name": "뇌전 술사",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.400000000000345
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 8.683333333333344
+   }
+  ]
+ },
+ {
+  "id": "arm_archer",
+  "name": "궁수",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 12.400000000000196
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 5.3833333333333195
+   }
+  ]
+ },
+ {
+  "id": "arm_ninja",
+  "name": "표창수",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.883333333333702
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 10.783333333333449
+   }
+  ]
+ },
+ {
+  "id": "arm_drone",
+  "name": "드론 편대",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.583333333333439
+   },
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 6.016666666666651
+   }
+  ]
+ },
+ {
+  "id": "arm_dragonling",
+  "name": "와이번",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 4.133333333333324
+   },
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 4.133333333333324
+   }
+  ]
+ },
+ {
+  "id": "arm_eagle",
+  "name": "독수리",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_meteor",
+  "name": "운석우",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.0833333333333344
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.0833333333333344
+   }
+  ]
+ },
+ {
+  "id": "arm_airstrike",
+  "name": "공습",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.483333333333333
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.483333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_banana",
+  "name": "분열 폭탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 12.850000000000218
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 6.133333333333317
+   }
+  ]
+ },
+ {
+  "id": "arm_tornado",
+  "name": "토네이도",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 4.799999999999988
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 4.799999999999988
+   }
+  ]
+ },
+ {
+  "id": "arm_ufo",
+  "name": "공중 부양",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 4.099999999999991
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 4.099999999999991
+   }
+  ]
+ },
+ {
+  "id": "arm_train",
+  "name": "폭주 기관차",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_donkey",
+  "name": "콘크리트 낙하",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 1.183333333333334
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 1.183333333333334
+   }
+  ]
+ },
+ {
+  "id": "arm_dragon",
+  "name": "드래곤",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 2.7333333333333285
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 2.7333333333333285
+   }
+  ]
+ },
+ {
+  "id": "arm_jackpot",
+  "name": "운명의 수레바퀴",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 24.983333333333196
+   },
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 24.983333333333196
+   }
+  ]
+ },
+ {
+  "id": "arm_nuke",
+  "name": "핵",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 1,
+    "leaks": 1,
+    "first": 1.1500000000000008
+   },
+   {
+    "kills": 1,
+    "leaks": 1,
+    "first": 1.1500000000000008
+   }
+  ]
+ },
+ {
+  "id": "arm_tsunami",
+  "name": "해일",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_blackhole",
+  "name": "블랙홀",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 3.983333333333324
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 3.983333333333324
+   }
+  ]
+ },
+ {
+  "id": "arm_storm",
+  "name": "번개 폭풍",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 38,
+    "leaks": 0,
+    "first": 0.8166666666666675
+   },
+   {
+    "kills": 38,
+    "leaks": 0,
+    "first": 0.8166666666666675
+   }
+  ]
+ },
+ {
+  "id": "arm_volcano",
+  "name": "화산",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 2.033333333333331
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 2.033333333333331
+   }
+  ]
+ },
+ {
+  "id": "arm_whale",
+  "name": "중력 폭탄",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_bowling",
+  "name": "철구",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 2.366666666666663
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 2.366666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_acid",
+  "name": "산성비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 1.0833333333333344
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 1.0833333333333344
+   }
+  ]
+ },
+ {
+  "id": "arm_icestorm",
+  "name": "얼음 폭풍",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 1.483333333333333
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 1.483333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_hammer",
+  "name": "거대 망치",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_orbital",
+  "name": "궤도 폭격",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_quake",
+  "name": "지진",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 1,
+    "leaks": 2,
+    "first": 12.30000000000019
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 5.583333333333319
+   }
+  ]
+ },
+ {
+  "id": "arm_stars",
+  "name": "유성 파편",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_santa",
+  "name": "야간 폭격",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 1.483333333333333
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 1.483333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_pizza",
+  "name": "소이 폭격",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_h_chain",
+  "name": "사슬 번개 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 78,
+    "leaks": 0,
+    "first": 1.016666666666668
+   },
+   {
+    "kills": 78,
+    "leaks": 0,
+    "first": 1.016666666666668
+   }
+  ]
+ },
+ {
+  "id": "arm_h_kick",
+  "name": "충격 발파",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 71,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 71,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_h_lava",
+  "name": "용암 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 55,
+    "leaks": 0,
+    "first": 1.5166666666666662
+   },
+   {
+    "kills": 55,
+    "leaks": 0,
+    "first": 1.5166666666666662
+   }
+  ]
+ },
+ {
+  "id": "arm_h_honey",
+  "name": "점착 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.6833333333333322
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.6833333333333322
+   }
+  ]
+ },
+ {
+  "id": "arm_h_star",
+  "name": "성광 투척",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 75,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 75,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_h_blades",
+  "name": "쌍검 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 79,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 79,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_h_rocks",
+  "name": "바위 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 59,
+    "leaks": 0,
+    "first": 0.13333333333333333
+   },
+   {
+    "kills": 59,
+    "leaks": 0,
+    "first": 0.13333333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_h_fireworks",
+  "name": "소이 미사일 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 35,
+    "leaks": 0,
+    "first": 1.4166666666666665
+   },
+   {
+    "kills": 35,
+    "leaks": 0,
+    "first": 1.4166666666666665
+   }
+  ]
+ },
+ {
+  "id": "arm_h_trident",
+  "name": "삼지창 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_h_gravity",
+  "name": "중력 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   },
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.3833333333333333
+   }
+  ]
+ },
+ {
+  "id": "arm_h_pointer",
+  "name": "조준 레이저 손",
+  "cat": "hand",
+  "r": [
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   },
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 0.016666666666666666
+   }
+  ]
+ },
+ {
+  "id": "arm_g_magnum",
+  "name": "매그넘",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.70000000000031
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 8.51666666666667
+   }
+  ]
+ },
+ {
+  "id": "arm_g_burst",
+  "name": "3점사 권총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.8333333333337
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.100000000000081
+   }
+  ]
+ },
+ {
+  "id": "arm_g_lmg",
+  "name": "경기관총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.483333333333682
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 9.850000000000069
+   }
+  ]
+ },
+ {
+  "id": "arm_g_carbine",
+  "name": "카빈",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.950000000000273
+   },
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 7.349999999999979
+   }
+  ]
+ },
+ {
+  "id": "arm_g_slug",
+  "name": "슬러그 산탄총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.933333333333596
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 13.050000000000228
+   }
+  ]
+ },
+ {
+  "id": "arm_g_autoshot",
+  "name": "자동 산탄총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.750000000000103
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.250000000000302
+   }
+  ]
+ },
+ {
+  "id": "arm_g_dmr",
+  "name": "지정사수 소총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 9.05000000000003
+   },
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 1.1333333333333342
+   }
+  ]
+ },
+ {
+  "id": "arm_g_harpoon",
+  "name": "작살총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.800000000000315
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 8.666666666666677
+   }
+  ]
+ },
+ {
+  "id": "arm_g_flare",
+  "name": "조명탄총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.383333333333628
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 7.899999999999977
+   }
+  ]
+ },
+ {
+  "id": "arm_g_coldrifle",
+  "name": "냉기 소총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.200000000000335
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 9.033333333333362
+   }
+  ]
+ },
+ {
+  "id": "arm_g_pulse",
+  "name": "펄스 소총",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 14.350000000000293
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 7.6333333333333115
+   }
+  ]
+ },
+ {
+  "id": "arm_g_arc",
+  "name": "아크 건",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.06666666666698
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 11.766666666666831
+   }
+  ]
+ },
+ {
+  "id": "arm_g_spread",
+  "name": "확산총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.65000000000028
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 12.36666666666686
+   }
+  ]
+ },
+ {
+  "id": "arm_g_ricochet",
+  "name": "반사 권총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 2.533333333333329
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 2.533333333333329
+   }
+  ]
+ },
+ {
+  "id": "arm_g_candy",
+  "name": "분열탄 권총",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.533333333333562
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.70000000000026
+   }
+  ]
+ },
+ {
+  "id": "arm_t_howitzer",
+  "name": "곡사포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 8.099999999999982
+   },
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 2.6166666666666623
+   }
+  ]
+ },
+ {
+  "id": "arm_t_flak",
+  "name": "대공포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 11.533333333333486
+   },
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 4.166666666666657
+   }
+  ]
+ },
+ {
+  "id": "arm_t_battery",
+  "name": "축전탑",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.766666666666882
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 13.383333333333578
+   }
+  ]
+ },
+ {
+  "id": "arm_t_inferno",
+  "name": "지옥불탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.050000000000143
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 15.716666666667027
+   }
+  ]
+ },
+ {
+  "id": "arm_t_icewall",
+  "name": "빙벽탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 21.416666666666732
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.70000000000031
+   }
+  ]
+ },
+ {
+  "id": "arm_t_ballista",
+  "name": "노포",
+  "cat": "gun",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.233333333333421
+   },
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 2.366666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_t_torii",
+  "name": "번개 문",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   },
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_t_fountain",
+  "name": "수압 분사기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.816666666666766
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.48333333333368
+   }
+  ]
+ },
+ {
+  "id": "arm_t_catapult",
+  "name": "투석기",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 10.866666666666786
+   },
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 3.2499999999999933
+   }
+  ]
+ },
+ {
+  "id": "arm_t_blacktower",
+  "name": "검은 탑",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 14.750000000000313
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 8.033333333333312
+   }
+  ]
+ },
+ {
+  "id": "arm_t_incendiary",
+  "name": "소이포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 11.666666666666826
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 4.3666666666666565
+   }
+  ]
+ },
+ {
+  "id": "arm_t_frostshell",
+  "name": "냉각포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 15.183333333333668
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 7.883333333333311
+   }
+  ]
+ },
+ {
+  "id": "arm_t_cluster",
+  "name": "산탄포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 11.666666666666826
+   },
+   {
+    "kills": 33,
+    "leaks": 0,
+    "first": 4.3666666666666565
+   }
+  ]
+ },
+ {
+  "id": "arm_t_shockshell",
+  "name": "전기포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 12.70000000000021
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 5.816666666666651
+   }
+  ]
+ },
+ {
+  "id": "arm_t_fortress",
+  "name": "요새포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 29,
+    "leaks": 0,
+    "first": 6.9999999999999805
+   },
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 2.7666666666666617
+   }
+  ]
+ },
+ {
+  "id": "arm_t_rapid",
+  "name": "연발포",
+  "cat": "turret",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 13.866666666666935
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 7.366666666666646
+   }
+  ]
+ },
+ {
+  "id": "arm_su_wolf",
+  "name": "늑대 무리",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 34,
+    "leaks": 0,
+    "first": 3.1999999999999935
+   },
+   {
+    "kills": 34,
+    "leaks": 0,
+    "first": 3.1999999999999935
+   }
+  ]
+ },
+ {
+  "id": "arm_su_fox",
+  "name": "불여우",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 3.016666666666661
+   },
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 3.016666666666661
+   }
+  ]
+ },
+ {
+  "id": "arm_su_gorilla",
+  "name": "철권 고릴라",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 5.3833333333333195
+   },
+   {
+    "kills": 39,
+    "leaks": 0,
+    "first": 5.3833333333333195
+   }
+  ]
+ },
+ {
+  "id": "arm_su_tiger",
+  "name": "호랑이",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 1.3000000000000003
+   },
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 1.3000000000000003
+   }
+  ]
+ },
+ {
+  "id": "arm_su_zombie",
+  "name": "좀비 떼",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 6.9999999999999805
+   },
+   {
+    "kills": 45,
+    "leaks": 0,
+    "first": 6.9999999999999805
+   }
+  ]
+ },
+ {
+  "id": "arm_su_crab",
+  "name": "강철 게",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 47,
+    "leaks": 0,
+    "first": 4.416666666666656
+   },
+   {
+    "kills": 47,
+    "leaks": 0,
+    "first": 4.416666666666656
+   }
+  ]
+ },
+ {
+  "id": "arm_su_turtle",
+  "name": "폭뢰 거북",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 8.18333333333332
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 8.18333333333332
+   }
+  ]
+ },
+ {
+  "id": "arm_su_unicorn",
+  "name": "뿔 기병",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 2.2333333333333303
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 2.2333333333333303
+   }
+  ]
+ },
+ {
+  "id": "arm_su_shark",
+  "name": "상어",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 1.2500000000000004
+   },
+   {
+    "kills": 28,
+    "leaks": 0,
+    "first": 1.2500000000000004
+   }
+  ]
+ },
+ {
+  "id": "arm_su_owl",
+  "name": "야간 맹금",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_su_pigs",
+  "name": "폭약 하이에나",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 3.949999999999991
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 3.949999999999991
+   }
+  ]
+ },
+ {
+  "id": "arm_su_kangaroo",
+  "name": "파쇄 골렘",
+  "cat": "summon",
+  "r": [
+   {
+    "kills": 52,
+    "leaks": 0,
+    "first": 3.4666666666666592
+   },
+   {
+    "kills": 52,
+    "leaks": 0,
+    "first": 3.4666666666666592
+   }
+  ]
+ },
+ {
+  "id": "arm_m_hellrain",
+  "name": "지옥불 비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_m_avalanche",
+  "name": "눈사태",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_m_zeus",
+  "name": "천둥 신",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 38,
+    "leaks": 0,
+    "first": 0.8166666666666675
+   },
+   {
+    "kills": 38,
+    "leaks": 0,
+    "first": 0.8166666666666675
+   }
+  ]
+ },
+ {
+  "id": "arm_m_rockfall",
+  "name": "낙석",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_m_timestop",
+  "name": "시간 정지",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_poly",
+  "name": "변이",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_polyX",
+  "name": "대변이",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_recall",
+  "name": "되돌리기",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_recallX",
+  "name": "대되돌리기",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_clone",
+  "name": "분신",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_cloneX",
+  "name": "대분신",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_charm",
+  "name": "매혹",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 1.9166666666666647
+   },
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 1.9166666666666647
+   }
+  ]
+ },
+ {
+  "id": "arm_m_charmX",
+  "name": "집단 매혹",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 1.9166666666666647
+   },
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 1.9166666666666647
+   }
+  ]
+ },
+ {
+  "id": "arm_m_haste",
+  "name": "가속",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 3,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_m_frogs",
+  "name": "독침 비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_m_cards",
+  "name": "칼날 비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_m_supernova",
+  "name": "초신성",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 1,
+    "leaks": 1,
+    "first": 1.1500000000000008
+   },
+   {
+    "kills": 1,
+    "leaks": 1,
+    "first": 1.1500000000000008
+   }
+  ]
+ },
+ {
+  "id": "arm_m_wormhole",
+  "name": "웜홀",
+  "cat": "magic",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 4.483333333333323
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 4.483333333333323
+   }
+  ]
+ },
+ {
+  "id": "arm_m_comet",
+  "name": "혜성",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_m_lasergrid",
+  "name": "레이저 그물",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_m_flood",
+  "name": "홍수",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_mines",
+  "name": "지뢰밭",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.033333333333648
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 12.266666666666856
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_bear",
+  "name": "덫",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 19.01666666666687
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 14.30000000000029
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_spikes",
+  "name": "가시 바닥",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.43333333333368
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 12.066666666666846
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_glue",
+  "name": "점착 지대",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.016666666666925
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 12.23333333333352
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_ember",
+  "name": "불씨 함정",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.80000000000027
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.03333333333356
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_ice",
+  "name": "얼음 함정",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 21.016666666666755
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.233333333333693
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_spring",
+  "name": "발사판",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.383333333333514
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.650000000000308
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_tnt",
+  "name": "폭약 상자",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.033333333333648
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 10.066666666666746
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_claymore",
+  "name": "클레이모어",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.383333333333628
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 12.066666666666846
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_peel",
+  "name": "미끄럼 기름",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 21.433333333333398
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 15.650000000000357
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_shock",
+  "name": "전기 바닥",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.466666666666956
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 12.70000000000021
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_lego",
+  "name": "마름쇠",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   },
+   {
+    "kills": 0,
+    "leaks": 0,
+    "first": 30
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_crackers",
+  "name": "소이 상자",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 17.033333333333648
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 12.066666666666846
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_poison",
+  "name": "독 함정",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 19.033333333333534
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.750000000000263
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_nuke",
+  "name": "핵지뢰",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.000000000000373
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 14.800000000000315
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_cactus",
+  "name": "가시덩굴",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 19.116666666666863
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 12.583333333333538
+   }
+  ]
+ },
+ {
+  "id": "arm_tr_cheese",
+  "name": "압착 덫",
+  "cat": "trap",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.083333333333645
+   },
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.8333333333336
+   }
+  ]
+ },
+ {
+  "id": "arm_a_bomber",
+  "name": "폭격기",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_a_para",
+  "name": "낙하산 폭탄",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_a_anchor",
+  "name": "닻 낙하",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_a_piano",
+  "name": "강철 추 낙하",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_a_toilet",
+  "name": "파쇄 낙하체",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_a_hail",
+  "name": "우박",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_a_thundercloud",
+  "name": "뇌운",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 40,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   },
+   {
+    "kills": 40,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_a_galaxy",
+  "name": "은하 레이저",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_a_boulders",
+  "name": "바위 비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_a_chili",
+  "name": "네이팜",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_a_cluster",
+  "name": "집속탄",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_a_gifts",
+  "name": "보급 폭탄",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   },
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.0666666666666678
+   }
+  ]
+ },
+ {
+  "id": "arm_a_ducks",
+  "name": "급강하 편대",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   },
+   {
+    "kills": 26,
+    "leaks": 0,
+    "first": 0.9833333333333347
+   }
+  ]
+ },
+ {
+  "id": "arm_a_moon",
+  "name": "위성 추락",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 4,
+    "leaks": 1,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 4,
+    "leaks": 1,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_a_sunray",
+  "name": "햇빛 집중",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_a_balloons",
+  "name": "부유 기뢰",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.0333333333333345
+   }
+  ]
+ },
+ {
+  "id": "arm_a_boltrain",
+  "name": "번개비",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   },
+   {
+    "kills": 27,
+    "leaks": 0,
+    "first": 1.4666666666666663
+   }
+  ]
+ },
+ {
+  "id": "arm_c_tractor",
+  "name": "분쇄 트랙터",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 3.4999999999999925
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 3.4999999999999925
+   }
+  ]
+ },
+ {
+  "id": "arm_c_bikers",
+  "name": "폭주족",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 1.3000000000000003
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 1.3000000000000003
+   }
+  ]
+ },
+ {
+  "id": "arm_c_bumper",
+  "name": "장갑차",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 47,
+    "leaks": 0,
+    "first": 1.2500000000000004
+   },
+   {
+    "kills": 47,
+    "leaks": 0,
+    "first": 1.2500000000000004
+   }
+  ]
+ },
+ {
+  "id": "arm_c_bus",
+  "name": "수송 장갑차",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.5333333333333328
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 1.5333333333333328
+   }
+  ]
+ },
+ {
+  "id": "arm_c_firetruck",
+  "name": "방수 장갑차",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 2.716666666666662
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 2.716666666666662
+   }
+  ]
+ },
+ {
+  "id": "arm_c_ambulance",
+  "name": "돌격 차량",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 1,
+    "first": 1.3333333333333335
+   },
+   {
+    "kills": 18,
+    "leaks": 1,
+    "first": 1.3333333333333335
+   }
+  ]
+ },
+ {
+  "id": "arm_c_roller",
+  "name": "롤러",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_c_dozer",
+  "name": "불도저",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_c_horses",
+  "name": "말 떼",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 2.5999999999999956
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 2.5999999999999956
+   }
+  ]
+ },
+ {
+  "id": "arm_c_boars",
+  "name": "멧돼지",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 35,
+    "leaks": 0,
+    "first": 1.2166666666666672
+   },
+   {
+    "kills": 35,
+    "leaks": 0,
+    "first": 1.2166666666666672
+   }
+  ]
+ },
+ {
+  "id": "arm_c_skate",
+  "name": "고속 바이크",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 2.1833333333333305
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 2.1833333333333305
+   }
+  ]
+ },
+ {
+  "id": "arm_c_sled",
+  "name": "설상 돌격정",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 2.2999999999999967
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 2.2999999999999967
+   }
+  ]
+ },
+ {
+  "id": "arm_c_rocketcart",
+  "name": "로켓 썰매",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   },
+   {
+    "kills": 36,
+    "leaks": 0,
+    "first": 1.1166666666666676
+   }
+  ]
+ },
+ {
+  "id": "arm_c_mammoth",
+  "name": "매머드",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 3.983333333333324
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 3.983333333333324
+   }
+  ]
+ },
+ {
+  "id": "arm_c_surf",
+  "name": "해일 돌격",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 2.8999999999999946
+   }
+  ]
+ },
+ {
+  "id": "arm_c_tram",
+  "name": "전동차",
+  "cat": "charge",
+  "r": [
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 1.3333333333333335
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 1.3333333333333335
+   }
+  ]
+ },
+ {
+  "id": "arm_s_speaker",
+  "name": "음파 스피커",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.816666666666766
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.48333333333368
+   }
+  ]
+ },
+ {
+  "id": "arm_s_drum",
+  "name": "공명 북",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.733333333333437
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 15.96666666666704
+   }
+  ]
+ },
+ {
+  "id": "arm_s_guitar",
+  "name": "앰프",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.000000000000146
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.666666666667025
+   }
+  ]
+ },
+ {
+  "id": "arm_s_trumpet",
+  "name": "전투 나팔",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 21.46666666666673
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.266666666667025
+   }
+  ]
+ },
+ {
+  "id": "arm_s_megaphone",
+  "name": "확성기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.566666666666894
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 12.933333333333556
+   }
+  ]
+ },
+ {
+  "id": "arm_s_sax",
+  "name": "저음 공명기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.18333333333347
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 15.63333333333369
+   }
+  ]
+ },
+ {
+  "id": "arm_s_violin",
+  "name": "고주파 발진기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 22.533333333333335
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.85000000000021
+   }
+  ]
+ },
+ {
+  "id": "arm_s_janggu",
+  "name": "전쟁 북",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.683333333333497
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.916666666666988
+   }
+  ]
+ },
+ {
+  "id": "arm_s_orchestra",
+  "name": "음향 포",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 13.816666666666933
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 7.533333333333312
+   }
+  ]
+ },
+ {
+  "id": "arm_s_siren",
+  "name": "사이렌",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.416666666666902
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 12.56666666666687
+   }
+  ]
+ },
+ {
+  "id": "arm_s_woofer",
+  "name": "서브우퍼",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.583333333333446
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.033333333333704
+   }
+  ]
+ },
+ {
+  "id": "arm_s_howl",
+  "name": "하울링 증폭기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.333333333333517
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 14.56666666666697
+   }
+  ]
+ },
+ {
+  "id": "arm_s_flute",
+  "name": "최면 피리",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 20.200000000000134
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 15.866666666667035
+   }
+  ]
+ },
+ {
+  "id": "arm_s_accordion",
+  "name": "압축 음파기",
+  "cat": "sound",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.733333333333494
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.96666666666699
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_boomerang",
+  "name": "부메랑",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.333333333333625
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 7.9333333333333105
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_disc",
+  "name": "원반",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 14.333333333333625
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 8.24999999999999
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_yoyo",
+  "name": "쌍날 원반",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.68333333333361
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 13.116666666666898
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_star",
+  "name": "대형 표창",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 13.03333333333356
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 6.516666666666649
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_firewheel",
+  "name": "화염륜",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 14.96666666666699
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 8.566666666666672
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_icering",
+  "name": "얼음 고리",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 14.650000000000308
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 8.24999999999999
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_soccer",
+  "name": "철퇴구",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.03333333333356
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 6.199999999999983
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_basket",
+  "name": "강철 구",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 13.03333333333356
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 6.516666666666649
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_frisbee",
+  "name": "칼날 원반",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.850000000000325
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.116666666666749
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_donut",
+  "name": "고리 칼날",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 15.733333333333695
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 10.866666666666786
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_saturn",
+  "name": "궤도 고리",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 6,
+    "leaks": 1,
+    "first": 13.666666666666925
+   },
+   {
+    "kills": 13,
+    "leaks": 1,
+    "first": 6.833333333333314
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_compass",
+  "name": "십자 칼날",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 14.333333333333625
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 7.9333333333333105
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_wheel",
+  "name": "법륜",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 13.350000000000243
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 6.516666666666649
+   }
+  ]
+ },
+ {
+  "id": "arm_sp_goldcd",
+  "name": "황금 원반",
+  "cat": "spinner",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 14.333333333333625
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 7.9333333333333105
+   }
+  ]
+ },
+ {
+  "id": "arm_f_lava",
+  "name": "용암 웅덩이",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.133333333333585
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 12.716666666666878
+   }
+  ]
+ },
+ {
+  "id": "arm_f_swamp",
+  "name": "독늪",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.300000000000242
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 12.450000000000198
+   }
+  ]
+ },
+ {
+  "id": "arm_f_ice",
+  "name": "빙판",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 22.500000000000004
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.216666666667027
+   }
+  ]
+ },
+ {
+  "id": "arm_f_electric",
+  "name": "전기장",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.633333333333557
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 13.216666666666903
+   }
+  ]
+ },
+ {
+  "id": "arm_f_tar",
+  "name": "타르",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 25.58333333333316
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.733333333333494
+   }
+  ]
+ },
+ {
+  "id": "arm_f_soap",
+  "name": "거품 늪",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.450000000000347
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 10.166666666666751
+   }
+  ]
+ },
+ {
+  "id": "arm_f_quicksand",
+  "name": "모래늪",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.066666666667036
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 9.783333333333399
+   }
+  ]
+ },
+ {
+  "id": "arm_f_whirlpool",
+  "name": "소용돌이",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.183333333333668
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 8.466666666666667
+   }
+  ]
+ },
+ {
+  "id": "arm_f_flowers",
+  "name": "독 포자밭",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 19.13333333333353
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 13.716666666666928
+   }
+  ]
+ },
+ {
+  "id": "arm_f_firering",
+  "name": "불고리",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.80000000000027
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 11.950000000000173
+   }
+  ]
+ },
+ {
+  "id": "arm_f_acid",
+  "name": "산성 웅덩이",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.8833333333336
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 12.466666666666866
+   }
+  ]
+ },
+ {
+  "id": "arm_f_snow",
+  "name": "눈밭",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.566666666666894
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 12.716666666666878
+   }
+  ]
+ },
+ {
+  "id": "arm_f_jelly",
+  "name": "점액 감옥",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.95000000000032
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 10.666666666666776
+   }
+  ]
+ },
+ {
+  "id": "arm_f_gravity",
+  "name": "중력장",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.733333333333665
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 10.883333333333454
+   }
+  ]
+ },
+ {
+  "id": "arm_f_holy",
+  "name": "성역",
+  "cat": "field",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 16.216666666667027
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 9.933333333333406
+   }
+  ]
+ },
+ {
+  "id": "arm_r_flashlight",
+  "name": "집속 조명",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.350000000000353
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 10.533333333333436
+   }
+  ]
+ },
+ {
+  "id": "arm_r_prism",
+  "name": "프리즘",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 6,
+    "leaks": 1,
+    "first": 15.166666666667
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 8.45
+   }
+  ]
+ },
+ {
+  "id": "arm_r_magnifier",
+  "name": "태양 렌즈",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 18.316666666666908
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 12.933333333333556
+   }
+  ]
+ },
+ {
+  "id": "arm_r_freeze",
+  "name": "냉동 광선",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 15.816666666667032
+   },
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 9.550000000000054
+   }
+  ]
+ },
+ {
+  "id": "arm_r_death",
+  "name": "죽음의 광선",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 10.866666666666786
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 2.833333333333328
+   }
+  ]
+ },
+ {
+  "id": "arm_r_eyes",
+  "name": "감시 레이저",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 18.066666666666922
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 12.683333333333543
+   }
+  ]
+ },
+ {
+  "id": "arm_r_ion",
+  "name": "이온 광선",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 5,
+    "leaks": 1,
+    "first": 15.400000000000345
+   },
+   {
+    "kills": 6,
+    "leaks": 1,
+    "first": 8.683333333333344
+   }
+  ]
+ },
+ {
+  "id": "arm_r_rainbow",
+  "name": "분광 광선",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 6,
+    "leaks": 1,
+    "first": 13.916666666666938
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 6.766666666666648
+   }
+  ]
+ },
+ {
+  "id": "arm_r_sunbeam",
+  "name": "태양 기둥",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_r_mirror",
+  "name": "거울 반사",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 15.933333333333705
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 9.666666666666726
+   }
+  ]
+ },
+ {
+  "id": "arm_r_signal",
+  "name": "표적 레이저",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 6,
+    "leaks": 0,
+    "first": 17.166666666666973
+   },
+   {
+    "kills": 7,
+    "leaks": 0,
+    "first": 11.350000000000144
+   }
+  ]
+ },
+ {
+  "id": "arm_r_moonbeam",
+  "name": "달빛 기둥",
+  "cat": "air",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 1,
+    "first": 0.9333333333333346
+   },
+   {
+    "kills": 9,
+    "leaks": 1,
+    "first": 0.9333333333333346
+   }
+  ]
+ },
+ {
+  "id": "arm_r_hyper",
+  "name": "하이퍼 빔",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 8.750000000000014
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 1.183333333333334
+   }
+  ]
+ },
+ {
+  "id": "arm_r_cutter",
+  "name": "플라즈마 커터",
+  "cat": "ray",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 21.100000000000083
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.033333333333648
+   }
+  ]
+ },
+ {
+  "id": "arm_th_curling",
+  "name": "쇳덩이",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_melon",
+  "name": "파쇄 수류탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_pan",
+  "name": "철판 투척",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.100000000000367
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 10.483333333333434
+   }
+  ]
+ },
+ {
+  "id": "arm_th_axe",
+  "name": "도끼",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_molotov",
+  "name": "화염병",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_snowball",
+  "name": "얼음 덩이",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.616666666666948
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 11.96666666666684
+   }
+  ]
+ },
+ {
+  "id": "arm_th_pot",
+  "name": "벽돌",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.100000000000367
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 10.483333333333434
+   }
+  ]
+ },
+ {
+  "id": "arm_th_tomato",
+  "name": "산성 병",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.133333333333642
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 12.70000000000021
+   }
+  ]
+ },
+ {
+  "id": "arm_th_garlic",
+  "name": "최루탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.100000000000367
+   },
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 10.483333333333434
+   }
+  ]
+ },
+ {
+  "id": "arm_th_volley",
+  "name": "쌍 수류탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 14.016666666666943
+   },
+   {
+    "kills": 31,
+    "leaks": 0,
+    "first": 7.566666666666645
+   }
+  ]
+ },
+ {
+  "id": "arm_th_pinata",
+  "name": "집속 수류탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_barrel",
+  "name": "기름통",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 15.050000000000328
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 9.016666666666694
+   }
+  ]
+ },
+ {
+  "id": "arm_th_cake",
+  "name": "냉각탄",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 16.100000000000367
+   },
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 10.483333333333434
+   }
+  ]
+ },
+ {
+  "id": "arm_th_moai",
+  "name": "석상 투척",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 13.03333333333356
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 6.283333333333316
+   }
+  ]
+ },
+ {
+  "id": "arm_th_spoons",
+  "name": "투척 단검",
+  "cat": "throw",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 17.150000000000308
+   },
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 11.950000000000173
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_mosquito",
+  "name": "모기 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 16.86666666666699
+   },
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 11.383333333333479
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_flies",
+  "name": "쇠파리 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 18.216666666666914
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 13.1666666666669
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_butterfly",
+  "name": "독나방 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 15.783333333333697
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 9.866666666666736
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_sparrows",
+  "name": "까마귀 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 15.250000000000338
+   },
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 9.066666666666697
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_piranha",
+  "name": "피라냐 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.68333333333361
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 12.36666666666686
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_ants",
+  "name": "개미 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 17.666666666666945
+   },
+   {
+    "kills": 8,
+    "leaks": 0,
+    "first": 15.166666666667
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_spiders",
+  "name": "거미 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.133333333333642
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 11.916666666666838
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_ladybug",
+  "name": "폭탄 딱정벌레",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 16.333333333333687
+   },
+   {
+    "kills": 17,
+    "leaks": 0,
+    "first": 10.850000000000119
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_beetles",
+  "name": "불딱정벌레",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 16.86666666666699
+   },
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 11.116666666666799
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_doves",
+  "name": "칼새 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 12,
+    "leaks": 0,
+    "first": 13.950000000000273
+   },
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 7.599999999999978
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_snakes",
+  "name": "뱀 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 10,
+    "leaks": 0,
+    "first": 17.383333333333628
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 12.16666666666685
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_bats",
+  "name": "박쥐 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 11,
+    "leaks": 0,
+    "first": 16.60000000000034
+   },
+   {
+    "kills": 14,
+    "leaks": 0,
+    "first": 10.850000000000119
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_locusts",
+  "name": "메뚜기 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.133333333333642
+   },
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 11.650000000000158
+   }
+  ]
+ },
+ {
+  "id": "arm_sw_jelly",
+  "name": "해파리 떼",
+  "cat": "swarm",
+  "r": [
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 17.950000000000262
+   },
+   {
+    "kills": 9,
+    "leaks": 0,
+    "first": 13.1666666666669
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_fairy",
+  "name": "빛 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 15,
+    "leaks": 0,
+    "first": 11.116666666666799
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 5.249999999999987
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_ghost",
+  "name": "유령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 19,
+    "leaks": 0,
+    "first": 10.733333333333446
+   },
+   {
+    "kills": 37,
+    "leaks": 0,
+    "first": 5.316666666666653
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_pumpkin",
+  "name": "화염 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 11.333333333333476
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 5.483333333333319
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_frost",
+  "name": "얼음 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 11.150000000000134
+   },
+   {
+    "kills": 24,
+    "leaks": 0,
+    "first": 6.766666666666648
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_spark",
+  "name": "번개 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 11.250000000000139
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 5.833333333333318
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_angel",
+  "name": "천사",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 20,
+    "leaks": 0,
+    "first": 9.850000000000069
+   },
+   {
+    "kills": 33,
+    "leaks": 0,
+    "first": 2.7833333333333283
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_imp",
+  "name": "소악마",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 18,
+    "leaks": 0,
+    "first": 11.116666666666799
+   },
+   {
+    "kills": 30,
+    "leaks": 0,
+    "first": 5.783333333333318
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_alien",
+  "name": "탐사 드론",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 16,
+    "leaks": 0,
+    "first": 11.116666666666799
+   },
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 5.066666666666654
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_eye",
+  "name": "감시의 눈",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 32,
+    "leaks": 0,
+    "first": 6.3166666666666496
+   },
+   {
+    "kills": 52,
+    "leaks": 0,
+    "first": 1.816666666666665
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_queen",
+  "name": "군주 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 13,
+    "leaks": 0,
+    "first": 11.066666666666796
+   },
+   {
+    "kills": 22,
+    "leaks": 0,
+    "first": 5.616666666666652
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_crystal",
+  "name": "수정 정령",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 21,
+    "leaks": 0,
+    "first": 10.200000000000086
+   },
+   {
+    "kills": 23,
+    "leaks": 0,
+    "first": 3.433333333333326
+   }
+  ]
+ },
+ {
+  "id": "arm_sl_genie",
+  "name": "마인",
+  "cat": "spirit",
+  "r": [
+   {
+    "kills": 25,
+    "leaks": 0,
+    "first": 6.899999999999981
+   },
+   {
+    "kills": 43,
+    "leaks": 0,
+    "first": 2.1833333333333305
+   }
+  ]
+ }
+]
