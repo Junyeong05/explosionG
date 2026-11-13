@@ -1226,6 +1226,20 @@ export class ChaosDraw {
       ctx.textAlign = 'center';
       ctx.fillStyle = COLORS.text;
       ctx.fillText(String(L), ix + 7, iy + 9);
+      // v4 합성: 안에 든 무기의 갈래 색 점 (깊이까지 전부)
+      if (c.fusion.mode === 4 && c.fusion.has(id)) {
+        const inside: string[] = [];
+        const walk = (x: string) => {
+          for (const kid of c.fusion.slotsOf(x).slice(1)) inside.push(kid);
+        };
+        walk(id);
+        inside.slice(0, 5).forEach((kid, j) => {
+          ctx.beginPath();
+          ctx.arc(ix - 8 + j * 4, iy + 11, 1.7, 0, TAU);
+          ctx.fillStyle = CATEGORY_COLOR[ARMS[kid].cat];
+          ctx.fill();
+        });
+      }
       k++;
     }
     const passives = c.owned('passive');

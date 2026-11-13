@@ -36,6 +36,7 @@ npm run dev
 | `npm run typecheck` | 타입 검사 |
 | `npm run build` | 타입 검사 + `dist/` 정적 빌드 (어디든 올리면 됨) |
 | `npm run autoplay -- --runs 200` | 헤드리스 자동 플레이로 밸런스 리포트 |
+| `npm run play` | 게임 전체를 HTML 한 장으로 (`docs/play/index.html`, 앱 대화창용 `dist-play/game.html`) |
 
 ## 엔진: 웹(TypeScript + Canvas2D)으로 시작한 이유
 

@@ -239,6 +239,12 @@ export class App {
           this.saves.persist();
           this.startRun(() => createRunConfig(this.saves.data, 'endless', randomSeed()));
         },
+        onFusionLab: () => {
+          // 합성 시험판: 도파민 모드 엔드리스 + 무기 여섯 3레벨 + 레벨 업마다 합성 카드 둘
+          for (const r of RULE_IDS) save.settings.rules[r] = r === 'chaos';
+          this.saves.persist();
+          this.startRun(() => ({ ...createRunConfig(this.saves.data, 'endless', randomSeed()), fusionLab: true }));
+        },
         onSelectChapter: (id) => {
           this.chapterId = id;
           this.showTitle();
@@ -350,12 +356,58 @@ export class App {
 
   /** 플레이테스트: 테스터가 판 기록 JSON 을 보내면 자동 플레이 결과와 같은 형식으로 비교할 수 있다 */
   private exportHistory(): void {
-    const blob = new Blob([this.saves.exportHistory()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `explosion-g-history-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const json = this.saves.exportHistory();
+    const download = () => {
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `explosion-g-history-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+    // 앱 대화창 안(다른 페이지 속)에서는 파일 받기가 막혀 있어서, 기록을 띄워 복사해 붙여 넣게 한다
+    let embedded = true;
+    try {
+      embedded = window.top !== window;
+    } catch {
+      embedded = true;
+    }
+    if (!embedded) {
+      download();
+      return;
+    }
+    const ta = document.createElement('textarea');
+    ta.className = 'export-text';
+    ta.readOnly = true;
+    ta.value = json;
+    const note = h('p', { class: 'export-note', text: '아래 기록을 전부 복사해서 대화창에 붙여 넣어 주세요.' });
+    const copy = async () => {
+      ta.select();
+      try {
+        await navigator.clipboard.writeText(json);
+        note.textContent = '복사했어요. 대화창에 붙여 넣어 주세요.';
+      } catch {
+        try {
+          document.execCommand('copy');
+          note.textContent = '복사했어요. 대화창에 붙여 넣어 주세요.';
+        } catch {
+          note.textContent = '자동 복사가 막혀 있어요. 칸을 길게 눌러 전체 선택 후 복사해 주세요.';
+        }
+      }
+    };
+    this.overlay.show(
+      h('div', { class: 'overlay' },
+        h('div', { class: 'panel' },
+          h('h2', { class: 'heading', text: '플레이 기록' }),
+          note,
+          ta,
+          h('div', { class: 'row' },
+            h('button', { class: 'btn primary', onClick: () => void copy(), text: '복사' }),
+            h('button', { class: 'btn', onClick: () => this.showTitle(), text: '닫기' }),
+          ),
+        ),
+      ),
+    );
   }
 }

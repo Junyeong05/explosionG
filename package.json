@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "autoplay": "tsx tools/autoplay.ts",
-    "showcase": "node tools/showcase/build.mjs"
+    "showcase": "node tools/showcase/build.mjs",
+    "play": "node tools/play/build.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

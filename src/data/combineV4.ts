@@ -1,4 +1,4 @@
-import { ATTACK_CATEGORIES, CATEGORY_LABEL } from './chaos';
+import { ARMS, ATTACK_CATEGORIES, CATEGORY_LABEL } from './chaos';
 import type { AttackCat } from './links';
 
 /**
@@ -150,4 +150,42 @@ export function rulesV4(): RuleV4[] {
     }
   }
   return out;
+}
+
+// ─── 게임 레벨 업 합성 카드 (11-13 유저: "이제 이거 게임에 넣어 봐") ─────────────
+// 도파민 모드 레벨 업 선택지에 'fuse:A>B' 로 나온다 (chaos.roll). 고르면 B 를 A 안에 합친다 (v4 극적 반응).
+
+export const FUSE_PREFIX = 'fuse:';
+export const fuseId = (a: string, b: string) => `${FUSE_PREFIX}${a}>${b}`;
+export function parseFuse(id: string): [string, string] | null {
+  if (!id.startsWith(FUSE_PREFIX)) return null;
+  const [a, b] = id.slice(FUSE_PREFIX.length).split('>');
+  return a && b ? [a, b] : null;
+}
+const SEEK_WORD: Record<St, string> = { hold: '묶인 적', mark: '표식 적', weak: '약해진 적', crowd: '몰린 적' };
+
+/** 합성 카드에 쓸 이름·꼬리표·설명 (A 안에 B) */
+export function fuseCard(id: string): { name: string; tag: string; sub: string; desc: string } | null {
+  const p = parseFuse(id);
+  if (!p) return null;
+  const A = ARMS[p[0]];
+  const B = ARMS[p[1]];
+  if (!A || !B) return null;
+  const a = A.cat as AttackCat;
+  const b = B.cat as AttackCat;
+  const ca = CAT4[a];
+  const cb = CAT4[b];
+  const k = kind4(a, b);
+  const how =
+    k === '반응'
+      ? `${josa(A.name, '이', '가')} 맞힌 적에 ${ST_LABEL[ca.leaves!]}을 남기면 ${josa(B.name, '이', '가')} 그 적을 노려`
+      : cb.seeks === 'crowd'
+        ? `${josa(A.name, '이', '가')} 작용할 때 둘레의 몰린 적에게`
+        : `${josa(A.name, '이', '가')} 작용할 때 둘레의 ${SEEK_WORD[cb.seeks]}이 있으면`;
+  return {
+    name: `${ca.pre} ${cb.noun}`,
+    tag: `합성 · ${k === '반응' ? '반응' : k === '무리' ? '몰린 적' : k === '모양' ? '고리' : '보통'}`,
+    sub: `${A.emoji ?? ''}${A.name} + ${B.emoji ?? ''}${B.name}`,
+    desc: `${josa(B.name, '을', '를')} ${A.name} 안에 합친다 (${josa(B.name, '은', '는')} 따로 안 쏘고 ${A.name}의 순간에 나간다). ${how} ${cb.drama}: ${cb.dramaText}.`,
+  };
 }

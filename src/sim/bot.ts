@@ -303,8 +303,8 @@ export class Bot {
     let best = 0;
     let bestScore = -1;
     choices.forEach((id, i) => {
-      const def = getAugment(id);
-      const score = RARITY_SCORE[def.rarity] + (def.evolution ? 3 : 0) + this.rng.next() * 0.5;
+      // 갈래 합성 카드 (도파민 모드)
+      const score = id.startsWith('fuse:') ? 2.5 + this.rng.next() * 0.5 : RARITY_SCORE[getAugment(id).rarity] + (getAugment(id).evolution ? 3 : 0) + this.rng.next() * 0.5;
       if (score > bestScore) {
         bestScore = score;
         best = i;

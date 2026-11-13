@@ -149,8 +149,12 @@ export class World implements SimApi {
     this.life = this.stats.maxLife;
     this.gauge = Math.min(1, this.stats.gaugeMax);
     this.rerollsLeft = config.meta.rerolls;
-    // 도파민 모드: 시작 무기부터 고른다 (선행 증강은 그다음)
-    if (this.chaos) this.offerQueue.push('starter');
+    // 도파민 모드: 시작 무기부터 고른다 (선행 증강은 그다음). 합성 시험판은 무기 여섯을 들고 바로 합성 카드부터
+    if (this.chaos && config.fusionLab) {
+      this.chaos.startLab();
+      this.offerQueue.push('level', 'level');
+    }
+    else if (this.chaos) this.offerQueue.push('starter');
     for (let i = 0; i < config.meta.headStartPicks; i++) this.offerQueue.push('start');
     this.spawnTimer = packInterval(1) - FIRST_PACK_SEC;
   }
@@ -350,6 +354,13 @@ export class World implements SimApi {
   private choose(index: number): void {
     const id = this.offer?.choices[index];
     if (!id) return;
+    // 갈래 합성 카드 (도파민 모드)
+    if (id.startsWith('fuse:') && this.chaos) {
+      this.chaos.applyFuse(id);
+      this.offer = null;
+      this.phase = 'playing';
+      return;
+    }
     const def = this.augments.acquire(id, this);
     this.recomputeStats();
     this.offer = null;
@@ -1094,7 +1105,7 @@ export class World implements SimApi {
     const pileMul = this.rules.pile ? BALANCE.experiment.pile.enemyHpMul : 1;
     const C = BALANCE.chaos;
     const chaosMul = this.rules.chaos
-      ? C.enemyHpMul + C.enemyHpPerWave * (this.wave - 1) + C.enemyHpLatePerWave * Math.max(0, this.wave - C.enemyHpLateFrom) + C.enemyHpPerFusion * (this.chaos?.parent.size ?? 0)
+      ? C.enemyHpMul + C.enemyHpPerWave * (this.wave - 1) + (this.chaos?.fusion.active ? C.enemyHpLatePerWave * Math.max(0, this.wave - C.enemyHpLateFrom) + C.enemyHpPerFusion * this.chaos.parent.size : 0)
       : 1;
     const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul * chaosMul;
     const e: Enemy = {
@@ -1245,6 +1256,8 @@ export class World implements SimApi {
       level: this.level,
       durationSec: this.time,
       picks: [...this.augments.history],
+      fusions: this.chaos && this.chaos.fusion.mode === 4 ? [...this.chaos.parent].map(([b, a]) => `${a}>${b}`) : undefined,
+      fusionLab: this.config.fusionLab || undefined,
       partsEarned: runReward(this.wave, this.kills) + this.bonusParts,
       chainHistogram: [...this.chainHistogram],
     };

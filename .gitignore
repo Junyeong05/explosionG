@@ -5,3 +5,4 @@ coverage/
 .DS_Store
 autoplay-*.json
 dist-showcase/
+dist-play/

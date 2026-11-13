@@ -235,11 +235,22 @@ export class Fusion {
   }
 
   /** 해낸 횟수 +1. 이 판에서 처음이면 이름을 알린다 (게임 안 발견: 이름만, 규칙 문장은 숨김) */
+  /** 합성 카드로 고를 때 이미 이름을 띄운 짝 */
+  private announced = new Set<string>();
+  /** 합성 카드를 골랐다: 그 자리에 이름 (처음 해낼 때 다시 뜨지 않음) */
+  announce(a: string, b: string): void {
+    const k = `${a}>${b}`;
+    this.announced.add(k);
+    const m = this.mount(a);
+    const name = (this.mode === 4 ? NAME4 : NAME3).get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`) ?? '';
+    this.c.w.emit({ type: 'fusion', name, a, b, x: m.x, y: m.y - 40 });
+  }
+
   private bump(k: string): void {
     this.bumps++;
     const n = this.fired.get(k) ?? 0;
     this.fired.set(k, n + 1);
-    if (n > 0) return;
+    if (n > 0 || this.announced.has(k)) return;
     const [a, b] = k.split('>');
     const ck = `${ARMS[a]?.cat}>${ARMS[b]?.cat}`;
     const ce = this.mode === 3 && this.ceil ? CEIL[ck as keyof typeof CEIL] : undefined;

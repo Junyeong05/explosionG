@@ -17,6 +17,13 @@
    - 화면이 바뀌었으면 `screens/` 스크린샷 갱신, 설명할 거리가 있으면 `docs/`에 정리 문서 추가
 3. `node scripts/build.mjs --check` 통과 확인 → `status(explosion-g): ...` 로 커밋 → push
 
+## 플레이 빌드 (11-13 유저: "게임에 넣어 봐, 실제로 플레이해 볼 수 있게")
+
+- `npm run play` → `docs/play/index.html` (그대로 여는 완전한 HTML) + `dist-play/game.html` (Artifact 판). 게임 전체가 한 파일
+- 띄우기: Artifact 도구로 `dist-play/game.html` publish. 주소 유지: https://claude.ai/artifact/DXhsrtRVspEAYDX9Rttqui
+- 대화창 안에서는 파일 받기가 막혀서 "플레이 기록 내보내기" 는 기록을 띄워 복사하게 한다 (붙여 넣어 받으면 판마다 합성한 짝 `fusions` 가 들어 있다)
+- 게임을 고치면 다시 빌드해 같은 주소로 올린다
+
 ## 연출 미리보기 HTML (11-09 유저 요청)
 
 "앞으로는 뭔가 구현하면 어떤 식으로 연출되고 어떤 식으로 싸우는지 HTML로 정리해서 주면 된다."

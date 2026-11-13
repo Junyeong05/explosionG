@@ -218,6 +218,8 @@ export interface RunConfig {
   sandbox?: boolean;
   /** 실험 규칙 */
   rules?: RunRules;
+  /** 합성 시험판 (도파민 모드): 다른 갈래 무기 여섯을 3레벨로 들고 시작, 레벨 업마다 합성 카드 둘 */
+  fusionLab?: boolean;
 }
 
 export interface Offer {
@@ -260,6 +262,9 @@ export interface RunSummary {
   durationSec: number;
   /** 고른 증강 id (순서대로) */
   picks: string[];
+  /** 도파민 모드 갈래 합성: 'A 무기>B 무기' (B 를 A 안에), 합성 시험판이었나 */
+  fusions?: string[];
+  fusionLab?: boolean;
   partsEarned: number;
   /** 연쇄 길이 분포: 1, 2-4, 5-9, 10-19, 20-49, 50+ */
   chainHistogram: number[];

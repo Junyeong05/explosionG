@@ -1,4 +1,5 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
+import { fuseCard } from '../data/combineV4';
 import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
 import { ENEMIES } from '../data/enemies';
 import { EXPERIMENTS, EXPERIMENT_SETS, experimentInfo } from '../data/experiments';
@@ -42,6 +43,8 @@ export interface TitleProps {
   onExperiments(): void;
   /** 도파민 모드로 고른 챕터 바로 시작 */
   onDopamine(): void;
+  /** 합성 시험판: 무기 여섯을 3레벨로 들고 시작, 레벨 업마다 합성 카드 둘 */
+  onFusionLab(): void;
   today: string;
   /** 고른 챕터 id */
   chapterId: string;
@@ -88,7 +91,8 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
-      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: '엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다' })),
+      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: '엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다 · 3레벨 무기 둘이면 합성 카드' })),
+      h('button', { class: 'btn dopamine fuse-lab', onClick: p.onFusionLab }, '🧪 합성 시험판', h('small', { text: '다른 갈래 무기 여섯을 3레벨로 들고 시작 · 레벨 업마다 합성 카드 둘' })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },
@@ -223,6 +227,16 @@ export function augmentPicker(p: PickerProps): HTMLElement {
       h('h2', { class: 'heading', text: OFFER_TITLE[p.offer.kind] }),
       h('div', { class: 'cards' },
         ...p.offer.choices.map((id, i) => {
+          // 갈래 합성 카드: B 를 A 안에 (극적 반응)
+          const fc = fuseCard(id);
+          if (fc) {
+            return h('button', { class: 'card fuse', dataset: { rarity: 'fuse' }, onClick: () => pick(i) },
+              h('div', { class: 'meta' }, h('span', { text: fc.tag }), h('span', { text: '합성' })),
+              h('div', { class: 'name', text: fc.name }),
+              h('div', { class: 'fuse-sub', text: fc.sub }),
+              h('div', { class: 'desc', text: fc.desc }),
+            );
+          }
           const def = getAugment(id);
           const n = p.stacks(id);
           const tags = def.tag ?? def.archetypes.map((a) => ARCHETYPE_LABEL[a]).join(' · ');

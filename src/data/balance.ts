@@ -193,11 +193,11 @@ export const BALANCE = {
     enemyHpMul: 1,
     enemyHpPerWave: 0.4,
     /**
-     * ⚠ 합성(v4 극적 반응)을 넣을 때 쓸 후반 상승치 (지금 0 = 꺼짐, 게임은 그대로).
+     * ⚠ 합성(v4 극적 반응)을 한 판만 붙는 후반 상승치 (11-13 게임에 넣음, 합성 안 한 판은 그대로).
      * 체력 배율에 + enemyHpLatePerWave × max(0, 웨이브 - enemyHpLateFrom) + enemyHpPerFusion × 합친 무기 수.
      * 상승치를 처음부터 올리면 합치기 전 초반에 무너져서 (봇: +0.7 이면 웨이브 14.7), 후반·합친 만큼만 올린다 (tools/chaos/fusion-sweep.ts).
      */
-    enemyHpLatePerWave: 0,
+    enemyHpLatePerWave: 0.8,
     enemyHpLateFrom: 10,
     enemyHpPerFusion: 0,
     /**

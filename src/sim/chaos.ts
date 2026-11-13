@@ -8,6 +8,7 @@ import { CARRY, LINK } from '../data/links';
 import { V2 } from '../data/combineV2';
 import { Fusion, TAG_BURSTB, TAG_HOP, TAG_HOPTOSS, TAG_ORBIT, TAG_RAMP, TAG_RICO } from './fusion';
 import { V3, keepOf } from '../data/combineV3';
+import { fuseId, kind4, parseFuse } from '../data/combineV4';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
 import type { Enemy, OfferKind } from './types';
@@ -708,9 +709,22 @@ export class Chaos {
       for (const d of AUGMENTS) if (d.rarity !== 'prism' && !d.evolution && this.w.augments.isAvailable(d)) cand.push({ id: d.id, wt: 0.05 });
     }
     const out: string[] = [];
+    // 갈래 합성 (v4 극적 반응): 3레벨 넘은 다른 갈래 둘이 있으면 한 장 (60%, 합성 시험판은 둘). 맞물리는 짝이 더 자주
+    const pairs = this.fuseCandidates();
+    const lab = !!this.w.config.fusionLab;
+    if (pairs.length > 0 && (lab || rng.chance(0.6))) {
+      const wt = (p: [string, string]) => ({ 반응: 3, 무리: 2, 모양: 2, 보통: 1 })[kind4(ARMS[p[0]].cat as never, ARMS[p[1]].cat as never)];
+      for (let i = 0; i < (lab ? 2 : 1) && pairs.length; i++) {
+        const p = rng.weighted(pairs, wt);
+        if (!p) break;
+        out.push(fuseId(p[0], p[1]));
+        // 같은 B 를 두 번 내지 않는다
+        for (let j = pairs.length - 1; j >= 0; j--) if (pairs[j][1] === p[1] || pairs[j][0] === p[0]) pairs.splice(j, 1);
+      }
+    }
     // 융합: 재료 둘이 다 FUSE_LEVEL 이상이면 융합 카드를 꼭 한 장 (첫 칸)
     const fusable = this.fusable();
-    if (fusable.length > 0) out.push(rng.pick(fusable));
+    if (fusable.length > 0 && out.length < 2) out.push(rng.pick(fusable));
     while (out.length < 3 && cand.length > 0) {
       const c = rng.weighted(cand, (x) => x.wt);
       if (!c) break;
@@ -722,6 +736,51 @@ export class Chaos {
       out.push(fb.id);
     }
     return out;
+  }
+
+  /**
+   * 갈래 합성 후보 [A, B]: 가진 무기 둘 (다른 갈래, 둘 다 3레벨 이상). B 는 아직 다른 무기 안에 든 적 없는 무기
+   * (B 가 이미 합친 무기면 통째로 들어간다: 2+2). A 는 무엇이든 (안에 든 무기에 또 합치면 사슬). 고리는 안 된다
+   */
+  fuseCandidates(): [string, string][] {
+    const need = this.w.config.fusionLab ? 1 : 3;
+    const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need);
+    const out: [string, string][] = [];
+    for (const a of ws) {
+      for (const b of ws) {
+        if (a === b || ARMS[a].cat === ARMS[b].cat || this.parent.has(b)) continue;
+        let cyc = false;
+        for (let x: string | undefined = a; x; x = this.parent.get(x)) if (x === b) cyc = true;
+        if (!cyc) out.push([a, b]);
+      }
+    }
+    return out;
+  }
+
+  /** 합성 시험판: 다른 갈래 무기 여섯을 3레벨로 들고 시작 (갈래는 무작위) */
+  startLab(): void {
+    const rng = this.w.rng;
+    const cats = [...ATTACK_CATEGORIES] as ArmCategory[];
+    let n = 0;
+    while (n < 6 && cats.length > 0) {
+      const cat = cats.splice(rng.int(cats.length), 1)[0];
+      const all = Object.keys(ARMS).filter((id) => ARMS[id].cat === cat && !ARMS[id].fusion);
+      const starters = all.filter((id) => ARMS[id].starter);
+      const pool = starters.length ? starters : all;
+      if (!pool.length) continue;
+      const id = rng.pick(pool);
+      for (let i = 0; i < 3; i++) this.w.augments.acquire(id, this.w);
+      n++;
+    }
+  }
+
+  /** 합성 카드를 골랐다: B 를 A 안에 (v4 극적 반응). 이름이 바로 뜬다 */
+  applyFuse(id: string): boolean {
+    const p = parseFuse(id);
+    if (!p || !this.fuse4(p[0], p[1])) return false;
+    this.fusion.drama = true;
+    this.fusion.announce(p[0], p[1]);
+    return true;
   }
 
   /** 지금 고를 수 있는 융합 (재료 둘이 다 FUSE_LEVEL 이상, 아직 안 가짐) */
