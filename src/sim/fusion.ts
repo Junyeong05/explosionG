@@ -1205,7 +1205,7 @@ export class Fusion {
 
   private st4 = new Map<number, { hold: number; mark: number; weak: number }>();
   /** 검증용: 짝(무기 id>무기 id)마다 B 가 나간 수 · 노리던 상태의 적을 만난 수 · 극적 반응 수 */
-  readonly stat4 = new Map<string, { fires: number; matched: number; drama: number }>();
+  readonly stat4 = new Map<string, { fires: number; matched: number; drama: number; over?: number }>();
   private energy4 = new Map<string, number>();
 
   /** 적이 그 상태인가 (실제 멈춤·약화도 센다) */
@@ -1752,6 +1752,11 @@ export class Fusion {
           // 방어선 가까이는 제 빠르기로, 멀리 있는 적에게는 절반만 (나머지는 A 의 순간을 위해: 함정이 밟힐 일이 있게)
           if (t.y < c.LINE - V2.guardRange && !this.every(`ov4far:${key}`, (2 * cd) / gain)) continue;
           this.energy4.set(key, E - 1);
+          {
+            const st = this.stat4.get(`${a}>${b}`) ?? { fires: 0, matched: 0, drama: 0 };
+            st.over = (st.over ?? 0) + 1;
+            this.stat4.set(`${a}>${b}`, st);
+          }
           const sSrc = c.curSrc;
           const sDepth = c.curDepth;
           const sKey = this.curKey;
