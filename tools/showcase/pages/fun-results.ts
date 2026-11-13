@@ -6,26 +6,6 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
     "kind": "둘",
     "cats": [
       "ray",
-      "throw"
-    ],
-    "title": "광선 + 투척",
-    "weapons": [
-      "arm_laser",
-      "arm_th_volley"
-    ],
-    "fuse": [
-      [
-        "arm_laser",
-        "arm_th_volley"
-      ]
-    ],
-    "ratio": 3,
-    "reacts": 33
-  },
-  {
-    "kind": "둘",
-    "cats": [
-      "ray",
       "sound"
     ],
     "title": "광선 + 음파",
@@ -45,42 +25,42 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
   {
     "kind": "둘",
     "cats": [
-      "spirit",
-      "sound"
+      "ray",
+      "throw"
     ],
-    "title": "정령 + 음파",
+    "title": "광선 + 투척",
     "weapons": [
-      "arm_sl_fairy",
-      "arm_s_guitar"
+      "arm_laser",
+      "arm_th_volley"
     ],
     "fuse": [
       [
-        "arm_sl_fairy",
-        "arm_s_guitar"
+        "arm_laser",
+        "arm_th_volley"
       ]
     ],
-    "ratio": 4.114754098360656,
-    "reacts": 26
+    "ratio": 3.037037037037037,
+    "reacts": 32
   },
   {
     "kind": "둘",
     "cats": [
-      "summon",
-      "spinner"
+      "gun",
+      "sound"
     ],
-    "title": "소환수 + 회전체",
+    "title": "총 + 음파",
     "weapons": [
-      "arm_dog",
-      "arm_sp_disc"
+      "arm_g_carbine",
+      "arm_s_guitar"
     ],
     "fuse": [
       [
-        "arm_dog",
-        "arm_sp_disc"
+        "arm_g_carbine",
+        "arm_s_guitar"
       ]
     ],
-    "ratio": 2.8222222222222224,
-    "reacts": 26
+    "ratio": 3.4833333333333334,
+    "reacts": 28
   },
   {
     "kind": "둘",
@@ -105,22 +85,42 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
   {
     "kind": "둘",
     "cats": [
-      "swarm",
-      "spirit"
+      "summon",
+      "spinner"
     ],
-    "title": "떼 + 정령",
+    "title": "소환수 + 회전체",
     "weapons": [
-      "arm_sw_mosquito",
-      "arm_sl_fairy"
+      "arm_dog",
+      "arm_sp_disc"
     ],
     "fuse": [
       [
-        "arm_sw_mosquito",
-        "arm_sl_fairy"
+        "arm_dog",
+        "arm_sp_disc"
       ]
     ],
-    "ratio": 2.9879518072289155,
-    "reacts": 21
+    "ratio": 2.8,
+    "reacts": 25
+  },
+  {
+    "kind": "둘",
+    "cats": [
+      "spirit",
+      "gun"
+    ],
+    "title": "정령 + 총",
+    "weapons": [
+      "arm_sl_fairy",
+      "arm_g_carbine"
+    ],
+    "fuse": [
+      [
+        "arm_sl_fairy",
+        "arm_g_carbine"
+      ]
+    ],
+    "ratio": 2.880434782608696,
+    "reacts": 22
   },
   {
     "kind": "한 몸에 둘",
@@ -171,8 +171,8 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
         "arm_sw_mosquito"
       ]
     ],
-    "ratio": 2.868131868131868,
-    "reacts": 33
+    "ratio": 2.8351648351648353,
+    "reacts": 37
   },
   {
     "kind": "한 몸에 둘",
@@ -203,66 +203,65 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
   {
     "kind": "한 몸에 둘",
     "cats": [
-      "spirit",
-      "gun",
-      "swarm"
+      "trap",
+      "spinner",
+      "field"
     ],
-    "title": "정령 + [총, 떼]",
+    "title": "함정 + [회전체, 장판]",
     "weapons": [
-      "arm_sl_fairy",
-      "arm_g_carbine",
-      "arm_sw_mosquito"
+      "arm_tr_mines",
+      "arm_sp_disc",
+      "arm_f_lava"
     ],
     "fuse": [
       [
-        "arm_sl_fairy",
-        "arm_g_carbine"
+        "arm_tr_mines",
+        "arm_sp_disc"
       ],
       [
-        "arm_sl_fairy",
-        "arm_sw_mosquito"
+        "arm_tr_mines",
+        "arm_f_lava"
       ]
     ],
-    "ratio": 2.180327868852459,
-    "reacts": 29
+    "ratio": 2.876923076923077,
+    "reacts": 20
   },
   {
     "kind": "한 몸에 둘",
     "cats": [
       "magic",
-      "spinner",
-      "ray"
+      "charge",
+      "swarm"
     ],
-    "title": "주문 + [회전체, 광선]",
+    "title": "주문 + [돌격, 떼]",
     "weapons": [
       "arm_m_poly",
-      "arm_sp_disc",
-      "arm_laser",
-      "arm_pistol"
+      "arm_c_bikers",
+      "arm_sw_mosquito"
     ],
     "fuse": [
       [
         "arm_m_poly",
-        "arm_sp_disc"
+        "arm_c_bikers"
       ],
       [
         "arm_m_poly",
-        "arm_laser"
+        "arm_sw_mosquito"
       ]
     ],
-    "ratio": 2.6455696202531644,
-    "reacts": 19
+    "ratio": 3.253968253968254,
+    "reacts": 15
   },
   {
     "kind": "사슬",
     "cats": [
-      "trap",
+      "magic",
       "summon",
       "field"
     ],
-    "title": "함정 → 소환수 → 장판",
+    "title": "주문 → 소환수 → 장판",
     "weapons": [
-      "arm_tr_mines",
+      "arm_m_poly",
       "arm_dog",
       "arm_f_lava"
     ],
@@ -272,26 +271,25 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
         "arm_f_lava"
       ],
       [
-        "arm_tr_mines",
+        "arm_m_poly",
         "arm_dog"
       ]
     ],
-    "ratio": 2.625,
-    "reacts": 25
+    "ratio": 2.8260869565217392,
+    "reacts": 26
   },
   {
     "kind": "사슬",
     "cats": [
-      "magic",
+      "trap",
       "summon",
       "turret"
     ],
-    "title": "주문 → 소환수 → 포격",
+    "title": "함정 → 소환수 → 포격",
     "weapons": [
-      "arm_m_poly",
+      "arm_tr_mines",
       "arm_dog",
-      "arm_cannon",
-      "arm_pistol"
+      "arm_cannon"
     ],
     "fuse": [
       [
@@ -299,11 +297,11 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
         "arm_cannon"
       ],
       [
-        "arm_m_poly",
+        "arm_tr_mines",
         "arm_dog"
       ]
     ],
-    "ratio": 2.2222222222222223,
+    "ratio": 1.9166666666666667,
     "reacts": 26
   },
   {
@@ -311,26 +309,25 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
     "cats": [
       "magic",
       "trap",
-      "field"
+      "charge"
     ],
-    "title": "주문 → 함정 → 장판",
+    "title": "주문 → 함정 → 돌격",
     "weapons": [
       "arm_m_poly",
       "arm_tr_mines",
-      "arm_f_lava",
-      "arm_pistol"
+      "arm_c_bikers"
     ],
     "fuse": [
       [
         "arm_tr_mines",
-        "arm_f_lava"
+        "arm_c_bikers"
       ],
       [
         "arm_m_poly",
         "arm_tr_mines"
       ]
     ],
-    "ratio": 3.227272727272727,
-    "reacts": 17
+    "ratio": 2.2982456140350878,
+    "reacts": 21
   }
 ];

@@ -36,7 +36,7 @@ export interface Run2 {
   stat: Map<string, { fires: number; matched: number; drama: number }>;
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; hp?: number } = {}): Run2 {
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; hp?: number; level?: number } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
   let reacts = 0;
@@ -54,7 +54,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     }
   };
   skip();
-  for (const id of weapons) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
+  for (const id of weapons) for (let i = 0; i < (opt.level ?? 3); i++) w.augments.acquire(id, w);
   for (const [a, b] of fuse) if (!(opt.mode === 4 ? w.chaos!.fuse4(a, b) : opt.mode === 3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
   if (opt.ceil) w.chaos!.fusion.ceil = true;
   if (opt.drama) w.chaos!.fusion.drama = true;

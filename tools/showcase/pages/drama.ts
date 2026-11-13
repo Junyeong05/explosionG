@@ -10,6 +10,8 @@ import { DEEP4D_RESULTS } from './combine4d-deep-results';
 import { RESULTS as R4D } from './combine4d-results';
 import { WAVE_NOTE } from './drama-wave';
 import { FUN } from './fun-results';
+import { LOCK4 } from './lock4-results';
+import { VERIFY4 } from './verify4-results';
 
 /**
  * 합성 극적 반응 (v4 + Fusion.drama, src/data/combineV4.ts 의 CAT4.drama · V4D, src/sim/fusion.ts 의 drama4 · rope4).
@@ -121,6 +123,39 @@ const sections: Section[] = [
     ],
     scenes: [],
   },
+  {
+    id: 'verify',
+    title: '검증: 공통 규칙이 어디서나 걸리나',
+    lead: `대표 무기만이 아니라 갈래마다 모양이 다른 무기 셋까지 바꿔 가며 210짝을 ${VERIFY4.runs}판, 그리고 무작위 구조 200개(사슬 · 한 몸에 여럿 · 2+2 · 섞인 나무, 무기 셋~다섯)를 30초씩 돌렸다. "걸림" = 합친 B 가 A 의 순간에 실제로 나감, "노린 상태 만남" = B 가 나갈 때 제가 노리는 상태의 적을 친 몫.`,
+    table: [
+      ['짝 종류 (표에서 나뉨)', '걸림', '노린 상태 만남', '뜻'],
+      ...Object.entries(VERIFY4.kinds).map(([k, a]) => [k, `${Math.round((a.ok / Math.max(1, a.runs)) * 100)}% (${a.ok}/${a.runs})`, `${Math.round((a.matched / Math.max(1, a.fires)) * 100)}%`, k === '반응' ? 'A 가 남긴 상태를 B 가 노림: 높아야 규칙대로' : k === '보통' ? '서로 주고받는 상태 없음: 낮아야 규칙대로' : k === '무리' ? 'B 가 몰린 적을 노림' : 'B 가 음파 고리를 따라 놓임']),
+      ...Object.entries(VERIFY4.shapes).map(([k, a]) => [`무작위 ${k}`, `${Math.round((a.ok / Math.max(1, a.runs)) * 100)}% (${a.ok}/${a.runs})`, `${Math.round((a.matched / Math.max(1, a.fires)) * 100)}%`, '모든 합친 짝 (깊이마다)']),
+    ],
+    list: [
+      `무작위 구조 전체: 합친 짝 ${VERIFY4.edges} 중 ${VERIFY4.edgesOk} 걸림 (${Math.round((VERIFY4.edgesOk / VERIFY4.edges) * 100)}%). 깊이별: ${Object.entries(VERIFY4.depth).map(([k, a]) => `${k} ${Math.round((a.ok / Math.max(1, a.runs)) * 100)}%`).join(' · ')}`,
+      `안 걸린 것 ${VERIFY4.fails.length}: 대부분 드물게 작용하는 몸(함정·음파·주문)에 빨리 쏘는 B(총·광선·정령·손)를 넣은 짝. B 가 방어선에서 먼저 다 잡아 A 가 작용할 일이 없다 (적이 함정까지 안 온다)`,
+      ...VERIFY4.fails.slice(0, 12).map((f: string) => `· ${f}`),
+    ],
+    scenes: [],
+  },
+  {
+    id: 'lock',
+    title: '잠금 검사: 적이 아예 못 다가오나',
+    lead: `적을 아주 단단하게(체력 ×40, 14마리 유지, 30초) 해서 잘 안 죽게 하고, 적이 방어선 쪽으로 다가오는 빠르기를 쟀다. ${LOCK4.n} 조합 (210짝 + 재밌는 조합 + 묶고·얼리고·밀고·매혹하는 갈래만 넷~다섯 겹친 60, 그중 20 은 무기 레벨 6). 같은 무기를 따로 가진 판의 35% 아래로 느려지면 "잠금".`,
+    table: [
+      ['', '다가오는 빠르기 (가운데값)', '잠금'],
+      ['따로 가진 판', `${LOCK4.sepAdv.toFixed(1)} px/s`, '-'],
+      ['합성, 제어 저항 없음', `${LOCK4.offAdv.toFixed(1)} px/s`, `${LOCK4.offLocks} / ${LOCK4.n}`],
+      ['합성, 제어 저항', `${LOCK4.onAdv.toFixed(1)} px/s`, `${LOCK4.onLocks} / ${LOCK4.n}`],
+    ],
+    list: [
+      '제어 저항 (합성 판만): 묶임·얼림·매혹·밀려남이 이어져 2.5초 차면 1.5초 동안 안 묶이고 안 밀린다. 적 위에 "저항" 이 뜬다. 보스는 원래 안 묶인다',
+      ...LOCK4.worst.map((r: { title: string; sep: number; off: number; on: number }) => `· ${r.title}: 따로 ${r.sep.toFixed(1)} → 저항 없음 ${r.off.toFixed(1)} → 저항 ${r.on.toFixed(1)} px/s`),
+      LOCK4.left.length ? `저항을 켜도 남은 잠금: ${LOCK4.left.join(', ')}` : '저항을 켜면 잠금 없음',
+    ],
+    scenes: [],
+  },
   { id: 'wave', title: '웨이브', lead: WAVE_NOTE.lead, list: WAVE_NOTE.list, scenes: [] },
   {
     id: 'show',
@@ -145,7 +180,7 @@ for (const a of CATS) {
 const page: Page = {
   name: '합성 극적 반응',
   title: '합성 극적 반응: 갈래마다 큰 한 방',
-  lead: '공통 규칙(v4) 위에 갈래마다 극적 반응 하나. 노리던 상태를 만나면 "낙뢰 포격!" "올가미 돌파!" 처럼 그 자리에서 크게 터진다. 세진 만큼은 웨이브 체력 상승치로 받는다. 카드는 모두 실제 게임 코드로 돈다.',
+  lead: '공통 규칙(v4) 위에 갈래마다 극적 반응 하나. 노리던 상태를 만나면 "낙뢰 포격!" "올가미 돌파!" 처럼 그 자리에서 크게 터진다. 세진 만큼은 웨이브 체력 상승치로 받는다. 카드에는 합친 무기만 있다 (도움 무기 없음, 안에 든 무기의 자리는 안 보이고 모든 공격이 합친 무기 한 자리에서). 카드는 모두 실제 게임 코드로 돈다.',
   notes: ['반응이 약하거나 어색한 갈래는 이름(예: 낙뢰 포격)으로 알려 주면 그 갈래 한 줄을 고친다. 그러면 그 갈래가 B 로 든 모든 짝이 같이 바뀐다.', 'v4 샘플 · v3 · 천장 후보 페이지는 그대로 보관.'],
   sections,
 };

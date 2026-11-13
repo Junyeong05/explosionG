@@ -20,7 +20,7 @@ const L = (c: AttackCat) => CATEGORY_LABEL[c];
 const C = BALANCE.chaos as unknown as { ccMax: number };
 const ccOn = C.ccMax;
 
-interface Case { title: string; weapons: string[]; fuse: [string, string][]; input?: ReturnType<typeof inputFor> }
+interface Case { title: string; weapons: string[]; fuse: [string, string][]; input?: ReturnType<typeof inputFor>; level?: number }
 const cases: Case[] = [];
 for (const a of CATS) for (const b of CATS) {
   if (a === b) continue;
@@ -31,19 +31,21 @@ for (const f of FUN) cases.push({ title: `재밌는 ${f.title}`, weapons: f.weap
 // 제어를 잔뜩 쌓은 무작위 (묶고·얼리고·밀고·매혹하는 갈래 위주)
 const CTRL: AttackCat[] = ['trap', 'summon', 'magic', 'sound', 'spinner', 'field', 'swarm', 'charge'];
 const rng = new Rng(77);
-for (let n = 0; n < 40; n++) {
+for (let n = 0; n < 60; n++) {
   const cats = [...CTRL].sort(() => rng.next() - 0.5).slice(0, 4 + rng.int(2));
   const ws = cats.map((c) => samplesV2(c, c === 'magic' ? 'trap' : 'magic')[0]);
   const fuse: [string, string][] = [];
   for (let i = ws.length - 1; i >= 1; i--) fuse.push([ws[i % 2 === 1 ? 0 : i - 1], ws[i]]);
-  cases.push({ title: `제어 ${cats.map((c) => L(c)).join('·')}`, weapons: ws, fuse });
+  // 셋에 하나는 무기 레벨 6 (제어가 길어진다)
+  cases.push({ title: `제어 ${cats.map((c) => L(c)).join('·')}${n % 3 === 0 ? ' (레벨 6)' : ''}`, weapons: ws, fuse, level: n % 3 === 0 ? 6 : 3 });
 }
 
 interface Row { title: string; sepAdv: number; offAdv: number; onAdv: number; offCtl: number; onCtl: number; offLock: boolean; onLock: boolean; onLeaks: number; sepLeaks: number }
 const rows: Row[] = [];
-const lock = (adv: number, sep: number, ctl: number) => adv < Math.max(0.35 * sep, 0.5) || ctl > 0.6;
+// 잠금 = 다가오는 빠르기가 따로 가진 판의 35% 아래 (제어 몫은 참고로만: 저항이 걸려도 밀려난 시간은 세진다)
+const lock = (adv: number, sep: number, _ctl: number) => adv < Math.max(0.35 * sep, 0.5);
 for (const k of cases) {
-  const opt = { seconds: 30, hp: 40, input: k.input ?? undefined, seed: 12 };
+  const opt = { seconds: 30, hp: 40, input: k.input ?? undefined, seed: 12, level: k.level ?? 3 };
   const sep = run2(k.weapons, [], opt);
   C.ccMax = 1e9;
   const off = run2(k.weapons, k.fuse, { ...opt, mode: 4, drama: true });
@@ -57,7 +59,7 @@ const offL = rows.filter((r) => r.offLock);
 const onL = rows.filter((r) => r.onLock);
 const med = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] ?? 0;
 const out: string[] = [];
-out.push(`잠금 검사 ${n} 조합 (210 + 재밌는 ${FUN.length} + 제어 잔뜩 40), 적 체력 ×40, 30초`);
+out.push(`잠금 검사 ${n} 조합 (210 + 재밌는 ${FUN.length} + 제어 잔뜩 60, 그중 20 은 레벨 6), 적 체력 ×40, 30초`);
 out.push(`다가오는 빠르기 가운데값 px/s: 따로 ${med(rows.map((r) => r.sepAdv)).toFixed(1)} · 저항 없음 ${med(rows.map((r) => r.offAdv)).toFixed(1)} · 저항 ${med(rows.map((r) => r.onAdv)).toFixed(1)}`);
 out.push(`제어 몫 가운데값: 저항 없음 ${(med(rows.map((r) => r.offCtl)) * 100).toFixed(0)}% · 저항 ${(med(rows.map((r) => r.onCtl)) * 100).toFixed(0)}%`);
 out.push(`잠금: 저항 없음 ${offL.length} · 저항 ${onL.length}`);

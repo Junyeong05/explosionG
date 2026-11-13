@@ -55,7 +55,7 @@ for (const a of CATS) {
     for (const cb of combos) {
       const [A, B] = cb.split('|');
       if (A === B) continue;
-      const r = run2([A, B], [[A, B]], { mode: 4, drama: true, input: inputFor(a, b) ?? (a === 'hand' || b === 'hand' ? 'tap' : undefined), seed: 12 });
+      const r = run2([A, B], [[A, B]], { mode: 4, drama: true, input: inputFor(a, b) ?? (a === 'hand' || b === 'hand' ? 'tap' : undefined), seed: 12, seconds: 30 });
       const st = r.stat.get(`${A}>${B}`) ?? { fires: 0, matched: 0, drama: 0 };
       const ok = r.keys.includes(`${A}>${B}`);
       runs1++;
@@ -102,7 +102,7 @@ for (let n = 0; n < 200; n++) {
   }
   const order = [...tree].sort((p, q) => q[2] - p[2]);
   const hasHand = pick.some((id) => ARMS[id].cat === 'hand');
-  const r = run2(pick, order.map(([p, c]) => [p, c] as [string, string]), { mode: 4, drama: true, input: hasHand ? 'tap' : undefined, seed: n + 1, seconds: 24 });
+  const r = run2(pick, order.map(([p, c]) => [p, c] as [string, string]), { mode: 4, drama: true, input: hasHand ? 'tap' : undefined, seed: n + 1, seconds: 30 });
   for (const [p, c, d] of tree) {
     const ok = r.keys.includes(`${p}>${c}`);
     const st = r.stat.get(`${p}>${c}`) ?? { fires: 0, matched: 0, drama: 0 };
@@ -116,12 +116,12 @@ for (let n = 0; n < 200; n++) {
 const pct = (a: Agg) => `${Math.round((a.ok / Math.max(1, a.runs)) * 100)}%`;
 const mpct = (a: Agg) => `${Math.round((a.matched / Math.max(1, a.fires)) * 100)}%`;
 const lines: string[] = [];
-lines.push(`1) 210 갈래 짝 × 무기 여럿: ${runs1}판 (갈래마다 모양이 다른 무기 셋까지)`);
+lines.push(`1) 210 갈래 짝 × 무기 여럿: ${runs1}판 (갈래마다 모양이 다른 무기 셋까지, 30초)`);
 for (const [k, a] of byKind) lines.push(`  ${k}: 걸림 ${pct(a)} (${a.ok}/${a.runs}), B 가 나갈 때 노리던 상태의 적을 만난 몫 ${mpct(a)}`);
 lines.push(`  A 갈래별 걸림: ${[...byA].map(([k, a]) => `${L(k as AttackCat)} ${pct(a)}`).join(' · ')}`);
 lines.push(`  B 갈래별 걸림: ${[...byB].map(([k, a]) => `${L(k as AttackCat)} ${pct(a)}`).join(' · ')}`);
 lines.push(`  안 걸린 것 ${fails.length}: ${fails.slice(0, 20).join(', ')}`);
-lines.push(`2) 무작위 구조 200 (무기 셋~다섯, 24초): 합친 짝 ${edges} 중 걸림 ${edgesOk} (${Math.round((edgesOk / edges) * 100)}%)`);
+lines.push(`2) 무작위 구조 200 (무기 셋~다섯, 30초): 합친 짝 ${edges} 중 걸림 ${edgesOk} (${Math.round((edgesOk / edges) * 100)}%)`);
 for (const [k, a] of byShape) lines.push(`  ${k}: 걸림 ${pct(a)} (${a.ok}/${a.runs}), 노린 상태 만남 ${mpct(a)}`);
 for (const [k, a] of [...byDepth].sort()) lines.push(`  ${k}: 걸림 ${pct(a)} (${a.ok}/${a.runs})`);
 console.log(lines.join('\n'));
