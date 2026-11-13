@@ -332,6 +332,18 @@ describe('합성: 갈래 둘을 합치면', () => {
       expect(a).toEqual(b);
     });
 
+    it('제어 저항: 제어 갈래를 다섯 겹쳐도 적이 다가온다 (따로 가진 판의 25% 넘게), 저항이 걸린다', () => {
+      const ws = ['arm_m_poly', 'arm_dog', 'arm_s_guitar', 'arm_sw_mosquito', 'arm_sp_disc'];
+      const fuse: [string, string][] = [['arm_sw_mosquito', 'arm_sp_disc'], ['arm_m_poly', 'arm_sw_mosquito'], ['arm_dog', 'arm_s_guitar'], ['arm_m_poly', 'arm_dog']];
+      const opt = { seconds: 30, hp: 40, seed: 12 };
+      const sep = run2(ws, [], opt);
+      const on = run2(ws, fuse, { ...opt, mode: 4, drama: true });
+      expect(on.resists).toBeGreaterThan(0);
+      expect(on.advance).toBeGreaterThan(sep.advance * 0.25);
+      // 합성 없는 판에는 저항이 없다 (게임 그대로)
+      expect(sep.resists).toBe(0);
+    });
+
     it('같은 씨앗이면 같은 결과', () => {
       const a = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
       const b = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });

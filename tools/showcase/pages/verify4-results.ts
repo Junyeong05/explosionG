@@ -3,22 +3,22 @@ export const VERIFY4 = {
   "runs": 854,
   "kinds": {
     "반응": {
-      "ok": 158,
+      "ok": 157,
       "runs": 164,
-      "matched": 1959,
-      "fires": 3392
+      "matched": 1958,
+      "fires": 3397
     },
     "보통": {
-      "ok": 444,
+      "ok": 443,
       "runs": 451,
-      "matched": 146,
-      "fires": 10840
+      "matched": 143,
+      "fires": 10843
     },
     "무리": {
       "ok": 231,
       "runs": 236,
-      "matched": 6330,
-      "fires": 8023
+      "matched": 6332,
+      "fires": 8047
     },
     "모양": {
       "ok": 3,
@@ -32,7 +32,7 @@ export const VERIFY4 = {
     "gun": 1,
     "turret": 1,
     "summon": 1,
-    "magic": 0.9078947368421053,
+    "magic": 0.881578947368421,
     "trap": 0.972972972972973,
     "air": 1,
     "charge": 1,
@@ -45,8 +45,8 @@ export const VERIFY4 = {
     "spirit": 1
   },
   "byB": {
-    "gun": 0.96,
-    "turret": 1,
+    "gun": 0.94,
+    "turret": 0.972972972972973,
     "summon": 0.98,
     "magic": 1,
     "trap": 0.972972972972973,
@@ -62,6 +62,8 @@ export const VERIFY4 = {
     "hand": 0.9523809523809523
   },
   "fails": [
+    "주문+총 (얼음 폭풍+카빈)",
+    "주문+포격 (얼음 폭풍+대포)",
     "주문+소환수 (얼음 폭풍+군견)",
     "주문+함정 (얼음 폭풍+지뢰밭)",
     "주문+음파 (얼음 폭풍+앰프)",
@@ -82,36 +84,36 @@ export const VERIFY4 = {
     "장판+손공격 (화염탑+번개 손)"
   ],
   "edges": 597,
-  "edgesOk": 556,
+  "edgesOk": 555,
   "shapes": {
     "사슬": {
-      "ok": 138,
+      "ok": 137,
       "runs": 150,
-      "matched": 1153,
-      "fires": 2903
+      "matched": 1149,
+      "fires": 2898
     },
     "한 몸에 여럿": {
       "ok": 149,
       "runs": 149,
-      "matched": 799,
-      "fires": 2838
+      "matched": 801,
+      "fires": 2835
     },
     "2+2": {
       "ok": 132,
       "runs": 150,
-      "matched": 761,
+      "matched": 760,
       "fires": 2307
     },
     "섞인 나무": {
       "ok": 137,
       "runs": 148,
-      "matched": 963,
-      "fires": 2895
+      "matched": 955,
+      "fires": 2882
     }
   },
   "depth": {
     "깊이 1": {
-      "ok": 361,
+      "ok": 360,
       "runs": 388
     },
     "깊이 2": {

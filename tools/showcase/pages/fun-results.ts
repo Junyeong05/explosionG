@@ -230,38 +230,38 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
     "kind": "한 몸에 둘",
     "cats": [
       "magic",
-      "charge",
+      "summon",
       "swarm"
     ],
-    "title": "주문 + [돌격, 떼]",
+    "title": "주문 + [소환수, 떼]",
     "weapons": [
       "arm_m_poly",
-      "arm_c_bikers",
+      "arm_dog",
       "arm_sw_mosquito"
     ],
     "fuse": [
       [
         "arm_m_poly",
-        "arm_c_bikers"
+        "arm_dog"
       ],
       [
         "arm_m_poly",
         "arm_sw_mosquito"
       ]
     ],
-    "ratio": 3.253968253968254,
+    "ratio": 3.1818181818181817,
     "reacts": 15
   },
   {
     "kind": "사슬",
     "cats": [
-      "magic",
+      "trap",
       "summon",
       "field"
     ],
-    "title": "주문 → 소환수 → 장판",
+    "title": "함정 → 소환수 → 장판",
     "weapons": [
-      "arm_m_poly",
+      "arm_tr_mines",
       "arm_dog",
       "arm_f_lava"
     ],
@@ -271,63 +271,37 @@ export const FUN: { kind: string; cats: AttackCat[]; title: string; weapons: str
         "arm_f_lava"
       ],
       [
-        "arm_m_poly",
-        "arm_dog"
-      ]
-    ],
-    "ratio": 2.8260869565217392,
-    "reacts": 26
-  },
-  {
-    "kind": "사슬",
-    "cats": [
-      "trap",
-      "summon",
-      "turret"
-    ],
-    "title": "함정 → 소환수 → 포격",
-    "weapons": [
-      "arm_tr_mines",
-      "arm_dog",
-      "arm_cannon"
-    ],
-    "fuse": [
-      [
-        "arm_dog",
-        "arm_cannon"
-      ],
-      [
         "arm_tr_mines",
         "arm_dog"
       ]
     ],
-    "ratio": 1.9166666666666667,
-    "reacts": 26
+    "ratio": 2.6527777777777777,
+    "reacts": 23
   },
   {
     "kind": "사슬",
     "cats": [
       "magic",
       "trap",
-      "charge"
+      "ray"
     ],
-    "title": "주문 → 함정 → 돌격",
+    "title": "주문 → 함정 → 광선",
     "weapons": [
       "arm_m_poly",
       "arm_tr_mines",
-      "arm_c_bikers"
+      "arm_laser"
     ],
     "fuse": [
       [
         "arm_tr_mines",
-        "arm_c_bikers"
+        "arm_laser"
       ],
       [
         "arm_m_poly",
         "arm_tr_mines"
       ]
     ],
-    "ratio": 2.2982456140350878,
-    "reacts": 21
+    "ratio": 1.88,
+    "reacts": 23
   }
 ];

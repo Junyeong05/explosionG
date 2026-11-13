@@ -3,7 +3,7 @@
  *   npx tsx tools/carry/lock4.ts [--write]
  * 적을 아주 단단하게 (체력 ×40, 14마리 유지, 30초) 해서 잘 안 죽게 하고, 적이 다가오는 빠르기(px/s)와
  * 묶임·얼림·매혹·밀려남으로 보낸 시간 몫을 잰다. 같은 무기를 따로 가진 판과 비교해
- * 다가오는 빠르기가 따로의 35% 아래이거나 제어 몫이 60% 넘으면 "잠금".
+ * 다가오는 빠르기가 따로의 35% 아래면 "잠금" (한 판에서 잠금으로 보이면 다섯 판 평균으로 다시 판정).
  * 제어 저항(BALANCE.chaos.ccMax) 을 끈 판 · 켠 판을 같이 잰다.
  */
 import { writeFileSync } from 'node:fs';
@@ -51,7 +51,24 @@ for (const k of cases) {
   const off = run2(k.weapons, k.fuse, { ...opt, mode: 4, drama: true });
   C.ccMax = ccOn;
   const on = run2(k.weapons, k.fuse, { ...opt, mode: 4, drama: true });
-  rows.push({ title: k.title, sepAdv: sep.advance, offAdv: off.advance, onAdv: on.advance, offCtl: off.ctlShare, onCtl: on.ctlShare, offLock: lock(off.advance, sep.advance, off.ctlShare), onLock: lock(on.advance, sep.advance, on.ctlShare), onLeaks: on.leaks, sepLeaks: sep.leaks });
+  const row: Row = { title: k.title, sepAdv: sep.advance, offAdv: off.advance, onAdv: on.advance, offCtl: off.ctlShare, onCtl: on.ctlShare, offLock: lock(off.advance, sep.advance, off.ctlShare), onLock: lock(on.advance, sep.advance, on.ctlShare), onLeaks: on.leaks, sepLeaks: sep.leaks };
+  // 한 판은 흔들림이 커서, 잠금으로 보이면 다섯 판 평균으로 다시 판정
+  if (row.offLock || row.onLock) {
+    let s2 = 0, f2 = 0, g2 = 0, fc = 0, gc = 0;
+    for (const seed of [12, 31, 7, 44, 90]) {
+      const o2 = { ...opt, seed };
+      s2 += run2(k.weapons, [], o2).advance;
+      C.ccMax = 1e9;
+      const x = run2(k.weapons, k.fuse, { ...o2, mode: 4, drama: true });
+      C.ccMax = ccOn;
+      const y = run2(k.weapons, k.fuse, { ...o2, mode: 4, drama: true });
+      f2 += x.advance; g2 += y.advance; fc += x.ctlShare; gc += y.ctlShare;
+    }
+    Object.assign(row, { sepAdv: s2 / 5, offAdv: f2 / 5, onAdv: g2 / 5, offCtl: fc / 5, onCtl: gc / 5 });
+    row.offLock = lock(row.offAdv, row.sepAdv, row.offCtl);
+    row.onLock = lock(row.onAdv, row.sepAdv, row.onCtl);
+  }
+  rows.push(row);
 }
 
 const n = rows.length;
@@ -63,10 +80,13 @@ out.push(`잠금 검사 ${n} 조합 (210 + 재밌는 ${FUN.length} + 제어 잔�
 out.push(`다가오는 빠르기 가운데값 px/s: 따로 ${med(rows.map((r) => r.sepAdv)).toFixed(1)} · 저항 없음 ${med(rows.map((r) => r.offAdv)).toFixed(1)} · 저항 ${med(rows.map((r) => r.onAdv)).toFixed(1)}`);
 out.push(`제어 몫 가운데값: 저항 없음 ${(med(rows.map((r) => r.offCtl)) * 100).toFixed(0)}% · 저항 ${(med(rows.map((r) => r.onCtl)) * 100).toFixed(0)}%`);
 out.push(`잠금: 저항 없음 ${offL.length} · 저항 ${onL.length}`);
+const slowest = [...rows].sort((a, b) => a.onAdv / Math.max(0.1, a.sepAdv) - b.onAdv / Math.max(0.1, b.sepAdv)).slice(0, 8);
+out.push('저항을 켠 판에서 가장 느리게 다가온 여덟 (따로 대비):');
+for (const r of slowest) out.push(`  ${r.title.padEnd(30)} 따로 ${r.sepAdv.toFixed(1)} → 저항 없음 ${r.offAdv.toFixed(1)} → 저항 ${r.onAdv.toFixed(1)} px/s (${Math.round((r.onAdv / Math.max(0.1, r.sepAdv)) * 100)}%)`);
 for (const r of offL.sort((a, b) => a.offAdv / Math.max(0.1, a.sepAdv) - b.offAdv / Math.max(0.1, b.sepAdv)).slice(0, 15)) out.push(`  ${r.title.padEnd(26)} 다가옴 따로 ${r.sepAdv.toFixed(1)} → 저항 없음 ${r.offAdv.toFixed(1)} (제어 ${(r.offCtl * 100).toFixed(0)}%) → 저항 ${r.onAdv.toFixed(1)} (제어 ${(r.onCtl * 100).toFixed(0)}%)`);
 if (onL.length) out.push(`저항 켜도 남은 잠금: ${onL.map((r) => r.title).join(', ')}`);
 console.log(out.join('\n'));
 void ARMS;
 if (process.argv.includes('--write')) {
-  writeFileSync('tools/showcase/pages/lock4-results.ts', `// npx tsx tools/carry/lock4.ts --write (잠금 검사)\nexport const LOCK4 = ${JSON.stringify({ n, offLocks: offL.length, onLocks: onL.length, sepAdv: med(rows.map((r) => r.sepAdv)), offAdv: med(rows.map((r) => r.offAdv)), onAdv: med(rows.map((r) => r.onAdv)), offCtl: med(rows.map((r) => r.offCtl)), onCtl: med(rows.map((r) => r.onCtl)), worst: offL.slice(0, 10).map((r) => ({ title: r.title, sep: r.sepAdv, off: r.offAdv, on: r.onAdv, offCtl: r.offCtl, onCtl: r.onCtl })), left: onL.map((r) => r.title) }, null, 2)};\n`);
+  writeFileSync('tools/showcase/pages/lock4-results.ts', `// npx tsx tools/carry/lock4.ts --write (잠금 검사)\nexport const LOCK4 = ${JSON.stringify({ n, offLocks: offL.length, onLocks: onL.length, sepAdv: med(rows.map((r) => r.sepAdv)), offAdv: med(rows.map((r) => r.offAdv)), onAdv: med(rows.map((r) => r.onAdv)), offCtl: med(rows.map((r) => r.offCtl)), onCtl: med(rows.map((r) => r.onCtl)), worst: slowest.map((r) => ({ title: r.title, sep: r.sepAdv, off: r.offAdv, on: r.onAdv, offCtl: r.offCtl, onCtl: r.onCtl })), left: onL.map((r) => r.title) }, null, 2)};\n`);
 }

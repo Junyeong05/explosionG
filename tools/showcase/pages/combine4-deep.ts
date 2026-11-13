@@ -33,7 +33,7 @@ export const DEEP4: Deep4[] = [
     tag: '2+2',
     weapons: ['arm_s_guitar', 'arm_f_lava', 'arm_laser', 'arm_sp_disc'],
     fuse: [['arm_laser', 'arm_sp_disc'], ['arm_s_guitar', 'arm_f_lava'], ['arm_s_guitar', 'arm_laser']],
-    desc: '음파가 울리면 고리를 따라 장판이 깔리고, 멈칫한 적(묶임)에 광선이 이어진다. 광선이 이어진 줄을 따라 톱니가 놓인다.',
+    desc: '음파가 울리면 고리를 따라 장판이 깔리고, 멈칫한 적(묶임)에 광선이 이어진다. 광선이 이어진 적이 묶여 있으면 그 둘레를 톱니가 돈다.',
     code: 'sound>[field, ray>spinner]',
   },
   {
