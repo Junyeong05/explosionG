@@ -54,12 +54,12 @@ export const CAT4: Record<AttackCat, Cat4> = {
   summon: { leaves: 'hold', sec: 0.6, seeks: 'hold', shape: 'point', place: false, pre: '사냥', noun: '전향', give: '물어서 붙잡는다 (묶임)', need: '수 · 묶인 적을 돌려세운다 (우리 편)', drama: '전향 무리', dramaText: '둘레의 묶인 적 셋까지 돌아서서 제 무리를 들이받고, 끝나면 그 한가운데서 터진다' },
   magic: { leaves: 'hold', sec: 1, seeks: 'crowd', shape: 'point', place: false, pre: '주문', noun: '주문', give: '걸린 적이 멈칫 (묶임)', need: '때·자리 · 무리에 바로 걸린다', drama: '주문 폭발', dramaText: '무리 전체에 주문이 걸리고 0.6초 뒤 한 번 더 울린다' },
   trap: { leaves: 'hold', sec: 1.2, seeks: 'hold', shape: 'point', place: true, pre: '덫', noun: '덫', give: '밟은 적을 묶는다', need: '적이 와야 함 · 묶인 적 발밑에 바로', drama: '덫 사슬', dramaText: '둘레의 묶인 적 다섯까지 발밑에 덫이 박혀 줄줄이 터진다' },
-  air: { leaves: null, sec: 0, seeks: 'hold', shape: 'point', place: false, pre: '공습', noun: '낙하', give: '위에서 넓게', need: '때 · 멈춘 적이면 예고 없이', drama: '융단 폭격', dramaText: '멈춘 적 위에 바로, 그 줄을 따라 방어선 쪽으로 넷이 연달아 떨어진다' },
-  charge: { leaves: null, sec: 0, seeks: 'hold', shape: 'line', place: false, pre: '돌진', noun: '돌파', give: '지나간 줄', need: '자리 · 묶인 적이 있는 줄을 거슬러 꿰뚫는다', drama: '올가미 돌파', dramaText: '그 줄의 적 여덟이 올가미로 묶여 한 줄로 서고, 돌격이 끝까지 꿰뚫는다' },
+  air: { leaves: null, sec: 0, seeks: 'hold', shape: 'point', place: false, pre: '공습', noun: '낙하', give: '위에서 넓게', need: '때 · 멈춘 적이면 예고 없이', drama: '융단 폭격', dramaText: '멈춘 적 위에 바로, 이어서 둘레의 몰린 곳·묶인 적 넷 위로 줄줄이 떨어진다' },
+  charge: { leaves: null, sec: 0, seeks: 'hold', shape: 'point', place: false, pre: '돌진', noun: '돌파', give: '지나간 줄', need: '자리 · 묶인 적이 있는 줄을 거슬러 꿰뚫는다', drama: '올가미 돌파', dramaText: '그 줄의 적 여덟이 올가미로 묶여 한 줄로 서고, 돌격이 끝까지 꿰뚫는다' },
   sound: { leaves: 'hold', sec: 0.5, seeks: 'crowd', shape: 'ring', place: false, pre: '울림', noun: '파동', give: '고리 · 맞은 적이 멈칫 (묶임)', need: '세기 · 무리 한가운데서 울린다', drama: '날려 보내기', dramaText: '무리를 사방으로 날려 보내고, 날아간 적이 부딪친 적도 다친다' },
   spinner: { leaves: 'mark', sec: 1.5, seeks: 'hold', shape: 'point', place: true, pre: '톱날', noun: '톱니', give: '벤 적에 표식', need: '머묾 · 묶인 적 둘레를 돈다', drama: '톱니 올가미', dramaText: '소용돌이가 둘레를 끌어당기고 날 넷이 그 자리를 돈다' },
   field: { leaves: null, sec: 0, seeks: 'hold', shape: 'point', place: true, pre: '늪', noun: '장판', give: '그 자리에 계속', need: '머묾 · 묶인 적 밑에 깔린다', drama: '번지는 장판', dramaText: '묶인 적 다섯까지 발밑으로 장판이 번지고, 한가운데는 크게' },
-  ray: { leaves: 'mark', sec: 1.5, seeks: 'hold', shape: 'line', place: false, pre: '광선', noun: '광선', give: '이어진 적에 표식 · 줄', need: '끊김 · 묶인 적에 이어 오래 지진다', drama: '갈래 광선', dramaText: '광선이 묶인 적에서 둘레의 묶인·표식 적 다섯까지 갈라져 이어진다' },
+  ray: { leaves: 'mark', sec: 1.5, seeks: 'hold', shape: 'point', place: false, pre: '광선', noun: '광선', give: '이어진 적에 표식 · 줄', need: '끊김 · 묶인 적에 이어 오래 지진다', drama: '갈래 광선', dramaText: '광선이 묶인 적에서 둘레의 묶인·표식 적 다섯까지 갈라져 이어진다' },
   throw: { leaves: 'mark', sec: 1.5, seeks: 'mark', shape: 'point', place: false, pre: '도약', noun: '도약탄', give: '튕겨 맞은 적들에 표식', need: '세기 · 표식된 적 사이를 튕긴다', drama: '표식 사냥', dramaText: '도약탄이 표식 적을 하나도 빠짐없이 돌며 튕긴다' },
   swarm: { leaves: 'weak', sec: 1.5, seeks: 'crowd', shape: 'point', place: true, pre: '떼', noun: '벌레 떼', give: '덮인 적이 약해진다 (약점)', need: '세기 · 무리를 덮는다', drama: '번지는 떼', dramaText: '몰린 곳 셋에 떼가 한꺼번에 퍼진다' },
   spirit: { leaves: 'mark', sec: 1.5, seeks: 'weak', shape: 'point', place: false, pre: '혼', noun: '혼불', give: '혼탄 맞은 적에 표식', need: '때 · 약해진 적을 거둔다', drama: '혼 거두기', dramaText: '약해진 적 여섯까지 혼탄이 바로 꽂히고 혼불이 뜬다' },
@@ -104,7 +104,7 @@ export function kind4(a: AttackCat, b: AttackCat): Kind4 {
   const A = CAT4[a];
   const B = CAT4[b];
   if (A.leaves && A.leaves === B.seeks) return '반응';
-  if (B.place && A.shape !== 'point') return '모양';
+  if (B.place && A.shape === 'ring') return '모양';
   if (B.seeks === 'crowd') return '무리';
   return '보통';
 }

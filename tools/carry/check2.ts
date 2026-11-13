@@ -24,11 +24,14 @@ export interface Run2 {
   leaks: number;
   /** 해낸 짝 (무기 id>무기 id) */
   keys: string[];
+  /** 극적 반응이 터진 수 */
+  reacts: number;
 }
 
 export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
+  let reacts = 0;
   const skip = () => {
     const a = w as unknown as { offerQueue: unknown[]; offer: unknown; phase: string };
     a.offerQueue.length = 0;
@@ -64,7 +67,10 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     skip();
     (w as unknown as { life: number }).life = w.stats.maxLife;
     maxActors = Math.max(maxActors, w.chaos!.actors.length);
-    for (const ev of w.drainEvents()) if (ev.type === 'leak') leaks++;
+    for (const ev of w.drainEvents()) {
+      if (ev.type === 'leak') leaks++;
+      else if (ev.type === 'react') reacts++;
+    }
   }
   let fired = 0;
   const keys: string[] = [];
@@ -72,7 +78,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     fired += n;
     if (n > 0) keys.push(k);
   }
-  return { fired, kills: w.kills, maxActors, leaks, keys };
+  return { fired, kills: w.kills, maxActors, leaks, keys, reacts };
 }
 
 

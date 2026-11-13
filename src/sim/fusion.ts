@@ -1248,7 +1248,7 @@ export class Fusion {
    * A(src) 가 (x, y) 에서 작용했다 (적 e). A 의 피해는 부른 쪽이 원래대로 낸다. 여기서는 상태를 남기고,
    * 에너지가 찬 B 마다 노리는 상태의 적을 친다. shape: A 의 모양 (놓는 B 가 따른다)
    */
-  act4(src: string, x: number, y: number, e: Enemy | null, a: Actor | null, shape?: Shape4): void {
+  act4(src: string, x: number, y: number, e: Enemy | null, _a: Actor | null, shape?: Shape4): void {
     if (this.mode !== 4) return;
     const kids = this.kids.get(src);
     if (!kids || kids.length === 0) return;
@@ -1256,8 +1256,7 @@ export class Fusion {
     if (c.curDepth >= V4.maxDepth) return;
     const A = ARMS[src];
     if (e && !e.dead) this.leave4(A.cat, e);
-    let sh = shape;
-    if (!sh && a && a.kind === 'stamp' && (a.vx || a.vy)) sh = { kind: 'line', x1: a.x - a.vx * 0.35, y1: a.y - a.vy * 0.35, x2: a.x, y2: a.y };
+    const sh = shape;
     for (const b of kids) {
       const key = `${src}>${b}`;
       const E = this.energy4.get(key) ?? 0;
@@ -1297,13 +1296,18 @@ export class Fusion {
         if (out.every((o) => Math.hypot(o.x - q.x, o.y - q.y) > 40)) out.push(q);
       }
     } else out = pool.filter((q) => this.has4(q, seek)).slice(0, k);
-    if (!out.length) out = e && !e.dead ? [e] : pool.slice(0, 1);
+    // 노릴 상태가 없으면 A 가 이미 때리는 적에 몰리지 않고 둘레의 다른 적에게 (없으면 그 적)
+    if (!out.length) {
+      const others = pool.filter((q) => q !== e).slice(0, k);
+      out = others.length ? others : e && !e.dead ? [e] : [];
+    }
     return out;
   }
 
   /** 놓는 B 가 따를 자리: A 의 고리·줄 (없으면 노리는 적 발밑) */
   private spots4(sh: Shape4 | undefined, n: number): Pt[] {
-    if (!sh) return [];
+    // 놓는 B 가 따르는 모양은 고리(음파)만: 줄(돌격·광선)을 따라 놓으면 얇게 흩어져 약했다 (11-13 측정)
+    if (!sh || sh.kind !== 'ring') return [];
     const k = clamp(2 + n, 3, 9);
     const out: Pt[] = [];
     const W = this.c.w.field.width;
@@ -1313,11 +1317,6 @@ export class Fusion {
         const px = sh.cx + Math.cos(ang) * sh.r * 0.95;
         const py = sh.cy + Math.sin(ang) * sh.r * 0.95;
         if (px > 8 && px < W - 8 && py > 20) out.push({ x: px, y: py });
-      }
-    } else {
-      for (let i = 0; i < k; i++) {
-        const t = (i + 0.5) / k;
-        out.push({ x: sh.x1 + (sh.x2 - sh.x1) * t, y: sh.y1 + (sh.y2 - sh.y1) * t });
       }
     }
     return out.filter((q) => q.y < this.c.LINE - 4);
@@ -1413,9 +1412,12 @@ export class Fusion {
         break;
       }
       case 'air':
+        // 공중은 넓게: 한 번에 셋이 둘레로 흩어져 떨어진다
         for (let i = 0; i < cnt; i++) {
           const q = tg(i);
-          this.drop(B, q?.x ?? x, q?.y ?? y, this.has4(q, 'hold') ? 0.05 : 0.3, per * unit * re(q), 0.8);
+          const qx = q?.x ?? x;
+          const qy = q?.y ?? y;
+          for (let j = 0; j < 3; j++) this.drop(B, qx + (j - 1) * 34, qy + (j === 1 ? 0 : 18), (this.has4(q, 'hold') ? 0.05 : 0.3) + j * 0.08, per * unit * re(q) * 0.6, 0.8);
         }
         break;
       case 'charge': {
@@ -1567,7 +1569,7 @@ export class Fusion {
         const cast = (cx: number, cy: number) => {
           const es = this.near(cx, cy, 100, 10);
           this.spellOn(B, es, (Bp.ttl ?? Bp.freeze ?? 2) * 0.8, this.root(A.id));
-          for (const o of es) c.hit(o, this.dmg(B, pow * 0.6), {}, c.w.newChain(1));
+          for (const o of es) c.hit(o, this.dmg(B, pow * 0.35), {}, c.w.newChain(1));
           this.mark(cx, cy, 100, '#c77dff', 0.5);
           this.ring(cx, cy, 100, '#c77dff', 0.6);
         };
@@ -1583,10 +1585,14 @@ export class Fusion {
         break;
       }
       case 'air': {
-        for (let i = 0; i < 5; i++) {
-          const ty = Math.min(c.LINE - 20, q.y + i * 44);
-          this.drop(B, q.x + c.w.rng.range(-10, 10), ty, i === 0 ? 0.02 : 0.1 + i * 0.12, (pow / 5) * 1.6, 0.9);
+        // 융단 폭격: 노린 적에 바로, 이어서 둘레의 몰린 곳·묶인 적 위로 줄줄이 (예고 없이)
+        const spots: Enemy[] = [q];
+        const pool = this.near(q.x, q.y, 170, 30).sort((a2, b2) => (this.has4(b2, 'hold') ? 3 : 1) * this.near(b2.x, b2.y, 50, 8).length - (this.has4(a2, 'hold') ? 3 : 1) * this.near(a2.x, a2.y, 50, 8).length);
+        for (const o of pool) {
+          if (spots.length >= 5) break;
+          if (spots.every((s2) => Math.hypot(s2.x - o.x, s2.y - o.y) > 40)) spots.push(o);
         }
+        spots.forEach((o, i) => this.drop(B, o.x, o.y, 0.02 + i * 0.09, pow * 0.45, 0.9));
         break;
       }
       case 'charge': {
@@ -1609,8 +1615,8 @@ export class Fusion {
       }
       case 'sound': {
         const es = this.near(q.x, q.y, 80, 10);
-        for (const o of es) if (!o.def.boss) this.fling(o, q.x, q.y + 6, 260, this.dmg(B, m * 0.6), 0.5);
-        for (const o of es) c.hit(o, this.dmg(B, pow * 0.5), {}, c.w.newChain(1));
+        for (const o of es) if (!o.def.boss) this.fling(o, q.x, q.y + 6, 260, this.dmg(B, m * 0.3), 0.5);
+        for (const o of es) c.hit(o, this.dmg(B, pow * 0.25), {}, c.w.newChain(1));
         this.ring(q.x, q.y, 80, this.col(B), 0.5);
         this.ring(q.x, q.y, 120, this.col(B), 0.7);
         c.w.emit({ type: 'shake', power: 0.3 });
@@ -1651,7 +1657,7 @@ export class Fusion {
           if (spots.length >= 3) break;
           if (spots.every((s2) => Math.hypot(s2.x - o.x, s2.y - o.y) > 60)) spots.push(o);
         }
-        for (const o of spots.length ? spots : [q]) this.cloud(B, o.x, o.y, 34, 3, pow / 3, o);
+        for (const o of spots.length ? spots : [q]) this.cloud(B, o.x, o.y, 34, 3, pow / 5, o);
         break;
       }
       case 'spirit': {
@@ -1717,6 +1723,8 @@ export class Fusion {
           const B = ARMS[b];
           const t = this.nearest(m.x, m.y - 8, Math.min(V4.reach * 1.6, c.rangeOf(B)));
           if (!t) continue;
+          // 방어선 가까이는 제 빠르기로, 멀리 있는 적에게는 절반만 (나머지는 A 의 순간을 위해: 함정이 밟힐 일이 있게)
+          if (t.y < c.LINE - V2.guardRange && !this.every(`ov4far:${key}`, (2 * cd) / gain)) continue;
           this.energy4.set(key, E - 1);
           const sSrc = c.curSrc;
           const sDepth = c.curDepth;
