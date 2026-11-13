@@ -9,6 +9,7 @@ import { DEEP4 } from './combine4-deep';
 import { DEEP4D_RESULTS } from './combine4d-deep-results';
 import { RESULTS as R4D } from './combine4d-results';
 import { WAVE_NOTE } from './drama-wave';
+import { FUN } from './fun-results';
 
 /**
  * 합성 극적 반응 (v4 + Fusion.drama, src/data/combineV4.ts 의 CAT4.drama · V4D, src/sim/fusion.ts 의 drama4 · rope4).
@@ -78,7 +79,35 @@ const deep: Scene[] = DEEP4.map((d) => {
   return { title: d.title, tag: `${d.tag} · 극적`, weapons: d.weapons, fuse: d.fuse, fuse4: true, drama: true, input: d.input, desc: d.desc, extra: r ? [`네 무기를 따로 가진 판 대비 처치 ×${r[0].toFixed(2)}`] : [], code: `drama ${d.code}` };
 });
 
+/** 재밌을 조합 (tools/carry/fun.ts 가 반응 수 × 처치 비율로 고름): 무엇이 일어나는지 표에서 문장으로 */
+const funDesc = (kind: string, cats: AttackCat[]): string => {
+  const [a, b, c] = cats;
+  const st = (x: AttackCat) => (CAT4[x].leaves ? ST_LABEL[CAT4[x].leaves!] : '');
+  const dr = (x: AttackCat) => `${CAT4[x].drama} (${CAT4[x].dramaText})`;
+  if (kind === '둘') return `${CAT4[a].leaves ? `${josa(L(a), '이', '가')} 맞힌 적에 ${st(a)}을 남기면 ` : `${josa(L(a), '이', '가')} 작용한 둘레 `}${SEEK_PHRASE[CAT4[b].seeks]}에게 ${dr(b)}.`;
+  if (kind === '한 몸에 둘') return `${josa(L(a), '이', '가')} 남긴 ${CAT4[a].leaves ? st(a) : '자리'}에 둘이 함께: ${dr(b)}, 그리고 ${dr(c)}.`;
+  return `${josa(L(a), '이', '가')} ${st(a)}을 남기면 ${CAT4[b].drama}, ${josa(L(b), '이', '가')} 남긴 ${st(b)}에 다시 ${CAT4[c].drama}. 반응이 반응을 부른다 (${CAT4[c].dramaText}).`;
+};
+const fun: Scene[] = FUN.map((f) => ({
+  title: f.title,
+  tag: `${f.kind} · ${f.cats.slice(1).map((x) => CAT4[x].drama).join(' → ')}`,
+  weapons: f.weapons,
+  fuse: f.fuse,
+  fuse4: true,
+  drama: true,
+  input: (f.input as Scene['input']) ?? undefined,
+  desc: funDesc(f.kind, f.cats),
+  extra: [`극적 반응 ${f.reacts}번 (18초 두 판) · 따로 가진 판 대비 처치 ×${f.ratio.toFixed(2)}`],
+  code: `fun ${f.cats.join(f.kind === '사슬' ? '>' : f.kind === '한 몸에 둘' ? '+' : '>')}`,
+}));
+
 const sections: Section[] = [
+  {
+    id: 'fun',
+    title: '재밌는 조합',
+    lead: '둘 · 한 몸에 둘 · 사슬(A→B→C) 을 다 돌려 보고, 극적 반응이 자주 터지면서 따로 가진 것보다 센 것을 골랐다 (점수 = 반응 수 × 처치 비율, 같은 몸·같은 짝은 겹치지 않게). 설명은 갈래 표에서 나온다.',
+    scenes: fun,
+  },
   {
     id: 'rule',
     title: '극적 반응',
