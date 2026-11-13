@@ -32,15 +32,18 @@ export interface Run2 {
   advance: number;
   /** 저항이 걸린 수 */
   resists: number;
+  /** v5 공명이 터진 수 */
+  resonances: number;
   /** 짝마다 B 가 나간 수 · 노리던 상태의 적을 만난 수 */
-  stat: Map<string, { fires: number; matched: number; drama: number }>;
+  stat: Map<string, { fires: number; matched: number; drama: number; over?: number; boost?: number }>;
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; hp?: number; level?: number } = {}): Run2 {
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; v5?: boolean; hp?: number; level?: number } = {}): Run2 {
   const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
   let leaks = 0;
   let reacts = 0;
   let resists = 0;
+  let resonances = 0;
   let alive = 0;
   let ctl = 0;
   let adv = 0;
@@ -57,7 +60,8 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
   for (const id of weapons) for (let i = 0; i < (opt.level ?? 3); i++) w.augments.acquire(id, w);
   for (const [a, b] of fuse) if (!(opt.mode === 4 ? w.chaos!.fuse4(a, b) : opt.mode === 3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
   if (opt.ceil) w.chaos!.fusion.ceil = true;
-  if (opt.drama) w.chaos!.fusion.drama = true;
+  if (opt.drama || opt.v5) w.chaos!.fusion.drama = true;
+  if (opt.v5) w.chaos!.fusion.v5 = true;
   const drv = opt.input ? new InputDriver(opt.input) : null;
   let spawnT = 0;
   let maxActors = 0;
@@ -82,7 +86,10 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     maxActors = Math.max(maxActors, w.chaos!.actors.length);
     for (const ev of w.drainEvents()) {
       if (ev.type === 'leak') leaks++;
-      else if (ev.type === 'react') reacts++;
+      else if (ev.type === 'react') {
+        if (ev.text.endsWith('공명!')) resonances++;
+        else reacts++;
+      }
       else if (ev.type === 'resist') resists++;
     }
     for (const e of w.enemies) {
@@ -100,7 +107,7 @@ export function run2(weapons: string[], fuse: [string, string][], opt: { seconds
     fired += n;
     if (n > 0) keys.push(k);
   }
-  return { fired, kills: w.kills, maxActors, leaks, keys, reacts, resists, ctlShare: ctl / Math.max(1e-6, alive), advance: adv / Math.max(1e-6, alive), stat: w.chaos!.fusion.stat4 };
+  return { fired, kills: w.kills, maxActors, leaks, keys, reacts, resists, resonances, ctlShare: ctl / Math.max(1e-6, alive), advance: adv / Math.max(1e-6, alive), stat: w.chaos!.fusion.stat4 };
 }
 
 

@@ -54,6 +54,8 @@ interface Pop {
   text: string;
   /** 극적 반응: 크게, 테두리, 살짝 튀어오름 */
   big?: boolean;
+  /** 합성 v5 공명: 더 크게, 오래 */
+  huge?: boolean;
   color: string;
   t: number;
 }
@@ -62,6 +64,9 @@ interface Pop {
  * 도파민 모드 그리기: 난입 물체(이모지), 설치물, 곱하기 게이트, 피버 테두리, 황금 쿠키, 잭팟, 큰 글씨.
  * sim 상태(w.chaos)를 읽기만 한다.
  */
+/** v5 테두리 빛을 안 그리는 것 (안 보이는 표시용) */
+const HALO_SKIP: ReadonlySet<string> = new Set(['open', 'post', 'czone', 'tether', 'mark', 'fzone', 'ring']);
+
 export class ChaosDraw {
   private readonly emoji = new EmojiCache();
   private banners: Banner[] = [];
@@ -125,7 +130,7 @@ export class ChaosDraw {
         this.pop(e.x, e.y - 16, '저항', '#cfd8dc');
         break;
       case 'react':
-        this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: e.color, t: 0, big: true });
+        this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: e.color, t: 0, big: true, huge: e.text.endsWith('공명!') });
         if (this.pops.length > 16) this.pops.shift();
         break;
       case 'augment': {
@@ -165,7 +170,7 @@ export class ChaosDraw {
     for (const b of this.banners) b.t += dt;
     this.banners = this.banners.filter((b) => b.t < 1.6);
     for (const p of this.pops) p.t += dt;
-    this.pops = this.pops.filter((p) => p.t < 0.8);
+    this.pops = this.pops.filter((p) => p.t < (p.huge ? 1.6 : 0.8));
     for (const f of this.flashes) f.t += dt;
     this.flashes = this.flashes.filter((f) => f.t < 0.06);
     for (const c of this.casings) {
@@ -267,6 +272,32 @@ export class ChaosDraw {
           ctx.stroke();
         });
         this.icon(spec.emoji, m.x, m.y + bob, 19);
+      }
+      // 합성 v5 공명: 반응이 쌓이는 게이지 (안에 든 무기 색), 공명 중엔 번쩍이며 남은 시간
+      if (c.fusion.v5 && c.fusion.has(id) && !c.fusion.isKid(id)) {
+        const kid = c.fusion.kids.get(id)?.[0];
+        const col = kid ? CATEGORY_COLOR[ARMS[kid].cat] : '#ffffff';
+        const on = c.fusion.resonating(id);
+        const lv = c.fusion.resLevel(id);
+        if (on) {
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = 0.55 + 0.25 * Math.sin(this.time * 16);
+          ctx.drawImage(this.glow.get(col), m.x - 30, m.y - 30, 60, 60);
+          ctx.globalAlpha = 1;
+          ctx.globalCompositeOperation = 'source-over';
+        }
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 18, 0, TAU);
+        ctx.strokeStyle = rgba(col, 0.18);
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        if (lv > 0) {
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, 18, -Math.PI / 2, -Math.PI / 2 + TAU * lv);
+          ctx.strokeStyle = on ? '#ffffff' : rgba(col, 0.95);
+          ctx.lineWidth = on ? 3.5 : 2.5;
+          ctx.stroke();
+        }
       }
       this.pips(m.x, m.y + 12, L);
     }
@@ -400,6 +431,25 @@ export class ChaosDraw {
     const c = w.chaos;
     if (!c) return;
     const ctx = this.ctx;
+    // 합성 v5 한 몸: 합친 무기가 낸 것은 안에 든 무기의 갈래 색으로 빛난다 (공명 중엔 더 크게)
+    if (c.fusion.v5 && c.fusion.kids.size > 0) {
+      const halo = new Map<string, { col: string; res: boolean }>();
+      for (const [r, ks] of c.fusion.kids) {
+        if (c.fusion.isKid(r) || ks.length === 0) continue;
+        halo.set(r, { col: CATEGORY_COLOR[ARMS[ks[0]].cat], res: c.fusion.resonating(r) });
+      }
+      ctx.globalCompositeOperation = 'lighter';
+      for (const a of c.actors) {
+        if (a.t < 0 || HALO_SKIP.has(a.kind)) continue;
+        const h = halo.get(a.src);
+        if (!h) continue;
+        const s = h.res ? 40 + 6 * Math.sin(this.time * 14 + a.id) : 26;
+        ctx.globalAlpha = h.res ? 0.6 : 0.35;
+        ctx.drawImage(this.glow.get(h.col), a.x - s / 2, a.y - s / 2, s, s);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
     for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
     // 주문: 변이된 적은 보라 덩어리, 매혹된 적은 분홍 테두리 + 위 화살
     for (const e of w.enemies) {
@@ -476,18 +526,22 @@ export class ChaosDraw {
     ctx.globalAlpha = 1;
     this.drawSelected(w);
     for (const p of this.pops) {
-      const k = p.t / 0.8;
-      ctx.globalAlpha = 1 - k;
+      const k = p.t / (p.huge ? 1.6 : 0.8);
+      // 공명은 오래 또렷하게 (끝 30% 에서만 사라진다)
+      ctx.globalAlpha = p.huge ? Math.min(1, (1 - k) / 0.3) : 1 - k;
       ctx.textAlign = 'center';
       if (p.big) {
-        // 극적 반응 이름: 처음에 크게 튀었다가 올라가며 사라진다
+        // 극적 반응 이름: 처음에 크게 튀었다가 올라가며 사라진다. 글자가 화면 밖으로 잘리지 않게 안으로 당긴다
         const sc = k < 0.15 ? 1 + (0.15 - k) * 4 : 1;
-        ctx.font = `900 ${Math.round(17 * sc)}px ${FONT}`;
-        ctx.lineWidth = 4;
+        ctx.font = `900 ${Math.round((p.huge ? 22 : 17) * sc)}px ${FONT}`;
+        const half = ctx.measureText(p.text).width / 2 + 6;
+        const x = half * 2 >= FW ? FW / 2 : clamp(p.x, half, FW - half);
+        const y = p.y - k * (p.huge ? 14 : 22);
+        ctx.lineWidth = p.huge ? 5 : 4;
         ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-        ctx.strokeText(p.text, p.x, p.y - k * 22);
+        ctx.strokeText(p.text, x, y);
         ctx.fillStyle = p.color;
-        ctx.fillText(p.text, p.x, p.y - k * 22);
+        ctx.fillText(p.text, x, y);
         continue;
       }
       ctx.font = `900 13px ${FONT}`;

@@ -70,6 +70,8 @@ export interface Enemy {
   /** 제어 저항 (합성 v4): 묶임·얼림·매혹·밀려남이 이어진 시간, 다 차면 ccImmune 동안 안 묶인다 */
   cc: number;
   ccImmune: number;
+  /** 합성 판에서 위로 밀려 올라간 거리 (BALANCE.chaos.liftCap 까지, 초당 liftDecay 씩 빠짐) */
+  lift: number;
   burn: number;
   color: number;
   inflate: number;

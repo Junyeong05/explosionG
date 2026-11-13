@@ -19,6 +19,9 @@ const CATS = ATTACK_CATEGORIES as readonly AttackCat[];
 const L = (c: AttackCat) => CATEGORY_LABEL[c];
 const C = BALANCE.chaos as unknown as { ccMax: number };
 const ccOn = C.ccMax;
+/** --v5: 합성 v5 (한 몸 · 무기 성질 · 공명) 로 잰다 */
+const V5ON = process.argv.includes('--v5');
+const FX = V5ON ? { v5: true } : { drama: true };
 
 interface Case { title: string; weapons: string[]; fuse: [string, string][]; input?: ReturnType<typeof inputFor>; level?: number }
 const cases: Case[] = [];
@@ -48,9 +51,9 @@ for (const k of cases) {
   const opt = { seconds: 30, hp: 40, input: k.input ?? undefined, seed: 12, level: k.level ?? 3 };
   const sep = run2(k.weapons, [], opt);
   C.ccMax = 1e9;
-  const off = run2(k.weapons, k.fuse, { ...opt, mode: 4, drama: true });
+  const off = run2(k.weapons, k.fuse, { ...opt, mode: 4, ...FX });
   C.ccMax = ccOn;
-  const on = run2(k.weapons, k.fuse, { ...opt, mode: 4, drama: true });
+  const on = run2(k.weapons, k.fuse, { ...opt, mode: 4, ...FX });
   const row: Row = { title: k.title, sepAdv: sep.advance, offAdv: off.advance, onAdv: on.advance, offCtl: off.ctlShare, onCtl: on.ctlShare, offLock: lock(off.advance, sep.advance, off.ctlShare), onLock: lock(on.advance, sep.advance, on.ctlShare), onLeaks: on.leaks, sepLeaks: sep.leaks };
   // 한 판은 흔들림이 커서, 잠금으로 보이면 다섯 판 평균으로 다시 판정
   if (row.offLock || row.onLock) {
@@ -59,9 +62,9 @@ for (const k of cases) {
       const o2 = { ...opt, seed };
       s2 += run2(k.weapons, [], o2).advance;
       C.ccMax = 1e9;
-      const x = run2(k.weapons, k.fuse, { ...o2, mode: 4, drama: true });
+      const x = run2(k.weapons, k.fuse, { ...o2, mode: 4, ...FX });
       C.ccMax = ccOn;
-      const y = run2(k.weapons, k.fuse, { ...o2, mode: 4, drama: true });
+      const y = run2(k.weapons, k.fuse, { ...o2, mode: 4, ...FX });
       f2 += x.advance; g2 += y.advance; fc += x.ctlShare; gc += y.ctlShare;
     }
     Object.assign(row, { sepAdv: s2 / 5, offAdv: f2 / 5, onAdv: g2 / 5, offCtl: fc / 5, onCtl: gc / 5 });
@@ -88,5 +91,5 @@ if (onL.length) out.push(`저항 켜도 남은 잠금: ${onL.map((r) => r.title)
 console.log(out.join('\n'));
 void ARMS;
 if (process.argv.includes('--write')) {
-  writeFileSync('tools/showcase/pages/lock4-results.ts', `// npx tsx tools/carry/lock4.ts --write (잠금 검사)\nexport const LOCK4 = ${JSON.stringify({ n, offLocks: offL.length, onLocks: onL.length, sepAdv: med(rows.map((r) => r.sepAdv)), offAdv: med(rows.map((r) => r.offAdv)), onAdv: med(rows.map((r) => r.onAdv)), offCtl: med(rows.map((r) => r.offCtl)), onCtl: med(rows.map((r) => r.onCtl)), worst: slowest.map((r) => ({ title: r.title, sep: r.sepAdv, off: r.offAdv, on: r.onAdv, offCtl: r.offCtl, onCtl: r.onCtl })), left: onL.map((r) => r.title) }, null, 2)};\n`);
+  writeFileSync(V5ON ? 'tools/showcase/pages/lock5-results.ts' : 'tools/showcase/pages/lock4-results.ts', `// npx tsx tools/carry/lock4.ts --write${V5ON ? ' --v5' : ''} (잠금 검사)\nexport const ${V5ON ? 'LOCK5' : 'LOCK4'} = ${JSON.stringify({ n, offLocks: offL.length, onLocks: onL.length, sepAdv: med(rows.map((r) => r.sepAdv)), offAdv: med(rows.map((r) => r.offAdv)), onAdv: med(rows.map((r) => r.onAdv)), offCtl: med(rows.map((r) => r.offCtl)), onCtl: med(rows.map((r) => r.onCtl)), worst: slowest.map((r) => ({ title: r.title, sep: r.sepAdv, off: r.offAdv, on: r.onAdv, offCtl: r.offCtl, onCtl: r.onCtl })), left: onL.map((r) => r.title) }, null, 2)};\n`);
 }

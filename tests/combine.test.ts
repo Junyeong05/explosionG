@@ -5,7 +5,7 @@ import { CARRY, LINK, PAYLOAD, linkRules } from '../src/data/links';
 import { HELPER, inputFor, rulesV2, samplesV2 } from '../src/data/combineV2';
 import { BECOME, DELIVERY, rulesV3 } from '../src/data/combineV3';
 import { CEIL, CEIL_KEYS } from '../src/data/combineCeil';
-import { CAT4, rulesV4 } from '../src/data/combineV4';
+import { CAT4, TRAITS, V5, fuseName, reactName, rulesV4, traitOf } from '../src/data/combineV4';
 import { DEEP4 } from '../tools/showcase/pages/combine4-deep';
 import { FUSION_RULES } from '../src/sim/fusion';
 import { run2 } from '../tools/carry/check2';
@@ -347,6 +347,65 @@ describe('합성: 갈래 둘을 합치면', () => {
     it('같은 씨앗이면 같은 결과', () => {
       const a = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
       const b = run2(['arm_dog', 'arm_cannon'], [['arm_dog', 'arm_cannon']], { seed: 9, mode: 4 });
+      expect(a).toEqual(b);
+    });
+  });
+
+  describe('v5 (한 몸 · 무기 이름 · 무기 성질 · 공명)', () => {
+    const attack = Object.values(ARMS).filter((w) => (ATTACK_CATEGORIES as readonly string[]).includes(w.cat) && !w.fusion);
+
+    it('모든 공격 무기에 성질이 있고, 무기 수치에 있는 성질이 먼저 (자폭 병사는 폭발)', () => {
+      for (const w of attack) expect(TRAITS).toContain(traitOf(w.id));
+      for (const w of attack) if (w.p.freeze && !w.p.ignite) expect(['freeze', 'chain', 'knock', 'pierce', 'homing', 'bounce', 'pull', 'boom']).toContain(traitOf(w.id));
+      const bomber = attack.find((w) => w.name === '자폭 병사');
+      if (bomber) expect(traitOf(bomber.id)).toBe('boom');
+    });
+
+    it('이름은 두 무기 이름에서: 같은 갈래 짝이라도 무기가 다르면 이름이 다르다', () => {
+      const traps = attack.filter((w) => w.cat === 'trap').slice(0, 4);
+      const summons = attack.filter((w) => w.cat === 'summon').slice(0, 4);
+      const names = new Set<string>();
+      for (const a of traps) for (const b of summons) names.add(fuseName(a.id, b.id));
+      expect(names.size).toBe(traps.length * summons.length);
+      expect(fuseName('arm_tr_mines', 'arm_dog')).toBe('군견 지뢰밭');
+      expect(reactName('arm_cannon')).toContain(CAT4.turret.drama);
+    });
+
+    it('한 몸: B 가 따로 나간 몫이 v4 보다 적고, 210 이 예외 없이 돈다', () => {
+      let over4 = 0, over5 = 0, f4 = 0, f5 = 0;
+      for (const r of rulesV2()) {
+        const [A, B] = samplesV2(r.from, r.to);
+        const input = inputFor(r.from, r.to);
+        const x = run2([A, B], [[A, B]], { input, seed: 12, mode: 4, drama: true, seconds: 8 });
+        const y = run2([A, B], [[A, B]], { input, seed: 12, mode: 4, v5: true, seconds: 8 });
+        for (const s of x.stat.values()) { f4 += s.fires; over4 += s.over ?? 0; }
+        for (const s of y.stat.values()) { f5 += s.fires; over5 += s.over ?? 0; }
+        expect(y.maxActors).toBeLessThanOrEqual(BALANCE.chaos.maxActors);
+      }
+      expect(over5 / Math.max(1, f5)).toBeLessThan((over4 / Math.max(1, f4)) * 0.5);
+    }, 60000);
+
+    it('공명: 반응이 쌓이면 터지고 (이름 + 공명!), 쉬는 동안엔 다시 안 쌓인다', () => {
+      const r = run2(['arm_laser', 'arm_g_carbine'], [['arm_laser', 'arm_g_carbine']], { seed: 12, mode: 4, v5: true, seconds: 30 });
+      expect(r.resonances).toBeGreaterThan(0);
+      // 공명 5초 + 쉼 6초 → 30초에 많아야 세 번
+      expect(r.resonances).toBeLessThanOrEqual(Math.ceil(30 / (V5.resSec + V5.resRest)) + 1);
+    });
+
+    it('잠금 막기: 제어 갈래를 다섯 겹쳐 공명이 터져도 적이 다가온다 (따로 가진 판의 35% 넘게)', () => {
+      const ws = ['arm_c_bikers', 'arm_tr_mines', 'arm_sp_disc', 'arm_dog', 'arm_sw_mosquito'];
+      const fuse: [string, string][] = [['arm_dog', 'arm_sw_mosquito'], ['arm_c_bikers', 'arm_dog'], ['arm_tr_mines', 'arm_sp_disc'], ['arm_c_bikers', 'arm_tr_mines']];
+      let sep = 0, on = 0;
+      for (const seed of [12, 31, 7]) {
+        sep += run2(ws, [], { seconds: 30, hp: 40, seed }).advance;
+        on += run2(ws, fuse, { seconds: 30, hp: 40, seed, mode: 4, v5: true }).advance;
+      }
+      expect(on).toBeGreaterThan(sep * 0.35);
+    }, 60000);
+
+    it('같은 씨앗이면 같은 결과', () => {
+      const a = run2(['arm_tr_mines', 'arm_dog'], [['arm_tr_mines', 'arm_dog']], { seed: 9, mode: 4, v5: true });
+      const b = run2(['arm_tr_mines', 'arm_dog'], [['arm_tr_mines', 'arm_dog']], { seed: 9, mode: 4, v5: true });
       expect(a).toEqual(b);
     });
   });

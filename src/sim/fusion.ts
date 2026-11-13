@@ -2,7 +2,7 @@ import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../dat
 import { V2, rulesV2 } from '../data/combineV2';
 import { V3, keepOf, rulesV3 } from '../data/combineV3';
 import { CEIL } from '../data/combineCeil';
-import { CAT4, ST_COLOR, V4, V4D, rulesV4, type St } from '../data/combineV4';
+import { CAT4, ST_COLOR, V4, V4D, V5, fuseName, reactName, rulesV4, traitOf, type St } from '../data/combineV4';
 
 /** 짝 이름 (갈래 A>B → 이름) */
 const NAME = new Map(rulesV2().map((r) => [r.key, r.name] as const));
@@ -129,6 +129,22 @@ export class Fusion {
   ceil = false;
   /** v4 극적 반응 (combineV4.ts V4D): 노리던 상태를 만나면 B 갈래의 극적 반응 */
   drama = false;
+  /** v5 (combineV4.ts V5): 한 몸 (넘침 대신 A 가 더 자주) · 무기 이름 · B 무기 성질 · 공명 */
+  v5 = false;
+  /** 합친 무기(뿌리)마다 쌓인 극적 반응 수 · 공명 끝나는 때 */
+  private res = new Map<string, number>();
+  private resUntil = new Map<string, number>();
+  /** 공명 중인가 (id 의 뿌리 기준) */
+  resonating(id: string): boolean {
+    return this.v5 && (this.resUntil.get(this.root(id)) ?? -1) > this.now();
+  }
+  /** 공명까지 얼마나 찼나 (0~1, 공명 중이면 남은 시간 비율) */
+  resLevel(id: string): number {
+    const r = this.root(id);
+    const u = this.resUntil.get(r) ?? -1;
+    if (u > this.now()) return (u - this.now()) / V5.resSec;
+    return Math.min(1, (this.res.get(r) ?? 0) / V5.resMax);
+  }
 
   /** v3 융합으로 b 를 a 안에 합친다 (한 판에 v2 와 섞지 않는다) */
   fuse3(a: string, b: string): boolean {
@@ -242,7 +258,7 @@ export class Fusion {
     const k = `${a}>${b}`;
     this.announced.add(k);
     const m = this.mount(a);
-    const name = (this.mode === 4 ? NAME4 : NAME3).get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`) ?? '';
+    const name = this.v5 ? fuseName(a, b) : (this.mode === 4 ? NAME4 : NAME3).get(`${ARMS[a]?.cat}>${ARMS[b]?.cat}`) ?? '';
     this.c.w.emit({ type: 'fusion', name, a, b, x: m.x, y: m.y - 40 });
   }
 
@@ -254,7 +270,7 @@ export class Fusion {
     const [a, b] = k.split('>');
     const ck = `${ARMS[a]?.cat}>${ARMS[b]?.cat}`;
     const ce = this.mode === 3 && this.ceil ? CEIL[ck as keyof typeof CEIL] : undefined;
-    const name = ce ? ce.name : (this.mode === 4 ? NAME4 : this.mode === 3 ? NAME3 : NAME).get(ck);
+    const name = this.v5 ? fuseName(a, b) : ce ? ce.name : (this.mode === 4 ? NAME4 : this.mode === 3 ? NAME3 : NAME).get(ck);
     if (name) this.c.w.emit({ type: 'fusion', name, a, b, x: this.where?.x ?? this.c.w.field.width / 2, y: this.where?.y ?? 200 });
   }
 
@@ -1205,7 +1221,7 @@ export class Fusion {
 
   private st4 = new Map<number, { hold: number; mark: number; weak: number }>();
   /** 검증용: 짝(무기 id>무기 id)마다 B 가 나간 수 · 노리던 상태의 적을 만난 수 · 극적 반응 수 */
-  readonly stat4 = new Map<string, { fires: number; matched: number; drama: number; over?: number }>();
+  readonly stat4 = new Map<string, { fires: number; matched: number; drama: number; over?: number; boost?: number }>();
   private energy4 = new Map<string, number>();
 
   /** 적이 그 상태인가 (실제 멈춤·약화도 센다) */
@@ -1270,12 +1286,16 @@ export class Fusion {
     const A = ARMS[src];
     if (e && !e.dead) this.leave4(A.cat, e);
     const sh = shape;
+    const resOn = this.resonating(src);
     for (const b of kids) {
       const key = `${src}>${b}`;
       const E = this.energy4.get(key) ?? 0;
-      if (E < 1) continue;
-      const n = Math.floor(E);
-      this.energy4.set(key, E - n);
+      let n: number;
+      if (E >= 1) {
+        n = Math.floor(E);
+        this.energy4.set(key, E - n);
+      } else if (resOn && this.every(`res:${key}`, V5.resGap)) n = 1;
+      else continue;
       const B = ARMS[b];
       const sSrc = c.curSrc;
       const sDepth = c.curDepth;
@@ -1351,22 +1371,31 @@ export class Fusion {
     // 인과가 보이게: A 의 자리에서 B 가 노린 적으로 짧은 선, 반응이면 노린 상태 색 고리
     if (t0 && Math.hypot(t0.x - x, t0.y - y) > 18) this.tether(x, y, t0.x, t0.y, 0.25, CATEGORY_COLOR[A.cat as keyof typeof CATEGORY_COLOR] ?? '#ffffff', 0, null, t0, 1);
     for (const q of ts) if (re(q) > 1) this.ring(q.x, q.y, 18, ST_COLOR[P.seeks], 0.45);
+    // v5 공명 중엔 맞히는 족족 극적 반응 (노리던 상태가 아니어도)
+    const resOn = this.v5 && this.resonating(A.id);
     {
       const sk = `${A.id}>${B.id}`;
       const st = this.stat4.get(sk) ?? { fires: 0, matched: 0, drama: 0 };
       st.fires++;
-      if (t0 && re(t0) > 1) {
-        st.matched++;
-        if (this.drama) st.drama++;
-      }
+      if (t0 && re(t0) > 1) st.matched++;
+      if (this.drama && t0 && (re(t0) > 1 || resOn)) st.drama++;
       this.stat4.set(sk, st);
     }
     const tg = (i: number) => ts[i % Math.max(1, ts.length)] ?? null;
     // 극적 반응: 노리던 상태의 적을 만나면 B 갈래의 큰 한 방 (갈래마다 하나, 모든 짝에 같다)
-    if (this.drama && t0 && re(t0) > 1) {
-      if (this.every(`pop4:${A.id}>${B.id}`, V4D.popSec)) c.w.emit({ type: 'react', text: `${P.drama}!`, color: ST_COLOR[P.seeks], x: t0.x, y: t0.y });
+    if (this.drama && t0 && (re(t0) > 1 || resOn)) {
+      if (this.every(`pop4:${A.id}>${B.id}`, V4D.popSec)) c.w.emit({ type: 'react', text: `${this.v5 ? reactName(B.id) : P.drama}!`, color: ST_COLOR[P.seeks], x: t0.x, y: t0.y });
       this.drama4(A, B, x, y, t0, shots, unit * V4D.react);
+      if (this.v5) {
+        this.trait5(B, x, y, t0, unit * V4D.react * Math.max(1, shots));
+        this.charge5(A, B, 1);
+      }
       return;
+    }
+    // v5: 반응이 아니어도 B 무기의 성질은 실린다 (작게) · 공명 게이지는 ⅓ 씩
+    if (this.v5) {
+      if (t0 && this.every(`tr5:${A.id}>${B.id}`, V5.traitGap)) this.trait5(B, x, y, t0, unit * Math.max(1, shots) * V5.traitMul);
+      this.charge5(A, B, V5.plainCharge);
     }
     switch (B.cat) {
       case 'hand': {
@@ -1489,7 +1518,8 @@ export class Fusion {
         else
           for (let i = 0; i < cnt; i++) {
             const q = tg(i);
-            this.zoneAt(B, q?.x ?? x, q?.y ?? y, 34, 2.5 + 0.5 * per, per * unit * re(q));
+            // 장판 무기 제 크기·시간을 따른다 (11-13: 고정 34 면 용암(44)보다 작아 장판 B 짝 다섯이 따로보다 약했다)
+            this.zoneAt(B, q?.x ?? x, q?.y ?? y, Math.max(34, (Bp.radius ?? 34) * 0.9), Math.max(2.5 + 0.5 * per, Bp.ttl ?? 0), per * unit * re(q));
           }
         break;
       }
@@ -1514,6 +1544,114 @@ export class Fusion {
         if (this.countMini(B.id, 'drone') < 3) this.orb(B, t0?.x ?? x, t0?.y ?? y, 4 + Math.min(n, 4), unit * shots * re(t0));
         break;
     }
+  }
+
+  /** 방어선 가까이(V2.guardRange)에 살아 있는 적이 있나 */
+  private nearLine4(): boolean {
+    const c = this.c;
+    for (const e of c.w.enemies) if (!e.dead && e.y > c.LINE - V2.guardRange) return true;
+    return false;
+  }
+
+  /** v5 무기 성질: 극적 반응에 B 무기의 성질이 실린다 (같은 갈래라도 무기마다 다르다) */
+  private trait5(B: WeaponSpec, x: number, y: number, q: Enemy, m: number): void {
+    const t = traitOf(B.id);
+    if (!t) return;
+    const c = this.c;
+    const Bp = this.p(B);
+    const near = this.near(q.x, q.y, 60, 6);
+    switch (t) {
+      case 'freeze':
+        for (const o of near) if (!o.def.boss && o.ccImmune <= 0) o.frozen = Math.max(o.frozen, (Bp.freeze ?? 1) * 0.7);
+        this.ring(q.x, q.y, 60, '#9fe8ff', 0.4);
+        break;
+      case 'ignite':
+        for (const o of near) c.hit(o, this.dmg(B, m * 0.15), { ignite: true }, c.w.newChain(1));
+        this.ring(q.x, q.y, 60, '#ff8a3c', 0.4);
+        break;
+      case 'chain':
+        if (!q.dead) c.chainZap(q, Math.max(3, Bp.chain ?? 3), this.dmg(B, m * 0.4));
+        break;
+      case 'knock':
+        for (const o of near) if (o !== q) c.push(o, q.x, q.y, (Bp.knock ?? 40) * 1.2);
+        this.ring(q.x, q.y, 60, '#ffd36b', 0.4);
+        break;
+      case 'pierce': {
+        // 노린 적 뒤로 꿰뚫고 나간다 (A 의 자리에서 그 적 쪽으로 이어서 140)
+        const ang = Math.atan2(q.y - y, q.x - x);
+        const ex = q.x + Math.cos(ang) * 140;
+        const ey = q.y + Math.sin(ang) * 140;
+        for (const o of this.onSegment(q.x, q.y, ex, ey, 18)) if (o !== q) c.hit(o, this.dmg(B, m * 0.5), Bp, c.w.newChain(1));
+        this.tether(q.x, q.y, ex, ey, 0.2, B.p.color ?? '#ffffff', 0, null, null, 2);
+        break;
+      }
+      case 'homing': {
+        const o = this.near(q.x, q.y, 180, 6).find((r) => r !== q);
+        if (o) {
+          c.hit(o, this.dmg(B, m * 0.6), Bp, c.w.newChain(1));
+          this.tether(q.x, q.y, o.x, o.y, 0.25, B.p.color ?? '#ffffff', 0, q, o, 2);
+        }
+        break;
+      }
+      case 'boom':
+        c.boom(q.x, q.y, (Bp.boom ?? 40) * 0.8 * c.areaMul, this.dmg(B, m * 0.5), Bp);
+        break;
+      case 'multi':
+        for (const o of near.slice(0, 3)) c.hit(o, this.dmg(B, m * 0.25), Bp, c.w.newChain(1));
+        break;
+      case 'bounce': {
+        // 맞고 튕겨 가까운 적 둘을 차례로
+        let from: Enemy = q;
+        const seen = new Set<number>([q.id]);
+        for (let i = 0; i < 2; i++) {
+          const o = this.near(from.x, from.y, 130, 6).find((r) => !seen.has(r.id));
+          if (!o) break;
+          seen.add(o.id);
+          c.hit(o, this.dmg(B, m * 0.35), Bp, c.w.newChain(1));
+          this.tether(from.x, from.y, o.x, o.y, 0.2, B.p.color ?? '#ffffff', 0, null, null, 2);
+          from = o;
+        }
+        break;
+      }
+      case 'pull':
+        // 둘레 적을 그 적 쪽으로 (위로 밀어 올리지 않는다: 가둬 두는 잠금이 안 생기게)
+        for (const o of this.near(q.x, q.y, 90, 8)) if (o !== q && !o.def.boss) c.push(o, 2 * o.x - q.x, 2 * o.y - q.y, 26);
+        this.ring(q.x, q.y, 90, '#b48cff', 0.35);
+        break;
+      case 'wide':
+        for (const o of this.near(q.x, q.y, 90, 10)) c.hit(o, this.dmg(B, m * 0.2), Bp, c.w.newChain(1));
+        this.ring(q.x, q.y, 90, B.p.color ?? '#ffffff', 0.4);
+        break;
+      case 'rapid':
+        for (let i = 0; i < 2; i++) if (!q.dead) c.hit(q, this.dmg(B, m * 0.25), Bp, c.w.newChain(1));
+        this.ring(q.x, q.y, 14, B.p.color ?? '#ffffff', 0.25);
+        this.ring(q.x, q.y, 22, B.p.color ?? '#ffffff', 0.3);
+        break;
+      case 'heavy':
+        if (!q.dead) c.hit(q, this.dmg(B, m * 0.7), Bp, c.w.newChain(1));
+        this.ring(q.x, q.y, 34, '#ffffff', 0.35);
+        c.w.emit({ type: 'shake', power: 0.15 });
+        break;
+    }
+  }
+
+  /** v5 공명: 합친 무기(뿌리)마다 극적 반응이 쌓이면, 잠깐 빨라지고 맞히는 족족 반응 */
+  private charge5(A: WeaponSpec, B: WeaponSpec, amount: number): void {
+    const r = this.root(A.id);
+    // 공명 중 · 끝나고 쉬는 동안은 안 쌓인다
+    if ((this.resUntil.get(r) ?? -99) + V5.resRest > this.now()) return;
+    const n = (this.res.get(r) ?? 0) + amount;
+    if (n < V5.resMax) {
+      this.res.set(r, n);
+      return;
+    }
+    this.res.set(r, 0);
+    this.resUntil.set(r, this.now() + V5.resSec);
+    const m = this.mount(r);
+    const kid = this.kids.get(r)?.[0] ?? B.id;
+    this.c.w.emit({ type: 'react', text: `${fuseName(r, kid)} 공명!`, color: CATEGORY_COLOR[ARMS[kid]?.cat ?? 'gun'], x: m.x, y: m.y - 60 });
+    this.c.w.emit({ type: 'shake', power: 0.4 });
+    this.ring(m.x, m.y, 40, CATEGORY_COLOR[ARMS[kid]?.cat ?? 'gun'], 0.6);
   }
 
   /** 올가미 줄: 그 적과 뒤로 줄지어 오던 적(같은 세로 줄, 다섯까지)을 묶어 한 줄로 */
@@ -1640,7 +1778,8 @@ export class Fusion {
       }
       case 'sound': {
         const es = this.near(q.x, q.y, 80, 10);
-        for (const o of es) if (!o.def.boss) this.fling(o, q.x, q.y + 6, 260, this.dmg(B, m * 0.3), 0.5);
+        // 그 적 자리에서 사방으로 (위로만 날리면 공명 때 0.3초마다 터져 적이 못 다가왔다: 11-13 v5 잠금 검사)
+        for (const o of es) if (!o.def.boss) this.fling(o, q.x, q.y, 260, this.dmg(B, m * 0.3), 0.5);
         for (const o of es) c.hit(o, this.dmg(B, pow * 0.25), {}, c.w.newChain(1));
         this.ring(q.x, q.y, 80, this.col(B), 0.5);
         this.ring(q.x, q.y, 120, this.col(B), 0.7);
@@ -1741,6 +1880,21 @@ export class Fusion {
         const gain = this.drama ? V4D.gain : V4.gain;
         const E = Math.min(cap, (this.energy4.get(key) ?? 0) + (dt * gain) / cd);
         this.energy4.set(key, E);
+        // v5 한 몸: 가득 찼으면 B 를 따로 쏘지 않고 합친 무기(뿌리)를 더 빨리 돌린다 → A 의 순간이 늘어 B 가 거기서 나간다
+        // 방어선 가까이 적이 있으면 아래 넘침대로 B 가 지킨다 (11-13 측정: 그것까지 없애면 놓침 204 → 279)
+        if (this.v5 && E >= cap && ARMS[this.root(a)]?.cat !== 'hand' && !this.nearLine4()) {
+          if (this.every(`ov5:${key}`, cd / gain)) {
+            const r = this.root(a);
+            const left = c.cooldowns.get(r);
+            if (left !== undefined && left > 0.05) {
+              c.cooldowns.set(r, 0.05);
+              const st = this.stat4.get(`${a}>${b}`) ?? { fires: 0, matched: 0, drama: 0 };
+              st.boost = (st.boost ?? 0) + 1;
+              this.stat4.set(`${a}>${b}`, st);
+            }
+          }
+          continue;
+        }
         // 넘침: A 가 오래 쉬어 가득 찼으면 B 는 제 자리에서 한 번 (힘을 버리지 않는다. 방어선 가까이를 지킨다)
         if (E >= cap && this.every(`ov4:${key}`, cd / gain)) {
           // 합친 무기 자리에서 (안에 든 무기의 자리는 보이지 않는다)
@@ -2190,8 +2344,14 @@ export class Fusion {
       b.src = a.src;
     }
   }
+  /** 적마다 마지막으로 날린 때 */
+  private flungAt = new Map<number, number>();
   fling(e: Enemy, fromX: number, fromY: number, force: number, dmg: number, sec = 0.5): void {
     if (e.dead || e.def.boss) return;
+    // 한 번 날린 적은 2.5초 동안 다시 날리지 않는다 (공명 때 같은 적을 0.3초마다 거듭 날려 못 다가오게 했다: 11-13 v5 잠금 검사)
+    const t = this.now();
+    if ((this.flungAt.get(e.id) ?? -9) + 2.5 > t) return;
+    this.flungAt.set(e.id, t);
     this.c.push(e, fromX, fromY, force);
     this.flung.push({ e, until: this.now() + sec, dmg, hit: new Set([e.id]) });
   }

@@ -8,7 +8,7 @@ import { CARRY, LINK } from '../data/links';
 import { V2 } from '../data/combineV2';
 import { Fusion, TAG_BURSTB, TAG_HOP, TAG_HOPTOSS, TAG_ORBIT, TAG_RAMP, TAG_RICO } from './fusion';
 import { V3, keepOf } from '../data/combineV3';
-import { fuseId, kind4, parseFuse } from '../data/combineV4';
+import { V5, fuseId, kind4, parseFuse } from '../data/combineV4';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
 import type { Enemy, OfferKind } from './types';
@@ -239,6 +239,8 @@ export class Chaos {
     if ((this.cloned.get(id) ?? -1) > t) cd *= 0.5;
     if (this.hasteUntil > t && spec.cat !== 'magic') cd *= 0.6;
     if (this.fusion?.has(id) && this.fusion.mode !== 4) cd *= V2.bonusCd;
+    // 합성 v5 공명: 합친 무기가 잠깐 빨라진다
+    if (this.fusion?.resonating(id)) cd *= V5.resCd;
     return cd;
   }
 
@@ -743,7 +745,8 @@ export class Chaos {
    * (B 가 이미 합친 무기면 통째로 들어간다: 2+2). A 는 무엇이든 (안에 든 무기에 또 합치면 사슬). 고리는 안 된다
    */
   fuseCandidates(limit = 60): [string, string][] {
-    const need = this.w.config.fusionLab ? 1 : 3;
+    // 보통 판은 2레벨부터 (11-13: 3레벨이면 2분 반 동안 합성 카드가 한 번도 안 나왔다)
+    const need = this.w.config.fusionLab ? 1 : 2;
     const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need);
     // 무기가 많으면 짝이 수만이라 (무기 342개면 11만 짝), 섞어서 앞에서 limit 짝까지만 본다 (고를 땐 한두 장이면 된다)
     const rng = this.w.rng;
@@ -786,6 +789,7 @@ export class Chaos {
     const p = parseFuse(id);
     if (!p || !this.fuse4(p[0], p[1])) return false;
     this.fusion.drama = true;
+    this.fusion.v5 = true;
     this.fusion.announce(p[0], p[1]);
     return true;
   }
@@ -2249,7 +2253,7 @@ export class Chaos {
           const d = Math.hypot(dx, dy) || 1;
           const pull = Math.min(d, 160 * dt);
           e.x += (dx / d) * pull - (dy / d) * 60 * dt;
-          e.y += (dy / d) * pull + (dx / d) * 60 * dt;
+          e.y += w.liftMove(e, (dy / d) * pull + (dx / d) * 60 * dt);
           e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
@@ -2260,10 +2264,11 @@ export class Chaos {
       }
       case 'bubble': {
         for (const e of a.grabbed!) {
-          if (e.dead) continue;
+          // 저항 중인 적은 거품에 안 잡혀 있다 (합성 판 잠금 막기)
+          if (e.dead || e.ccImmune > 0) continue;
           e.held = Math.max(e.held, 0.1);
           e.pack = null;
-          e.y -= 30 * dt;
+          e.y += w.liftMove(e, -30 * dt);
         }
         if (a.t + dt >= a.ttl) {
           const chainId = w.newChain(1);
@@ -2334,7 +2339,7 @@ export class Chaos {
           if (!wide && Math.abs(e.x - a.x) > half + e.radius) continue;
           a.hits!.add(e.id);
           if (a.p?.knock) {
-            e.ky -= a.p.knock;
+            e.ky -= a.p.knock * this.w.knockScale(e, a.p.knock);
             e.pack = null;
           }
           this.hit(e, a.dmg, a.p ?? {}, w.newChain(1));
@@ -2492,8 +2497,8 @@ export class Chaos {
             }
           }
           for (const e of a.grabbed!) {
-            if (e.dead) continue;
-            e.y -= 80 * dt;
+            if (e.dead || e.ccImmune > 0) continue;
+            e.y += w.liftMove(e, -80 * dt);
             e.x += (a.x - e.x) * Math.min(1, dt * 3);
             e.held = Math.max(e.held, 0.2);
           }
@@ -2518,7 +2523,7 @@ export class Chaos {
           const dy = a.y - e.y;
           const d = Math.hypot(dx, dy) || 1;
           e.x += ((dx / d) * 90 - (dy / d) * 120) * dt;
-          e.y += ((dy / d) * 90 + (dx / d) * 120) * dt;
+          e.y += w.liftMove(e, ((dy / d) * 90 + (dx / d) * 120) * dt);
           e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
@@ -2615,7 +2620,7 @@ export class Chaos {
         const dy = a.y - e.y;
         const d = Math.hypot(dx, dy) || 1;
         e.x += (dx / d) * 100 * dt;
-        e.y += (dy / d) * 100 * dt;
+        e.y += w.liftMove(e, (dy / d) * 100 * dt);
       }
       if (a.t + dt >= a.ttl) this.boom(a.x, a.y, (p.boom ?? 60) * this.areaMul, a.dmg, p);
       return true;
@@ -2846,6 +2851,8 @@ export class Chaos {
 
   push(e: Enemy, fromX: number, fromY: number, force: number): void {
     if (e.def.boss || e.pileCol >= 0 || e.ccImmune > 0) return;
+    // 합성 판: 저항 게이지가 찰수록 덜 밀린다 (World.knockScale)
+    force *= this.w.knockScale(e, force);
     let dx = e.x - fromX;
     let dy = e.y - fromY;
     const d = Math.hypot(dx, dy);

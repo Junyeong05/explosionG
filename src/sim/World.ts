@@ -198,6 +198,35 @@ export class World implements SimApi {
     else if (this.victoryPending) this.end('victory');
   }
 
+  /** 위로 가는 움직임(dy<0)을 한도까지만 (합성 판만). 아래로는 그대로 */
+  liftMove(e: Enemy, dy: number): number {
+    const f = this.chaos?.fusion;
+    return f && f.mode === 4 && f.active ? this.lifted(e, dy) : dy;
+  }
+  private lifted(e: Enemy, dy: number): number {
+    if (dy >= 0) return dy;
+    const room = Math.max(0, BALANCE.chaos.liftCap - e.lift);
+    const up = Math.min(-dy, room);
+    e.lift += up;
+    if (up < -dy) e.ky = Math.max(0, e.ky);
+    return -up;
+  }
+
+  /**
+   * 넉백 세기 (합성 판의 제어 저항): 저항 중이면 0, 저항 게이지가 찰수록 약하게. 밀린 세기만큼 게이지에 쌓인다.
+   * 11-13 v5 잠금 검사: 저항이 시간만 막아서 1.5초 안에 크게 날려 보내면 2초 저항 동안 내려온 것보다 더 올라갔다.
+   * 모든 넉백(밀침·폭발 넉백·쓸기)이 이걸 거친다.
+   */
+  knockScale(e: Enemy, force: number): number {
+    const f = this.chaos?.fusion;
+    if (!f || f.mode !== 4 || !f.active) return 1;
+    if (e.ccImmune > 0) return 0;
+    const ccMax = BALANCE.chaos.ccMax;
+    const k = Math.max(0.25, 1 - e.cc / ccMax);
+    e.cc += Math.min(0.6, (Math.abs(force) * k) / 250);
+    return k;
+  }
+
   drainEvents(): SimEvent[] {
     const out = this.events;
     this.events = [];
@@ -658,11 +687,16 @@ export class World implements SimApi {
       }
       // 제어 저항 (합성 v4): 계속 묶이거나 밀려나면 잠깐 안 묶인다. 조합으로 적이 아예 못 다가오게 되는 것을 막는다
       if (ccResist) {
+        if (e.lift > 0) e.lift = Math.max(0, e.lift - BALANCE.chaos.liftDecay * dt);
         const C2 = BALANCE.chaos;
         if (e.ccImmune > 0) {
           e.ccImmune -= dt;
+          // 저항이 끝나도 게이지는 반쯤 남는다 (곧바로 다시 크게 날려 보내 잠그지 못하게, 11-13 v5 잠금 검사)
+          if (e.ccImmune <= 0) e.cc = BALANCE.chaos.ccMax * 0.5;
           e.held = 0;
           e.frozen = 0;
+          // 매혹도 풀린다 (11-13 v5 잠금 검사: 돌려세운 적이 저항 중에도 거슬러 올라가 잠금 21)
+          e.charm = 0;
         } else {
           const stop = e.held > 0 || e.frozen > 0 || e.charm > 0 || Math.abs(e.kx) + Math.abs(e.ky) > 40;
           const slowed = e.poly > 0 || e.infest > 0;
@@ -672,6 +706,7 @@ export class World implements SimApi {
             e.ccImmune = C2.ccImmune;
             e.held = 0;
             e.frozen = 0;
+            e.charm = 0;
             e.kx = e.ky = 0;
             this.emit({ type: 'resist', x: e.x, y: e.y });
           }
@@ -690,12 +725,12 @@ export class World implements SimApi {
         const slow = e.ccImmune > 0 ? 1 : (e.infest > 0 ? C.infestSlow : 1) * (e.poly > 0 ? C.polySlow : 1);
         const dir = e.charm > 0 ? -1 : 1;
         e.x += e.dx * e.speed * slow * dt + wind * dt;
-        e.y += e.dy * e.speed * slow * dt * dir;
+        e.y += ccResist ? this.lifted(e, e.dy * e.speed * slow * dt * dir) : e.dy * e.speed * slow * dt * dir;
       }
       // 밀어내기: 받은 속도로 날아가다 점점 멈춘다
       if (e.kx !== 0 || e.ky !== 0) {
         e.x += e.kx * dt;
-        e.y += e.ky * dt;
+        e.y += ccResist ? this.lifted(e, e.ky * dt) : e.ky * dt;
         e.kx *= damp;
         e.ky *= damp;
         if (Math.abs(e.kx) + Math.abs(e.ky) < 2) e.kx = e.ky = 0;
@@ -1141,6 +1176,7 @@ export class World implements SimApi {
       charm: 0,
       cc: 0,
       ccImmune: 0,
+      lift: 0,
       burn: 0,
       color: -1,
       inflate: 0,

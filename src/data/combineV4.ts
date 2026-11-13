@@ -182,10 +182,123 @@ export function fuseCard(id: string): { name: string; tag: string; sub: string; 
       : cb.seeks === 'crowd'
         ? `${josa(A.name, '이', '가')} 작용할 때 둘레의 몰린 적에게`
         : `${josa(A.name, '이', '가')} 작용할 때 둘레의 ${SEEK_WORD[cb.seeks]}이 있으면`;
+  const t = traitOf(p[1]);
   return {
-    name: `${ca.pre} ${cb.noun}`,
-    tag: `합성 · ${k === '반응' ? '반응' : k === '무리' ? '몰린 적' : k === '모양' ? '고리' : '보통'}`,
+    name: fuseName(p[0], p[1]),
+    tag: `합성 · ${reactName(p[1])}`,
     sub: `${A.emoji ?? ''}${A.name} + ${B.emoji ?? ''}${B.name}`,
-    desc: `${josa(B.name, '을', '를')} ${A.name} 안에 합친다 (${josa(B.name, '은', '는')} 따로 안 쏘고 ${A.name}의 순간에 나간다). ${how} ${cb.drama}: ${cb.dramaText}.`,
+    desc: `${josa(B.name, '이', '가')} ${A.name} 안으로 들어가 한 무기가 된다 (따로 쏘지 않는다). ${how} ${cb.drama}: ${cb.dramaText}.${t ? ` ${B.name}의 ${TRAIT_WORD[t]}: ${TRAIT_TEXT[t]}.` : ''} 반응이 ${V5.resMax}번 쌓이면 공명: ${V5.resSec}초 동안 빨라지고 맞히는 족족 반응.`,
   };
+}
+
+// ─── v5 (11-13 유저: "두 무기가 동시에 발사되는 느낌이지 않은지, 굳이 합쳐야 할 필요성, 새 무기를 얻은 느낌,
+//     종류가 엄청 많으니 매번 새로운 경험이 되게 — 갈래 안에서도 무기가 5·6개씩") ──────────────────────
+// 한 몸: B 는 따로 쏘지 않는다 (넘침 → A 가 더 자주). 새 이름: 무기 이름으로. 무기 개성: B 무기의 성질이 반응에 실린다.
+// 공명: 반응이 쌓이면 합친 무기가 잠깐 새 기술 (A 가 빨라지고 맞히는 족족 B 의 극적 반응). 모두 갈래·무기 데이터에서 나온다.
+
+export const V5 = {
+  /** 공명까지 쌓을 극적 반응 수 (반응이 아닌 B 는 plainCharge 만큼) */
+  resMax: 10,
+  /** 반응이 아닌 B 한 번이 공명 게이지에 채우는 몫 (보통 짝도 공명은 온다) */
+  plainCharge: 1 / 3,
+  /** 반응이 아니어도 B 무기의 성질이 실리는 최소 간격 (초) · 세기 배율 */
+  traitGap: 0.4,
+  traitMul: 0.5,
+  /** 공명 시간 (초) */
+  resSec: 5,
+  /** 공명이 끝난 뒤 게이지가 다시 차기 시작할 때까지 (초). 깊게 겹친 조합에서 공명이 쉬지 않고 이어져 적이 못 다가왔다 (11-13 잠금 검사) */
+  resRest: 6,
+  /** 공명 동안 A 쿨다운 배율 */
+  resCd: 0.5,
+  /** 공명 동안 같은 B 가 나가는 최소 간격 (초) */
+  resGap: 0.3,
+} as const;
+
+/** 무기 성질 (반응에 실리고 반응 이름 뒤에 붙는다). 앞쪽이 먼저 (같은 드묾이면) */
+export type Trait = 'freeze' | 'ignite' | 'chain' | 'knock' | 'pierce' | 'homing' | 'bounce' | 'pull' | 'boom' | 'multi' | 'wide' | 'rapid' | 'heavy';
+export const TRAITS: readonly Trait[] = ['freeze', 'ignite', 'chain', 'knock', 'pierce', 'homing', 'bounce', 'pull', 'boom', 'multi', 'wide', 'rapid', 'heavy'];
+export const TRAIT_WORD: Record<Trait, string> = {
+  freeze: '얼음', ignite: '화염', chain: '사슬', knock: '충격', pierce: '관통', homing: '추적', bounce: '튕김', pull: '끌림',
+  boom: '폭발', multi: '난사', wide: '광역', rapid: '연타', heavy: '강타',
+};
+/** 성질이 하는 일 (카드·도감 설명) */
+export const TRAIT_TEXT: Record<Trait, string> = {
+  freeze: '둘레가 얼어붙는다', ignite: '둘레에 불이 붙는다', chain: '번개가 옆 적으로 건너뛴다', knock: '둘레를 밀쳐 낸다',
+  pierce: '그 적 뒤로 꿰뚫고 나간다', homing: '한 발이 다른 적을 쫓아간다', bounce: '맞고 튕겨 두 적을 더 친다', pull: '둘레 적을 한가운데로 끌어온다',
+  boom: '그 자리가 터진다', multi: '둘레 셋에 흩뿌린다', wide: '넓게 한 번 더 휩쓴다', rapid: '같은 적을 두 번 더 때린다', heavy: '한 방이 무겁게 내려친다',
+};
+
+const median = (a: number[]) => (a.length ? [...a].sort((p, q) => p - q)[Math.floor(a.length / 2)] : 0);
+/** 무기가 가질 수 있는 성질들 (수치에서) */
+function traitCands(id: string, mid: { cd: number; radius: number; dmg: number }): Trait[] {
+  const A = ARMS[id];
+  const p = A.p;
+  const out: Trait[] = [];
+  if (p.freeze) out.push('freeze');
+  if (p.ignite) out.push('ignite');
+  if (p.chain) out.push('chain');
+  if (p.knock) out.push('knock');
+  if (p.pierce) out.push('pierce');
+  if (p.homing) out.push('homing');
+  if (p.bounce) out.push('bounce');
+  if (p.pullOrb || A.kind === 'pullAt' || A.kind === 'tapPull') out.push('pull');
+  if (p.boom) out.push('boom');
+  if ((p.count ?? 1) >= 3 || (p.burst ?? 1) >= 3) out.push('multi');
+  if (mid.radius > 0 && (p.radius ?? 0) >= mid.radius * 1.25) out.push('wide');
+  if (A.cd <= mid.cd * 0.75) out.push('rapid');
+  if (A.cd >= mid.cd * 1.35 || (mid.dmg > 0 && (p.dmg ?? 0) >= mid.dmg * 1.5)) out.push('heavy');
+  if (out.length === 0) out.push(A.cd < mid.cd ? 'rapid' : 'heavy');
+  return out;
+}
+/** 수치에서 견준 성질 (무기 고유 성질이 없을 때만) */
+const DERIVED: ReadonlySet<Trait> = new Set<Trait>(['multi', 'wide', 'rapid', 'heavy']);
+let TRAIT_CACHE: Map<string, Trait> | null = null;
+/** 무기 성질: 그 무기가 가질 수 있는 성질 가운데 같은 갈래에서 가장 드문 것 (갈래 안 무기끼리 되도록 다르게) */
+export function traitOf(id: string): Trait | null {
+  if (!TRAIT_CACHE) {
+    TRAIT_CACHE = new Map();
+    const by = new Map<string, string[]>();
+    for (const a of Object.values(ARMS)) {
+      if (a.cat === 'passive') continue;
+      const l = by.get(a.cat) ?? [];
+      l.push(a.id);
+      by.set(a.cat, l);
+    }
+    for (const ids of by.values()) {
+      const mid = {
+        cd: median(ids.map((i) => ARMS[i].cd)),
+        radius: median(ids.map((i) => ARMS[i].p.radius ?? 0).filter((v) => v > 0)),
+        dmg: median(ids.map((i) => ARMS[i].p.dmg ?? 0).filter((v) => v > 0)),
+      };
+      const cands = new Map(ids.map((i) => [i, traitCands(i, mid)] as const));
+      const freq = new Map<Trait, number>();
+      for (const l of cands.values()) for (const t of l) freq.set(t, (freq.get(t) ?? 0) + 1);
+      for (const [i, l] of cands) {
+        // 무기 수치에 바로 있는 성질(얼음·폭발…)이 먼저 (자폭 병사는 폭발이다), 없으면 난사·광역·연타·강타 가운데
+        const own = l.filter((t) => !DERIVED.has(t));
+        const pool = own.length ? own : l;
+        const best = [...pool].sort((x, y) => (freq.get(x) ?? 0) - (freq.get(y) ?? 0) || TRAITS.indexOf(x) - TRAITS.indexOf(y))[0];
+        TRAIT_CACHE.set(i, best);
+      }
+    }
+  }
+  return TRAIT_CACHE.get(id) ?? null;
+}
+
+/** 합친 무기의 새 이름: B 무기 이름의 앞말 + A 무기 이름 (무기 짝마다 다르다). 예: 군견 + 지뢰밭 → "군견 지뢰밭" */
+export function fuseName(a: string, b: string): string {
+  const A = ARMS[a];
+  const B = ARMS[b];
+  if (!A || !B) return '';
+  const head = B.name.split(' ')[0];
+  return A.name.startsWith(head) ? `${B.name} ${A.name}` : `${head} ${A.name}`;
+}
+
+/** 반응 이름 (갈래의 극적 반응 + B 무기 성질) */
+export function reactName(b: string): string {
+  const B = ARMS[b];
+  if (!B) return '';
+  const t = traitOf(b);
+  const d = CAT4[B.cat as AttackCat]?.drama ?? '';
+  return t ? `${d} · ${TRAIT_WORD[t]}` : d;
 }

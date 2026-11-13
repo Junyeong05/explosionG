@@ -47,6 +47,8 @@ export interface Scene {
   drama?: boolean;
   /** 천장 후보를 켠다 (src/data/combineCeil.ts) */
   ceil?: boolean;
+  /** 합성 v5 (한 몸 · 무기 이름 · 무기 성질 · 공명). drama 도 같이 켠다 */
+  v5?: boolean;
   /** 손 입력을 이 모양으로 자동으로 누른다 (taps 대신) */
   input?: InputPattern;
 }
@@ -136,7 +138,8 @@ class Stage {
     for (const [a, b] of this.scene.attach ?? []) if (!w.chaos!.attach(a, b)) throw new Error(`못 합침: ${a} > ${b}`);
     for (const [a, b] of this.scene.fuse ?? []) if (!(this.scene.fuse4 ? w.chaos!.fuse4(a, b) : this.scene.fuse3 ? w.chaos!.fuse3(a, b) : w.chaos!.fuse(a, b))) throw new Error(`못 합침: ${a} > ${b}`);
     if (this.scene.ceil) w.chaos!.fusion.ceil = true;
-    if (this.scene.drama) w.chaos!.fusion.drama = true;
+    if (this.scene.drama || this.scene.v5) w.chaos!.fusion.drama = true;
+    if (this.scene.v5) w.chaos!.fusion.v5 = true;
     this.drv = this.scene.input ? new InputDriver(this.scene.input) : null;
     this.w = w;
     this.r.reset();

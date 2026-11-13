@@ -307,8 +307,9 @@ export class Experiments {
         dx /= d;
         dy /= d;
       }
-      e.kx += dx * knock;
-      e.ky += dy * knock;
+      const ks = this.w.knockScale(e, knock);
+      e.kx += dx * knock * ks;
+      e.ky += dy * knock * ks;
       e.pack = null;
     }
     if (this.r.inflate && !e.def.boss && e.inflate < E.inflate.max && e.pileCol < 0) {
