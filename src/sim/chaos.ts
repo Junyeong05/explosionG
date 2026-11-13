@@ -245,7 +245,7 @@ export class Chaos {
   /** 사거리: 총·포탑만 (소환수·마법은 화면 전체, 플레이 피드백) */
   rangeOf(spec: WeaponSpec): number {
     if (!hasRange(spec.cat)) return this.LINE - 50;
-    return (this.eff(spec).p.range ?? DEFAULT_RANGE) * (1 + 0.12 * this.lv('arm_range')) * this.fusion.rangeMul(spec.id);
+    return (this.eff(spec).p.range ?? DEFAULT_RANGE) * BALANCE.chaos.rangeMul * (1 + 0.12 * this.lv('arm_range')) * this.fusion.rangeMul(spec.id);
   }
 
   /** 가진 무기 (카테고리별) */

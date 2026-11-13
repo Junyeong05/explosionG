@@ -1413,6 +1413,8 @@ export class Fusion {
               c.boom(q.x, q.y, 50 * c.areaMul, this.dmg(B, per * unit * 2));
               if (!q.dead) c.hit(q, q.hp + 1, {}, c.w.newChain(1));
             });
+            // 돌려세울 때도 짐승 하나는 나온다 (B 에 합쳐 둔 것이 짐승의 순간에 이어지게: 사슬이 끊기지 않게)
+            if (i === 0) this.unit(B, x, y, 6, per * unit, null);
           } else this.unit(B, x, y, 6, per * unit * re(q), q);
         }
         break;
