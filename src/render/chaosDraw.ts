@@ -4,6 +4,7 @@ import { TAU, clamp } from '../core/math';
 import { CAST_SEC, SOUL_BURST, TAG_MINI, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
 import { TAG_ALLY } from '../sim/fusion';
 import { glyphFor, paintGlyph } from './glyphs';
+import { fuseName, reactName } from '../data/combineV4';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
 import type { GlowCache } from './fx/effects';
@@ -450,7 +451,22 @@ export class ChaosDraw {
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
     }
-    for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
+    // 무기를 눌러 고른 동안: 그 무기(합친 무기면 안에 든 무기까지)가 낸 것만 밝게, 나머지는 어둡게 (어느 무기가 무슨 공격인지)
+    const team = this.selectedTeam(w);
+    if (team) {
+      for (const a of c.actors) if (a.t >= 0 && !team.has(a.src)) this.actor(a, ctx);
+      ctx.fillStyle = 'rgba(5, 6, 12, 0.72)';
+      ctx.fillRect(0, 0, FW, LINE_Y);
+      ctx.globalCompositeOperation = 'lighter';
+      for (const a of c.actors) {
+        if (a.t < 0 || !team.has(a.src) || HALO_SKIP.has(a.kind)) continue;
+        ctx.globalAlpha = 0.45;
+        ctx.drawImage(this.glow.get(CATEGORY_COLOR[ARMS[a.src]?.cat ?? 'gun']), a.x - 16, a.y - 16, 32, 32);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      for (const a of c.actors) if (a.t >= 0 && team.has(a.src)) this.actor(a, ctx);
+    } else for (const a of c.actors) if (a.t >= 0) this.actor(a, ctx);
     // 주문: 변이된 적은 보라 덩어리, 매혹된 적은 분홍 테두리 + 위 화살
     for (const e of w.enemies) {
       if (e.dead) continue;
@@ -552,6 +568,21 @@ export class ChaosDraw {
   }
 
   /** 눌러서 고른 무기: 사거리 원(총·포탑) 또는 "화면 전체", 그리고 이름·레벨·다음 레벨 효과 */
+  /** 눌러 고른 무기와 그 안에 든 무기들 (고른 게 없으면 null) */
+  private selectedTeam(w: World): Set<string> | null {
+    const c = w.chaos!;
+    const sel = c.selected;
+    if (!sel || sel.until <= w.time) return null;
+    const root = c.rootOf(sel.id);
+    const out = new Set<string>();
+    const add = (id: string) => {
+      out.add(id);
+      for (const k of c.fusion.kids.get(id) ?? []) add(k);
+    };
+    add(root);
+    return out;
+  }
+
   private drawSelected(w: World): void {
     const c = w.chaos!;
     const sel = c.selected;
@@ -587,18 +618,33 @@ export class ChaosDraw {
       ranged ? `사거리 ${Math.round(range)} · 쿨다운 ${c.cooldownOf(sel.id).toFixed(2)}초` : `사거리 없음 (화면 전체) · 쿨다운 ${c.cooldownOf(sel.id).toFixed(1)}초`,
       next ? `다음 레벨: ${next}` : '최대 레벨',
     ];
+    // 합친 무기: 합친 이름 · 안에 든 무기 · 반응 (색이 밝은 것이 이 무기가 낸 공격)
+    const kids = c.fusion.kids.get(sel.id) ?? [];
+    if (kids.length > 0) {
+      const all: string[] = [];
+      const walk = (id: string) => {
+        for (const k of c.fusion.kids.get(id) ?? []) {
+          all.push(k);
+          walk(k);
+        }
+      };
+      walk(sel.id);
+      lines.splice(0, 1, `${spec.emoji} ${fuseName(sel.id, kids[0])}  (합성)`, `${spec.name} Lv ${L}  +  ${all.map((k) => `${ARMS[k].emoji}${ARMS[k].name} Lv ${w.augments.stacks(k)}`).join('  +  ')}`);
+      lines.push(`반응: ${all.map((k) => reactName(k)).join(' / ')}`);
+    }
     ctx.font = `800 11px ${FONT}, ${EMOJI_FONT}`;
     const wBox = Math.max(...lines.map((t) => ctx.measureText(t).width)) + 16;
     const bx = clamp(m.x - wBox / 2, 4, FW - wBox - 4);
-    const by = m.y - 78;
+    const hBox = 6 + lines.length * 16;
+    const by = m.y - 24 - hBox;
     ctx.fillStyle = 'rgba(10, 12, 20, 0.92)';
-    ctx.fillRect(bx, by, wBox, 54);
+    ctx.fillRect(bx, by, wBox, hBox);
     ctx.strokeStyle = rgba(COLORS.charge, 0.6);
     ctx.lineWidth = 1;
-    ctx.strokeRect(bx, by, wBox, 54);
+    ctx.strokeRect(bx, by, wBox, hBox);
     ctx.textAlign = 'left';
     lines.forEach((t, i) => {
-      ctx.fillStyle = i === 0 ? COLORS.text : i === 2 ? COLORS.gold : COLORS.dim;
+      ctx.fillStyle = i === 0 ? COLORS.text : t.startsWith('다음 레벨') ? COLORS.gold : t.startsWith('반응') ? '#7dffb0' : COLORS.dim;
       ctx.fillText(t, bx + 8, by + 16 + i * 16);
     });
     ctx.restore();

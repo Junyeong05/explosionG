@@ -14,6 +14,7 @@ import { augmentPicker, experimentsScreen, pauseScreen, resultScreen, titleScree
 import { RULE_IDS } from '../sim/types';
 import { getChapter } from '../data/chapters';
 import { GameLoop } from './GameLoop';
+import { OFFER5, allReacts, fuseName, parseFuse, reactName } from '../data/combineV4';
 
 /** 판이 끝나고 결과 화면을 띄우기까지 (마지막 폭발 연출을 보여주는 시간) */
 const RESULT_DELAY_SEC = 1.1;
@@ -152,6 +153,12 @@ export class App {
         offer,
         stacks: (id) => w.augments.stacks(id),
         rerollsLeft: w.rerollsLeft,
+        // 도파민 모드: 합성 카드가 새 합성 무기인지 몸에 더하는지, 레벨 업할 무기가 어느 합친 무기 안에 있는지, 처음 보는 반응인지
+        note: (id) => this.cardNote(w, id),
+        newReact: (id) => {
+          const p = parseFuse(id);
+          return !!p && !this.saves.data.reacts.includes(reactName(p[1]));
+        },
         onPick: (index) => {
           this.input.push({ t: 'choose', index });
           this.overlay.clear();
@@ -159,6 +166,17 @@ export class App {
         onReroll: () => this.input.push({ t: 'reroll' }),
       }),
     );
+  }
+
+  private cardNote(w: World, id: string): string | null {
+    const c = w.chaos;
+    if (!c) return null;
+    const p = parseFuse(id);
+    if (p) return c.fusion.kids.has(p[0]) ? `몸에 더함 · 무기 ${c.bodySize(p[0]) + 1}/${OFFER5.bodyMax}` : `새 합성 무기 · 무기 2/${OFFER5.bodyMax}`;
+    const root = c.parent.has(id) ? c.rootOf(id) : c.fusion.kids.has(id) ? id : null;
+    if (!root) return null;
+    const kid = c.fusion.kids.get(root)?.[0];
+    return kid ? `합친 무기 「${fuseName(root, kid)}」 ${root === id ? '의 몸' : '안'}: 레벨이 오르면 그대로 세진다` : null;
   }
 
   /** 배속 버튼: ×1 → ×1.5 → ×2 → ×1. 다음 판에도 유지 */
@@ -203,6 +221,7 @@ export class App {
     const summary = w.summary();
     const save = this.saves.data;
     const lockedBefore = CHAPTERS.filter((c) => !isChapterUnlocked(save, c.id));
+    const newReacts = (summary.reacts ?? []).filter((r) => !save.reacts.includes(r));
     applyRunResult(save, summary);
     this.saves.persist();
     const opened = lockedBefore.find((c) => isChapterUnlocked(save, c.id));
@@ -212,6 +231,7 @@ export class App {
         summary,
         totalParts: save.parts,
         unlocked: opened?.name,
+        reacts: summary.reacts ? { fresh: newReacts, seen: save.reacts.length, total: allReacts().length } : undefined,
         onRetry: () => this.makeConfig && this.startRun(this.makeConfig),
         onLab: () => this.showExperiments(false),
         onTitle: () => this.showTitle(),

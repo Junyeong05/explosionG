@@ -196,6 +196,13 @@ export function fuseCard(id: string): { name: string; tag: string; sub: string; 
 // 한 몸: B 는 따로 쏘지 않는다 (넘침 → A 가 더 자주). 새 이름: 무기 이름으로. 무기 개성: B 무기의 성질이 반응에 실린다.
 // 공명: 반응이 쌓이면 합친 무기가 잠깐 새 기술 (A 가 빨라지고 맞히는 족족 B 의 극적 반응). 모두 갈래·무기 데이터에서 나온다.
 
+/**
+ * 합성 카드 (11-14 플레이 피드백: "한 번 합치면 다음 합성에 기존 합성된 게 자주 뜬다 · 너무 자주 뜬다 · 엄청 센 거 하나 만들면 뭘 만들지 모르겠다").
+ * 봇 8판: 합성 카드의 새 짝 19% · 사슬 51% · 몸에 더함 19% · 몸째 12%, 한 몸이 무기 10~12개까지.
+ * → 새 짝이 먼저, 한 몸은 무기 bodyMax 개까지, 사슬·몸째는 카드로 안 나옴, 레벨 업마다 chance, 고른 뒤 rest 번은 쉼
+ */
+export const OFFER5 = { chance: 0.35, rest: 2, bodyMax: 3, freshWt: 3, growWt: 1 } as const;
+
 export const V5 = {
   /** 공명까지 쌓을 극적 반응 수 (반응이 아닌 B 는 plainCharge 만큼) */
   resMax: 10,
@@ -302,3 +309,15 @@ export function reactName(b: string): string {
   const d = CAT4[B.cat as AttackCat]?.drama ?? '';
   return t ? `${d} · ${TRAIT_WORD[t]}` : d;
 }
+
+let REACT_ALL: string[] | null = null;
+/** 반응 도감: 공격 무기를 B 로 넣어 나올 수 있는 반응 이름 전부 (갈래 반응 · 성질) */
+export function allReacts(): string[] {
+  if (!REACT_ALL) {
+    const s = new Set<string>();
+    for (const w of Object.values(ARMS)) if ((ATTACK_CATEGORIES as readonly string[]).includes(w.cat) && !w.fusion) s.add(reactName(w.id));
+    REACT_ALL = [...s].sort();
+  }
+  return REACT_ALL;
+}
+

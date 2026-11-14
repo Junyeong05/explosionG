@@ -10,7 +10,7 @@ export type SimEvent =
   | { type: 'tap'; x: number; y: number; free: boolean; power: number }
   | { type: 'dryTap'; x: number; y: number }
   | { type: 'explosion'; x: number; y: number; radius: number; source: DamageSource; chainId: number; chainKills: number; crit: boolean }
-  | { type: 'hit'; x: number; y: number; amount: number; crit: boolean }
+  | { type: 'hit'; x: number; y: number; amount: number; crit: boolean; /** 도파민 모드: 낸 무기 id */ src?: string }
   | { type: 'shieldBreak'; x: number; y: number }
   | { type: 'kill'; x: number; y: number; kind: string; chainKills: number; boss: boolean }
   /** links = 연쇄 폭발 수 (0 이면 연쇄 없이 탭이 직접 잡은 것뿐) */

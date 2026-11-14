@@ -5,6 +5,7 @@ import type { EnemyDef, EnemyKind } from '../data/enemies';
 import { getEnemyDef } from '../data/lookup';
 import { AUGMENTS } from '../data/augments';
 import { clamp, dist2 } from '../core/math';
+import { reactName } from '../data/combineV4';
 import { Rng, deriveSeed } from '../core/rng';
 import { SpatialGrid } from '../core/spatial';
 import { AugmentManager } from './augments';
@@ -991,6 +992,7 @@ export class World implements SimApi {
         this.emit({ type: 'chainEnd', chainId: id, kills: c.kills, links: c.links });
       }
       this.chains.delete(id);
+      this.chainSrc.delete(id);
     }
   }
 
@@ -1019,8 +1021,12 @@ export class World implements SimApi {
     if (e.charm > 0) return;
     if (e.infest > 0) dmg *= BALANCE.chaos.infestDamageMul;
     if (e.poly > 0) dmg *= BALANCE.chaos.polyDamageMul;
+    const hpBefore = e.hp;
     e.hp -= dmg;
-    this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit });
+    // 어느 무기의 피해인가 (도파민 모드): 숫자 색 · 판 끝 무기별 피해
+    const src = this.chainSrc.get(chainId);
+    if (src && this.chaos) this.chaos.noteDamage(src, Math.min(dmg, Math.max(0, hpBefore)));
+    this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit, src });
     e.def.boss?.onDamaged?.(this, e);
     // 체력을 넘긴 만큼이 넘친 피해 → 연쇄로 이월
     if (e.hp <= 0) this.killEnemy(e, chainId, -e.hp, depth);
@@ -1254,8 +1260,13 @@ export class World implements SimApi {
   }
 
   /** 새 연쇄 묶음. maxDepth 를 안 주면 탭이 아닌 시작(지뢰·번개)의 기본 단계 */
+  /** 연쇄 id → 그것을 낸 무기 (도파민 모드: 피해 숫자 색 · 무기별 피해). 연쇄가 끝나면 지운다 */
+  private chainSrc = new Map<number, string>();
+
   newChain(maxDepth?: number): number {
     const id = this.nextId++;
+    const src = this.chaos?.curSrc;
+    if (src) this.chainSrc.set(id, src);
     const depth = maxDepth ?? BALANCE.chain.otherStartDepth + this.stats.chainDepthBonus;
     this.chains.set(id, { id, kills: 0, refs: 0, links: 0, maxDepth: depth });
     return id;
@@ -1358,6 +1369,8 @@ export class World implements SimApi {
       picks: [...this.augments.history],
       fusions: this.chaos && this.chaos.fusion.mode === 4 ? [...this.chaos.parent].map(([b, a]) => `${a}>${b}`) : undefined,
       fusionLab: this.config.fusionLab || undefined,
+      weaponDamage: this.chaos ? this.chaos.damageTable() : undefined,
+      reacts: this.chaos && this.chaos.parent.size > 0 ? [...new Set([...this.chaos.parent.keys()].map((b) => reactName(b)))] : undefined,
       partsEarned: runReward(this.wave, this.kills) + this.bonusParts,
       chainHistogram: [...this.chainHistogram],
     };

@@ -267,6 +267,10 @@ export interface RunSummary {
   /** 도파민 모드 갈래 합성: 'A 무기>B 무기' (B 를 A 안에), 합성 시험판이었나 */
   fusions?: string[];
   fusionLab?: boolean;
+  /** 이번 판 합성으로 본 반응 이름 (반응 도감) */
+  reacts?: string[];
+  /** 도파민 모드 무기별 피해 (합친 무기는 한 몸으로, 많은 순): 이름 · 아이콘들 · 피해 */
+  weaponDamage?: { name: string; icons: string; dmg: number }[];
   partsEarned: number;
   /** 연쇄 길이 분포: 1, 2-4, 5-9, 10-19, 20-49, 50+ */
   chainHistogram: number[];

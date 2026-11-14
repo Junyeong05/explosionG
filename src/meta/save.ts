@@ -25,6 +25,8 @@ export interface SaveData {
   settings: { sound: boolean; haptics: boolean; speed: number; rules: Record<RuleId, boolean> };
   /** 최근 판 기록 (플레이테스트 지표 추출용). 오래된 것부터 버림 */
   history: RunSummary[];
+  /** 반응 도감: 합성으로 본 반응 이름 (도파민 모드, combineV4.ts allReacts) */
+  reacts: string[];
 }
 
 export function defaultSave(): SaveData {
@@ -35,6 +37,7 @@ export function defaultSave(): SaveData {
     records: { runs: 0, bestWave: 0, bestChain: 0, chapterClears: {}, dailyBest: {} },
     settings: { sound: true, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])) as Record<RuleId, boolean> },
     history: [],
+    reacts: [],
   };
 }
 
@@ -63,6 +66,7 @@ export function migrate(raw: unknown): SaveData {
     records: { ...base.records, ...(r.records ?? {}) },
     settings: migrateSettings(base.settings, r.settings),
     history: Array.isArray(r.history) ? r.history.slice(-HISTORY_LIMIT) : [],
+    reacts: Array.isArray(r.reacts) ? r.reacts.filter((x): x is string => typeof x === 'string') : [],
   };
 }
 

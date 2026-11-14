@@ -195,10 +195,11 @@ export const BALANCE = {
     /**
      * ⚠ 합성을 한 판만 붙는 후반 상승치 (11-13 게임에 넣음, 합성 안 한 판은 그대로).
      * 11-13 v5 (한 몸·공명·2레벨부터): 봇 엔드리스 12판 웨이브 0.8 → 35.9, 1.3 → 34.2, 1.8 → 29.5, 2.4 → 25.3 → 2.4 (v5 전 판 길이 약 23).
+     * 11-14 합성 카드 (새 짝 먼저 · 한 몸 무기 셋까지): 0.8 → 30.3, 1.4 → 25.2, 2.4 → 21.7 → 1.4.
      * 체력 배율에 + enemyHpLatePerWave × max(0, 웨이브 - enemyHpLateFrom) + enemyHpPerFusion × 합친 무기 수.
      * 상승치를 처음부터 올리면 합치기 전 초반에 무너져서 (봇: +0.7 이면 웨이브 14.7), 후반·합친 만큼만 올린다 (tools/chaos/fusion-sweep.ts).
      */
-    enemyHpLatePerWave: 2.4,
+    enemyHpLatePerWave: 1.4,
     enemyHpLateFrom: 10,
     enemyHpPerFusion: 0,
     /**

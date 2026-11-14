@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
-import { fuseCard, fuseId } from '../src/data/combineV4';
+import { OFFER5, allReacts, fuseCard, fuseId, parseFuse, reactName } from '../src/data/combineV4';
+import { migrate } from '../src/meta/save';
 import { NO_META } from '../src/sim/stats';
 import { World } from '../src/sim/World';
 
@@ -63,4 +64,58 @@ describe('게임 안 합성 (도파민 모드)', () => {
     const late = plain + C.enemyHpLatePerWave * (20 - C.enemyHpLateFrom);
     expect(eb.maxHp / ea.maxHp).toBeCloseTo(late / plain, 2);
   });
+
+  it('합성 카드 후보 (11-14): 새 짝 먼저 · 한 몸 무기 셋까지 · 사슬과 몸째는 없음 · 몸에 이미 있는 갈래는 또 안 넣음', () => {
+    const w = lab(7);
+    const c = w.chaos!;
+    const ws = c.owned().filter((id) => c.lv(id) > 0);
+    // 몸 하나를 무기 셋으로 채운다
+    expect(c.fuse4(ws[0], ws[1])).toBe(true);
+    expect(c.fuse4(ws[0], ws[2])).toBe(true);
+    expect(c.bodySize(ws[0])).toBe(3);
+    const pairs = c.fuseCandidates(500);
+    expect(pairs.length).toBeGreaterThan(0);
+    for (const [a, b] of pairs) {
+      expect(c.parent.has(a)).toBe(false);
+      expect(c.parent.has(b)).toBe(false);
+      expect(c.fusion.kids.has(b)).toBe(false);
+      expect(c.bodySize(a) + 1).toBeLessThanOrEqual(OFFER5.bodyMax);
+      expect(a).not.toBe(ws[0]);
+    }
+  });
+
+  it('합성을 고른 뒤 레벨 업 두 번은 합성 카드를 쉰다 (보통 판)', () => {
+    const w = new World({ seed: 4, mode: 'endless', chapterId: 'endless', meta: NO_META, rules: { chaos: true }, recordEvents: false, sandbox: true });
+    const c = w.chaos!;
+    for (const id of ['arm_cannon', 'arm_dog', 'arm_tr_mines', 'arm_laser']) for (let i = 0; i < 3; i++) w.augments.acquire(id, w);
+    expect(c.applyFuse(fuseId('arm_cannon', 'arm_dog'))).toBe(true);
+    for (let i = 0; i < OFFER5.rest; i++) expect(c.roll('level').some((id) => id.startsWith('fuse:'))).toBe(false);
+    let seen = false;
+    for (let i = 0; i < 40 && !seen; i++) seen = c.roll('level').some((id) => id.startsWith('fuse:'));
+    expect(seen).toBe(true);
+  });
+
+  it('판 끝: 무기별 피해 (합친 무기는 한 몸) · 이번 판 반응, 피해 숫자에 낸 무기', () => {
+    const w = lab(5);
+    stepUntilChoosing(w);
+    const i = w.offer!.choices.findIndex((id) => id.startsWith('fuse:'));
+    const [, b] = parseFuse(w.offer!.choices[i])!;
+    w.step(FIXED_DT, [{ t: 'choose', index: i }]);
+    let srcHits = 0;
+    for (let k = 0; k < 60 * 15 && w.phase !== 'ended'; k++) {
+      w.step(FIXED_DT, w.phase === 'choosing' ? [{ t: 'choose', index: 0 }] : []);
+      for (const e of w.drainEvents()) if (e.type === 'hit' && e.src) srcHits++;
+    }
+    expect(srcHits).toBeGreaterThan(0);
+    const s = w.summary();
+    expect(s.weaponDamage!.length).toBeGreaterThan(0);
+    expect(s.reacts).toContain(reactName(b));
+    expect(allReacts()).toContain(reactName(b));
+  });
+
+  it('반응 도감은 세이브에 남고, 옛 세이브는 빈 도감으로', () => {
+    expect(migrate({ parts: 3 }).reacts).toEqual([]);
+    expect(migrate({ reacts: ['a', 3, 'b'] }).reacts).toEqual(['a', 'b']);
+  });
 });
+

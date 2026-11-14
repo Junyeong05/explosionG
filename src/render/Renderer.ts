@@ -1,4 +1,5 @@
 import { BALANCE } from '../data/balance';
+import { ARMS, CATEGORY_COLOR } from '../data/chaos';
 import { getEnemyDef } from '../data/lookup';
 import type { EnemyShape } from '../data/enemies';
 import { TAU, clamp } from '../core/math';
@@ -135,7 +136,8 @@ export class Renderer {
           this.onExplosion(e);
           break;
         case 'hit':
-          this.numbers.add(e.x, e.y - 8, e.amount, e.crit);
+          // 도파민 모드: 낸 무기 갈래 색 (흰색과 반쯤 섞어 읽히게). 합친 무기는 안에 든 무기의 피해가 그 갈래 색으로
+          this.numbers.add(e.x, e.y - 8, e.amount, e.crit, e.src && ARMS[e.src] ? tint(CATEGORY_COLOR[ARMS[e.src].cat]) : '');
           break;
         case 'kill': {
           const def = getEnemyDef(e.kind);
@@ -898,4 +900,17 @@ function shapePath(ctx: CanvasRenderingContext2D, shape: EnemyShape, r: number):
       polygon(ctx, 6, r, 0);
       break;
   }
+}
+
+/** 갈래 색을 흰색과 섞는다 (피해 숫자가 어두운 바탕에서 읽히게) */
+const TINT = new Map<string, string>();
+function tint(hex: string): string {
+  let t = TINT.get(hex);
+  if (!t) {
+    const n = parseInt(hex.slice(1, 7), 16);
+    const mix = (v: number) => Math.round(v + (255 - v) * 0.4);
+    t = `rgb(${mix((n >> 16) & 255)}, ${mix((n >> 8) & 255)}, ${mix(n & 255)})`;
+    TINT.set(hex, t);
+  }
+  return t;
 }

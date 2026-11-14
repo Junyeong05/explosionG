@@ -49,6 +49,8 @@ export interface Scene {
   ceil?: boolean;
   /** 합성 v5 (한 몸 · 무기 이름 · 무기 성질 · 공명). drama 도 같이 켠다 */
   v5?: boolean;
+  /** 이 무기를 누른 채로 (집중 보기: 그 무기가 낸 공격만 밝게 · 정보창) */
+  select?: string;
   /** 손 입력을 이 모양으로 자동으로 누른다 (taps 대신) */
   input?: InputPattern;
 }
@@ -182,6 +184,7 @@ class Stage {
     skipOffers(w);
     w.step(FIXED_DT, cmds);
     skipOffers(w);
+    if (sc.select && w.chaos) w.chaos.selected = { id: sc.select, until: w.time + 1 };
     const evs = w.drainEvents();
     for (const e of evs) if (e.type === 'leak') this.leaks++;
     if (evs.length) this.r!.consume(evs);

@@ -174,6 +174,7 @@ interface DamageNumber {
   value: number;
   t: number;
   crit: boolean;
+  color: string;
 }
 
 const NUMBER_LIFE = 0.65;
@@ -185,12 +186,13 @@ export class DamageNumbers {
   private readonly list: CappedList<DamageNumber>;
 
   constructor(capacity: number) {
-    this.list = new CappedList(capacity, () => ({ alive: false, x: 0, y: 0, value: 0, t: 0, crit: false }));
+    this.list = new CappedList(capacity, () => ({ alive: false, x: 0, y: 0, value: 0, t: 0, crit: false, color: '' }));
   }
 
-  add(x: number, y: number, value: number, crit: boolean): void {
+  /** color: 낸 무기 갈래 색 (도파민 모드, 비면 흰색). 색이 다른 숫자끼리는 안 합친다 */
+  add(x: number, y: number, value: number, crit: boolean, color = ''): void {
     for (const n of this.list.items) {
-      if (!n.alive || n.t > MERGE_WINDOW) continue;
+      if (!n.alive || n.t > MERGE_WINDOW || n.color !== color) continue;
       const dx = n.x - x;
       const dy = n.y - y;
       if (dx * dx + dy * dy <= MERGE_DIST2) {
@@ -200,7 +202,7 @@ export class DamageNumbers {
       }
     }
     const n = this.list.spawn();
-    n.x = x; n.y = y; n.value = value; n.t = 0; n.crit = crit;
+    n.x = x; n.y = y; n.value = value; n.t = 0; n.crit = crit; n.color = color;
   }
 
   update(dt: number): void {
@@ -224,7 +226,7 @@ export class DamageNumbers {
       const y = n.y - 22 * easeOutCubic(p);
       const text = String(Math.max(1, Math.round(n.value)));
       ctx.strokeText(text, n.x, y);
-      ctx.fillStyle = n.crit ? '#ffd36b' : '#f2f4fa';
+      ctx.fillStyle = n.crit ? '#ffd36b' : n.color || '#f2f4fa';
       ctx.fillText(text, n.x, y);
     }
     ctx.globalAlpha = 1;

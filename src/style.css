@@ -259,3 +259,15 @@ html, body {
 
 @keyframes fade { from { opacity: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* 판 끝 무기별 피해 (도파민 모드) */
+.wdmg { margin: 10px 0 4px; display: flex; flex-direction: column; gap: 5px; }
+.wdmg-title { font-size: 12px; color: var(--dim, #8a90a8); font-weight: 800; }
+.wdmg-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px 34px; gap: 8px; align-items: center; font-size: 12px; }
+.wdmg-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wdmg-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.wdmg-bar i { display: block; height: 100%; background: #7dffb0; border-radius: 3px; }
+.wdmg-pct { text-align: right; color: var(--dim, #8a90a8); font-variant-numeric: tabular-nums; }
+.card .new-react { color: #ffe066; font-weight: 900; }
+.react-book { font-size: 12px; color: #7dffb0; margin-top: 6px; }
+

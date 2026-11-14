@@ -1,5 +1,5 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
-import { fuseCard } from '../data/combineV4';
+import { allReacts, fuseCard } from '../data/combineV4';
 import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
 import { ENEMIES } from '../data/enemies';
 import { EXPERIMENTS, EXPERIMENT_SETS, experimentInfo } from '../data/experiments';
@@ -92,7 +92,7 @@ export function titleScreen(p: TitleProps): HTMLElement {
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
       h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: '엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다 · 3레벨 무기 둘이면 합성 카드' })),
-      h('button', { class: 'btn dopamine fuse-lab', onClick: p.onFusionLab }, '🧪 합성 시험판', h('small', { text: '다른 갈래 무기 여섯을 3레벨로 들고 시작 · 레벨 업마다 합성 카드 둘' })),
+      h('button', { class: 'btn dopamine fuse-lab', onClick: p.onFusionLab }, '🧪 합성 시험판', h('small', { text: `다른 갈래 무기 여섯을 3레벨로 들고 시작 · 레벨 업마다 합성 카드 둘 · 반응 도감 ${p.save.reacts.length}/${allReacts().length}` })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);
         return h('button', { class: `btn exp-btn${on.length ? ' on' : ''}`, onClick: p.onExperiments },
@@ -211,6 +211,10 @@ export interface PickerProps {
   offer: Offer;
   stacks: (id: string) => number;
   rerollsLeft: number;
+  /** 카드 아래 한 줄 (도파민 모드: 새 합성 무기 / 몸에 더함 / 합친 무기 안) */
+  note?: (id: string) => string | null;
+  /** 합성 카드가 처음 보는 반응인가 (반응 도감) */
+  newReact?: (id: string) => boolean;
   onPick(index: number): void;
   onReroll(): void;
 }
@@ -230,10 +234,12 @@ export function augmentPicker(p: PickerProps): HTMLElement {
           // 갈래 합성 카드: B 를 A 안에 (극적 반응)
           const fc = fuseCard(id);
           if (fc) {
+            const fresh = p.newReact?.(id) ?? false;
+            const note = p.note?.(id);
             return h('button', { class: 'card fuse', dataset: { rarity: 'fuse' }, onClick: () => pick(i) },
-              h('div', { class: 'meta' }, h('span', { text: fc.tag }), h('span', { text: '합성' })),
+              h('div', { class: 'meta' }, h('span', { text: fc.tag }), h('span', { class: fresh ? 'new-react' : '', text: fresh ? '새 반응!' : '합성' })),
               h('div', { class: 'name', text: fc.name }),
-              h('div', { class: 'fuse-sub', text: fc.sub }),
+              h('div', { class: 'fuse-sub', text: note ? `${fc.sub} · ${note}` : fc.sub }),
               h('div', { class: 'desc', text: fc.desc }),
             );
           }
@@ -247,6 +253,7 @@ export function augmentPicker(p: PickerProps): HTMLElement {
               h('span', { text: level }),
             ),
             h('div', { class: 'name', text: def.name }),
+            p.note?.(id) ? h('div', { class: 'fuse-sub', text: p.note(id)! }) : null,
             h('div', { class: 'desc', text: n > 0 && def.levelDesc ? def.levelDesc(n + 1) : def.desc }),
           );
         }),
@@ -282,6 +289,8 @@ export interface ResultProps {
   totalParts: number;
   /** 이번 판으로 새로 열린 챕터 이름 */
   unlocked?: string;
+  /** 반응 도감 (도파민 모드에서 합성했을 때): 이번 판 처음 본 반응 · 본 수 · 전체 */
+  reacts?: { fresh: string[]; seen: number; total: number };
   onRetry(): void;
   onLab(): void;
   onTitle(): void;
@@ -305,6 +314,24 @@ export function resultScreen(p: ResultProps): HTMLElement {
         ...stat('시간', fmtTime(s.durationSec)),
         ...stat('획득 부품', `+${s.partsEarned}`),
       ),
+      // 도파민 모드: 무기별 피해 (합친 무기는 한 몸으로)
+      p.reacts
+        ? h('div', { class: 'center react-book', text: `반응 도감 ${p.reacts.seen} / ${p.reacts.total}${p.reacts.fresh.length ? ` · 새로 본 반응 ${p.reacts.fresh.join(', ')}` : ''}` })
+        : null,
+      (s.weaponDamage?.length ?? 0) > 0
+        ? h('div', { class: 'wdmg' },
+            h('div', { class: 'wdmg-title', text: '무기별 피해' }),
+            ...s.weaponDamage!.map((r) => {
+              const top = s.weaponDamage![0].dmg || 1;
+              const total = s.weaponDamage!.reduce((t, x) => t + x.dmg, 0) || 1;
+              return h('div', { class: 'wdmg-row' },
+                h('span', { class: 'wdmg-name', text: `${r.icons} ${r.name}` }),
+                h('span', { class: 'wdmg-bar' }, h('i', { style: `width:${Math.round((r.dmg / top) * 100)}%` })),
+                h('span', { class: 'wdmg-pct', text: `${Math.round((r.dmg / total) * 100)}%` }),
+              );
+            }),
+          )
+        : null,
       s.picks.length > 0 &&
         h('div', { class: 'picks' }, ...s.picks.map((id) => h('span', { class: 'pick', dataset: { rarity: getAugment(id).rarity }, text: getAugment(id).name }))),
       h('div', { class: 'center parts', text: `보유 부품 ${p.totalParts}` }),

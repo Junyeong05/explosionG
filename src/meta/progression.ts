@@ -81,6 +81,8 @@ export function applyRunResult(save: SaveData, summary: RunSummary, date = new D
     const key = date.toISOString().slice(0, 10);
     r.dailyBest[key] = Math.max(r.dailyBest[key] ?? 0, summary.kills);
   }
+  // 반응 도감: 이번 판에 본 반응을 더한다
+  for (const r of summary.reacts ?? []) if (!save.reacts.includes(r)) save.reacts.push(r);
   save.history.push(summary);
   if (save.history.length > HISTORY_LIMIT) save.history.splice(0, save.history.length - HISTORY_LIMIT);
 }

@@ -8,7 +8,7 @@ import { CARRY, LINK } from '../data/links';
 import { V2 } from '../data/combineV2';
 import { Fusion, TAG_BURSTB, TAG_HOP, TAG_HOPTOSS, TAG_ORBIT, TAG_RAMP, TAG_RICO } from './fusion';
 import { V3, keepOf } from '../data/combineV3';
-import { V5, fuseId, kind4, parseFuse } from '../data/combineV4';
+import { OFFER5, V5, fuseId, fuseName, kind4, parseFuse } from '../data/combineV4';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
 import type { Enemy, OfferKind } from './types';
@@ -711,11 +711,15 @@ export class Chaos {
       for (const d of AUGMENTS) if (d.rarity !== 'prism' && !d.evolution && this.w.augments.isAvailable(d)) cand.push({ id: d.id, wt: 0.05 });
     }
     const out: string[] = [];
-    // 갈래 합성 (v4 극적 반응): 3레벨 넘은 다른 갈래 둘이 있으면 한 장 (60%, 합성 시험판은 둘). 맞물리는 짝이 더 자주
-    const pairs = this.fuseCandidates();
+    // 갈래 합성 (v5 카드, combineV4.ts OFFER5): 2레벨 넘은 다른 갈래 둘이 있으면 35% 로 한 장 (합성 시험판은 늘 둘).
+    // 새 짝(둘 다 아직 안 합친 무기)이 몸에 더하는 것보다 세 배 자주, 맞물리는 짝이 더 자주. 합성을 고른 뒤 레벨 업 두 번은 쉰다
     const lab = !!this.w.config.fusionLab;
-    if (pairs.length > 0 && (lab || rng.chance(0.6))) {
-      const wt = (p: [string, string]) => ({ 반응: 3, 무리: 2, 모양: 2, 보통: 1 })[kind4(ARMS[p[0]].cat as never, ARMS[p[1]].cat as never)];
+    const resting = kind !== 'start' && this.fuseRest > 0;
+    if (resting) this.fuseRest--;
+    const pairs = resting ? [] : this.fuseCandidates();
+    if (pairs.length > 0 && (lab || rng.chance(OFFER5.chance))) {
+      const wt = (p: [string, string]) =>
+        ({ 반응: 3, 무리: 2, 모양: 2, 보통: 1 })[kind4(ARMS[p[0]].cat as never, ARMS[p[1]].cat as never)] * (this.fusion.kids.has(p[0]) ? OFFER5.growWt : OFFER5.freshWt);
       for (let i = 0; i < (lab ? 2 : 1) && pairs.length; i++) {
         const p = rng.weighted(pairs, wt);
         if (!p) break;
@@ -740,14 +744,57 @@ export class Chaos {
     return out;
   }
 
+  /** 무기마다 준 피해 (안에 든 무기는 제 이름으로 따로) */
+  readonly dmgBy = new Map<string, number>();
+  noteDamage(src: string, d: number): void {
+    if (d > 0) this.dmgBy.set(src, (this.dmgBy.get(src) ?? 0) + d);
+  }
+  /** 판 끝 무기별 피해: 합친 무기는 한 몸(뿌리)으로 묶어 이름은 합친 이름, 많은 순 여덟 (피해 0 인 무기도) */
+  damageTable(): { name: string; icons: string; dmg: number }[] {
+    const by = new Map<string, number>();
+    // 가진 무기(합친 무기는 몸 하나)는 피해가 없어도 0 으로 (놀고 있는 무기도 보이게)
+    for (const id of this.owned()) if (ARMS[id].cat !== 'passive' && !this.parent.has(id)) by.set(id, 0);
+    for (const [id, d] of this.dmgBy) {
+      if (!ARMS[id]) continue;
+      const r = this.rootOf(id);
+      by.set(r, (by.get(r) ?? 0) + d);
+    }
+    const members = (r: string): string[] => [r, ...(this.fusion.kids.get(r) ?? []).flatMap(members)];
+    return [...by]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([r, d]) => {
+        const ms = members(r);
+        const kid = this.fusion.kids.get(r)?.[0];
+        return { name: kid ? fuseName(r, kid) + (ms.length > 2 ? ` +${ms.length - 2}` : '') : ARMS[r].name, icons: ms.map((m) => ARMS[m].emoji).join(''), dmg: Math.round(d) };
+      });
+  }
+
+  /** 합성 카드를 고른 뒤 합성 카드를 쉬는 남은 레벨 업 수 (OFFER5.rest) */
+  fuseRest = 0;
+
+  /** 합친 무기(몸)에 든 무기 수 (자기 포함) */
+  bodySize(id: string): number {
+    let n = 1;
+    for (const k of this.fusion.kids.get(id) ?? []) n += this.bodySize(k);
+    return n;
+  }
+
   /**
-   * 갈래 합성 후보 [A, B]: 가진 무기 둘 (다른 갈래, 둘 다 3레벨 이상). B 는 아직 다른 무기 안에 든 적 없는 무기
-   * (B 가 이미 합친 무기면 통째로 들어간다: 2+2). A 는 무엇이든 (안에 든 무기에 또 합치면 사슬). 고리는 안 된다
+   * 갈래 합성 후보 [A, B] (v5 카드, OFFER5): 가진 무기 둘 (다른 갈래, 2레벨 이상).
+   * B 는 아직 아무것도 안 합친 무기 하나. A 는 아직 안 합친 무기(새 짝)이거나, 무기 bodyMax 개가 안 된 합친 무기(몸에 더함).
+   * 다른 무기 안에 든 무기(사슬)·합친 무기를 통째로 넣기(몸째)는 카드로 안 나온다 (엔진은 그대로 된다: 미리보기·테스트)
+   * 몸에 이미 있는 갈래는 또 안 넣는다
    */
   fuseCandidates(limit = 60): [string, string][] {
     // 보통 판은 2레벨부터 (11-13: 3레벨이면 2분 반 동안 합성 카드가 한 번도 안 나왔다)
     const need = this.w.config.fusionLab ? 1 : 2;
-    const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need);
+    const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need && !this.parent.has(id));
+    const catsIn = (id: string): Set<string> => {
+      const s = new Set<string>([ARMS[id].cat]);
+      for (const k of this.fusion.kids.get(id) ?? []) for (const c of catsIn(k)) s.add(c);
+      return s;
+    };
     // 무기가 많으면 짝이 수만이라 (무기 342개면 11만 짝), 섞어서 앞에서 limit 짝까지만 본다 (고를 땐 한두 장이면 된다)
     const rng = this.w.rng;
     for (let i = ws.length - 1; i > 0; i--) {
@@ -756,11 +803,11 @@ export class Chaos {
     }
     const out: [string, string][] = [];
     for (const a of ws) {
+      if (this.bodySize(a) >= OFFER5.bodyMax) continue;
+      const inA = catsIn(a);
       for (const b of ws) {
-        if (a === b || ARMS[a].cat === ARMS[b].cat || this.parent.has(b)) continue;
-        let cyc = false;
-        for (let x: string | undefined = a; x; x = this.parent.get(x)) if (x === b) cyc = true;
-        if (!cyc) out.push([a, b]);
+        if (a === b || this.fusion.kids.has(b) || inA.has(ARMS[b].cat)) continue;
+        out.push([a, b]);
         if (out.length >= limit) return out;
       }
     }
@@ -791,6 +838,7 @@ export class Chaos {
     this.fusion.drama = true;
     this.fusion.v5 = true;
     this.fusion.announce(p[0], p[1]);
+    if (!this.w.config.fusionLab) this.fuseRest = OFFER5.rest;
     return true;
   }
 
@@ -1094,6 +1142,8 @@ export class Chaos {
     let best: string | null = null;
     let bd = 17 * 17;
     for (const [id, m] of this.mounts) {
+      // 합친 무기 안에 든 무기의 자리는 안 보이므로 못 누른다 (합친 무기 자리를 누르면 한 몸 전체)
+      if (this.fusion.mode === 4 && this.parent.has(id)) continue;
       const d = dist2(x, y, m.x, m.y);
       if (d < bd) {
         bd = d;
