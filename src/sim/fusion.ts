@@ -1,3 +1,4 @@
+import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, type WeaponParams, type WeaponSpec } from '../data/chaos';
 import { V2, rulesV2 } from '../data/combineV2';
 import { V3, keepOf, rulesV3 } from '../data/combineV3';
@@ -1615,7 +1616,7 @@ export class Fusion {
       }
       case 'pull':
         // 둘레 적을 그 적 쪽으로 (위로 밀어 올리지 않는다: 가둬 두는 잠금이 안 생기게)
-        for (const o of this.near(q.x, q.y, 90, 8)) if (o !== q && !o.def.boss) c.push(o, 2 * o.x - q.x, 2 * o.y - q.y, 26);
+        for (const o of this.near(q.x, q.y, 90, 8)) if (o !== q && !o.def.boss) c.push(o, 2 * o.x - q.x, 2 * o.y - q.y, 26 * BALANCE.chaos.pullMul);
         this.ring(q.x, q.y, 90, '#b48cff', 0.35);
         break;
       case 'wide':

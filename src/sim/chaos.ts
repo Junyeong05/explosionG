@@ -1770,6 +1770,8 @@ export class Chaos {
       p: o.p ?? null, emoji: o.emoji ?? null, dmg: o.dmg ?? 0, left: o.left ?? 0, r: o.r ?? 0, cd: 0, src: this.curSrc, target: null,
       depth: this.curDepth, tag: 0, trail: 0,
     };
+    // 끌어모으는 소용돌이는 범위를 줄인다 (BALANCE.chaos.pullRadiusMul, 그림도 같이)
+    if (kind === 'vortex') a.r *= BALANCE.chaos.pullRadiusMul;
     // 나르는 돌격이면 달린 거리를 잰다
     if (this.curSrc && MOVERS.has(kind) && this.carried.has(this.curSrc) && ARMS[this.curSrc]?.cat === 'charge') a.tag |= TAG_TRAIL;
     this.actors.push(a);
@@ -2251,9 +2253,11 @@ export class Chaos {
           const dx = a.x - e.x;
           const dy = a.y - e.y;
           const d = Math.hypot(dx, dy) || 1;
-          const pull = Math.min(d, 160 * dt);
-          e.x += (dx / d) * pull - (dy / d) * 60 * dt;
-          e.y += w.liftMove(e, (dy / d) * pull + (dx / d) * 60 * dt);
+          const pm = BALANCE.chaos.pullMul;
+          // 한가운데 한 몸 거리 안으로는 더 안 끈다 (한 점으로 모여 겹치지 않게)
+          const pull = Math.min(Math.max(0, d - e.radius), 160 * pm * dt);
+          e.x += (dx / d) * pull - (dy / d) * 60 * pm * dt;
+          e.y += w.liftMove(e, (dy / d) * pull + (dx / d) * 60 * pm * dt);
           e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
@@ -2522,8 +2526,10 @@ export class Chaos {
           const dx = a.x - e.x;
           const dy = a.y - e.y;
           const d = Math.hypot(dx, dy) || 1;
-          e.x += ((dx / d) * 90 - (dy / d) * 120) * dt;
-          e.y += w.liftMove(e, ((dy / d) * 90 + (dx / d) * 120) * dt);
+          const pm = BALANCE.chaos.pullMul;
+          const inw = d > e.radius ? 90 : 0;
+          e.x += ((dx / d) * inw - (dy / d) * 120) * pm * dt;
+          e.y += w.liftMove(e, ((dy / d) * inw + (dx / d) * 120) * pm * dt);
           e.held = Math.max(e.held, 0.1);
         }
         if (a.t + dt >= a.ttl) {
@@ -2613,16 +2619,24 @@ export class Chaos {
     // 블랙홀 구슬: 날아가며 주변을 빨아들이다 끝에서 터짐
     if (p.pullOrb) {
       // 블랙홀 건 구슬이 빨아들이는 반경 (플레이 피드백: 블랙홀이 너무 커서 사기 → 70 에서 40)
+      let touch = false;
       for (const e of w.enemiesNear(a.x, a.y, 40)) {
-        if (e.def.boss) continue;
-        e.pack = null;
         const dx = a.x - e.x;
         const dy = a.y - e.y;
         const d = Math.hypot(dx, dy) || 1;
-        e.x += (dx / d) * 100 * dt;
-        e.y += w.liftMove(e, (dy / d) * 100 * dt);
+        // 구슬에 닿으면 그 자리에서 터진다 (11-14 끌림을 약하게 한 뒤로 끝까지 끌고 가지 못해 사거리 끝에서 헛터졌다)
+        if (d < e.radius + 6) touch = true;
+        if (e.def.boss) continue;
+        e.pack = null;
+        const pm = BALANCE.chaos.pullMul;
+        const pull = Math.min(Math.max(0, d - e.radius), 100 * pm * dt);
+        e.x += (dx / d) * pull;
+        e.y += w.liftMove(e, (dy / d) * pull);
       }
-      if (a.t + dt >= a.ttl) this.boom(a.x, a.y, (p.boom ?? 60) * this.areaMul, a.dmg, p);
+      if (touch || a.t + dt >= a.ttl) {
+        this.boom(a.x, a.y, (p.boom ?? 60) * this.areaMul, a.dmg, p);
+        return false;
+      }
       return true;
     }
     const size = p.tracer === 'flame' ? 10 : (p.size ?? 3) + 3;

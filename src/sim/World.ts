@@ -183,6 +183,7 @@ export class World implements SimApi {
     this.updateCombo(dt);
     if (!this.config.sandbox) this.updateWaves(flow);
     this.moveEnemies(flow);
+    if (this.chaos) this.separateEnemies();
     this.rebuildGrid();
     this.paintSparks();
     this.exp.update(flow);
@@ -809,6 +810,69 @@ export class World implements SimApi {
     for (let k = i; k < stack.length; k++) stack[k].pileY = this.field.defenseLineY - (k + 0.5) * h;
     e.pileCol = -1;
     this.pileCleared++;
+  }
+
+  /**
+   * 적끼리 가운데 작은 충돌 (도파민 모드, BALANCE.chaos.sepCore · sepPush): 끌어모아도 한 점으로 겹치지 않게.
+   * 칸 해시로 가까운 짝만 보고, 겹친 만큼의 sepPush 씩 반반 떼어 놓는다 (한쪽이 안 밀리는 적이면 다른 쪽이 다).
+   */
+  private sepCells = new Map<number, Enemy[]>();
+  private separateEnemies(): void {
+    const C = BALANCE.chaos;
+    const core = C.sepCore;
+    if (core <= 0) return;
+    const cell = 24;
+    const cells = this.sepCells;
+    for (const l of cells.values()) l.length = 0;
+    const key = (cx: number, cy: number) => (cx + 64) * 4096 + (cy + 64);
+    for (const e of this.enemies) {
+      if (e.dead || e.pileCol >= 0) continue;
+      const k = key(Math.floor(e.x / cell), Math.floor(e.y / cell));
+      let l = cells.get(k);
+      if (!l) cells.set(k, (l = []));
+      l.push(e);
+    }
+    const fixed = (e: Enemy) => e.def.boss || e.pack !== null;
+    const W = this.field.width;
+    for (const a of this.enemies) {
+      if (a.dead || a.pileCol >= 0) continue;
+      const cx = Math.floor(a.x / cell);
+      const cy = Math.floor(a.y / cell);
+      for (let ox = -1; ox <= 1; ox++)
+        for (let oy = -1; oy <= 1; oy++) {
+          const l = cells.get(key(cx + ox, cy + oy));
+          if (!l) continue;
+          for (const b of l) {
+            if (b.id <= a.id || b.dead) continue;
+            const minD = (a.radius + b.radius) * core;
+            let dx = b.x - a.x;
+            let dy = b.y - a.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 >= minD * minD) continue;
+            const fa = fixed(a);
+            const fb = fixed(b);
+            if (fa && fb) continue;
+            let d = Math.sqrt(d2);
+            if (d < 1e-3) {
+              // 딱 겹치면 id 로 정한 방향 (결정적)
+              const g = ((a.id * 7 + b.id * 13) % 360) * (Math.PI / 180);
+              dx = Math.cos(g);
+              dy = Math.sin(g);
+              d = 1;
+            } else {
+              dx /= d;
+              dy /= d;
+            }
+            const push = (minD - Math.min(d, minD)) * C.sepPush;
+            const wa = fa ? 0 : fb ? 1 : 0.5;
+            const wb = fb ? 0 : fa ? 1 : 0.5;
+            a.x = clamp(a.x - dx * push * wa, a.radius, W - a.radius);
+            a.y -= dy * push * wa;
+            b.x = clamp(b.x + dx * push * wb, b.radius, W - b.radius);
+            b.y += dy * push * wb;
+          }
+        }
+    }
   }
 
   private rebuildGrid(): void {

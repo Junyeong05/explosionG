@@ -464,3 +464,51 @@ describe('도파민 모드: 카테고리 무기고', () => {
     // 판 하나를 끝까지 돌리는 무거운 테스트 (합성이 들어가 판이 길어졌다: CI 에서 5초를 넘긴 적이 있다)
   }, 30000);
 });
+
+describe('도파민 모드: 적끼리 가운데 충돌 · 끌어모으기 (11-14 플레이 피드백)', () => {
+  const closest = (w: World) => {
+    const es = w.enemies.filter((e) => !e.dead);
+    let m = Infinity;
+    for (let i = 0; i < es.length; i++)
+      for (let j = i + 1; j < es.length; j++) m = Math.min(m, Math.hypot(es[i].x - es[j].x, es[i].y - es[j].y) / ((es[i].radius + es[j].radius) * C.sepCore));
+    return m;
+  };
+
+  it('한 점에 깐 적들이 떨어져 한 덩어리로 안 겹친다 (같은 씨앗이면 같은 자리)', () => {
+    const make = () => {
+      const w = sandbox({ rules: { chaos: true } });
+      (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+      for (let i = 0; i < 12; i++) w.spawnEnemy('normal', 180, 300);
+      freeze(w);
+      stepFor(w, 1);
+      return w;
+    };
+    const w = make();
+    expect(closest(w)).toBeGreaterThan(0.9);
+    expect(make().enemies.map((e) => [e.x, e.y])).toEqual(w.enemies.map((e) => [e.x, e.y]));
+  });
+
+  it('중력장이 끌어모아도 한 점에 겹치지 않는다', () => {
+    const w = sandbox({ rules: { chaos: true } });
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    for (let i = 0; i < 20; i++) w.spawnEnemy('normal', 120 + (i % 5) * 30, 280 + Math.floor(i / 5) * 30, 50);
+    freeze(w);
+    for (let i = 0; i < 3; i++) w.augments.acquire('arm_f_gravity', w);
+    (w as unknown as { offerQueue: unknown[] }).offerQueue.length = 0;
+    let worst = Infinity;
+    for (let s = 0; s < 6 / FIXED_DT; s++) {
+      w.step(FIXED_DT);
+      const ww = w as unknown as { offerQueue: unknown[]; phase: string; offer: unknown };
+      ww.offerQueue.length = 0;
+      if (ww.phase === 'choosing') {
+        ww.offer = null;
+        ww.phase = 'playing';
+      }
+      if (s % 10 === 0) worst = Math.min(worst, closest(w));
+    }
+    // 끄는 힘과 떼어 놓는 힘이 맞서 조금은 겹치지만, 정해 둔 가운데 충돌의 절반 아래로는 안 붙는다
+    expect(worst).toBeGreaterThan(0.5);
+    expect(C.pullMul).toBeLessThan(1);
+  });
+});
+
