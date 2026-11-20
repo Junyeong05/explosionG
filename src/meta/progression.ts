@@ -46,6 +46,9 @@ export function createRunConfig(save: SaveData, mode: RunMode, seed: number, cha
     meta: metaModifiers(save),
     // 실험 규칙은 챕터·엔드리스에만 (일일 도전은 모두 같은 조건이어야 해서 끔)
     rules: { ...save.settings.rules },
+    // 도파민 모드 합성 문 샘플 · 반응 도감 (다른 모드에선 안 씀)
+    fuseRule: save.settings.fuseRule,
+    reactsSeen: [...save.reacts],
   };
 }
 

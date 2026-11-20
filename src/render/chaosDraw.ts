@@ -1273,7 +1273,79 @@ export class ChaosDraw {
   }
 
   /** HUD: 피버 테두리, 큰 글씨, 버프 시간, 핵 섬광 */
+  /** 합성 문 샘플 (fuseRules.ts): 칸·표 진행 한 줄, 호흡은 가장 많이 찬 짝 둘을 무기 자리 사이 호로 */
+  private drawGate(w: World): void {
+    const c = w.chaos;
+    if (!c) return;
+    const ctx = this.ctx;
+    const rule = c.fuseRule;
+    if (rule === 'now') return;
+    ctx.save();
+    if (rule === 'breath') {
+      const top = c.breathTop(2);
+      top.forEach((t, i) => {
+        const ma = c.mountOf(c.rootOf(t.a));
+        const mb = c.mountOf(t.b);
+        if (!ma || !mb) return;
+        // 자리가 가까워도 보이게 높이 띄운다
+        const lift = 44 + i * 18 + Math.abs(ma.x - mb.x) * 0.15;
+        const cx = (ma.x + mb.x) / 2;
+        const cy = Math.min(ma.y, mb.y) - lift;
+        const pt = (u: number) => [(1 - u) * (1 - u) * ma.x + 2 * (1 - u) * u * cx + u * u * mb.x, (1 - u) * (1 - u) * ma.y + 2 * (1 - u) * u * cy + u * u * mb.y];
+        const col = CATEGORY_COLOR[ARMS[t.b].cat];
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(ma.x, ma.y);
+        ctx.quadraticCurveTo(cx, cy, mb.x, mb.y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.beginPath();
+        for (let k = 0; k <= 24; k++) {
+          const u = (k / 24) * t.fill;
+          const [x, y] = pt(u);
+          if (k === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = t.fill >= 1 ? '#ffffff' : rgba(col, 0.9);
+        ctx.lineWidth = t.fill >= 1 ? 4 : 3;
+        ctx.stroke();
+        const [lx, ly] = pt(0.5);
+        ctx.font = `800 10px ${FONT}, ${EMOJI_FONT}`;
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+        const label = `${ARMS[c.rootOf(t.a)].emoji}${ARMS[t.b].emoji} 호흡 ${Math.round(t.fill * 100)}%`;
+        ctx.strokeText(label, lx, ly - 5);
+        ctx.fillStyle = t.fill >= 1 ? '#ffffff' : COLORS.text;
+        ctx.fillText(label, lx, ly - 5);
+      });
+      ctx.restore();
+      return;
+    }
+    const g = c.gateInfo();
+    if (!g) {
+      ctx.restore();
+      return;
+    }
+    const word = rule === 'bowl' ? '표' : '칸';
+    const text = `${g.unit} ${g.have}${g.next !== null ? `/${g.next}` : ''} · ${word} ${g.free}`;
+    ctx.font = `800 10px ${FONT}`;
+    const wBox = ctx.measureText(text).width + 12;
+    const x = FW - 6 - wBox;
+    // 방어선 바로 위 오른쪽 (아래쪽 배속 버튼과 안 겹치게)
+    const y = LINE_Y - 22;
+    ctx.fillStyle = g.free > 0 ? 'rgba(125, 255, 176, 0.18)' : 'rgba(10, 12, 20, 0.7)';
+    ctx.fillRect(x, y, wBox, 15);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = g.free > 0 ? '#7dffb0' : COLORS.dim;
+    ctx.fillText(text, x + 6, y + 8);
+    ctx.restore();
+  }
+
   drawHud(w: World): void {
+    this.drawGate(w);
     const c = w.chaos;
     if (!c) return;
     const ctx = this.ctx;

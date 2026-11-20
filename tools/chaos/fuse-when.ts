@@ -14,8 +14,11 @@ const rows: string[] = [];
 const firstOffer: number[] = [];
 const tot = { offers: 0, withFuse: 0, cards: 0, fresh: 0, grow: 0, whole: 0, chain: 0, picked: 0 };
 const bodies: number[] = [];
+const waves: number[] = [];
+const mins: number[] = [];
 for (let s = 1; s <= runs; s++) {
-  const w = new World({ ...createRunConfig(defaultSave(), 'endless', s), recordEvents: false, rules: { chaos: true } });
+  // 합성 문 샘플: RULE=width|count|bowl|breath|now (기본: 세이브 기본값)
+  const w = new World({ ...createRunConfig(defaultSave(), 'endless', s), recordEvents: false, rules: { chaos: true }, ...(process.env.RULE ? { fuseRule: process.env.RULE as never } : {}) });
   const bot = new Bot({ seed: s, pressDelay: [0.12, 0.28] });
   let offerAt = -1;
   let seen = 0;
@@ -46,6 +49,8 @@ for (let s = 1; s <= runs; s++) {
   const size = (r: string): number => 1 + (c.fusion.kids.get(r) ?? []).reduce((t, k) => t + size(k), 0);
   const roots = [...c.fusion.kids.keys()].filter((r) => !c.parent.has(r));
   for (const r of roots) bodies.push(size(r));
+  waves.push(w.wave);
+  mins.push(w.time / 60);
   tot.offers += offers;
   tot.withFuse += seen;
   tot.picked += c.parent.size;
@@ -55,6 +60,7 @@ for (let s = 1; s <= runs; s++) {
 console.log(rows.join('\n'));
 const med = [...firstOffer].sort((a, b) => a - b)[Math.floor(firstOffer.length / 2)] ?? -1;
 const pc = (n: number) => `${Math.round((n / Math.max(1, tot.cards)) * 100)}%`;
+console.log(`[${process.env.RULE ?? '기본'}] 웨이브 평균 ${(waves.reduce((x, y) => x + y, 0) / Math.max(1, waves.length)).toFixed(1)} · 판 ${(mins.reduce((x, y) => x + y, 0) / Math.max(1, mins.length)).toFixed(1)}분`);
 console.log(`첫 합성 카드 가운데값 ${(med / 60).toFixed(1)}분 · 나온 판 ${firstOffer.length}/${runs}`);
 console.log(`레벨 업 ${tot.offers} 중 합성 카드가 낀 것 ${tot.withFuse} (${Math.round((tot.withFuse / Math.max(1, tot.offers)) * 100)}%) · 합성 카드 ${tot.cards}: 새 짝 ${pc(tot.fresh)} · 몸에 더함 ${pc(tot.grow)} · 몸째 ${pc(tot.whole)} · 사슬 ${pc(tot.chain)}`);
 console.log(`한 몸 크기 (무기 수): ${bodies.sort((a, b) => b - a).join(' ')} · 가장 큰 몸 가운데값 ${bodies.length ? bodies[Math.floor(bodies.length / 2)] : 0}`);

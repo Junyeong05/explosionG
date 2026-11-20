@@ -1,3 +1,4 @@
+import type { FuseRule } from '../data/fuseRules';
 import type { EnemyDef } from '../data/enemies';
 import type { MetaModifiers } from './stats';
 
@@ -222,6 +223,10 @@ export interface RunConfig {
   rules?: RunRules;
   /** 합성 시험판 (도파민 모드): 다른 갈래 무기 여섯을 3레벨로 들고 시작, 레벨 업마다 합성 카드 둘 */
   fusionLab?: boolean;
+  /** 합성 문 샘플 (도파민 모드, src/data/fuseRules.ts). 없으면 지금 규칙 */
+  fuseRule?: FuseRule;
+  /** 반응 도감에서 이미 본 반응 이름 (처음 보는 반응 가중 · 셋째 자리 여는 수) */
+  reactsSeen?: readonly string[];
 }
 
 export interface Offer {
@@ -267,6 +272,8 @@ export interface RunSummary {
   /** 도파민 모드 갈래 합성: 'A 무기>B 무기' (B 를 A 안에), 합성 시험판이었나 */
   fusions?: string[];
   fusionLab?: boolean;
+  /** 합성 문 샘플 (도파민 모드) */
+  fuseRule?: FuseRule;
   /** 이번 판 합성으로 본 반응 이름 (반응 도감) */
   reacts?: string[];
   /** 도파민 모드 무기별 피해 (합친 무기는 한 몸으로, 많은 순): 이름 · 아이콘들 · 피해 */

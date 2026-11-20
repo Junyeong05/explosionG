@@ -1,5 +1,6 @@
 import { ARCHETYPE_LABEL, RARITY_LABEL, getAugment } from '../data/augments';
 import { allReacts, fuseCard } from '../data/combineV4';
+import { FUSE_RULES, type FuseRule } from '../data/fuseRules';
 import { CHAPTERS, getChapter, newEnemiesIn } from '../data/chapters';
 import { ENEMIES } from '../data/enemies';
 import { EXPERIMENTS, EXPERIMENT_SETS, experimentInfo } from '../data/experiments';
@@ -45,6 +46,8 @@ export interface TitleProps {
   onDopamine(): void;
   /** 합성 시험판: 무기 여섯을 3레벨로 들고 시작, 레벨 업마다 합성 카드 둘 */
   onFusionLab(): void;
+  /** 합성 문 샘플 고르기 (도파민 모드) */
+  onFuseRule(rule: FuseRule): void;
   today: string;
   /** 고른 챕터 id */
   chapterId: string;
@@ -91,7 +94,17 @@ export function titleScreen(p: TitleProps): HTMLElement {
         }),
       ),
       h('button', { class: 'btn primary', onClick: p.onChapter }, selected.name, h('small', { text: chapterLine(selected.id) })),
-      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: '엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다 · 3레벨 무기 둘이면 합성 카드' })),
+      h('button', { class: 'btn dopamine', onClick: p.onDopamine }, '🔥 도파민 모드', h('small', { text: `엔드리스 · 무기 하나로 시작해서 끝없이 늘려 간다 · 합성 문: ${FUSE_RULES.find((r) => r.id === p.save.settings.fuseRule)?.name ?? ''}` })),
+      // 합성 문 샘플 (11-20): 도파민 모드 판에 걸리는 합성 규칙을 골라 해 본다
+      h('div', { class: 'fuse-rules' },
+        h('div', { class: 'fuse-rules-title', text: '합성 문 샘플 (도파민 모드)' }),
+        h('div', { class: 'fuse-rules-row' },
+          ...FUSE_RULES.map((r) =>
+            h('button', { class: `chip${p.save.settings.fuseRule === r.id ? ' on' : ''}`, onClick: () => p.onFuseRule(r.id), text: r.name }),
+          ),
+        ),
+        h('div', { class: 'fuse-rules-desc', text: FUSE_RULES.find((r) => r.id === p.save.settings.fuseRule)?.desc ?? '' }),
+      ),
       h('button', { class: 'btn dopamine fuse-lab', onClick: p.onFusionLab }, '🧪 합성 시험판', h('small', { text: `다른 갈래 무기 여섯을 3레벨로 들고 시작 · 레벨 업마다 합성 카드 둘 · 반응 도감 ${p.save.reacts.length}/${allReacts().length}` })),
       (() => {
         const on = activeExperiments(p.save.settings.rules);

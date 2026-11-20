@@ -119,3 +119,89 @@ describe('게임 안 합성 (도파민 모드)', () => {
   });
 });
 
+
+describe('합성 문 샘플 (fuseRules.ts)', () => {
+  const make = (fuseRule: 'width' | 'count' | 'bowl' | 'breath' | 'now', seed = 4) =>
+    new World({ seed, mode: 'endless', chapterId: 'endless', meta: NO_META, rules: { chaos: true }, recordEvents: false, sandbox: true, fuseRule });
+  const give = (w: World, id: string, lv: number) => {
+    for (let i = 0; i < lv; i++) w.augments.acquire(id, w);
+  };
+  const fuseIn = (ids: string[]) => ids.filter((x) => x.startsWith('fuse:'));
+
+  it('폭=칸: 갈래 4종이면 칸 1, 칸이 있으면 합성 카드가 꼭 한 장, 다 쓰면 안 뜸', () => {
+    const w = make('width');
+    const c = w.chaos!;
+    for (const id of ['arm_cannon', 'arm_dog', 'arm_tr_mines']) give(w, id, 2);
+    expect(c.gateInfo()!.free).toBe(0);
+    expect(fuseIn(c.roll('level')).length).toBe(0);
+    give(w, 'arm_laser', 2);
+    expect(c.gateInfo()).toMatchObject({ unit: '갈래', have: 4, opened: 1, free: 1, next: 7 });
+    for (let i = 0; i < 5; i++) expect(fuseIn(c.roll('level')).length).toBe(1);
+    const id = fuseIn(c.roll('level'))[0];
+    expect(c.applyFuse(id)).toBe(true);
+    expect(c.gateInfo()!.free).toBe(0);
+    for (let i = 0; i < 10; i++) expect(fuseIn(c.roll('level')).length).toBe(0);
+  });
+
+  it('폭=칸: 등급 = 몸 안 재료 중 낮은 레벨, 반응 세기 배율로', () => {
+    const w = make('width');
+    const c = w.chaos!;
+    give(w, 'arm_cannon', 5);
+    give(w, 'arm_dog', 2);
+    c.fuse4('arm_cannon', 'arm_dog');
+    expect(c.gradeOf('arm_cannon')).toBe(2);
+    expect(c.gradeMul('arm_cannon')).toBeCloseTo(0.8);
+    give(w, 'arm_dog', 2);
+    expect(c.gradeOf('arm_cannon')).toBe(4);
+    expect(c.gradeMul('arm_dog')).toBeCloseTo(1.4);
+    expect(make('now').chaos!.gradeMul('arm_cannon')).toBe(1);
+  });
+
+  it('무기 수=칸 · 표와 그릇: 무기 수로 열리고, 그릇은 용량을 넘는 짝을 안 냄', () => {
+    const a = make('count');
+    for (const id of ['arm_cannon', 'arm_dog', 'arm_tr_mines', 'arm_laser']) give(a, id, 2);
+    expect(a.chaos!.gateInfo()).toMatchObject({ unit: '무기', have: 4, free: 1, next: 8 });
+    const b = make('bowl');
+    const c = b.chaos!;
+    give(b, 'arm_cannon', 1);
+    for (const id of ['arm_dog', 'arm_tr_mines', 'arm_laser', 'arm_g_carbine']) give(b, id, 4);
+    expect(c.gateInfo()).toMatchObject({ have: 5, free: 1 });
+    // 대포 1레벨 → 용량 3: 4레벨 무기는 못 담음
+    for (const [x, y] of c.fuseCandidates(500)) if (x === 'arm_cannon') expect(c.bodyLoad(x) + c.lv(y)).toBeLessThanOrEqual(c.bodyCap(x));
+    expect(c.fuseCandidates(500).some(([x]) => x === 'arm_cannon')).toBe(false);
+  });
+
+  it('호흡: 같은 적을 이어 치면 짝이 차고, 다 차면 그 짝 카드, 넘기면 절반', () => {
+    const w = make('breath');
+    const c = w.chaos!;
+    give(w, 'arm_tr_mines', 2);
+    give(w, 'arm_dog', 2);
+    const e = w.spawnEnemy('normal', 100, 200, 50)!;
+    const t0 = (w as unknown as { time: number }).time;
+    for (let i = 0; i < 400; i++) {
+      (w as unknown as { time: number }).time = t0 + i * 0.6;
+      c.noteHit(e, 'arm_tr_mines');
+      (w as unknown as { time: number }).time = t0 + i * 0.6 + 0.2;
+      c.noteHit(e, 'arm_dog');
+    }
+    expect(c.breath.get('arm_tr_mines>arm_dog')!).toBeGreaterThan(c.breathTh('arm_tr_mines'));
+    const offer = c.roll('level');
+    const fid = fuseIn(offer)[0];
+    expect(fid).toBeTruthy();
+    const before = Math.max(c.breath.get('arm_tr_mines>arm_dog') ?? 0, c.breath.get('arm_dog>arm_tr_mines') ?? 0);
+    c.offerResolved(offer, offer.find((x) => !x.startsWith('fuse:'))!);
+    const k = fid.slice(5);
+    expect(c.breath.get(k)!).toBeLessThan(before);
+  });
+
+  it('규칙마다 판이 예외 없이 돌고 같은 씨앗이면 같은 결과', () => {
+    for (const rule of ['width', 'count', 'bowl', 'breath'] as const) {
+      const run = () => {
+        const w = new World({ seed: 6, mode: 'endless', chapterId: 'endless', meta: NO_META, rules: { chaos: true }, recordEvents: false, fuseRule: rule });
+        for (let k = 0; k < 60 * 60 && w.phase !== 'ended'; k++) w.step(FIXED_DT, w.phase === 'choosing' ? [{ t: 'choose', index: 0 }] : []);
+        return [w.kills, w.wave, w.chaos!.parent.size];
+      };
+      expect(run()).toEqual(run());
+    }
+  }, 60000);
+});

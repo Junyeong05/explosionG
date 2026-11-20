@@ -1,3 +1,4 @@
+import { FUSE_RULE_IDS, type FuseRule } from '../data/fuseRules';
 import type { UpgradeId } from '../data/upgrades';
 import { RULE_IDS, type RuleId, type RunSummary } from '../sim/types';
 import type { KeyValueStore } from './storage';
@@ -22,7 +23,7 @@ export interface SaveData {
     dailyBest: Record<string, number>;
   };
   /** speed = 게임 배속 (GAME_SPEEDS 중 하나), rules = 켜 둔 실험 규칙 */
-  settings: { sound: boolean; haptics: boolean; speed: number; rules: Record<RuleId, boolean> };
+  settings: { sound: boolean; haptics: boolean; speed: number; rules: Record<RuleId, boolean>; /** 합성 문 샘플 (도파민 모드) */ fuseRule: FuseRule };
   /** 최근 판 기록 (플레이테스트 지표 추출용). 오래된 것부터 버림 */
   history: RunSummary[];
   /** 반응 도감: 합성으로 본 반응 이름 (도파민 모드, combineV4.ts allReacts) */
@@ -35,7 +36,7 @@ export function defaultSave(): SaveData {
     parts: 0,
     upgrades: {},
     records: { runs: 0, bestWave: 0, bestChain: 0, chapterClears: {}, dailyBest: {} },
-    settings: { sound: true, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])) as Record<RuleId, boolean> },
+    settings: { sound: true, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])) as Record<RuleId, boolean>, fuseRule: 'width' },
     history: [],
     reacts: [],
   };
@@ -48,6 +49,7 @@ function migrateSettings(base: SaveData['settings'], raw: unknown): SaveData['se
   const r = raw && typeof raw === 'object' ? (raw as Partial<SaveData['settings']>) : {};
   const s = { ...base, ...r };
   if (!GAME_SPEEDS.includes(s.speed)) s.speed = 1;
+  if (!FUSE_RULE_IDS.includes(s.fuseRule)) s.fuseRule = base.fuseRule;
   const rules = { ...base.rules };
   for (const id of RULE_IDS) rules[id] = r.rules?.[id] === true;
   s.rules = rules;

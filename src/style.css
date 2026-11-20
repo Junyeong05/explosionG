@@ -271,3 +271,11 @@ html, body {
 .card .new-react { color: #ffe066; font-weight: 900; }
 .react-book { font-size: 12px; color: #7dffb0; margin-top: 6px; }
 
+/* 합성 문 샘플 고르기 (타이틀) */
+.fuse-rules { margin: 4px 0 10px; padding: 8px 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; }
+.fuse-rules-title { font-size: 11px; font-weight: 800; color: var(--dim, #8a90a8); margin-bottom: 6px; }
+.fuse-rules-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.fuse-rules .chip { font: inherit; font-size: 12px; font-weight: 800; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.04); color: inherit; cursor: pointer; }
+.fuse-rules .chip.on { background: #7dffb0; color: #07080d; border-color: #7dffb0; }
+.fuse-rules-desc { margin-top: 6px; font-size: 11px; line-height: 1.45; color: var(--dim, #8a90a8); }
+

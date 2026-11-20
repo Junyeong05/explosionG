@@ -1364,7 +1364,8 @@ export class Fusion {
     // B 를 n 번 쏜 만큼: 원래 한 번에 몇 발이면 그만큼 흩어서 (한 적에 몰지 않는다)
     const shots = n * Math.max(1, Bp.count ?? 1);
     const cnt = clamp(Math.round(shots), 1, 6);
-    const unit = V4.base;
+    // 합성 문 샘플 폭·무기 수: 몸 안 재료 중 가장 낮은 레벨(등급)이 B 반응 세기
+    const unit = V4.base * c.gradeMul(A.id);
     const per = shots / cnt;
     const ts = this.pick4(x, y, P.seeks, e, cnt, AREA4.has(B.cat));
     const t0 = ts[0] ?? null;

@@ -81,7 +81,7 @@ describe('세이브', () => {
     expect(migrate(null)).toEqual(defaultSave());
     expect(migrate({ parts: -5, settings: { sound: false } }).parts).toBe(0);
     expect(migrate({ parts: 3, settings: { sound: false } }).settings).toEqual({
-      sound: false, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])),
+      sound: false, haptics: true, speed: 1, rules: Object.fromEntries(RULE_IDS.map((id) => [id, false])), fuseRule: 'width',
     });
     const store = new MemoryStore();
     store.set('explosion-g/save', '{not json');

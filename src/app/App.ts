@@ -14,7 +14,7 @@ import { augmentPicker, experimentsScreen, pauseScreen, resultScreen, titleScree
 import { RULE_IDS } from '../sim/types';
 import { getChapter } from '../data/chapters';
 import { GameLoop } from './GameLoop';
-import { OFFER5, allReacts, fuseName, parseFuse, reactName } from '../data/combineV4';
+import { allReacts, fuseName, parseFuse, reactName } from '../data/combineV4';
 
 /** 판이 끝나고 결과 화면을 띄우기까지 (마지막 폭발 연출을 보여주는 시간) */
 const RESULT_DELAY_SEC = 1.1;
@@ -172,11 +172,16 @@ export class App {
     const c = w.chaos;
     if (!c) return null;
     const p = parseFuse(id);
-    if (p) return c.fusion.kids.has(p[0]) ? `몸에 더함 · 무기 ${c.bodySize(p[0]) + 1}/${OFFER5.bodyMax}` : `새 합성 무기 · 무기 2/${OFFER5.bodyMax}`;
+    const extra = c.cardNote5(id);
+    if (p) {
+      const base = c.fusion.kids.has(p[0]) ? `몸에 더함 · 무기 ${c.bodySize(p[0]) + 1}/${c.bodyMaxNow()}` : `새 합성 무기 · 무기 2/${c.bodyMaxNow()}`;
+      return extra ? `${base} · ${extra}` : base;
+    }
+    if (extra && !c.parent.has(id) && !c.fusion.kids.has(id)) return extra;
     const root = c.parent.has(id) ? c.rootOf(id) : c.fusion.kids.has(id) ? id : null;
     if (!root) return null;
     const kid = c.fusion.kids.get(root)?.[0];
-    return kid ? `합친 무기 「${fuseName(root, kid)}」 ${root === id ? '의 몸' : '안'}: 레벨이 오르면 그대로 세진다` : null;
+    return kid ? `합친 무기 「${fuseName(root, kid)}」 ${root === id ? '의 몸' : '안'}${extra ? ` · ${extra}` : ': 레벨이 오르면 그대로 세진다'}` : extra;
   }
 
   /** 배속 버튼: ×1 → ×1.5 → ×2 → ×1. 다음 판에도 유지 */
@@ -258,6 +263,12 @@ export class App {
           for (const r of RULE_IDS) save.settings.rules[r] = r === 'chaos';
           this.saves.persist();
           this.startRun(() => createRunConfig(this.saves.data, 'endless', randomSeed()));
+        },
+        onFuseRule: (rule) => {
+          // 합성 문 샘플 고르기 (도파민 모드 판에 걸림)
+          save.settings.fuseRule = rule;
+          this.saves.persist();
+          this.showTitle();
         },
         onFusionLab: () => {
           // 합성 시험판: 도파민 모드 엔드리스 + 무기 여섯 3레벨 + 레벨 업마다 합성 카드 둘

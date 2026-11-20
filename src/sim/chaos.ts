@@ -8,7 +8,8 @@ import { CARRY, LINK } from '../data/links';
 import { V2 } from '../data/combineV2';
 import { Fusion, TAG_BURSTB, TAG_HOP, TAG_HOPTOSS, TAG_ORBIT, TAG_RAMP, TAG_RICO } from './fusion';
 import { V3, keepOf } from '../data/combineV3';
-import { OFFER5, V5, fuseId, fuseName, kind4, parseFuse } from '../data/combineV4';
+import { CAT4, OFFER5, V5, fuseId, fuseName, kind4, parseFuse, reactName } from '../data/combineV4';
+import { GATE, GRADE_MUL, gated, type FuseRule } from '../data/fuseRules';
 import { clamp, dist2 } from '../core/math';
 import type { Shot } from './exp';
 import type { Enemy, OfferKind } from './types';
@@ -690,8 +691,10 @@ export class Chaos {
     for (const d of ARSENAL) {
       const L = this.lv(d.id);
       if (L >= MAX_LEVEL) continue;
-      if (L > 0) ups.push(d.id);
-      else if (ARMS[d.id].fusion) continue;
+      if (L > 0) {
+        // 표와 그릇: 몸 안에 든 무기는 그 몸 용량이 남을 때만 레벨 업 카드
+        if (!this.upBlocked(d.id)) ups.push(d.id);
+      } else if (ARMS[d.id].fusion) continue;
       else if (ARMS[d.id].cat === 'passive') {
         if (passives.length < PASSIVE_SLOTS) newPassives.push(d.id);
       } else if (weapons.length < WEAPON_SLOTS) newWeapons.push(d.id);
@@ -714,8 +717,11 @@ export class Chaos {
     // 갈래 합성 (v5 카드, combineV4.ts OFFER5): 2레벨 넘은 다른 갈래 둘이 있으면 35% 로 한 장 (합성 시험판은 늘 둘).
     // 새 짝(둘 다 아직 안 합친 무기)이 몸에 더하는 것보다 세 배 자주, 맞물리는 짝이 더 자주. 합성을 고른 뒤 레벨 업 두 번은 쉰다
     const lab = !!this.w.config.fusionLab;
-    const resting = kind !== 'start' && this.fuseRest > 0;
-    if (resting) this.fuseRest--;
+    // 합성 문 샘플 (fuseRules.ts): 칸·표·호흡이 열려 있으면 합성 카드 한 장 확정 (추첨·쉼 없음)
+    const gatedCard = gated(this.fuseRule) ? this.gatedFuseCard() : null;
+    if (gatedCard) out.push(gatedCard);
+    const resting = gated(this.fuseRule) || (kind !== 'start' && this.fuseRest > 0);
+    if (resting && !gated(this.fuseRule)) this.fuseRest--;
     const pairs = resting ? [] : this.fuseCandidates();
     if (pairs.length > 0 && (lab || rng.chance(OFFER5.chance))) {
       const wt = (p: [string, string]) =>
@@ -773,6 +779,221 @@ export class Chaos {
   /** 합성 카드를 고른 뒤 합성 카드를 쉬는 남은 레벨 업 수 (OFFER5.rest) */
   fuseRest = 0;
 
+  // ─── 합성 문 샘플 (src/data/fuseRules.ts) ─────────────────────────
+
+  /** 이 판의 합성 문. 합성 시험판은 늘 지금 규칙 (합성 카드 둘) */
+  get fuseRule(): FuseRule {
+    return this.w.config.fusionLab ? 'now' : (this.w.config.fuseRule ?? 'now');
+  }
+  /** 공격 무기 (합친 무기 안에 든 것도) */
+  attackOwned(): string[] {
+    return this.owned().filter((id) => ARMS[id].cat !== 'passive');
+  }
+  /** 반응 도감에서 본 반응 (판 시작 때 세이브 + 이번 판에 합친 것) */
+  seenReacts(): Set<string> {
+    const s = new Set<string>(this.w.config.reactsSeen ?? []);
+    for (const b of this.parent.keys()) s.add(reactName(b));
+    return s;
+  }
+  /** 지금 한 몸에 무기 몇까지: 폭·무기 수·호흡은 둘 (반응 도감 12 를 보면 셋), 표와 그릇은 셋 */
+  bodyMaxNow(): number {
+    const r = this.fuseRule;
+    if (r === 'now') return OFFER5.bodyMax;
+    if (r === 'bowl') return GATE.bowlBody;
+    return (this.w.config.reactsSeen?.length ?? 0) >= GATE.bodyCodex ? 3 : GATE.body;
+  }
+  /** 몸 안 무기 (자기 포함) */
+  bodyMembers(root: string): string[] {
+    return [root, ...(this.fusion.kids.get(root) ?? []).flatMap((k) => this.bodyMembers(k))];
+  }
+  /** 표와 그릇: 몸 용량 = A 레벨 + 2, 몸 안 B 레벨 합 */
+  bodyCap(root: string): number {
+    return this.lv(root) + GATE.capBase;
+  }
+  bodyLoad(root: string): number {
+    return this.bodyMembers(root).slice(1).reduce((t, k) => t + this.lv(k), 0);
+  }
+  /** 표와 그릇: 몸 안 무기의 레벨 업은 용량이 남을 때만 */
+  private upBlocked(id: string): boolean {
+    if (this.fuseRule !== 'bowl' || !this.parent.has(id)) return false;
+    const r = this.rootOf(id);
+    return this.bodyLoad(r) + 1 > this.bodyCap(r);
+  }
+  /** 등급 (폭·무기 수): 몸 안 재료 레벨 중 가장 낮은 것 */
+  gradeOf(id: string): number {
+    const r = this.rootOf(id);
+    return Math.min(...this.bodyMembers(r).map((m) => this.lv(m)));
+  }
+  /** 합친 무기의 B 반응 세기 배율 (폭·무기 수만, 나머지 1) */
+  gradeMul(id: string): number {
+    const rule = this.fuseRule;
+    if (rule !== 'width' && rule !== 'count') return 1;
+    const r = this.rootOf(id);
+    if (!this.fusion.kids.has(r)) return 1;
+    return GRADE_MUL[Math.max(1, Math.min(5, this.gradeOf(r)))] ?? 1;
+  }
+  /** 칸·표: 무엇을 세나 · 지금 수 · 열린 칸 · 남은 칸 · 다음 문턱 (호흡·지금 규칙은 null) */
+  gateInfo(): { unit: string; have: number; opened: number; free: number; next: number | null } | null {
+    const rule = this.fuseRule;
+    const ws = this.attackOwned();
+    let unit = '';
+    let have = 0;
+    let opened = 0;
+    let next: number | null = null;
+    if (rule === 'width' || rule === 'count') {
+      const th = rule === 'width' ? GATE.widthTh : GATE.countTh;
+      unit = rule === 'width' ? '갈래' : '무기';
+      have = rule === 'width' ? new Set(ws.map((id) => ARMS[id].cat)).size : ws.length;
+      opened = th.filter((t) => have >= t).length;
+      next = th.find((t) => have < t) ?? null;
+    } else if (rule === 'bowl') {
+      unit = '무기';
+      have = ws.length;
+      opened = have >= GATE.bowlFirst ? Math.floor((have - GATE.bowlFirst) / GATE.bowlStep) + 1 : 0;
+      next = GATE.bowlFirst + opened * GATE.bowlStep;
+    } else return null;
+    return { unit, have, opened, free: Math.max(0, opened - this.parent.size), next };
+  }
+  /** 칸·표·호흡이 열린 합성 카드 하나 (없으면 null) */
+  private gatedFuseCard(): string | null {
+    const rule = this.fuseRule;
+    const rng = this.w.rng;
+    const seen = this.seenReacts();
+    if (rule === 'breath') {
+      const full = this.breathFull();
+      if (!full) return null;
+      this.breathOffered = full;
+      return fuseId(full[0], full[1]);
+    }
+    const g = this.gateInfo();
+    if (!g || g.free <= 0) return null;
+    const pairs = this.fuseCandidates();
+    if (!pairs.length) return null;
+    const wt = (p: [string, string]) =>
+      ({ 반응: 3, 무리: 2, 모양: 2, 보통: 1 })[kind4(ARMS[p[0]].cat as never, ARMS[p[1]].cat as never)] *
+      (this.fusion.kids.has(p[0]) ? OFFER5.growWt : OFFER5.freshWt) *
+      (seen.has(reactName(p[1])) ? 1 : 2);
+    const p = rng.weighted(pairs, wt);
+    return p ? fuseId(p[0], p[1]) : null;
+  }
+
+  // 호흡: 짝(앞 무기 > 다음 무기)마다 같은 적을 이어 친 만큼
+  readonly breath = new Map<string, number>();
+  private breathAt = new Map<string, number>();
+  private lastHit = new Map<number, { src: string; t: number }>();
+  private breathOffered: [string, string] | null = null;
+  /** 지금 문턱 (판의 몇 번째 합성인가, 몸에 더함은 ×1.5) */
+  breathTh(a: string): number {
+    const th = GATE.breathTh[Math.min(this.parent.size, GATE.breathTh.length - 1)];
+    return th * (this.fusion.kids.has(a) ? 1.5 : 1);
+  }
+  /** 호흡이 다 찬 짝 가운데 가장 많이 찬 것 (합칠 수 있는 짝만) */
+  private breathFull(): [string, string] | null {
+    let best: [string, string] | null = null;
+    let bv = 1;
+    const bodyMax = this.bodyMaxNow();
+    for (const [k, v] of this.breath) {
+      const [a, b] = k.split('>');
+      if (this.lv(a) <= 0 || this.lv(b) <= 0 || this.parent.has(a) || this.parent.has(b) || this.fusion.kids.has(b)) continue;
+      if (this.bodySize(a) >= bodyMax) continue;
+      if (this.bodyMembers(a).some((m) => ARMS[m].cat === ARMS[b].cat)) continue;
+      const r = v / this.breathTh(a);
+      if (r >= bv) {
+        bv = r;
+        best = [a, b];
+      }
+    }
+    return best;
+  }
+  /** 호흡이 가장 많이 찬 짝 둘 (화면 표시) */
+  breathTop(n = 2): { a: string; b: string; fill: number }[] {
+    const out: { a: string; b: string; fill: number }[] = [];
+    for (const [k, v] of this.breath) {
+      const [a, b] = k.split('>');
+      if (this.lv(a) <= 0 || this.lv(b) <= 0 || this.parent.has(b) || this.fusion.kids.has(b)) continue;
+      out.push({ a, b, fill: Math.min(1, v / this.breathTh(a)) });
+    }
+    return out.sort((x, y) => y.fill - x.fill).slice(0, n);
+  }
+  /** 피해가 났다 (World.hitEnemy): 호흡 쌓기 */
+  noteHit(e: Enemy, src: string): void {
+    if (this.fuseRule !== 'breath' || !ARMS[src] || ARMS[src].cat === 'passive') return;
+    const t = this.w.time;
+    const prev = this.lastHit.get(e.id);
+    this.lastHit.set(e.id, { src, t });
+    // 오래된 기록은 버린다 (죽은 적 · 지난 맞힘)
+    if (this.lastHit.size > 400) for (const [id, h] of this.lastHit) if (t - h.t > GATE.breathWin) this.lastHit.delete(id);
+    if (!prev || t - prev.t > GATE.breathWin) return;
+    // 앞 무기는 몸 전체(뿌리)로, 다음 무기는 아직 아무것도 안 합친 무기만
+    const a = this.rootOf(prev.src);
+    const b = src;
+    if (a === b || this.parent.has(b) || this.fusion.kids.has(b) || !ARMS[a] || ARMS[a].cat === ARMS[b].cat) return;
+    const key = `${a}>${b}`;
+    if ((this.breathAt.get(key) ?? -9) + GATE.breathGap > t) return;
+    this.breathAt.set(key, t);
+    const ca = CAT4[ARMS[a].cat as keyof typeof CAT4];
+    const cb = CAT4[ARMS[b].cat as keyof typeof CAT4];
+    let gain = ca && cb && ca.leaves && ca.leaves === cb.seeks ? GATE.breathReact : 1;
+    if (!this.seenReacts().has(reactName(b))) gain *= GATE.breathFresh;
+    this.breath.set(key, (this.breath.get(key) ?? 0) + gain);
+  }
+  /** 레벨 업 카드를 골랐다: 호흡 합성 카드를 넘겼으면 그 짝 호흡 절반 */
+  offerResolved(choices: readonly string[], chosen: string): void {
+    if (this.fuseRule !== 'breath' || !this.breathOffered) return;
+    const id = fuseId(this.breathOffered[0], this.breathOffered[1]);
+    if (choices.includes(id) && chosen !== id) {
+      const k = `${this.breathOffered[0]}>${this.breathOffered[1]}`;
+      this.breath.set(k, (this.breath.get(k) ?? 0) / 2);
+    }
+    this.breathOffered = null;
+  }
+  /** 후반 체력 (합성한 판만): 지금 규칙은 첫 합성으로 다 켜지는 스위치, 샘플들은 합친 몸 하나마다 */
+  lateHpTerm(wave: number): number {
+    const C = BALANCE.chaos;
+    const late = Math.max(0, wave - C.enemyHpLateFrom);
+    if (gated(this.fuseRule)) {
+      let bodies = 0;
+      for (const r of this.fusion.kids.keys()) if (!this.parent.has(r)) bodies++;
+      return GATE.taxPerBody * bodies * late;
+    }
+    return C.enemyHpLatePerWave * late + C.enemyHpPerFusion * this.parent.size;
+  }
+  /** 레벨 업 카드 아래 한 줄 (합성 문 샘플) */
+  cardNote5(id: string): string | null {
+    const rule = this.fuseRule;
+    if (!gated(rule)) return null;
+    const p = parseFuse(id);
+    if (p) {
+      if (rule === 'bowl') return `몸 용량 ${this.bodyLoad(p[0]) + this.lv(p[1])}/${this.bodyCap(p[0])}`;
+      if (rule === 'breath') return '같이 싸운 짝 · 호흡이 다 참';
+      const g = this.gateInfo();
+      return `칸 ${g?.free ?? 0} 중 1 · 등급 ${Math.min(this.lv(p[0]), this.lv(p[1]), ...this.bodyMembers(p[0]).map((m) => this.lv(m)))}`;
+    }
+    const info = ARMS[id];
+    if (!info || info.cat === 'passive') return null;
+    const owned = this.lv(id) > 0;
+    const g = this.gateInfo();
+    if (!owned) {
+      if (rule === 'width') {
+        const cats = new Set(this.attackOwned().map((x) => ARMS[x].cat));
+        if (cats.has(info.cat)) return null;
+        return g?.next !== null && g?.next !== undefined ? `새 갈래 · 칸까지 ${g.next - g.have}` : '새 갈래';
+      }
+      if ((rule === 'count' || rule === 'bowl') && g && g.next !== null) return `${rule === 'bowl' ? '표' : '칸'}까지 ${g.next - g.have}종`;
+      return null;
+    }
+    if (rule === 'width' || rule === 'count') {
+      const r = this.rootOf(id);
+      if (!this.fusion.kids.has(r)) return null;
+      const ls = this.bodyMembers(r).map((m) => this.lv(m));
+      const gNow = Math.min(...ls);
+      if (this.lv(id) === gNow && ls.filter((l) => l === gNow).length === 1) return `등급 ${gNow} → ${gNow + 1}`;
+      return null;
+    }
+    if (rule === 'bowl' && this.fusion.kids.has(id) && !this.parent.has(id)) return `몸 용량 ${this.bodyCap(id)} → ${this.bodyCap(id) + 1}`;
+    return null;
+  }
+
   /** 합친 무기(몸)에 든 무기 수 (자기 포함) */
   bodySize(id: string): number {
     let n = 1;
@@ -788,7 +1009,9 @@ export class Chaos {
    */
   fuseCandidates(limit = 60): [string, string][] {
     // 보통 판은 2레벨부터 (11-13: 3레벨이면 2분 반 동안 합성 카드가 한 번도 안 나왔다)
-    const need = this.w.config.fusionLab ? 1 : 2;
+    const rule = this.fuseRule;
+    const need = this.w.config.fusionLab || rule === 'bowl' ? 1 : GATE.need;
+    const bodyMax = this.bodyMaxNow();
     const ws = this.owned().filter((id) => ARMS[id].cat !== 'passive' && this.lv(id) >= need && !this.parent.has(id));
     const catsIn = (id: string): Set<string> => {
       const s = new Set<string>([ARMS[id].cat]);
@@ -803,10 +1026,12 @@ export class Chaos {
     }
     const out: [string, string][] = [];
     for (const a of ws) {
-      if (this.bodySize(a) >= OFFER5.bodyMax) continue;
+      if (this.bodySize(a) >= bodyMax) continue;
       const inA = catsIn(a);
       for (const b of ws) {
         if (a === b || this.fusion.kids.has(b) || inA.has(ARMS[b].cat)) continue;
+        // 표와 그릇: 담을 레벨 합이 몸 용량(A 레벨 + 2)을 넘으면 안 됨
+        if (rule === 'bowl' && this.bodyLoad(a) + this.lv(b) > this.bodyCap(a)) continue;
         out.push([a, b]);
         if (out.length >= limit) return out;
       }
@@ -838,7 +1063,15 @@ export class Chaos {
     this.fusion.drama = true;
     this.fusion.v5 = true;
     this.fusion.announce(p[0], p[1]);
-    if (!this.w.config.fusionLab) this.fuseRest = OFFER5.rest;
+    if (!this.w.config.fusionLab && !gated(this.fuseRule)) this.fuseRest = OFFER5.rest;
+    // 호흡: 그 짝은 비우고, 다른 짝은 절반, 안에 든 무기의 호흡은 사라짐
+    if (this.fuseRule === 'breath') {
+      for (const [k, v] of this.breath) {
+        const [x, y] = k.split('>');
+        if (x === p[1] || y === p[1] || k === `${p[0]}>${p[1]}`) this.breath.delete(k);
+        else this.breath.set(k, v / 2);
+      }
+    }
     return true;
   }
 

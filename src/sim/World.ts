@@ -385,6 +385,8 @@ export class World implements SimApi {
   private choose(index: number): void {
     const id = this.offer?.choices[index];
     if (!id) return;
+    // 합성 문 샘플 호흡: 합성 카드를 넘겼는지
+    this.chaos?.offerResolved(this.offer!.choices, id);
     // 갈래 합성 카드 (도파민 모드)
     if (id.startsWith('fuse:') && this.chaos) {
       this.chaos.applyFuse(id);
@@ -1025,7 +1027,10 @@ export class World implements SimApi {
     e.hp -= dmg;
     // 어느 무기의 피해인가 (도파민 모드): 숫자 색 · 판 끝 무기별 피해
     const src = this.chainSrc.get(chainId);
-    if (src && this.chaos) this.chaos.noteDamage(src, Math.min(dmg, Math.max(0, hpBefore)));
+    if (src && this.chaos) {
+      this.chaos.noteDamage(src, Math.min(dmg, Math.max(0, hpBefore)));
+      this.chaos.noteHit(e, src);
+    }
     this.emit({ type: 'hit', x: e.x, y: e.y, amount: dmg, crit, src });
     e.def.boss?.onDamaged?.(this, e);
     // 체력을 넘긴 만큼이 넘친 피해 → 연쇄로 이월
@@ -1210,7 +1215,7 @@ export class World implements SimApi {
     const pileMul = this.rules.pile ? BALANCE.experiment.pile.enemyHpMul : 1;
     const C = BALANCE.chaos;
     const chaosMul = this.rules.chaos
-      ? C.enemyHpMul + C.enemyHpPerWave * (this.wave - 1) + (this.chaos?.fusion.active ? C.enemyHpLatePerWave * Math.max(0, this.wave - C.enemyHpLateFrom) + C.enemyHpPerFusion * this.chaos.parent.size : 0)
+      ? C.enemyHpMul + C.enemyHpPerWave * (this.wave - 1) + (this.chaos?.fusion.active ? this.chaos.lateHpTerm(this.wave) : 0)
       : 1;
     const hp = enemyHp(this.wave) * this.chapter.hpMul * def.hpMul * hpMul * pileMul * chaosMul;
     const e: Enemy = {
@@ -1369,6 +1374,7 @@ export class World implements SimApi {
       picks: [...this.augments.history],
       fusions: this.chaos && this.chaos.fusion.mode === 4 ? [...this.chaos.parent].map(([b, a]) => `${a}>${b}`) : undefined,
       fusionLab: this.config.fusionLab || undefined,
+      fuseRule: this.chaos && !this.config.fusionLab ? this.chaos.fuseRule : undefined,
       weaponDamage: this.chaos ? this.chaos.damageTable() : undefined,
       reacts: this.chaos && this.chaos.parent.size > 0 ? [...new Set([...this.chaos.parent.keys()].map((b) => reactName(b)))] : undefined,
       partsEarned: runReward(this.wave, this.kills) + this.bonusParts,
