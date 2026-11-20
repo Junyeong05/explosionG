@@ -1,6 +1,6 @@
 import { BALANCE } from '../data/balance';
 import { ARMS, CATEGORY_COLOR, chaosEvent, hasRange, type ChaosEventId, type GunLook } from '../data/chaos';
-import { TAU, clamp } from '../core/math';
+import { TAU, clamp, easeOutCubic } from '../core/math';
 import { CAST_SEC, SOUL_BURST, TAG_MINI, TRAP_FLY_SEC, type Actor } from '../sim/chaos';
 import { TAG_ALLY } from '../sim/fusion';
 import { glyphFor, paintGlyph } from './glyphs';
@@ -72,6 +72,10 @@ export class ChaosDraw {
   private readonly emoji = new EmojiCache();
   private banners: Banner[] = [];
   private pops: Pop[] = [];
+  /** 레벨 업을 고른 순간: 그 무기 자리에 "Lv 3 → 4 · 효과" (성장이 보이게, 11-20) */
+  private upPops: { id: string; t: number }[] = [];
+  /** 레벨 업을 고른 무기를 잠깐 밝게 (집중 보기를 옅게) */
+  private upFocus: { id: string; until: number } | null = null;
   private flash = 0;
   private time = 0;
   /** 총구 불꽃·탄피 */
@@ -136,6 +140,11 @@ export class ChaosDraw {
         break;
       case 'augment': {
         const spec = ARMS[e.id];
+        if (spec && !spec.fusion && spec.cat !== 'passive') {
+          this.upPops = this.upPops.filter((u) => u.id !== e.id);
+          this.upPops.push({ id: e.id, t: 0 });
+          this.upFocus = { id: e.id, until: this.time + 1.2 };
+        }
         if (spec?.fusion) {
           const [a, b] = spec.fusion.map((id) => ARMS[id]);
           this.banner(`융합! ${spec.name}`, `${a.name} + ${b.name}`, '#ff3cc8');
@@ -170,6 +179,8 @@ export class ChaosDraw {
     this.flash = Math.max(0, this.flash - dt * 1.5);
     for (const b of this.banners) b.t += dt;
     this.banners = this.banners.filter((b) => b.t < 1.6);
+    for (const u of this.upPops) u.t += dt;
+    this.upPops = this.upPops.filter((u) => u.t < 1.8);
     for (const p of this.pops) p.t += dt;
     this.pops = this.pops.filter((p) => p.t < (p.huge ? 1.6 : 0.8));
     for (const f of this.flashes) f.t += dt;
@@ -452,10 +463,12 @@ export class ChaosDraw {
       ctx.globalCompositeOperation = 'source-over';
     }
     // 무기를 눌러 고른 동안: 그 무기(합친 무기면 안에 든 무기까지)가 낸 것만 밝게, 나머지는 어둡게 (어느 무기가 무슨 공격인지)
-    const team = this.selectedTeam(w);
+    const sel = this.selectedTeam(w);
+    const team = sel ?? this.upFocusTeam(w);
     if (team) {
       for (const a of c.actors) if (a.t >= 0 && !team.has(a.src)) this.actor(a, ctx);
-      ctx.fillStyle = 'rgba(5, 6, 12, 0.72)';
+      // 눌러 고른 무기는 진하게, 레벨 업을 고른 순간은 옅게 (흐름을 덜 끊게)
+      ctx.fillStyle = sel ? 'rgba(5, 6, 12, 0.72)' : `rgba(5, 6, 12, ${0.4 * clamp((this.upFocus!.until - this.time) / 0.4, 0, 1)})`;
       ctx.fillRect(0, 0, FW, LINE_Y);
       ctx.globalCompositeOperation = 'lighter';
       for (const a of c.actors) {
@@ -541,6 +554,7 @@ export class ChaosDraw {
     }
     ctx.globalAlpha = 1;
     this.drawSelected(w);
+    this.drawUpPops(w);
     for (const p of this.pops) {
       const k = p.t / (p.huge ? 1.6 : 0.8);
       // 공명은 오래 또렷하게 (끝 30% 에서만 사라진다)
@@ -568,6 +582,75 @@ export class ChaosDraw {
   }
 
   /** 눌러서 고른 무기: 사거리 원(총·포탑) 또는 "화면 전체", 그리고 이름·레벨·다음 레벨 효과 */
+  /** 레벨 업을 고른 무기의 몸 전체 (잠깐) */
+  private upFocusTeam(w: World): Set<string> | null {
+    const c = w.chaos!;
+    const f = this.upFocus;
+    if (!f || f.until <= this.time || c.lv(f.id) <= 0) return null;
+    const out = new Set<string>();
+    const add = (id: string) => {
+      out.add(id);
+      for (const k of c.fusion.kids.get(id) ?? []) add(k);
+    };
+    add(c.rootOf(f.id));
+    return out;
+  }
+
+  /** 레벨 업을 고른 순간: 무기 자리에서 고리가 번지고, 위에 "카빈 Lv 3 → 4" 와 그 레벨 효과 (합친 무기 안이면 합친 이름 · 등급) */
+  private drawUpPops(w: World): void {
+    const c = w.chaos!;
+    const ctx = this.ctx;
+    for (const u of this.upPops) {
+      const spec = ARMS[u.id];
+      const root = c.rootOf(u.id);
+      const m = c.mountOf(root);
+      if (!spec || !m) continue;
+      const L = w.augments.stacks(u.id);
+      const k = u.t / 1.8;
+      const col = CATEGORY_COLOR[spec.cat];
+      // 고리 두 겹
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 2; i++) {
+        const q = clamp(u.t / 0.6 - i * 0.35, 0, 1);
+        if (q <= 0 || q >= 1) continue;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 12 + q * 34, 0, TAU);
+        ctx.strokeStyle = rgba(col, 0.9 * (1 - q));
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 0.6 * (1 - k);
+      ctx.drawImage(this.glow.get(col), m.x - 26, m.y - 26, 52, 52);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      // 글
+      const kid = root !== u.id || c.fusion.kids.has(u.id);
+      const first = c.fusion.kids.get(root)?.[0];
+      const title = L <= 1 ? `NEW · ${spec.name}` : `${kid && first ? `${fuseName(root, first)} · ` : ''}${spec.name} Lv ${L - 1} → ${L}`;
+      const grade = kid && c.fuseRule !== 'now' ? `등급 ${c.gradeOf(root)}` : '';
+      const eff = L >= 2 ? spec.up[L - 2]?.label ?? '' : '';
+      const sub = [eff, grade].filter(Boolean).join(' · ');
+      const y = m.y - 34 - easeOutCubic(Math.min(1, u.t / 0.3)) * 12 - k * 10;
+      ctx.globalAlpha = k < 0.75 ? 1 : (1 - k) / 0.25;
+      ctx.textAlign = 'center';
+      ctx.font = `900 12px ${FONT}, ${EMOJI_FONT}`;
+      const half = Math.max(ctx.measureText(`${spec.emoji} ${title}`).width, sub ? ctx.measureText(sub).width : 0) / 2 + 8;
+      const x = clamp(m.x, half, FW - half);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+      ctx.strokeText(`${spec.emoji} ${title}`, x, y);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`${spec.emoji} ${title}`, x, y);
+      if (sub) {
+        ctx.font = `800 10px ${FONT}`;
+        ctx.strokeText(sub, x, y + 14);
+        ctx.fillStyle = rgba(col, 1);
+        ctx.fillText(sub, x, y + 14);
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
   /** 눌러 고른 무기와 그 안에 든 무기들 (고른 게 없으면 null) */
   private selectedTeam(w: World): Set<string> | null {
     const c = w.chaos!;

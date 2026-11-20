@@ -12,6 +12,7 @@ import { rulesV4 } from '../../src/data/combineV4';
 import { NO_META } from '../../src/sim/stats';
 import type { Command } from '../../src/sim/types';
 import { World } from '../../src/sim/World';
+import type { FuseRule } from '../../src/data/fuseRules';
 import { InputDriver } from './input';
 
 const FW = BALANCE.field.width;
@@ -38,8 +39,8 @@ export interface Run2 {
   stat: Map<string, { fires: number; matched: number; drama: number; over?: number; boost?: number }>;
 }
 
-export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; v5?: boolean; hp?: number; level?: number } = {}): Run2 {
-  const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true });
+export function run2(weapons: string[], fuse: [string, string][], opt: { seconds?: number; input?: ReturnType<typeof inputFor>; seed?: number; mode?: 2 | 3 | 4; ceil?: boolean; drama?: boolean; v5?: boolean; hp?: number; level?: number; fuseRule?: FuseRule } = {}): Run2 {
+  const w = new World({ seed: opt.seed ?? 12, mode: 'chapter', chapterId: 'ch1', meta: NO_META, sandbox: true, rules: { chaos: true }, recordEvents: true, fuseRule: opt.fuseRule });
   let leaks = 0;
   let reacts = 0;
   let resists = 0;

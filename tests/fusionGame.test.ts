@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BALANCE, FIXED_DT } from '../src/data/balance';
 import { OFFER5, allReacts, fuseCard, fuseId, parseFuse, reactName } from '../src/data/combineV4';
 import { migrate } from '../src/meta/save';
+import { GRADE_MUL } from '../src/data/fuseRules';
 import { NO_META } from '../src/sim/stats';
 import { World } from '../src/sim/World';
 
@@ -150,10 +151,13 @@ describe('합성 문 샘플 (fuseRules.ts)', () => {
     give(w, 'arm_dog', 2);
     c.fuse4('arm_cannon', 'arm_dog');
     expect(c.gradeOf('arm_cannon')).toBe(2);
-    expect(c.gradeMul('arm_cannon')).toBeCloseTo(0.8);
+    expect(c.gradeMul('arm_cannon')).toBeCloseTo(GRADE_MUL[2]);
     give(w, 'arm_dog', 2);
     expect(c.gradeOf('arm_cannon')).toBe(4);
-    expect(c.gradeMul('arm_dog')).toBeCloseTo(1.4);
+    expect(c.gradeMul('arm_dog')).toBeCloseTo(GRADE_MUL[4]);
+    // 키울수록 세진다
+    expect(GRADE_MUL[5]).toBeGreaterThan(GRADE_MUL[4]);
+    expect(GRADE_MUL[4]).toBeGreaterThan(GRADE_MUL[3]);
     expect(make('now').chaos!.gradeMul('arm_cannon')).toBe(1);
   });
 

@@ -3,6 +3,7 @@
 // 합성 카드 종류: 새 짝 (둘 다 아직 안 합침) · 몸에 더함 (A 가 이미 합친 무기) · 몸째 (B 가 이미 합친 무기) · 사슬 (A 가 다른 무기 안에 든 무기)
 import { BALANCE, FIXED_DT } from '../../src/data/balance';
 import { parseFuse } from '../../src/data/combineV4';
+import { GATE } from '../../src/data/fuseRules';
 import { defaultSave } from '../../src/meta/save';
 import { createRunConfig } from '../../src/meta/progression';
 import { Bot } from '../../src/sim/bot';
@@ -10,6 +11,8 @@ import { World } from '../../src/sim/World';
 
 const runs = Number(process.argv[2] ?? 8);
 Object.assign(BALANCE.chaos as object, JSON.parse(process.argv[3] ?? '{}'));
+// 샘플들의 후반 체력 (합친 몸 하나마다 웨이브당): TAX=0.2
+if (process.env.TAX) (GATE as unknown as { taxPerBody: number }).taxPerBody = Number(process.env.TAX);
 const rows: string[] = [];
 const firstOffer: number[] = [];
 const tot = { offers: 0, withFuse: 0, cards: 0, fresh: 0, grow: 0, whole: 0, chain: 0, picked: 0 };

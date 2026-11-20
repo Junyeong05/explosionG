@@ -824,10 +824,9 @@ export class Chaos {
     const r = this.rootOf(id);
     return Math.min(...this.bodyMembers(r).map((m) => this.lv(m)));
   }
-  /** 합친 무기의 B 반응 세기 배율 (폭·무기 수만, 나머지 1) */
+  /** 합친 무기의 B 반응 세기 배율 (샘플 넷 모두, 지금 규칙은 1) */
   gradeMul(id: string): number {
-    const rule = this.fuseRule;
-    if (rule !== 'width' && rule !== 'count') return 1;
+    if (!gated(this.fuseRule)) return 1;
     const r = this.rootOf(id);
     if (!this.fusion.kids.has(r)) return 1;
     return GRADE_MUL[Math.max(1, Math.min(5, this.gradeOf(r)))] ?? 1;
@@ -964,10 +963,11 @@ export class Chaos {
     if (!gated(rule)) return null;
     const p = parseFuse(id);
     if (p) {
-      if (rule === 'bowl') return `몸 용량 ${this.bodyLoad(p[0]) + this.lv(p[1])}/${this.bodyCap(p[0])}`;
-      if (rule === 'breath') return '같이 싸운 짝 · 호흡이 다 참';
+      const grade = Math.min(this.lv(p[0]), this.lv(p[1]), ...this.bodyMembers(p[0]).map((m) => this.lv(m)));
+      if (rule === 'bowl') return `몸 용량 ${this.bodyLoad(p[0]) + this.lv(p[1])}/${this.bodyCap(p[0])} · 등급 ${grade}`;
+      if (rule === 'breath') return `같이 싸운 짝 · 호흡이 다 참 · 등급 ${grade}`;
       const g = this.gateInfo();
-      return `칸 ${g?.free ?? 0} 중 1 · 등급 ${Math.min(this.lv(p[0]), this.lv(p[1]), ...this.bodyMembers(p[0]).map((m) => this.lv(m)))}`;
+      return `칸 ${g?.free ?? 0} 중 1 · 등급 ${grade}`;
     }
     const info = ARMS[id];
     if (!info || info.cat === 'passive') return null;
@@ -982,16 +982,15 @@ export class Chaos {
       if ((rule === 'count' || rule === 'bowl') && g && g.next !== null) return `${rule === 'bowl' ? '표' : '칸'}까지 ${g.next - g.have}종`;
       return null;
     }
-    if (rule === 'width' || rule === 'count') {
-      const r = this.rootOf(id);
-      if (!this.fusion.kids.has(r)) return null;
+    const notes: string[] = [];
+    const r = this.rootOf(id);
+    if (this.fusion.kids.has(r)) {
       const ls = this.bodyMembers(r).map((m) => this.lv(m));
       const gNow = Math.min(...ls);
-      if (this.lv(id) === gNow && ls.filter((l) => l === gNow).length === 1) return `등급 ${gNow} → ${gNow + 1}`;
-      return null;
+      if (this.lv(id) === gNow && ls.filter((l) => l === gNow).length === 1) notes.push(`등급 ${gNow} → ${gNow + 1}`);
     }
-    if (rule === 'bowl' && this.fusion.kids.has(id) && !this.parent.has(id)) return `몸 용량 ${this.bodyCap(id)} → ${this.bodyCap(id) + 1}`;
-    return null;
+    if (rule === 'bowl' && this.fusion.kids.has(id) && !this.parent.has(id)) notes.push(`몸 용량 ${this.bodyCap(id)} → ${this.bodyCap(id) + 1}`);
+    return notes.length ? notes.join(' · ') : null;
   }
 
   /** 합친 무기(몸)에 든 무기 수 (자기 포함) */
