@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>잉크 코믹 레벨 업</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Gothic+A1:wght@400;700;900&amp;display=swap">
+<style>
+body{margin:0}
+.bh{font-family:'Black Han Sans',sans-serif}
+.tag{position:absolute;top:-12px;left:10px;background:#141210;color:#EFE6D2;font-family:'Black Han Sans',sans-serif;font-size:13px;line-height:1;padding:4px 8px 3px;transform:rotate(-2deg)}
+.mk{background:#F5C518;color:#141210;font-weight:900;padding:0 3px;border-bottom:2px solid #141210}
+.pip{width:9px;height:9px;box-sizing:border-box;border:2px solid #141210}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #EFE6D2; font-family: 'Gothic A1', sans-serif">
+
+<!-- 공통 정의 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <pattern id="dkL" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="2.3" fill="#141210"/></pattern>
+  <pattern id="dkM" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="1.6" fill="#141210"/></pattern>
+  <pattern id="dkS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="1" fill="#141210"/></pattern>
+  <pattern id="dSl" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.15" fill="#3A4A5C"/></pattern>
+  <pattern id="dY" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.8" fill="#F5C518"/></pattern>
+  <pattern id="dR" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.25" fill="#D7352B"/></pattern>
+  <pattern id="hatchK" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 2.5H5" stroke="#141210" stroke-width="1.3"/></pattern>
+  <pattern id="hatchS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 3H6" stroke="#3A4A5C" stroke-width="1.2"/></pattern>
+  <pattern id="xhatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><path d="M0 2.5H5M2.5 0V5" stroke="#141210" stroke-width="0.9"/></pattern>
+  <pattern id="rain" width="26" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(14)"><path d="M3 2V15M15 21V32M9 35V44M21 5V12" stroke="#EFE6D2" stroke-width="0.9" stroke-linecap="round"/></pattern>
+  <pattern id="haz" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="12" fill="#D7352B"/><rect x="6" width="6" height="12" fill="#EFE6D2"/></pattern>
+  <pattern id="wire" width="9" height="12" patternUnits="userSpaceOnUse"><ellipse cx="4.5" cy="6.5" rx="5.4" ry="4.6" fill="none" stroke="#141210" stroke-width="1.2"/><path d="M4.5 1.9L3 0.2M4.5 1.9L6 0.2" stroke="#141210" stroke-width="1"/></pattern>
+  <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141210" stop-opacity="0.75"/><stop offset="1" stop-color="#141210" stop-opacity="0"/></linearGradient>
+  <clipPath id="cMoon"><circle cx="298" cy="30" r="21"/></clipPath>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7"/><feColorMatrix type="matrix" values="0 0 0 0 0.08  0 0 0 0 0.07  0 0 0 0 0.06  2.6 0 0 0 -1.35"/></filter>
+
+  <symbol id="eHound" viewBox="0 0 48 40">
+    <path d="M5 31L2 23L7 25L5 16L11 20L12 11L17 17L20 7L24 15L28 7L31 17L36 11L37 20L43 16L41 25L46 23L43 31L40 32L42 38.5L36.5 38.5L34.5 34L29 34.5L24 37.5L19 34.5L13.5 34L11.5 38.5L6 38.5L8 32Z" fill="#141210" stroke="#141210" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M2.6 22.6L6.6 24.6M5.4 16.4L10.6 19.8M12.3 11.6L16.6 16.6M20.3 7.8L23.6 14.2" stroke="#EFE6D2" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+    <path d="M14.5 22.5L21.5 25.4L20 27L15.5 25ZM33.5 22.5L26.5 25.4L28 27L32.5 25Z" fill="#FFFFFF" filter="url(#glow)"/>
+    <path d="M18.5 30.2L19.8 33L21.2 30.6L22.6 33.6L24 31L25.4 33.6L26.8 30.6L28.2 33L29.5 30.2" fill="none" stroke="#EFE6D2" stroke-width="1" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="eBrute" viewBox="0 0 64 64">
+    <path d="M23 15C17 13 9 9 5 1C7 10 13 17 21 21ZM41 15C47 13 55 9 59 1C57 10 51 17 43 21Z" fill="#141210"/>
+    <path d="M5 1C9 9 17 13 23 15M59 1C55 9 47 13 41 15" stroke="#EFE6D2" stroke-width="1.1" fill="none"/>
+    <path d="M22 11H42L44 21L56 23C60 25 61 29 61 33L63 49C63 54 61 57 57 57C53 57 51 54 52 50L51 41L48 45L46 56L40 63H34V57H30V63H24L18 56L16 45L13 41L12 50C13 54 11 57 7 57C3 57 1 54 1 49L3 33C3 29 4 25 8 23L20 21Z" fill="#141210"/>
+    <path d="M5 25C9 20 17 20 22 24L20 32C15 30 10 30 4 32ZM59 25C55 20 47 20 42 24L44 32C49 30 54 30 60 32Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M23 29H41L43 43L32 48L21 43Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M35 31L42 38M33 33L42.5 42M31 36L39 45M37 30L41.5 34.5M48 23.5L55 30M51 23L58 29" stroke="#141210" stroke-width="1"/>
+    <path d="M23.8 30.2H32M6 25C10 21.5 15 21 19 23M3 33L1.6 48" stroke="#EFE6D2" stroke-width="1" fill="none"/>
+    <path d="M25 15.5L30.5 17.8L29.5 19.2L25 17.4ZM39 15.5L33.5 17.8L34.5 19.2L39 17.4Z" fill="#FFFFFF" filter="url(#glow)"/>
+  </symbol>
+  <symbol id="eWing" viewBox="0 0 64 48">
+    <path d="M30 16C22 10 12 6 2 4C5 9 6 13 5 18C8 16 11 17 12 21C14 18 18 19 19 23C21 20 25 21 27 26ZM34 16C42 10 52 6 62 4C59 9 58 13 59 18C56 16 53 17 52 21C50 18 46 19 45 23C43 20 39 21 37 26Z" fill="#141210" stroke="#141210" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M30 17L4 5M30 18L6 17M29 20L12 20M28 22L19 22M34 17L60 5M34 18L58 17M35 20L52 20M36 22L45 22" stroke="#3A4A5C" stroke-width="0.9" fill="none"/>
+    <path d="M30 16C22 10 12 6 2 4M34 16C42 10 52 6 62 4" stroke="#EFE6D2" stroke-width="1" fill="none"/>
+    <path d="M32 6C35.5 6 37 12 36 21C36 29 35 35 32 41C29 35 28 29 28 21C27 12 28.5 6 32 6ZM32 6L31 1L33.5 3.5Z" fill="#141210"/>
+    <path d="M27.5 36L29 31L32 33L35 31L36.5 36C36.5 41 34.5 45 32 46C29.5 45 27.5 41 27.5 36Z" fill="#141210"/>
+    <path d="M29 37.5L31.2 38.8L30.6 40L28.8 38.8ZM35 37.5L32.8 38.8L33.4 40L35.2 38.8Z" fill="#FFFFFF" filter="url(#glow)"/>
+  </symbol>
+  <symbol id="aDog" viewBox="0 0 64 40">
+    <path d="M2 25C6 22 9 19 13 18C18 15 26 13 36 12C39 10 41 8 43 6L44 0L47 5L49 1L51 6C54 7 58 8 62 10L63 12L57 13L61 15L55 17C52 19 50 21 48 24L53 27L61 29L60 32L50 31L43 27C40 26 36 25 32 25L26 27L17 33L9 37L7 35L14 29L19 23C15 22 10 22 6 24Z" fill="#EFE6D2" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M18 16.5C25 13.6 32 12.6 37 12.4C35.5 16.5 30 19 23 19.4C20 19.4 17.6 18.4 18 16.5Z" fill="#141210"/>
+    <path d="M48 24L43 27C40 26 36 25 32 25L26 27L30 23C36 23 42 23 48 24Z" fill="#141210"/>
+    <path d="M41.5 8.5L46 10.5L44.6 17.5L40 15.5Z" fill="#D7352B" stroke="#141210" stroke-width="1.2"/>
+    <path d="M51 8.5L54 8.8L53 10Z" fill="#141210"/>
+  </symbol>
+  <symbol id="iMine" viewBox="0 0 40 40">
+    <path d="M2 33H38" stroke="#141210" stroke-width="2"/>
+    <path d="M5 37L8 33.5M11 37L14 33.5M17 37L20 33.5M23 37L26 33.5M29 37L32 33.5" stroke="#141210" stroke-width="1"/>
+    <rect x="5" y="27" width="30" height="5" fill="#141210"/>
+    <path d="M7 27C7 19.5 12.5 15.5 20 15.5C27.5 15.5 33 19.5 33 27Z" fill="#3A4A5C" stroke="#141210" stroke-width="2.2"/>
+    <path d="M25 18L31 25M22 17L29.5 26M28 17.5L32.5 22" stroke="#141210" stroke-width="1"/>
+    <path d="M11 24C11.5 20.5 14 18.5 17 18" stroke="#EFE6D2" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <rect x="15.5" y="12.5" width="9" height="3.5" fill="#141210"/>
+    <circle cx="20" cy="9.5" r="3" fill="#D7352B" stroke="#141210" stroke-width="1.5"/>
+    <path d="M20 2.5V4.5M13.5 5L15 6.5M26.5 5L25 6.5M12 10H14M26 10H28" stroke="#141210" stroke-width="1.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="iDog" viewBox="0 0 40 40">
+    <path d="M7 37L8.5 24C8.5 18 10.5 14 13.5 11.5L12.5 2.5L18 8.5L20 1.5L23.5 9.5C26.5 10.5 28.5 12.5 30.5 14.5L37 17.5C38.5 18.2 38.8 20 37.6 21.4L35.5 23.5L28.5 23.5C26.5 26 24.5 28 22.5 29L23 37Z" fill="#EFE6D2" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M8.5 24C8.5 18 10.5 14 13.5 11.5C14 16 13 21 15 25C16 28 18 30 22.5 29L23 37H7Z" fill="#141210"/>
+    <path d="M14 10L13.6 5L16.8 9Z" fill="#141210"/>
+    <path d="M23.5 14.5L27 15.2L25.5 16.6Z" fill="#141210"/>
+    <circle cx="37" cy="18.6" r="1.6" fill="#141210"/>
+    <path d="M35.5 23.5L29 22" stroke="#141210" stroke-width="1.4"/>
+    <path d="M8 29.5L23 28.5L23.3 33L7.6 34Z" fill="#D7352B" stroke="#141210" stroke-width="1.6"/>
+    <circle cx="16" cy="35.5" r="1.6" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+  </symbol>
+  <symbol id="iCarbine" viewBox="0 0 40 40">
+    <g transform="rotate(-32 20 21)">
+      <path d="M2 20.5L11 18.5L12 24.5L3 27.5Z" fill="#141210"/>
+      <rect x="11" y="18" width="15" height="6.4" fill="#3A4A5C" stroke="#141210" stroke-width="2"/>
+      <path d="M13 20.2H24" stroke="#EFE6D2" stroke-width="1"/>
+      <rect x="26" y="19.4" width="10.5" height="2.8" fill="#141210"/>
+      <path d="M16 24.4L14.6 31.5L18.8 32L20 24.4Z" fill="#141210"/>
+      <rect x="17" y="15.4" width="6" height="2.6" fill="#141210"/>
+      <polygon points="43.5,21.0 40.6,21.8 42.0,24.9 39.5,22.6 37.9,25.6 37.7,22.5 35.6,23.7 36.5,21.6 34.5,21.4 36.4,20.0 35.9,17.8 37.9,19.0 38.6,16.9 39.2,18.6 41.1,17.7 40.7,20.1" fill="#F5C518" stroke="#141210" stroke-width="1.2" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="iCannon" viewBox="0 0 40 40">
+    <path d="M14 29L3 36L5 38L16 32Z" fill="#141210"/>
+    <g transform="rotate(-30 15 25)">
+      <rect x="9" y="20.5" width="25" height="9" rx="1.5" fill="#3A4A5C" stroke="#141210" stroke-width="2"/>
+      <rect x="31" y="19" width="4.5" height="12" fill="#141210"/>
+      <path d="M11 23H29" stroke="#EFE6D2" stroke-width="1.2"/>
+      <path d="M17 20.5V29.5M24 20.5V29.5" stroke="#141210" stroke-width="1.4"/>
+    </g>
+    <circle cx="16" cy="29" r="8" fill="#D7352B" stroke="#141210" stroke-width="2.2"/>
+    <path d="M16 21.5V36.5M8.5 29H23.5M10.7 23.7L21.3 34.3M21.3 23.7L10.7 34.3" stroke="#141210" stroke-width="1.5"/>
+    <circle cx="16" cy="29" r="2.4" fill="#141210"/>
+  </symbol>
+  <symbol id="iLaser" viewBox="0 0 40 40">
+    <g transform="rotate(-24 18 24)">
+      <path d="M35 21.7H62" stroke="#141210" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M35 21.7H62" stroke="#D7352B" stroke-width="3.2"/>
+      <path d="M35 21.7H62" stroke="#F5C518" stroke-width="1.1"/>
+      <path d="M2 24L8 20H13L15 17H27L29 20H33V23.4H22L19 27.5H14L12.6 24Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.9"/>
+      <path d="M14 24L12 31.5H16.2L18.2 24Z" fill="#141210"/>
+      <rect x="18.5" y="18.2" width="6.5" height="3" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+    </g>
+  </symbol>
+  <symbol id="iLava" viewBox="0 0 40 40">
+    <path d="M3 29C3 24 9 21 15 21.5C19 20 24 20.5 27 21.5C33 21 38 24 37.5 28.5C38 33 31 35.5 23 35C17 36 10 35 6 33C3.5 32 3 30.5 3 29Z" fill="#D7352B" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M9 28.5C10 25.5 15 24.5 19 25C23 24 29 24.8 31 27.5C32 30.5 26 32 20 31.6C14 32 9 31 9 28.5Z" fill="#F5C518"/>
+    <path d="M12 17c-2-3 2-5 0-8M20 15c-2-3 2-5 0-8M28 17c-2-3 2-5 0-8" stroke="#141210" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="iSpirit" viewBox="0 0 40 40">
+    <path d="M20 5C24 10 29 14 28.5 22C28 29 24.5 33 20 34C15.5 33 12 29 11.5 22C11 16 15 13 17 9C17.5 12 18.5 13 19.5 13C19 10 19 7.5 20 5Z" fill="#F5C518" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M20 16C23 19 24.5 22 24 26C23.5 29 22 30.5 20 31C18 30.5 16.5 29 16 26C15.5 22 17 19 20 16Z" fill="#EFE6D2"/>
+  </symbol>
+  <symbol id="iSaw" viewBox="0 0 40 40">
+    <polygon points="30.5,20.0 34.0,24.7 29.1,25.2 29.8,31.1 25.2,29.1 22.9,34.5 20.0,30.5 15.3,34.0 14.8,29.1 8.9,29.8 10.9,25.2 5.5,22.9 9.5,20.0 6.0,15.3 10.9,14.8 10.2,8.9 14.7,10.9 17.1,5.5 20.0,9.5 24.7,6.0 25.2,10.9 31.1,10.2 29.1,14.7 34.5,17.1" fill="#3A4A5C" stroke="#141210" stroke-width="1.8"/>
+    <circle cx="20" cy="20" r="3.6" fill="#EFE6D2" stroke="#141210" stroke-width="1.6"/>
+  </symbol>
+  <symbol id="iSwarm" viewBox="0 0 40 40">
+    <g fill="#141210"><ellipse cx="11" cy="13" rx="2.2" ry="4"/><ellipse cx="27" cy="10" rx="2" ry="3.6"/><ellipse cx="19" cy="27" rx="2.4" ry="4.4"/></g>
+    <g fill="#3A4A5C" stroke="#141210" stroke-width="1"><ellipse cx="7" cy="10" rx="4" ry="1.8"/><ellipse cx="15" cy="10" rx="4" ry="1.8"/><ellipse cx="23" cy="7" rx="3.6" ry="1.6"/><ellipse cx="31" cy="7" rx="3.6" ry="1.6"/><ellipse cx="14.5" cy="23.5" rx="4.4" ry="2"/><ellipse cx="23.5" cy="23.5" rx="4.4" ry="2"/></g>
+  </symbol>
+  <!-- 새 무기: 박격포 -->
+  <symbol id="iMortar" viewBox="0 0 40 40">
+    <path d="M25 15C27 4 35 3 38 12" stroke="#141210" stroke-width="1.6" stroke-dasharray="2.5 2" fill="none"/>
+    <g transform="rotate(20 31.5 6.5)">
+      <path d="M28 4.8H33C34.6 4.8 35.6 5.6 35.6 6.5C35.6 7.4 34.6 8.2 33 8.2H28Z" fill="#D7352B" stroke="#141210" stroke-width="1.1"/>
+      <path d="M28 4.8L26.4 3.8V9.2L28 8.2Z" fill="#141210"/>
+    </g>
+    <path d="M1 36.5H39" stroke="#141210" stroke-width="1.6"/>
+    <path d="M3 36H23L21 32.5H5Z" fill="#141210"/>
+    <g transform="rotate(-52 13 31)">
+      <rect x="9" y="27.6" width="21" height="6.8" fill="#3A4A5C" stroke="#141210" stroke-width="1.8"/>
+      <path d="M11 29.4H27.5" stroke="#EFE6D2" stroke-width="1.1"/>
+      <rect x="28.5" y="26.6" width="3" height="8.8" fill="#141210"/>
+    </g>
+    <path d="M19.2 23.1L26.5 36M19.2 23.1L15.5 36" stroke="#141210" stroke-width="2"/>
+    <path d="M23.4 12.6L21.8 10.2M26.6 13.2L28 10.6M21 15.2L18.4 14.4" stroke="#D7352B" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+</defs>
+</svg>
+
+<!-- ===== 뒤: 멈춘 판 (간단히) ===== -->
+<svg style="position:absolute; left:8px; top:8px" width="374" height="64" viewBox="0 0 374 64" aria-hidden="true">
+  <path d="M2 2H120L110 62H2Z" fill="#141210" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M127 2H252L242 62H117Z" fill="#EFE6D2" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M259 2H372V62H249Z" fill="#EFE6D2" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M128 42H192.8L191.3 52H126.5Z" fill="#F5C518"/>
+  <path d="M128 42H236L234.5 52H126.5Z" fill="none" stroke="#141210" stroke-width="2"/>
+  <g stroke="#141210" stroke-width="1.8" fill="#D7352B">
+    <path transform="translate(262 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(284 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(306 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(328 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(350 10)" fill="#EFE6D2" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+  </g>
+</svg>
+<div aria-hidden="true">
+  <div class="bh" style="position:absolute; left:18px; top:31px; font-size:36px; line-height:1; color:#F5C518;">12</div>
+  <div class="bh" style="position:absolute; left:140px; top:13px; font-size:28px; line-height:1; color:#141210;">LV 9</div>
+</div>
+<svg style="position:absolute; left:8px; top:80px" width="374" height="710" viewBox="0 0 374 710" aria-hidden="true">
+  <rect width="374" height="710" fill="#3A4A5C"/>
+  <rect width="374" height="24" fill="url(#dkL)"/>
+  <rect y="24" width="374" height="22" fill="url(#dkM)"/>
+  <rect y="46" width="374" height="24" fill="url(#dkS)"/>
+  <circle cx="298" cy="30" r="22" fill="#EFE6D2"/>
+  <g clip-path="url(#cMoon)"><rect x="270" y="4" width="60" height="56" fill="url(#dkS)"/><circle cx="306" cy="26" r="21" fill="#EFE6D2"/></g>
+  <path d="M226 20C248 15 280 19 314 14C334 11 352 15 374 12V20C352 23 334 21 314 25C288 28 258 25 226 27Z" fill="#141210"/>
+  <path d="M0 80V54H12V42H20V48H32V32H37V26H41V32H50V50H64V38H80V56H94V44H102V36H110V46H126V60H144V52H158V40H168V46H182V24H186V12H188V24H192V42H208V54H222V36H238V48H252V42H264V30H276V50H290V38H318V50H330V32H346V44H360V36H374V80Z" fill="#141210"/>
+  <path d="M296 25L305 17L314 25Z" fill="#141210"/><rect x="297" y="25" width="16" height="10" fill="#141210"/>
+  <g fill="#F5C518"><rect x="15" y="58" width="2.5" height="3.5"/><rect x="68" y="44" width="2.5" height="3.5"/><rect x="114" y="54" width="2.5" height="3.5"/><rect x="196" y="48" width="2.5" height="3.5"/><rect x="242" y="56" width="2.5" height="3.5"/><rect x="334" y="40" width="2.5" height="3.5"/></g>
+  <rect y="78" width="374" height="240" fill="url(#gFar)"/>
+  <path d="M0 78H146L0 470Z" fill="#141210" opacity="0.5"/>
+  <path d="M0 78H146L0 470Z" fill="url(#hatchK)" opacity="0.55"/>
+  <path d="M228 78H374V470Z" fill="#141210" opacity="0.5"/>
+  <path d="M228 78H374V470Z" fill="url(#hatchK)" opacity="0.55"/>
+  <path d="M146 78L0 470M228 78L374 470" stroke="#141210" stroke-width="3"/>
+  <path d="M14 402V248C14 239 20 233 29 233H41M360 402V248C360 239 354 233 345 233H333" fill="none" stroke="#141210" stroke-width="4"/>
+  <path d="M33 229H49L46 238H36ZM341 229H325L328 238H338Z" fill="#141210"/>
+  <path d="M36.5 238H45.5L44.5 242H37.5ZM337.5 238H328.5L329.5 242H336.5Z" fill="#F5C518"/>
+  <rect width="374" height="620" fill="url(#rain)" opacity="0.35"/>
+  <use href="#eBrute" x="40" y="96" width="54" height="54"/>
+  <use href="#eHound" x="122" y="86" width="36" height="30"/>
+  <use href="#eHound" x="178" y="116" width="40" height="33"/>
+  <use href="#eWing" x="232" y="68" width="54" height="40"/>
+  <use href="#eHound" x="306" y="118" width="36" height="30"/>
+  <use href="#eBrute" x="252" y="164" width="58" height="58"/>
+  <use href="#eHound" x="92" y="184" width="40" height="33"/>
+  <use href="#eWing" x="58" y="226" width="48" height="36"/>
+  <use href="#eHound" x="150" y="300" width="40" height="33"/>
+  <use href="#eBrute" x="226" y="330" width="56" height="56"/>
+  <use href="#eWing" x="300" y="410" width="48" height="36"/>
+  <use href="#eHound" x="60" y="440" width="40" height="33"/>
+  <use href="#eHound" x="176" y="520" width="38" height="32"/>
+  <rect y="620" width="374" height="90" fill="#141210"/>
+  <rect y="624" width="374" height="86" fill="url(#hatchS)" opacity="0.55"/>
+  <path d="M0 621H374" stroke="#141210" stroke-width="6"/>
+  <path d="M68 628L90 598M92 628L70 598M148 628L170 598M172 628L150 598M228 628L250 598M252 628L230 598M296 628L318 598M320 628L298 598" stroke="#141210" stroke-width="7"/>
+  <path d="M68 628L90 598M92 628L70 598M148 628L170 598M172 628L150 598M228 628L250 598M252 628L230 598M296 628L318 598M320 628L298 598" stroke="#3A4A5C" stroke-width="3.6"/>
+  <g stroke="#141210" stroke-width="2" stroke-linejoin="round">
+    <path d="M46 598L196 594L192 599L197 603L47 607Z" fill="#EFE6D2"/>
+    <path d="M150 606L330 603L331 612L151 615Z" fill="#EFE6D2"/>
+    <path d="M58 609L176 610L176 618L58 617Z" fill="url(#haz)"/>
+  </g>
+  <g fill="#EFE6D2" stroke="#141210" stroke-width="1.8">
+    <ellipse cx="13" cy="614" rx="14" ry="6.5"/><ellipse cx="38" cy="615" rx="13" ry="6"/><ellipse cx="25" cy="603" rx="13" ry="6"/>
+    <ellipse cx="361" cy="614" rx="14" ry="6.5"/><ellipse cx="336" cy="615" rx="13" ry="6"/><ellipse cx="349" cy="603" rx="13" ry="6"/>
+  </g>
+  <rect x="50" y="584" width="274" height="12" fill="url(#wire)"/>
+  <g fill="#EFE6D2" stroke="#141210" stroke-width="2.5">
+    <rect x="13.25" y="635.25" width="35.5" height="37.5"/><rect x="56.25" y="635.25" width="35.5" height="37.5"/><rect x="99.25" y="635.25" width="35.5" height="37.5"/>
+    <rect x="195.25" y="635.25" width="35.5" height="37.5"/><rect x="238.25" y="635.25" width="35.5" height="37.5"/><rect x="281.25" y="635.25" width="35.5" height="37.5"/><rect x="324.25" y="635.25" width="35.5" height="37.5"/>
+  </g>
+  <rect x="142" y="638" width="30" height="30" fill="#F5C518" stroke="#141210" stroke-width="2.5" transform="rotate(-6 157 653)"/>
+  <rect x="156" y="624" width="30" height="30" fill="#D7352B" stroke="#141210" stroke-width="2.5" transform="rotate(5 171 639)"/>
+  <svg x="15" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iCarbine"/></svg>
+  <svg x="58" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iCannon"/></svg>
+  <svg x="101" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iLaser"/></svg>
+  <svg x="197" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iSwarm"/></svg>
+  <svg x="240" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iLava"/></svg>
+  <svg x="283" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iSpirit"/></svg>
+  <svg x="326" y="637" width="32" height="32" viewBox="0 0 40 40"><use href="#iSaw"/></svg>
+  <rect x="2" y="2" width="370" height="706" fill="none" stroke="#141210" stroke-width="4"/>
+</svg>
+
+<!-- ===== 어둡게: 먹 + 망점 + 집중선 ===== -->
+<div style="position:absolute; left:0; top:0; width:390px; height:844px; background:rgba(20,18,16,0.82);"></div>
+<svg style="position:absolute; left:0; top:0" width="390" height="844" viewBox="0 0 390 844" aria-hidden="true">
+  <rect width="390" height="844" fill="url(#dSl)" opacity="0.45"/>
+  <path d="M428 426L835 415L835 424ZM427 450L833 480L832 488ZM438 488L819 571L816 586ZM412 497L809 611L805 624ZM402 517L786 675L783 683ZM409 561L745 757L737 771ZM378 568L709 812L703 819ZM382 601L672 856L662 867ZM353 614L616 912L609 918ZM324 612L571 948L561 955ZM324 652L520 982L512 986ZM283 641L449 1018L436 1023ZM268 674L384 1041L371 1045ZM239 659L321 1057L309 1060ZM217 651L264 1066L252 1067ZM198 647L210 1070L194 1070ZM177 657L152 1069L138 1067ZM147 655L67 1057L55 1054ZM116 650L-16 1034L-25 1031ZM106 639L-48 1022L-61 1016ZM82 630L-114 991L-127 983ZM65 607L-176 951L-190 941ZM33 620L-217 920L-224 913ZM23 583L-280 859L-287 851ZM22 561L-312 821L-319 811ZM-30 556L-359 751L-367 736ZM-3 515L-390 690L-397 674ZM-42 510L-408 644L-414 627ZM-42 482L-428 575L-432 558ZM-28 449L-442 490L-443 479ZM-37 431L-445 437L-445 428ZM-19 402L-440 351L-439 340ZM-51 385L-435 319L-434 309ZM-14 364L-417 242L-414 232ZM-7 333L-384 158L-379 147ZM-1 324L-369 128L-366 121ZM21 301L-321 52L-316 45ZM2 256L-284 6L-277 -2ZM24 248L-249 -31L-239 -40ZM55 239L-191 -80L-177 -91ZM84 244L-139 -116L-128 -122ZM90 198L-73 -151L-63 -156ZM132 223L3 -181L15 -184ZM145 211L48 -193L58 -195ZM168 210L110 -204L126 -206ZM189 190L169 -209L186 -210ZM229 177L275 -205L286 -203ZM249 187L326 -196L342 -193ZM264 216L388 -180L397 -177ZM305 198L461 -152L476 -145ZM318 211L503 -131L516 -124ZM337 238L569 -89L582 -80ZM349 263L622 -47L633 -37ZM361 288L676 7L687 21ZM397 292L718 61L728 76ZM383 314L736 88L745 102ZM396 347L784 180L789 193ZM422 351L797 213L802 227ZM416 387L821 298L825 315ZM409 401L828 336L830 353Z" fill="#3A4A5C" opacity="0.8"/>
+</svg>
+
+<!-- ===== 제목: 폭발 컷 위 효과음 ===== -->
+<svg style="position:absolute; left:0; top:0" width="390" height="150" viewBox="0 0 390 150" role="img" aria-label="레벨 업">
+  <polygon points="328.7,80.0 295.5,88.8 326.6,97.2 285.4,101.5 292.0,110.2 267.7,109.0 261.6,119.4 236.6,116.5 233.5,124.9 207.9,125.0 189.4,134.6 183.1,121.0 159.1,126.2 147.0,116.7 118.4,127.8 117.4,114.8 90.6,112.7 104.7,101.0 88.1,97.6 99.9,87.0 76.0,80.5 85.0,73.4 66.9,63.7 99.0,62.2 88.9,53.9 129.5,54.5 118.3,35.2 149.4,46.8 155.9,34.7 183.1,42.4 188.8,35.9 214.8,36.9 234.4,33.4 244.6,43.4 268.8,38.6 269.9,52.3 287.8,52.9 295.0,61.0 318.9,65.0 286.3,75.7" fill="#F5C518" stroke="#141210" stroke-width="3.5" stroke-linejoin="round"/>
+  <polygon points="328.7,80.0 295.5,88.8 326.6,97.2 285.4,101.5 292.0,110.2 267.7,109.0 261.6,119.4 236.6,116.5 233.5,124.9 207.9,125.0 189.4,134.6 183.1,121.0 159.1,126.2 147.0,116.7 118.4,127.8 117.4,114.8 90.6,112.7 104.7,101.0 88.1,97.6 99.9,87.0 76.0,80.5 85.0,73.4 66.9,63.7 99.0,62.2 88.9,53.9 129.5,54.5 118.3,35.2 149.4,46.8 155.9,34.7 183.1,42.4 188.8,35.9 214.8,36.9 234.4,33.4 244.6,43.4 268.8,38.6 269.9,52.3 287.8,52.9 295.0,61.0 318.9,65.0 286.3,75.7" fill="url(#dR)" opacity="0.5"/>
+  <g transform="rotate(-4 195 82)" font-family="'Black Han Sans', sans-serif" text-anchor="middle" stroke="#141210" stroke-linejoin="round" paint-order="stroke">
+    <text x="200" y="106" font-size="58" fill="#D7352B" stroke-width="10">레벨 업</text>
+    <text x="195" y="101" font-size="58" fill="#EFE6D2" stroke-width="10">레벨 업</text>
+  </g>
+</svg>
+<div style="position:absolute; left:0; width:390px; top:128px; text-align:center;"><span style="display:inline-block; background:#141210; color:#EFE6D2; border:2px solid #EFE6D2; padding:4px 10px; font:900 11px/1 'Gothic A1',sans-serif; letter-spacing:1px; transform:rotate(-1.5deg);">LV 9 → 10 · 한 장을 고른다</span></div>
+
+<!-- ===== 1. 합성 카드: 두 칸이 겹쳐 한 칸이 된다 ===== -->
+<div style="position:absolute; left:18px; top:160px; width:354px; height:334px; box-sizing:border-box; background:#EFE6D2; border:4px solid #141210; box-shadow:5px 5px 0 #D7352B, 10px 10px 0 #141210;">
+  <div class="bh" style="position:absolute; left:10px; top:-21px; background:#D7352B; border:3px solid #141210; box-shadow:3px 3px 0 #141210; padding:2px 10px 1px; font-size:20px; line-height:1.1; color:#EFE6D2; transform:rotate(-3deg);">합성</div>
+
+  <svg style="position:absolute; left:8px; top:10px" width="330" height="142" viewBox="0 0 330 142" aria-hidden="true">
+    <defs>
+      <clipPath id="cPA"><polygon points="3,5 214,2 208,139 4,136"/></clipPath>
+      <clipPath id="cPB"><polygon points="196,10 326,4 325,98 190,104 189,94 196,82 190,70 197,58 191,46 198,34 192,22"/></clipPath>
+    </defs>
+    <!-- 컷 A: 지뢰밭에 묶인 적 -->
+    <g clip-path="url(#cPA)">
+      <rect width="220" height="142" fill="#3A4A5C"/>
+      <rect width="220" height="34" fill="url(#dkM)"/>
+      <rect y="34" width="220" height="26" fill="url(#dkS)"/>
+      <ellipse cx="100" cy="116" rx="120" ry="34" fill="url(#dY)" opacity="0.55"/>
+      <rect width="220" height="142" fill="url(#rain)" opacity="0.35"/>
+      <rect y="114" width="220" height="30" fill="#141210"/>
+      <rect y="116" width="220" height="28" fill="url(#hatchS)" opacity="0.6"/>
+      <use href="#iMine" x="10" y="91" width="28" height="28"/>
+      <use href="#iMine" x="118" y="93" width="26" height="26"/>
+      <use href="#iMine" x="164" y="95" width="24" height="24"/>
+      <use href="#eHound" x="44" y="62" width="66" height="55"/>
+      <path d="M38 104L52 90L62 108L74 88L86 108L98 92L114 104" fill="none" stroke="#141210" stroke-width="5.5" stroke-linejoin="round"/>
+      <path d="M38 104L52 90L62 108L74 88L86 108L98 92L114 104" fill="none" stroke="#D7352B" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M46 108L30 112M104 106L124 108" stroke="#D7352B" stroke-width="2" stroke-dasharray="3 2"/>
+      <path d="M58 60C58 40 98 40 98 55" fill="none" stroke="#141210" stroke-width="7.5" stroke-linecap="round"/>
+      <path d="M58 60C58 40 98 40 98 55" fill="none" stroke="#D7352B" stroke-width="4" stroke-linecap="round"/>
+      <polygon points="90,53 106,53 98,65" fill="#D7352B" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+    <polygon points="3,5 214,2 208,139 4,136" fill="none" stroke="#141210" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="10" y="9" width="54" height="19" fill="#141210"/>
+    <text x="16" y="23" font-family="'Gothic A1', sans-serif" font-weight="900" font-size="12" fill="#EFE6D2">지뢰밭</text>
+    <!-- 컷 B: 군견, 찢긴 칸 경계 -->
+    <g clip-path="url(#cPB)">
+      <rect x="180" width="150" height="110" fill="#D7352B"/>
+      <rect x="180" width="150" height="110" fill="url(#dkS)" opacity="0.45"/>
+      <path d="M330 18L226 30M330 32L210 42M330 48L218 54M330 64L206 66M330 80L222 76M330 94L236 86" stroke="#141210" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+    <polygon points="196,10 326,4 325,98 190,104 189,94 196,82 190,70 197,58 191,46 198,34 192,22" fill="none" stroke="#141210" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="272" y="77" width="44" height="19" fill="#141210"/>
+    <text x="281" y="91" font-family="'Gothic A1', sans-serif" font-weight="900" font-size="12" fill="#EFE6D2">군견</text>
+    <!-- 군견이 칸을 찢고 A 로 넘어간다 -->
+    <use href="#aDog" x="0" y="0" width="128" height="80" transform="translate(286 14) scale(-1 1)"/>
+    <polygon points="210.4,107.8 202.3,110.8 207.2,117.4 199.8,113.9 198.3,123.9 195.3,114.6 189.4,122.8 191.1,111.8 179.2,111.9 188.8,107.8 185.8,105.2 191.2,104.0 189.1,97.9 194.3,101.3 198.6,91.8 199.6,101.7 207.6,98.3 202.2,105.7" fill="#F5C518" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+    <g transform="rotate(-8 214 130)" font-family="'Black Han Sans', sans-serif" stroke="#141210" stroke-linejoin="round" paint-order="stroke">
+      <text x="207" y="134" font-size="25" fill="#D7352B" stroke-width="6">철컥!</text>
+      <text x="204" y="131" font-size="25" fill="#EFE6D2" stroke-width="6">철컥!</text>
+    </g>
+  </svg>
+
+  <div class="bh" style="position:absolute; left:12px; top:160px; font-size:30px; line-height:1; color:#141210;">군견 지뢰밭</div>
+  <!-- 판의 무기 칸과 같은 표시 -->
+  <svg style="position:absolute; right:10px; top:156px" width="48" height="52" viewBox="0 0 48 52" aria-hidden="true">
+    <g transform="rotate(-6 17 34)">
+      <rect x="2" y="19" width="30" height="30" fill="#F5C518" stroke="#141210" stroke-width="2.5"/>
+      <rect x="3.3" y="20.3" width="27.4" height="27.4" fill="url(#dR)" opacity="0.5"/>
+      <svg x="3" y="20" width="28" height="28" viewBox="0 0 40 40"><use href="#iMine"/></svg>
+    </g>
+    <g transform="rotate(5 31 17)">
+      <rect x="16" y="2" width="30" height="30" fill="#D7352B" stroke="#141210" stroke-width="2.5"/>
+      <svg x="17" y="3" width="28" height="28" viewBox="0 0 40 40"><use href="#iDog"/></svg>
+    </g>
+    <polygon transform="translate(-9 6)" points="30.8,25.0 27.2,26.2 28.9,28.5 25.8,27.8 23.4,30.5 23.2,27.2 20.5,27.9 22.0,25.2 19.1,23.1 23.0,22.9 23.6,19.9 25.7,22.7 28.2,19.5 27.2,23.9" fill="#EFE6D2" stroke="#141210" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+  <div style="position:absolute; left:12px; top:196px; background:#141210; color:#F5C518; font:900 12.5px/1 'Gothic A1',sans-serif; letter-spacing:0.5px; padding:5px 10px 4px; transform:rotate(-1.5deg);">합성 · 전향 무리 · 강타</div>
+  <div style="position:absolute; left:12px; top:224px; display:flex; align-items:center; gap:6px; font:700 13.5px/1 'Gothic A1',sans-serif; color:#141210;">
+    <span style="font:900 10.5px/1 'Gothic A1',sans-serif; color:#3A4A5C; letter-spacing:1px; margin-right:2px;">구성</span>
+    <span style="display:inline-flex; width:22px; height:22px; box-sizing:border-box; border:1.5px solid #141210; background:#F5C518; align-items:center; justify-content:center;"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><use href="#iMine"/></svg></span>지뢰밭
+    <span class="bh" style="font-size:18px; line-height:1; color:#D7352B; margin:0 2px;">+</span>
+    <span style="display:inline-flex; width:22px; height:22px; box-sizing:border-box; border:1.5px solid #141210; background:#D7352B; align-items:center; justify-content:center;"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><use href="#iDog"/></svg></span>군견
+  </div>
+  <p style="position:absolute; left:12px; top:253px; width:322px; margin:0; font:700 14px/1.5 'Gothic A1',sans-serif; color:#141210;">지뢰밭에 묶인 적을 군견이 돌려세워 제 무리를 들이받게 한다</p>
+  <div style="position:absolute; left:12px; right:12px; top:298px; border-top:2px solid #141210; padding-top:5px; display:flex; align-items:center; gap:6px; font:700 11.5px/1 'Gothic A1',sans-serif; color:#141210;">
+    <span style="background:#F5C518; border:1.5px solid #141210; padding:3px 6px 2px; font-weight:900;">새 반응!</span><span>· 칸 1 중 1 · 등급 2</span>
+  </div>
+</div>
+
+<!-- ===== 2. 레벨 업 카드 ===== -->
+<div style="position:absolute; left:18px; top:514px; width:354px; height:92px; box-sizing:border-box; background:#EFE6D2; border:3.5px solid #141210; box-shadow:5px 5px 0 #141210;">
+  <div class="tag">레벨 업</div>
+  <div style="position:absolute; left:8px; top:8px; width:68px; height:68px; box-sizing:border-box; background:#F5C518; border:3px solid #141210; overflow:hidden;">
+    <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><path d="M30 62L62 30V62Z" fill="url(#dR)"/><svg x="3" y="3" width="56" height="56" viewBox="0 0 40 40"><use href="#iCarbine"/></svg></svg>
+  </div>
+  <div style="position:absolute; left:90px; top:12px; display:flex; align-items:center; gap:7px; color:#141210;" class="bh">
+    <span style="font-size:23px; line-height:1;">카빈</span><span style="font-size:23px; line-height:1;">Lv 3</span>
+    <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true"><path d="M1 4.5H13V0.5L21 7L13 13.5V9.5H1Z" fill="#D7352B" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span style="font-size:23px; line-height:1; color:#D7352B;">4</span>
+  </div>
+  <div style="position:absolute; right:12px; top:18px; display:flex; gap:3px;" aria-hidden="true">
+    <span class="pip" style="background:#141210;"></span><span class="pip" style="background:#141210;"></span><span class="pip" style="background:#141210;"></span><span class="pip" style="background:#D7352B;"></span><span class="pip" style="background:#EFE6D2;"></span>
+  </div>
+  <div style="position:absolute; left:90px; top:46px; font:700 13px/1.6 'Gothic A1',sans-serif; color:#141210; white-space:nowrap;">관통 1 → <span class="mk">2</span> · 쿨다운 0.9 → <span class="mk">0.8초</span></div>
+</div>
+
+<!-- ===== 3. 새 무기 카드 ===== -->
+<div style="position:absolute; left:18px; top:624px; width:354px; height:96px; box-sizing:border-box; background:#EFE6D2; border:3.5px solid #141210; box-shadow:5px 5px 0 #141210;">
+  <div class="tag">새 무기</div>
+  <div style="position:absolute; left:8px; top:8px; width:68px; height:68px; box-sizing:border-box; background:#EFE6D2; border:3px solid #141210; overflow:hidden;">
+    <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true"><rect y="40" width="62" height="22" fill="url(#dSl)"/><rect width="62" height="16" fill="url(#dkS)" opacity="0.6"/><svg x="3" y="3" width="56" height="56" viewBox="0 0 40 40"><use href="#iMortar"/></svg></svg>
+  </div>
+  <div style="position:absolute; left:90px; top:10px; display:flex; align-items:center; gap:6px;">
+    <span class="bh" style="font-size:23px; line-height:1; color:#141210;">박격포</span>
+    <svg width="52" height="36" viewBox="0 0 52 36" role="img" aria-label="NEW" style="transform:rotate(8deg);"><polygon points="42.6,17.9 38.6,20.8 41.5,25.1 33.2,25.9 34.5,33.2 29.6,29.0 25.4,34.8 22.9,28.5 18.8,31.9 16.7,27.3 10.3,26.7 13.9,21.4 9.8,19.2 14.0,14.5 12.4,10.4 17.9,10.4 16.3,2.8 22.2,5.6 27.1,2.6 28.9,6.5 33.0,2.8 34.0,10.8 39.7,10.4 38.6,14.8" fill="#F5C518" stroke="#141210" stroke-width="2" stroke-linejoin="round"/><text x="26" y="22.5" text-anchor="middle" font-family="'Black Han Sans', sans-serif" font-size="11" fill="#141210">NEW</text></svg>
+  </div>
+  <div style="position:absolute; left:90px; top:45px; font:700 14px/1 'Gothic A1',sans-serif; color:#141210;">멀리 높이, 크게 터진다</div>
+  <div style="position:absolute; left:90px; top:64px; background:#141210; color:#EFE6D2; font:900 11px/1 'Gothic A1',sans-serif; letter-spacing:0.5px; padding:4px 8px 3px;">새 갈래 · 칸까지 1</div>
+</div>
+
+<!-- ===== 리롤 ===== -->
+<button style="position:absolute; left:95px; top:742px; width:200px; height:44px; display:flex; align-items:center; justify-content:center; gap:8px; background:#EFE6D2; border:3px solid #141210; box-shadow:4px 4px 0 #D7352B; transform:rotate(-1deg); font-family:'Black Han Sans',sans-serif; font-size:19px; color:#141210; cursor:pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 8A6.5 6.5 0 0 0 4.4 6M4 12A6.5 6.5 0 0 0 15.6 14" fill="none" stroke="#141210" stroke-width="2.4" stroke-linecap="round"/><path d="M2.6 2.4V7.6H7.8Z" fill="#141210"/><path d="M17.4 17.6V12.4H12.2Z" fill="#141210"/></svg>리롤 <span style="font:900 12.5px/1 'Gothic A1',sans-serif;">(2회 남음)</span></button>
+<div style="position:absolute; left:0; width:390px; top:806px; text-align:center; font:700 11.5px/1 'Gothic A1',sans-serif; color:#EFE6D2; letter-spacing:1px;">카드를 눌러 고른다</div>
+
+<!-- 인쇄 종이 결 -->
+<svg style="position:absolute; left:0; top:0; pointer-events:none" width="390" height="844" aria-hidden="true"><rect width="390" height="844" filter="url(#grain)" opacity="0.35"/></svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

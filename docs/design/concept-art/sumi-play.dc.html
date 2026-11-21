@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>수묵 요괴 판</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&amp;family=Gowun+Batang:wght@400;700&amp;family=Nanum+Brush+Script&amp;display=swap">
+<style>
+body{margin:0}
+.sm-lab{display:flex;justify-content:center;font:700 10px/12px 'Gowun Batang',serif;letter-spacing:-.4px;color:#1A1A1A;white-space:nowrap;margin-top:1px}
+.sm-dmg{position:absolute;font-family:'East Sea Dokdo',cursive;line-height:1;text-shadow:0 0 3px #ECE4D3,0 0 7px #ECE4D3}
+.sm-mount{position:absolute;top:2px;width:43px;text-align:center}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #ECE4D3; font-family: 'Gowun Batang', serif; color: #1A1A1A">
+
+<!-- ============ 두루마리 화면 (한지 · 먹 · 요괴 · 연쇄 · 금줄) ============ -->
+<svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute; left:0; top:0" aria-hidden="true">
+<defs>
+  <!-- 한지 결 -->
+  <filter id="smPaper" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="7" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.31  0 0 0 0 0.24  1.05 0 0 0 -0.47"/>
+  </filter>
+  <filter id="smCloud" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.016" numOctaves="3" seed="21" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.52  0 0 0 0 0.48  0 0 0 0 0.42  0.6 0 0 0 -0.24"/>
+  </filter>
+  <!-- 먹 번짐: 가장자리가 흔들리고 회색 물기가 둘레로 번짐 -->
+  <filter id="smInk" x="-50%" y="-50%" width="200%" height="200%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" seed="9" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="2.4" result="b"/>
+    <feColorMatrix in="b" type="matrix" values="0 0 0 0 0.33  0 0 0 0 0.31  0 0 0 0 0.28  0 0 0 0.5 0" result="halo"/>
+    <feMerge><feMergeNode in="halo"/><feMergeNode in="d"/></feMerge>
+  </filter>
+  <filter id="smBleed" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="4" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="smWash" x="-10%" y="-20%" width="120%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="13" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="10" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="1.2"/>
+  </filter>
+  <!-- 갈필(마른 붓): 결 따라 비는 자국 -->
+  <filter id="smDryH" x="-20%" y="-40%" width="140%" height="180%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035 0.75" numOctaves="2" seed="2" result="t"/>
+    <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="c"/>
+    <feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="smDryV" x="-40%" y="-20%" width="180%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75 0.035" numOctaves="2" seed="5" result="t"/>
+    <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="c"/>
+    <feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <!-- 인주 도장: 고르지 않게 묻은 주홍 -->
+  <filter id="smSeal" x="-15%" y="-15%" width="130%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="11" result="t"/>
+    <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="c"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="1" seed="5" result="t2"/>
+    <feDisplacementMap in="c" in2="t2" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="smBlur1" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1"/></filter>
+  <filter id="smBlur2" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2"/></filter>
+  <filter id="smBlur3" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="smBlur4" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter>
+  <filter id="smRope" filterUnits="userSpaceOnUse" x="-20" y="676" width="430" height="44">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04 0.6" numOctaves="2" seed="6" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="smRopeGlow" filterUnits="userSpaceOnUse" x="-20" y="660" width="430" height="80">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+
+  <linearGradient id="smWispG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset=".45" stop-color="#3A3733" stop-opacity=".72"/>
+    <stop offset="1" stop-color="#1A1A1A" stop-opacity=".96"/>
+  </linearGradient>
+  <radialGradient id="smCoreG">
+    <stop offset="0" stop-color="#FBF7EE"/>
+    <stop offset=".4" stop-color="#F4D9C2"/>
+    <stop offset=".75" stop-color="#C8372D" stop-opacity=".35"/>
+    <stop offset="1" stop-color="#C8372D" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="smHaloG">
+    <stop offset="0" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset=".5" stop-color="#8C8577" stop-opacity=".24"/>
+    <stop offset="1" stop-color="#8C8577" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="smMoonG">
+    <stop offset=".46" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset=".52" stop-color="#8C8577" stop-opacity=".34"/>
+    <stop offset=".72" stop-color="#8C8577" stop-opacity=".13"/>
+    <stop offset="1" stop-color="#8C8577" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="smGoldG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#8E6B22"/>
+    <stop offset=".45" stop-color="#E0C37A"/>
+    <stop offset="1" stop-color="#B8913A"/>
+  </linearGradient>
+  <linearGradient id="smGoldBarG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8E6B22"/>
+    <stop offset=".7" stop-color="#B8913A"/>
+    <stop offset="1" stop-color="#E8CF8A"/>
+  </linearGradient>
+  <radialGradient id="smVigG" cx=".5" cy=".5" r=".75">
+    <stop offset=".6" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset="1" stop-color="#6E6658" stop-opacity=".28"/>
+  </radialGradient>
+  <linearGradient id="smMtnG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8C8577" stop-opacity=".32"/>
+    <stop offset="1" stop-color="#8C8577" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="smMtn2G" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5E584D" stop-opacity=".2"/>
+    <stop offset="1" stop-color="#5E584D" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="smLavaG">
+    <stop offset="0" stop-color="#F6C9A0"/>
+    <stop offset=".45" stop-color="#E0623F"/>
+    <stop offset=".8" stop-color="#C8372D"/>
+    <stop offset="1" stop-color="#7A1E16"/>
+  </radialGradient>
+  <radialGradient id="smMineG" cx=".35" cy=".3" r=".7">
+    <stop offset="0" stop-color="#8C8577"/>
+    <stop offset=".5" stop-color="#3A3733"/>
+    <stop offset="1" stop-color="#1A1A1A"/>
+  </radialGradient>
+  <linearGradient id="smShadeG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1A1A1A" stop-opacity=".22"/>
+    <stop offset="1" stop-color="#1A1A1A" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="smBandG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#D9CDB4" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#D9CDB4" stop-opacity=".1"/>
+  </linearGradient>
+  <!-- 비단 장황의 구름무늬 -->
+  <pattern id="smUnmun" width="34" height="20" patternUnits="userSpaceOnUse">
+    <path d="M2,13 c2,-5 8,-5 9,0 c1,-4 6,-4 7,1 M19,5 c2,-3 6,-3 7,0 c1,-2 4,-2 5,1" fill="none" stroke="#B8913A" stroke-width=".8" opacity=".24"/>
+  </pattern>
+
+  <!-- 전서체 글자 (40×40 칸) -->
+  <g id="smGZan" fill="none" stroke-width="3.4" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M2,5 H18 M4,10 H16 V24 H4 Z M4,17 H16 M10,1 V39 M1,31 H19"/>
+    <path d="M24,7 L37,3 M25,7 V22 C25,30 24,34 22,38 M25,17 H39 M33,17 V39"/>
+  </g>
+  <g id="smGRoe" fill="none" stroke-width="3.2" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M7,3 H33 M4,8 H36 M4,8 V17 M36,8 V17 M20,3 V18 M9,11.5 L14,12.5 M9,15.5 L14,16.5 M26,11.5 L31,12.5 M26,15.5 L31,16.5 M8,22 H32 V38 H8 Z M8,30 H32 M20,22 V38"/>
+  </g>
+  <g id="smGGyeon" fill="none" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M4,15 H36 M20,3 C20,19 14,30 4,38 M21,16 C25,27 30,33 37,38 M28,4 L32,9"/>
+  </g>
+
+  <!-- 도깨비불 (일반) : 아래가 머리, 위로 꼬리가 끌린다 -->
+  <g id="smWisp">
+    <path d="M0,10 C-9,10 -11,2 -9,-3 C-7,-9 -3,-12 -4,-19 C-4,-23 -1,-27 3,-31 C1,-25 3,-21 5,-17 C8,-11 11,-5 9,2 C8,7 4,10 0,10 Z" fill="url(#smWispG)" filter="url(#smInk)"/>
+    <path d="M6,-14 C10,-18 9,-24 12,-27" fill="none" stroke="#3A3733" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+    <ellipse cx="-3.6" cy="1.5" rx="1.7" ry="2.6" transform="rotate(24 -3.6 1.5)" fill="#ECE4D3"/>
+    <ellipse cx="3.6" cy="1.5" rx="1.7" ry="2.6" transform="rotate(-24 3.6 1.5)" fill="#ECE4D3"/>
+    <path d="M-2.6,6.4 Q0,7.8 2.6,6.4" fill="none" stroke="#ECE4D3" stroke-width=".8" stroke-linecap="round"/>
+  </g>
+  <!-- 뿔 달린 거한 (장갑) : 진한 먹, 갑옷 이음매, 방망이 -->
+  <g id="smGiant">
+    <path d="M-8,-10 C-9,-16 -5,-19 0,-19 C5,-19 9,-16 8,-10 C12,-13 18,-15 22,-11 C27,-6 27,4 26,12 C26,18 28,22 24,24 C21,25 19,22 19,18 L17,8 C17,14 16,20 12,26 L4,26 L2,17 L-2,17 L-4,26 L-12,26 C-16,20 -17,14 -17,8 L-19,18 C-19,22 -21,25 -24,24 C-28,22 -26,18 -26,12 C-27,4 -27,-6 -22,-11 C-18,-15 -12,-13 -8,-10 Z" fill="#1A1A1A" filter="url(#smInk)"/>
+    <path d="M-5,-17 C-9,-21 -14,-24 -15,-32 C-11,-27 -6,-25 -2,-19 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+    <path d="M5,-17 C9,-21 14,-24 15,-32 C11,-27 6,-25 2,-19 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+    <path d="M20,21 C24,27 26,33 27,40 C27.6,43.6 24,44.6 23,41.4 C21.6,35 20,29 17.6,24 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+    <g fill="none" stroke="#6E685E" stroke-linecap="round">
+      <path d="M-18,-3 C-9,0 9,0 18,-3" stroke-width="1.3"/>
+      <path d="M-16,5 C-8,8 8,8 16,5" stroke-width="1.1"/>
+      <path d="M-22,-8 C-20,-2 -20,4 -22,10 M22,-8 C20,-2 20,4 22,10" stroke-width="1"/>
+    </g>
+    <path d="M-5.4,-13.6 L-1.4,-12.2 L-1.8,-14 Z M5.4,-13.6 L1.4,-12.2 L1.8,-14 Z" fill="#ECE4D3"/>
+    <path d="M-2.8,-9.6 L-1.9,-11.8 L-1,-9.6 Z M1,-9.6 L1.9,-11.8 L2.8,-9.6 Z" fill="#ECE4D3"/>
+  </g>
+  <!-- 그림자 짐승 (돌격) : 길게 늘어진 몸, 위로 끌리는 갈필 -->
+  <g id="smBeast">
+    <ellipse cx="0" cy="-52" rx="11" ry="38" fill="#8C8577" opacity=".22" filter="url(#smBlur4)"/>
+    <g filter="url(#smDryV)" stroke="#1A1A1A" stroke-linecap="round" fill="none" opacity=".7">
+      <rect x="-16" y="-100" width="32" height="80" fill="#000" opacity="0" stroke="none"/>
+      <path d="M-6,-40 L-9,-88" stroke-width="2.6"/>
+      <path d="M-1,-52 L-2,-98" stroke-width="1.6"/>
+      <path d="M4,-46 L7,-92" stroke-width="2.2"/>
+      <path d="M8,-30 L13,-72" stroke-width="1.2"/>
+      <path d="M-9,-26 L-14,-66" stroke-width="1.4"/>
+    </g>
+    <g fill="none" stroke="#1A1A1A" stroke-linecap="round" stroke-width="2" filter="url(#smBleed)">
+      <path d="M-9,-14 C-15,-12 -19,-6 -21,2"/>
+      <path d="M9,-14 C15,-12 19,-6 21,2"/>
+      <path d="M-7,-32 C-14,-34 -19,-40 -22,-48"/>
+      <path d="M7,-32 C14,-34 19,-40 22,-48"/>
+    </g>
+    <path d="M-3,-62 C-6,-42 -12,-24 -11,-9 C-11,-4 -9,1 -7,5 L-5,14 L-2.5,9 L0,15 L2.5,9 L5,14 L7,5 C9,1 11,-4 11,-9 C12,-24 6,-42 3,-62 Z" fill="#1A1A1A" filter="url(#smInk)"/>
+    <path d="M-8,-11 L-15,-21 L-5,-15 Z M8,-11 L15,-21 L5,-15 Z" fill="#1A1A1A"/>
+    <ellipse cx="-4.5" cy="-2" rx="2.3" ry=".9" transform="rotate(25 -4.5 -2)" fill="#ECE4D3"/>
+    <ellipse cx="4.5" cy="-2" rx="2.3" ry=".9" transform="rotate(-25 4.5 -2)" fill="#ECE4D3"/>
+    <path d="M-4.6,7.4 L-2.6,5.2 L0,8.6 L2.6,5.2 L4.6,7.4" fill="none" stroke="#ECE4D3" stroke-width=".8"/>
+  </g>
+  <!-- 군견 (붓으로 그린 개, 주홍 목줄) -->
+  <g id="smDog">
+    <path d="M-30,-2 L-46,0 M-24,7 L-40,12 M-31,-9 L-43,-11" fill="none" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+    <path d="M-18,5 C-23,2 -27,-3 -27,-9 C-24,-6 -21,-3 -16,-1 C-9,-5 1,-7 8,-8 C10,-11 12,-14 15,-15 L17,-20 L19,-15 C22,-14 25,-12 29,-10 L28,-7 C25,-6.5 22,-6 19,-5 C18,-2 16,1 13,2 L21,8 L19.5,10 L10,5 L6,6 L12,12 L10,13.5 L2,7 C-3,7 -8,7 -11,7 L-20,13 L-21,11 L-15,5 Z" fill="#1A1A1A" filter="url(#smInk)"/>
+    <path d="M11,-11 L15,-3" stroke="#C8372D" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="21.5" cy="-12" r="1" fill="#ECE4D3"/>
+  </g>
+  <!-- 비격진천뢰 지뢰 -->
+  <g id="smMine">
+    <path d="M-9,5 C-4,3.6 4,3.6 9,5" fill="none" stroke="#5E584D" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+    <circle r="5.6" fill="url(#smMineG)"/>
+    <path d="M-5.4,-.6 C-2,.8 2,.8 5.4,-.6" fill="none" stroke="#8C8577" stroke-width=".7"/>
+    <path d="M2.6,-4.6 C4.4,-7.4 6.6,-7.6 7.6,-9.6" fill="none" stroke="#1A1A1A" stroke-width=".9" stroke-linecap="round"/>
+    <circle cx="7.9" cy="-10" r="1.3" fill="#C8372D"/>
+  </g>
+  <!-- 모기 -->
+  <g id="smMosq" fill="none" stroke-linecap="round">
+    <path d="M-2.6,0 L2.4,.8" stroke="#1A1A1A" stroke-width="1.3"/>
+    <path d="M2.4,.8 L4.6,1.4" stroke="#1A1A1A" stroke-width=".5"/>
+    <path d="M-.4,.2 C-1.2,-2.4 -3.2,-3.2 -3.4,-1.2 M.6,.3 C1.2,-2.6 3.2,-3 2.8,-.8" stroke="#3A3733" stroke-width=".6"/>
+    <path d="M-1.4,.2 L-2.8,2.4 M0,.4 L-.6,2.8 M1.4,.6 L1.8,2.8" stroke="#1A1A1A" stroke-width=".45"/>
+  </g>
+  <!-- 먹 폭발: 먹이 터져 번진 얼룩, 가운데는 한지가 비고 주홍이 스민다 -->
+  <g id="smBurst">
+    <circle r="42" fill="url(#smHaloG)"/>
+    <path d="M2,-22 C8,-23 9,-15 13,-16 C19,-18 25,-20 24,-13 C23,-8 17,-8 19,-3 C21,2 30,1 29,7 C28,13 20,10 17,14 C14,18 18,26 11,26 C5,26 6,18 1,18 C-4,18 -6,28 -12,25 C-17,22 -11,16 -15,12 C-19,8 -28,11 -28,4 C-28,-2 -19,-1 -19,-6 C-19,-11 -26,-16 -21,-20 C-16,-24 -11,-15 -6,-17 C-2,-19 -4,-21 2,-22 Z" fill="#1A1A1A" filter="url(#smInk)"/>
+    <g fill="#1A1A1A">
+      <circle cx="31" cy="-18" r="2.2"/><circle cx="-30" cy="-14" r="1.6"/><circle cx="24" cy="25" r="2.5"/><circle cx="-24" cy="23" r="1.4"/><circle cx="1" cy="-31" r="1.8"/><circle cx="37" cy="4" r="1.2"/><circle cx="-35" cy="6" r="2"/>
+    </g>
+    <g fill="none" stroke="#1A1A1A" stroke-linecap="round" filter="url(#smBleed)">
+      <path d="M24,-14 L37,-22" stroke-width="1.6"/><path d="M-26,-9 L-39,-13" stroke-width="1.2"/><path d="M10,26 L14,38" stroke-width="1.4"/><path d="M-16,22 L-23,33" stroke-width="1"/><path d="M-8,-20 L-12,-33" stroke-width="1.2"/>
+    </g>
+    <circle r="13" fill="url(#smCoreG)" filter="url(#smBleed)"/>
+    <g fill="#B8913A">
+      <path d="M18,-27 l4.4,-1 l-1.2,4.2 z"/><path d="M-31,19 l3.4,2 l-3.2,2.2 z"/><path d="M31,15 l4,1 l-2.2,3 z"/><path d="M-12,-30 l3,-.4 l-.6,3 z"/>
+    </g>
+  </g>
+</defs>
+
+<!-- 한지 바탕 -->
+<rect width="390" height="844" fill="#ECE4D3"/>
+<rect width="390" height="844" filter="url(#smCloud)"/>
+<rect width="390" height="844" filter="url(#smPaper)"/>
+<path d="M185,576 Q173,582 176,592 M107,694 Q99,709 90,718 M57,409 Q66,423 89,427 M29,599 Q41,602 41,620 M24,775 Q31,790 23,791 M44,396 Q56,395 64,405 M272,110 Q285,117 302,128 M232,437 Q239,452 238,451 M381,581 Q389,594 391,602 M44,251 Q55,263 56,276 M11,703 Q10,716 17,730 M151,664 Q160,672 178,673 M14,283 Q14,296 29,310 M81,287 Q83,314 84,326 M65,782 Q73,797 73,799 M3,277 Q-10,276 -15,292 M16,547 Q-4,540 -24,549 M126,676 Q108,684 99,692 M186,553 Q206,562 212,581 M114,742 Q126,760 138,772 M275,235 Q284,246 288,251 M51,753 Q53,770 56,772 M218,551 Q204,555 181,561 M229,764 Q216,771 207,782 M287,504 Q310,509 319,506 M350,771 Q346,782 346,805 M138,310 Q123,316 107,317 M49,481 Q37,490 34,501 M126,598 Q131,604 141,605 M296,578 Q277,580 273,583 M173,208 Q163,215 162,228 M368,76 Q368,84 377,95 M86,778 Q80,793 86,810 M237,719 Q251,733 255,737" fill="none" stroke="#8C8577" stroke-width=".5" opacity=".4"/>
+<rect width="390" height="844" fill="url(#smVigG)"/>
+
+<!-- 원경 산수 + 홍운탁월(구름을 칠해 달을 남김) -->
+<path d="M0,238 C26,220 46,196 72,198 C94,200 104,176 126,170 C146,165 160,188 182,192 C206,196 216,162 242,152 C264,144 280,172 302,178 C322,183 336,154 358,148 C372,145 384,154 390,158 L390,300 L0,300 Z" fill="url(#smMtnG)" filter="url(#smWash)"/>
+<path d="M232,330 C252,312 276,290 298,292 C318,294 328,272 346,266 C364,261 378,274 390,280 L390,360 L232,360 Z" fill="url(#smMtn2G)" filter="url(#smWash)"/>
+<circle cx="150" cy="132" r="62" fill="url(#smMoonG)"/>
+<circle cx="150" cy="132" r="30" fill="#F5F0E6"/>
+<path d="M84,154 C118,146 170,151 216,143" fill="none" stroke="#8C8577" stroke-width="7" stroke-linecap="round" opacity=".18" filter="url(#smBlur3)"/>
+
+<!-- "23" 뒤를 쓸고 간 마른 붓 -->
+<path d="M24,296 C70,270 170,264 240,274 C247,287 245,300 236,309 C170,302 80,306 30,323 C19,316 17,304 24,296 Z" fill="#8C8577" opacity=".2" filter="url(#smDryH)"/>
+
+<!-- 연쇄가 번진 길: 먹이 종이 결을 타고 이어짐 -->
+<path d="M48,530 Q74,512 100,506 Q128,500 150,524 Q176,500 186,470 Q160,452 120,446 Q160,404 206,396" fill="none" stroke="#8C8577" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".28" filter="url(#smBlur2)"/>
+<path d="M48,530 Q74,512 100,506 Q128,500 150,524 Q176,500 186,470 Q160,452 120,446 Q160,404 206,396" fill="none" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round" opacity=".75" filter="url(#smBleed)"/>
+
+<!-- 지뢰밭 (군견 지뢰밭의 바탕) -->
+<ellipse cx="96" cy="668" rx="90" ry="22" fill="#8C8577" opacity=".15" filter="url(#smBlur4)"/>
+<use href="#smMine" x="66" y="680"/>
+<use href="#smMine" x="104" y="661"/>
+<use href="#smMine" x="148" y="677"/>
+<use href="#smMine" x="170" y="652"/>
+
+<!-- 용암 웅덩이 -->
+<g transform="translate(262 677)">
+  <ellipse rx="26" ry="7.5" fill="#1A1A1A" opacity=".85" filter="url(#smInk)"/>
+  <ellipse cy="-.5" rx="21" ry="5" fill="url(#smLavaG)" filter="url(#smBleed)"/>
+  <circle cx="-8" cy="-1" r="1.4" fill="none" stroke="#F6D7B8" stroke-width=".7"/>
+  <circle cx="9" cy="0" r="1" fill="none" stroke="#F6D7B8" stroke-width=".7"/>
+  <path d="M-14,-5 C-16,-10 -12,-12 -14,-18" fill="none" stroke="#C8372D" stroke-width="1.2" opacity=".55" stroke-linecap="round"/>
+  <path d="M15,-5 C13,-9 17,-12 15,-16" fill="none" stroke="#8C8577" stroke-width="1" opacity=".6" stroke-linecap="round"/>
+</g>
+
+<!-- 요괴들 -->
+<use href="#smWisp" transform="translate(40 122) scale(.85)"/>
+<use href="#smWisp" transform="translate(78 204) scale(.75)"/>
+<use href="#smWisp" transform="translate(236 102) scale(.8)"/>
+<use href="#smWisp" transform="translate(338 98) scale(.8)"/>
+<use href="#smWisp" transform="translate(250 250) scale(.72)"/>
+<use href="#smWisp" transform="translate(360 524) scale(.85)"/>
+<use href="#smGiant" transform="translate(150 160)"/>
+<use href="#smGiant" transform="translate(252 516) scale(.9)"/>
+<use href="#smGiant" transform="translate(262 640) scale(.95)"/>
+<use href="#smBeast" transform="translate(262 180) scale(.85)"/>
+<use href="#smBeast" transform="translate(318 604) scale(.9)"/>
+
+<!-- 지뢰밭에 묶인 도깨비불 -->
+<use href="#smWisp" transform="translate(26 656) scale(.75)"/>
+<ellipse cx="26" cy="657" rx="12" ry="3.8" transform="rotate(-14 26 657)" fill="none" stroke="#1A1A1A" stroke-width="1.3" opacity=".85"/>
+<ellipse cx="26" cy="651" rx="10.5" ry="3.2" transform="rotate(12 26 651)" fill="none" stroke="#1A1A1A" stroke-width="1.1" opacity=".75"/>
+<path d="M37,660 C46,668 54,675 61,678" fill="none" stroke="#1A1A1A" stroke-width="1.2" opacity=".8"/>
+<rect x="38" y="649" width="4.5" height="9" fill="#C8372D" transform="rotate(10 40 654)"/>
+
+<!-- 전향: 군견이 돌려세운 짐승이 거꾸로 제 무리를 들이받는다 (주홍 고리) -->
+<use href="#smBeast" transform="translate(62 586) rotate(180) scale(.85)"/>
+<circle cx="62" cy="585" r="15" fill="none" stroke="#C8372D" stroke-width="2.4" stroke-dasharray="74 20" stroke-linecap="round" transform="rotate(-40 62 585)" filter="url(#smBleed)"/>
+<ellipse cx="58.2" cy="587.7" rx="2" ry=".9" fill="#C8372D"/>
+<ellipse cx="65.8" cy="587.7" rx="2" ry=".9" fill="#C8372D"/>
+<path d="M54,606 L52,640 M70,606 L72,636" fill="none" stroke="#C8372D" stroke-width="1" opacity=".6" stroke-linecap="round"/>
+<path d="M54,558 L44,548 M57,555 L60,542 M60,558 L71,550 M51,561 L40,560" fill="none" stroke="#C8372D" stroke-width="1.8" stroke-linecap="round" filter="url(#smBleed)"/>
+<use href="#smDog" transform="translate(128 606) rotate(14) scale(-1 1)"/>
+
+<!-- 모기 떼가 거한을 감싼다 -->
+<ellipse cx="254" cy="492" rx="36" ry="16" fill="#8C8577" opacity=".14" filter="url(#smBlur2)"/>
+<use href="#smMosq" transform="translate(228 496) rotate(-20) scale(1.1)"/>
+<use href="#smMosq" transform="translate(238 484) rotate(10) scale(1.1)"/>
+<use href="#smMosq" transform="translate(254 480) rotate(-6) scale(1.1)"/>
+<use href="#smMosq" transform="translate(268 485) rotate(18) scale(1.1)"/>
+<use href="#smMosq" transform="translate(280 496) rotate(32) scale(1.1)"/>
+<use href="#smMosq" transform="translate(220 508) rotate(-30) scale(1.1)"/>
+<use href="#smMosq" transform="translate(286 508) rotate(40) scale(1.1)"/>
+
+<!-- 레이저 소총: 붓 한 획으로 그은 주홍 광선 -->
+<path d="M189,724 L250,652" stroke="#C8372D" stroke-width="7" stroke-linecap="round" opacity=".14" filter="url(#smBlur2)"/>
+<path d="M189,724 L250,652" stroke="#C8372D" stroke-width="2" stroke-linecap="round" filter="url(#smBleed)"/>
+<path d="M190,722 L249,653" stroke="#E0C37A" stroke-width=".7"/>
+<path d="M250,652 l7,-6 M250,652 l9,1 M250,652 l1,-9 M250,652 l-6,-4" fill="none" stroke="#C8372D" stroke-width="1.4" stroke-linecap="round"/>
+
+<!-- 연쇄 폭발 6: 작게 시작해 크게 번진다 -->
+<use href="#smBurst" transform="translate(48 530) scale(.42)"/>
+<use href="#smBurst" transform="translate(100 506) rotate(40) scale(.52)"/>
+<use href="#smBurst" transform="translate(150 524) rotate(-70) scale(.6)"/>
+<use href="#smBurst" transform="translate(186 470) rotate(120) scale(.74)"/>
+<use href="#smBurst" transform="translate(120 446) rotate(200) scale(.86)"/>
+<use href="#smBurst" transform="translate(206 396) rotate(15) scale(1.2)"/>
+<!-- 흩어지는 요괴 조각 · 금박 -->
+<g fill="#1A1A1A">
+  <path d="M252,372 l6,-3 l-2,6 z"/><path d="M158,394 l-5,-4 l6,-1 z"/><path d="M232,438 l5,2 l-4,3 z"/><path d="M214,490 l4,4 l-5,0 z"/><path d="M84,424 l-4,-4 l5,0 z"/>
+  <path d="M160,378 C162,372 167,367 172,365 C169,370 166,374 164,380 Z"/>
+</g>
+<g fill="#B8913A">
+  <path d="M60,240 l5,-1 l-1.5,4.5 z"/><path d="M204,256 l4,1 l-2,3.5 z"/><path d="M58,334 l4.5,1.5 l-3.5,3 z"/><path d="M172,352 l3.5,-2 l.5,4 z"/><path d="M246,420 l4,.5 l-2.5,3.5 z"/><path d="M140,402 l3,-1.5 l.4,3.4 z"/><path d="M96,470 l3.5,.5 l-2,3 z"/>
+</g>
+<g fill="none" stroke="#1A1A1A" stroke-linecap="round" opacity=".5">
+  <path d="M244,410 L272,420" stroke-width="1.2"/><path d="M238,430 L258,452" stroke-width="1"/><path d="M226,362 L244,340" stroke-width="1"/>
+</g>
+
+<!-- 반응 이름의 바탕: 세로로 내리그은 큰 먹 한 획 -->
+<path d="M343,148 C346,138 360,134 372,136 C381,138 387,146 385,160 C383,190 386,236 384,290 C383,334 385,372 381,400 C379,412 375,420 370,424 C364,416 357,413 352,404 C346,380 342,338 341,290 C340,240 336,196 339,168 C340,160 341,153 343,148 Z" fill="#1A1A1A" filter="url(#smInk)"/>
+<g filter="url(#smBleed)" stroke="#ECE4D3" stroke-linecap="round" fill="none" opacity=".5">
+  <rect x="344" y="350" width="40" height="60" fill="#000" opacity="0" stroke="none"/>
+  <path d="M350,356 L353,402" stroke-width="1.1"/>
+  <path d="M362,360 L363,410" stroke-width=".8"/>
+  <path d="M373,354 L372,398" stroke-width="1.3"/>
+</g>
+<g filter="url(#smDryV)" stroke="#1A1A1A" stroke-linecap="round" fill="none" opacity=".8">
+  <rect x="346" y="398" width="34" height="54" fill="#000" opacity="0" stroke="none"/>
+  <path d="M355,400 L353,440" stroke-width="2.6"/>
+  <path d="M361,404 L362,452" stroke-width="1.6"/>
+  <path d="M367,406 L370,446" stroke-width="2.2"/>
+  <path d="M373,402 L377,432" stroke-width="1.2"/>
+</g>
+<g fill="#1A1A1A">
+  <circle cx="330" cy="142" r="2.4"/><circle cx="378" cy="126" r="1.6"/><circle cx="327" cy="162" r="1.3"/><circle cx="346" cy="129" r="1"/>
+</g>
+<circle cx="311" cy="224" r="4" fill="#C8372D" filter="url(#smBleed)"/>
+<!-- 반응 끝에 찍힌 두 낙관 (雷 지뢰밭 + 犬 군견) -->
+<g transform="translate(298 420) rotate(-6)">
+  <g filter="url(#smSeal)">
+    <rect x="-12" y="-12" width="24" height="24" rx="2" fill="#C8372D"/>
+    <use href="#smGRoe" transform="translate(-9.5 -9.5) scale(.475)" stroke="#F3EADB"/>
+  </g>
+</g>
+<g transform="translate(314 432)" style="mix-blend-mode:multiply">
+  <g filter="url(#smSeal)">
+    <circle r="12.5" fill="#B8913A"/>
+    <use href="#smGGyeon" transform="translate(-8.5 -8.5) scale(.425)" stroke="#1A1A1A"/>
+  </g>
+</g>
+
+<!-- 결계 안쪽 (무기 자리) -->
+<rect x="0" y="716" width="390" height="84" fill="url(#smBandG)"/>
+
+<!-- 금줄 결계: 왼새끼에 한지·숯·고추·솔가지 -->
+<path d="M-6,700 Q195,712 396,700" fill="none" stroke="#B8913A" stroke-width="26" opacity=".16" filter="url(#smRopeGlow)"/>
+<g filter="url(#smRope)">
+  <path d="M-6,696 Q195,708 396,696" fill="none" stroke="#8A6A33" stroke-width="8" stroke-linecap="round"/>
+  <path d="M-6,694.4 Q195,706.4 396,694.4" fill="none" stroke="#C9A55E" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
+  <path d="M-8.2,692.6 L-4.4,699.2 M-2.3,692.9 L1.5,699.5 M3.6,693.3 L7.4,699.9 M9.5,693.6 L13.3,700.2 M15.4,693.9 L19.2,700.5 M21.4,694.2 L25.2,700.8 M27.3,694.5 L31.1,701.1 M33.2,694.8 L37.0,701.4 M39.1,695.1 L42.9,701.7 M45.0,695.4 L48.8,702.0 M50.9,695.6 L54.7,702.2 M56.8,695.9 L60.6,702.5 M62.7,696.1 L66.5,702.7 M68.7,696.3 L72.5,702.9 M74.6,696.5 L78.4,703.1 M80.5,696.7 L84.3,703.3 M86.4,696.9 L90.2,703.5 M92.3,697.1 L96.1,703.7 M98.2,697.3 L102.0,703.9 M104.1,697.4 L107.9,704.0 M110.0,697.6 L113.8,704.2 M115.9,697.7 L119.7,704.3 M121.9,697.9 L125.7,704.5 M127.8,698.0 L131.6,704.6 M133.7,698.1 L137.5,704.7 M139.6,698.2 L143.4,704.8 M145.5,698.3 L149.3,704.9 M151.4,698.3 L155.2,704.9 M157.3,698.4 L161.1,705.0 M163.2,698.5 L167.0,705.1 M169.2,698.5 L173.0,705.1 M175.1,698.6 L178.9,705.2 M181.0,698.6 L184.8,705.2 M186.9,698.6 L190.7,705.2 M192.8,698.6 L196.6,705.2 M198.7,698.6 L202.5,705.2 M204.6,698.6 L208.4,705.2 M210.5,698.6 L214.3,705.2 M216.4,698.5 L220.2,705.1 M222.4,698.5 L226.2,705.1 M228.3,698.4 L232.1,705.0 M234.2,698.3 L238.0,704.9 M240.1,698.3 L243.9,704.9 M246.0,698.2 L249.8,704.8 M251.9,698.1 L255.7,704.7 M257.8,698.0 L261.6,704.6 M263.7,697.9 L267.5,704.5 M269.7,697.7 L273.5,704.3 M275.6,697.6 L279.4,704.2 M281.5,697.4 L285.3,704.0 M287.4,697.3 L291.2,703.9 M293.3,697.1 L297.1,703.7 M299.2,696.9 L303.0,703.5 M305.1,696.7 L308.9,703.3 M311.0,696.5 L314.8,703.1 M316.9,696.3 L320.7,702.9 M322.9,696.1 L326.7,702.7 M328.8,695.9 L332.6,702.5 M334.7,695.6 L338.5,702.2 M340.6,695.4 L344.4,702.0 M346.5,695.1 L350.3,701.7 M352.4,694.8 L356.2,701.4 M358.3,694.5 L362.1,701.1 M364.2,694.2 L368.0,700.8 M370.2,693.9 L374.0,700.5 M376.1,693.6 L379.9,700.2 M382.0,693.3 L385.8,699.9 M387.9,692.9 L391.7,699.5" fill="none" stroke="#3A2E1C" stroke-width="1.3" opacity=".75"/>
+</g>
+<path d="M10.5,700.1 L17.5,700.1 L18.5,708.1 L15.5,709.1 L17,716.1 L11,715.6 L12.5,708.6 L9.5,707.6 Z" fill="#F8F4EA" stroke="#8C8577" stroke-width=".6"/>
+<path d="M45,700.7 L40,711.7 M45,700.7 L43,713.7 M45,700.7 L46.5,713.7 M45,700.7 L49.5,711.7" fill="none" stroke="#2B2A26" stroke-width=".8" stroke-linecap="round"/>
+<path d="M76,701.9 V705.9" stroke="#1A1A1A" stroke-width=".9"/><path d="M74.2,705.9 C72.6,711.9 74.8,717.9 77.6,720.9 C78.8,716.9 78.6,710.9 77.8,705.9 Z" fill="#C8372D"/>
+<path d="M119.5,704.2 L126.5,704.2 L127.5,712.2 L124.5,713.2 L126,720.2 L120,719.7 L121.5,712.7 L118.5,711.7 Z" fill="#F8F4EA" stroke="#8C8577" stroke-width=".6"/>
+<path d="M167,703.9 V707.9" stroke="#5E584D" stroke-width=".8"/><path d="M163,708.9 L170,707.9 L172,712.9 L168.5,716.9 L162.5,714.9 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+<path d="M206.5,705 L213.5,705 L214.5,713 L211.5,714 L213,721 L207,720.5 L208.5,713.5 L205.5,712.5 Z" fill="#F8F4EA" stroke="#8C8577" stroke-width=".6"/>
+<path d="M232,703.8 L227,714.8 M232,703.8 L230,716.8 M232,703.8 L233.5,716.8 M232,703.8 L236.5,714.8" fill="none" stroke="#2B2A26" stroke-width=".8" stroke-linecap="round"/>
+<path d="M254,703.5 V707.5" stroke="#1A1A1A" stroke-width=".9"/><path d="M252.2,707.5 C250.6,713.5 252.8,719.5 255.6,722.5 C256.8,718.5 256.6,712.5 255.8,707.5 Z" fill="#C8372D"/>
+<path d="M293.5,703.5 L300.5,703.5 L301.5,711.5 L298.5,712.5 L300,719.5 L294,719 L295.5,712 L292.5,711 Z" fill="#F8F4EA" stroke="#8C8577" stroke-width=".6"/>
+<path d="M340,700.9 V704.9" stroke="#5E584D" stroke-width=".8"/><path d="M336,705.9 L343,704.9 L345,709.9 L341.5,713.9 L335.5,711.9 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+<path d="M378.5,699.8 L385.5,699.8 L386.5,707.8 L383.5,708.8 L385,715.8 L379,715.3 L380.5,708.3 L377.5,707.3 Z" fill="#F8F4EA" stroke="#8C8577" stroke-width=".6"/>
+
+<!-- 위 두루마리 끝단: 축 · 비단 장황 · 금박 경험치 띠 -->
+<rect x="0" y="10" width="390" height="48" fill="#24201C"/>
+<rect x="0" y="10" width="390" height="48" fill="url(#smUnmun)"/>
+<rect x="0" y="10" width="390" height="1" fill="#B8913A" opacity=".55"/>
+<rect x="0" y="0" width="390" height="10" fill="#1A1A1A"/>
+<rect x="0" y="2.4" width="390" height="1.2" fill="#4A4540"/>
+<circle cx="2" cy="5" r="7.5" fill="url(#smGoldG)"/>
+<circle cx="388" cy="5" r="7.5" fill="url(#smGoldG)"/>
+<rect x="0" y="58" width="390" height="5" fill="#4A3F2C"/>
+<rect x="0" y="58" width="234" height="5" fill="url(#smGoldBarG)"/>
+<path d="M234,58 L239,60.5 L234,63 Z" fill="#E8CF8A"/>
+<rect x="0" y="63" width="390" height="9" fill="url(#smShadeG)"/>
+<!-- LV 낙관 -->
+<g transform="translate(195 41) rotate(-4)">
+  <g filter="url(#smSeal)">
+    <rect x="-22" y="-22" width="44" height="44" rx="3" fill="#C8372D"/>
+    <rect x="-18.5" y="-18.5" width="37" height="37" rx="1.5" fill="none" stroke="#FFF7EA" stroke-width="1.2" opacity=".85"/>
+  </g>
+</g>
+
+<!-- 아래 두루마리 축 -->
+<rect x="0" y="836" width="390" height="8" fill="#1A1A1A"/>
+<rect x="0" y="837.6" width="390" height="1" fill="#4A4540"/>
+<circle cx="2" cy="840" r="6" fill="url(#smGoldG)"/>
+<circle cx="388" cy="840" r="6" fill="url(#smGoldG)"/>
+</svg>
+
+<!-- ============ HUD 글자 ============ -->
+<div style="position:absolute; left:14px; top:13px; display:flex; align-items:baseline; gap:6px">
+  <span style="font-family:'Nanum Brush Script',cursive; font-size:21px; line-height:1; color:#C9C0AE">웨이브</span>
+  <span style="font-family:'East Sea Dokdo',cursive; font-size:42px; line-height:36px; color:#ECE4D3">12</span>
+</div>
+<div style="position:absolute; left:173px; top:19px; width:44px; height:44px; transform:rotate(-4deg); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#FFF7EA">
+  <span style="font:700 9px/1 'Gowun Batang',serif; letter-spacing:1px">LV</span>
+  <span style="font-family:'East Sea Dokdo',cursive; font-size:30px; line-height:24px">9</span>
+</div>
+<svg width="98" height="18" viewBox="0 0 98 18" style="position:absolute; right:14px; top:16px" aria-hidden="true">
+  <defs>
+    <path id="smHeart" d="M8,15 C4,12 1,9.4 1,6 C1,3.4 3,1.6 5.2,1.6 C6.6,1.6 7.5,2.4 8,3.5 C8.5,2.4 9.4,1.6 10.8,1.6 C13,1.6 15,3.4 15,6 C15,9.4 12,12 8,15 Z"/>
+  </defs>
+  <g filter="url(#smBleed)">
+    <use href="#smHeart" x="0" fill="#C8372D" stroke="#F3ECDD" stroke-width=".7"/>
+    <use href="#smHeart" x="20" fill="#C8372D" stroke="#F3ECDD" stroke-width=".7"/>
+    <use href="#smHeart" x="40" fill="#C8372D" stroke="#F3ECDD" stroke-width=".7"/>
+    <use href="#smHeart" x="60" fill="#C8372D" stroke="#F3ECDD" stroke-width=".7"/>
+    <use href="#smHeart" x="80" fill="none" stroke="#8C8577" stroke-width="1.3" stroke-dasharray="3 1.4"/>
+  </g>
+</svg>
+<div style="position:absolute; right:14px; top:38px; font:700 11px/14px 'Gowun Batang',serif; color:#C9C0AE; letter-spacing:.5px">목숨 4/5 · 경험 60%</div>
+
+<!-- ============ 연쇄 23 (세로 "연쇄" + 큰 붓 숫자 + 斬 낙관) ============ -->
+<div style="position:absolute; left:28px; top:240px; width:42px; writing-mode:vertical-rl; text-orientation:upright; font-family:'East Sea Dokdo',cursive; font-size:38px; line-height:42px; color:#1A1A1A; text-shadow:0 0 4px #ECE4D3">연쇄</div>
+<div style="position:absolute; left:74px; top:212px; font-family:'East Sea Dokdo',cursive; font-size:140px; line-height:1; letter-spacing:-6px; color:#1A1A1A; text-shadow:0 0 6px #ECE4D3, 0 0 2px #ECE4D3">23</div>
+<svg width="64" height="64" viewBox="0 0 64 64" style="position:absolute; left:186px; top:296px; transform:rotate(8deg)" aria-hidden="true">
+  <g filter="url(#smSeal)">
+    <rect x="4" y="4" width="56" height="56" rx="3" fill="#C8372D"/>
+    <rect x="8" y="8" width="48" height="48" rx="1.5" fill="none" stroke="#F3EADB" stroke-width="1.6"/>
+    <use href="#smGZan" transform="translate(12 12)" stroke="#F3EADB"/>
+  </g>
+</svg>
+
+<!-- ============ 반응 이름: 세로 붓글씨 ============ -->
+<div style="position:absolute; left:338px; top:158px; width:48px; writing-mode:vertical-rl; text-orientation:upright; font-family:'East Sea Dokdo',cursive; font-size:46px; line-height:48px; letter-spacing:-2px; color:#F3ECDD">전향 무리</div>
+<div style="position:absolute; left:282px; top:238px; width:56px; writing-mode:vertical-rl; text-orientation:upright; font-family:'East Sea Dokdo',cursive; font-size:56px; line-height:56px; letter-spacing:-3px; color:#C8372D; text-shadow:0 0 4px #ECE4D3, 0 0 1px #ECE4D3">강타!</div>
+
+<!-- 피해 숫자 -->
+<div class="sm-dmg" style="left:16px; top:430px; font-size:46px; color:#C8372D; transform:rotate(-6deg)">119</div>
+<div class="sm-dmg" style="left:222px; top:444px; font-size:30px; color:#1A1A1A; transform:rotate(4deg)">36</div>
+<div class="sm-dmg" style="left:172px; top:548px; font-size:26px; color:#1A1A1A; transform:rotate(-3deg)">52</div>
+<div class="sm-dmg" style="left:234px; top:266px; font-size:24px; color:#1A1A1A">24</div>
+
+<!-- 방어선 위 오른쪽 표시 -->
+<div style="position:absolute; right:10px; top:671px; padding:2px 7px 2px 6px; background:rgba(236,228,211,.9); border-left:2px solid #C8372D; font:700 11px/15px 'Gowun Batang',serif; color:#1A1A1A; white-space:nowrap">갈래 6/7 · 칸 1</div>
+
+<!-- ============ 무기 줄 (결계 아래 여덟 자리) ============ -->
+<div style="position:absolute; left:0; top:722px; width:390px; height:60px">
+
+  <!-- 합친 무기: 군견 지뢰밭 (두 낙관이 겹쳐 찍힘) -->
+  <div style="position:absolute; left:6px; top:0; width:70px; text-align:center">
+    <svg width="70" height="42" viewBox="0 0 70 42" aria-hidden="true">
+      <circle cx="22" cy="21" r="16.5" fill="#E2D7C1"/>
+      <circle cx="22" cy="21" r="19" fill="none" stroke="#C8372D" stroke-width="1.4" stroke-dasharray="62 58" transform="rotate(140 22 21)" opacity=".9"/>
+      <circle cx="22" cy="21" r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62 22 21)" filter="url(#smDryH)"/>
+      <path d="M8,31 C16,28.6 28,28.6 37,31" fill="none" stroke="#5E584D" stroke-width="1.2" opacity=".6"/>
+      <use href="#smMine" transform="translate(13 29) scale(.6)"/>
+      <use href="#smMine" transform="translate(26 27) scale(.95)"/>
+      <g transform="translate(15 15)" filter="url(#smBleed)">
+        <path d="M-6,4 C-6.4,-1 -3.6,-4.4 0,-4.6 L1.2,-8.6 L2.8,-4.4 C5,-4 7.4,-2.6 9.6,-.6 L8.8,1.4 C6.6,1.2 4.8,1.8 3.6,3 C2.4,5.6 -.6,7 -3.8,7 Z" fill="#1A1A1A"/>
+        <path d="M-3.4,5.6 L-1,1.6" stroke="#C8372D" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="2.6" cy="-2" r=".75" fill="#ECE4D3"/>
+      </g>
+      <g transform="translate(52 13) rotate(-6)">
+        <g filter="url(#smSeal)">
+          <rect x="-10" y="-10" width="20" height="20" rx="1.5" fill="#C8372D"/>
+          <use href="#smGRoe" transform="translate(-8 -8) scale(.4)" stroke="#F3EADB"/>
+        </g>
+      </g>
+      <g transform="translate(58 25)" style="mix-blend-mode:multiply">
+        <g filter="url(#smSeal)">
+          <circle r="10" fill="#B8913A"/>
+          <use href="#smGGyeon" transform="translate(-7 -7) scale(.35)" stroke="#1A1A1A"/>
+        </g>
+      </g>
+    </svg>
+    <div class="sm-lab" style="color:#A82A22">군견 지뢰밭</div>
+  </div>
+
+  <!-- 카빈 (총) -->
+  <div class="sm-mount" style="left:80px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <g transform="rotate(-28)" fill="#1A1A1A" filter="url(#smBleed)">
+        <path d="M-13.5,.6 L-6,-1.8 L-5.2,2.8 L-12.8,5.4 Z"/>
+        <path d="M-6.4,-2.6 L5,-3 L5.4,1 L-5.4,2.4 Z"/>
+        <path d="M5,-2.6 L15,-2.9 L15,-1.4 L5,-1 Z"/>
+        <path d="M-1.2,1.8 C-.8,4.8 .4,6.6 2,7.8 L3.8,6.6 C2.8,5.4 2.4,3.6 2.6,1.4 Z"/>
+        <path d="M-2.4,-2.8 L-1.4,-4.8 L2.2,-4.9 L2.8,-2.9 Z"/>
+      </g>
+      <path d="M12.8,-9.6 L16,-12.4 M13.2,-8.6 L17.4,-8.8 M12.4,-10.4 L13,-14" fill="none" stroke="#C8372D" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    <div class="sm-lab">카빈</div>
+  </div>
+
+  <!-- 대포 (포격) : 총통 -->
+  <div class="sm-mount" style="left:123px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <circle cx="12" cy="-9" r="3.6" fill="#8C8577" opacity=".45" filter="url(#smBlur1)"/>
+      <circle cx="15" cy="-12.5" r="2.4" fill="#8C8577" opacity=".35" filter="url(#smBlur1)"/>
+      <path d="M-12,9 L7,5.4 L8,8 L-11,11.6 Z" fill="#5E584D" filter="url(#smBleed)"/>
+      <g transform="translate(-1 -1) rotate(-24)">
+        <path d="M-11,-3.8 L9,-2.8 L9,2.8 L-11,3.8 C-14,3.8 -14,-3.8 -11,-3.8 Z" fill="#1A1A1A" filter="url(#smBleed)"/>
+        <path d="M8.2,-3.8 L11,-3.8 L11,3.8 L8.2,3.8 Z" fill="#1A1A1A"/>
+        <path d="M-6,-3.4 V3.4 M0,-3.1 V3.1 M5,-2.9 V2.9" stroke="#8C8577" stroke-width=".9"/>
+        <circle cx="-13.2" cy="0" r="1.6" fill="#1A1A1A"/>
+      </g>
+      <circle cx="-3" cy="10" r="4.6" fill="#E2D7C1" stroke="#1A1A1A" stroke-width="1.6"/>
+      <path d="M-3,5.4 V14.6 M-7.6,10 H1.6" stroke="#1A1A1A" stroke-width=".8"/>
+    </svg>
+    <div class="sm-lab">대포</div>
+  </div>
+
+  <!-- 레이저 소총 (광선) : 주홍 한 획 -->
+  <div class="sm-mount" style="left:167px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <path d="M-1.3,.8 L17.5,-10.1" stroke="#C8372D" stroke-width="5" stroke-linecap="round" opacity=".2" filter="url(#smBlur1)"/>
+      <path d="M-1.3,.8 L17.5,-10.1" stroke="#C8372D" stroke-width="1.9" stroke-linecap="round" filter="url(#smBleed)"/>
+      <path d="M-.4,.2 L16,-9.2" stroke="#E0C37A" stroke-width=".6"/>
+      <g transform="translate(-8 6) rotate(-30)" fill="#1A1A1A" filter="url(#smBleed)">
+        <path d="M-8,.4 L-3,-1.4 L-2.4,2 L-7.6,4 Z"/>
+        <path d="M-3.4,-2 L5,-2.4 L5.4,1 L-2.6,1.8 Z"/>
+        <path d="M5,-1.8 L8.4,-1.9 L8.4,-.4 L5,-.3 Z"/>
+        <circle cx="1" cy="-3.2" r="1.3"/>
+      </g>
+    </svg>
+    <div class="sm-lab">레이저 소총</div>
+  </div>
+
+  <!-- 모기 떼 (떼) -->
+  <div class="sm-mount" style="left:210px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <circle r="10" fill="#8C8577" opacity=".22" filter="url(#smBlur2)"/>
+      <use href="#smMosq" transform="translate(-8 -6) rotate(-20)"/>
+      <use href="#smMosq" transform="translate(-1 -10) rotate(15)"/>
+      <use href="#smMosq" transform="translate(7 -6) rotate(-35)"/>
+      <use href="#smMosq" transform="translate(-10 3) rotate(10)"/>
+      <use href="#smMosq" transform="translate(-2 0) rotate(-10) scale(1.2)"/>
+      <use href="#smMosq" transform="translate(8 3) rotate(25)"/>
+      <use href="#smMosq" transform="translate(-5 9) rotate(-25)"/>
+      <use href="#smMosq" transform="translate(4 10) rotate(5)"/>
+    </svg>
+    <div class="sm-lab">모기 떼</div>
+  </div>
+
+  <!-- 용암 웅덩이 (장판) -->
+  <div class="sm-mount" style="left:254px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <ellipse cy="5" rx="12.5" ry="6" fill="#1A1A1A" filter="url(#smInk)"/>
+      <ellipse cy="4.4" rx="9.8" ry="4.2" fill="url(#smLavaG)" filter="url(#smBleed)"/>
+      <circle cx="-4" cy="4" r="1.4" fill="none" stroke="#F6D7B8" stroke-width=".7"/>
+      <circle cx="4.6" cy="5" r="1" fill="none" stroke="#F6D7B8" stroke-width=".7"/>
+      <path d="M-3,-1 C-5.4,-5 -1.4,-7.6 -3.4,-12.4" stroke="#C8372D" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".75"/>
+      <path d="M4,-1 C2,-4.6 6,-7 4,-11" stroke="#5E584D" stroke-width="1" fill="none" stroke-linecap="round" opacity=".7"/>
+    </svg>
+    <div class="sm-lab">용암 웅덩이</div>
+  </div>
+
+  <!-- 빛 정령 (정령) : 금박 수호령 -->
+  <div class="sm-mount" style="left:297px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <circle r="11" fill="#F1DFA6" opacity=".6" filter="url(#smBlur2)"/>
+      <path d="M0,-15 V-12.4 M10.6,-10.6 L8.8,-8.8 M15,0 H12.4 M10.6,10.6 L8.8,8.8 M-10.6,10.6 L-8.8,8.8 M-15,0 H-12.4 M-10.6,-10.6 L-8.8,-8.8" fill="none" stroke="#B8913A" stroke-width="1" stroke-linecap="round"/>
+      <path d="M0,9 C-6.6,9 -7.6,2.4 -5.6,-1.6 C-4,-5 -1,-7.4 -.6,-12 C2.2,-8.6 4.4,-6.4 5.8,-2.6 C7.6,1.4 6.6,9 0,9 Z" fill="url(#smGoldG)" stroke="#7A5C1E" stroke-width=".6" filter="url(#smBleed)"/>
+      <path d="M-3.4,2.4 Q-2.2,3.4 -1,2.4 M1,2.4 Q2.2,3.4 3.4,2.4" stroke="#1A1A1A" stroke-width=".8" fill="none" stroke-linecap="round"/>
+      <circle cx="-1.6" cy="-2" r="1.4" fill="#FFF6DC" opacity=".8"/>
+    </svg>
+    <div class="sm-lab">빛 정령</div>
+  </div>
+
+  <!-- 원반 (회전체) -->
+  <div class="sm-mount" style="left:341px">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" aria-hidden="true">
+      <circle r="16.5" fill="#E2D7C1"/>
+      <circle r="16.6" fill="none" stroke="#1A1A1A" stroke-width="2.3" stroke-dasharray="86 18" stroke-linecap="round" transform="rotate(-62)" filter="url(#smDryH)"/>
+      <path d="M-14,-4 A15,9 0 0 1 4,-12.6" fill="none" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round" opacity=".55"/>
+      <path d="M14,4 A15,9 0 0 1 -4,12.6" fill="none" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round" opacity=".55"/>
+      <g transform="rotate(-18)">
+        <ellipse rx="11" ry="6" fill="none" stroke="#1A1A1A" stroke-width="4.2" filter="url(#smBleed)"/>
+        <ellipse rx="11" ry="6" fill="none" stroke="#8C8577" stroke-width=".7"/>
+        <ellipse rx="4.6" ry="2.4" fill="#E2D7C1" stroke="#1A1A1A" stroke-width=".8"/>
+        <path d="M-11,0 H-14 M11,0 H14 M0,-6 V-8 M0,6 V8" stroke="#1A1A1A" stroke-width="1.4" stroke-linecap="round"/>
+      </g>
+      <circle cx="8.6" cy="-5" r="1.2" fill="#B8913A"/>
+    </svg>
+    <div class="sm-lab">원반</div>
+  </div>
+</div>
+
+<!-- ============ 아래 가장자리 버튼 ============ -->
+<button style="position:absolute; left:12px; top:803px; width:56px; height:28px; padding:0; background:#F3ECDD; border:1.5px solid #1A1A1A; border-radius:2px; box-shadow:2px 2px 0 rgba(26,26,26,.18); font:700 12px/1 'Gowun Batang',serif; color:#1A1A1A; letter-spacing:1px; cursor:pointer">실험</button>
+<button style="position:absolute; right:12px; top:800px; width:34px; height:34px; padding:0; background:#C8372D; border:none; border-radius:50%; box-shadow:inset 0 0 0 2px rgba(255,247,234,.55); font:700 13px/1 'Gowun Batang',serif; color:#FFF7EA; cursor:pointer">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

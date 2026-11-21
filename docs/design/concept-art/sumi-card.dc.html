@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>수묵 요괴 레벨 업</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&amp;family=Gowun+Batang:wght@400;700&amp;family=Nanum+Brush+Script&amp;display=swap">
+<style>
+body{margin:0}
+.sc-tag{position:absolute;top:14px;right:16px;padding:1px 6px;border:1px solid #A82A22;font:700 10px/14px 'Gowun Batang',serif;color:#A82A22;letter-spacing:1px}
+.sc-name{font-family:'East Sea Dokdo',cursive;color:#1A1A1A;line-height:1}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #ECE4D3; font-family: 'Gowun Batang', serif; color: #1A1A1A">
+
+<!-- ============ 뒤에 깔린 판 (흐릿하게) + 먹물 덮개 ============ -->
+<svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute; left:0; top:0" aria-hidden="true">
+<defs>
+  <filter id="scPaper" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="7" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.31  0 0 0 0 0.24  1.05 0 0 0 -0.47"/>
+  </filter>
+  <filter id="scPaperIn" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="3" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.31  0 0 0 0 0.24  1.05 0 0 0 -0.47" result="c"/>
+    <feComposite in="c" in2="SourceAlpha" operator="in"/>
+  </filter>
+  <filter id="scMottle" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.009" numOctaves="4" seed="31" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.04  0 0 0 0 0.035  0 0 0 0 0.03  1.6 0 0 0 -0.55"/>
+  </filter>
+  <filter id="scInk" x="-50%" y="-50%" width="200%" height="200%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" seed="9" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="2.4" result="b"/>
+    <feColorMatrix in="b" type="matrix" values="0 0 0 0 0.33  0 0 0 0 0.31  0 0 0 0 0.28  0 0 0 0.5 0" result="halo"/>
+    <feMerge><feMergeNode in="halo"/><feMergeNode in="d"/></feMerge>
+  </filter>
+  <filter id="scBleed" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="4" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="scTorn" x="-5%" y="-8%" width="110%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="3" seed="8" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="scDryH" x="-20%" y="-60%" width="140%" height="220%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035 0.75" numOctaves="2" seed="2" result="t"/>
+    <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="c"/>
+    <feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="scSeal" x="-15%" y="-15%" width="130%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="11" result="t"/>
+    <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="c"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="1" seed="5" result="t2"/>
+    <feDisplacementMap in="c" in2="t2" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="scBlur2" x="-100%" y="-200%" width="300%" height="500%"><feGaussianBlur stdDeviation="2"/></filter>
+  <filter id="scBlur4" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter>
+  <filter id="scBlur12" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12"/></filter>
+
+  <linearGradient id="scWispG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset=".45" stop-color="#3A3733" stop-opacity=".72"/>
+    <stop offset="1" stop-color="#1A1A1A" stop-opacity=".96"/>
+  </linearGradient>
+  <linearGradient id="scGoldG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#8E6B22"/>
+    <stop offset=".45" stop-color="#E0C37A"/>
+    <stop offset="1" stop-color="#B8913A"/>
+  </linearGradient>
+  <linearGradient id="scMtnG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8C8577" stop-opacity=".32"/>
+    <stop offset="1" stop-color="#8C8577" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="scMoonG">
+    <stop offset=".46" stop-color="#8C8577" stop-opacity="0"/>
+    <stop offset=".52" stop-color="#8C8577" stop-opacity=".34"/>
+    <stop offset="1" stop-color="#8C8577" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="scMineG" cx=".35" cy=".3" r=".7">
+    <stop offset="0" stop-color="#8C8577"/>
+    <stop offset=".5" stop-color="#3A3733"/>
+    <stop offset="1" stop-color="#1A1A1A"/>
+  </radialGradient>
+  <radialGradient id="scInkPoolG" cx=".5" cy=".45" r=".7">
+    <stop offset="0" stop-color="#14120F" stop-opacity=".62"/>
+    <stop offset="1" stop-color="#14120F" stop-opacity=".9"/>
+  </radialGradient>
+  <pattern id="scUnmun" width="34" height="20" patternUnits="userSpaceOnUse">
+    <path d="M2,13 c2,-5 8,-5 9,0 c1,-4 6,-4 7,1 M19,5 c2,-3 6,-3 7,0 c1,-2 4,-2 5,1" fill="none" stroke="#B8913A" stroke-width=".8" opacity=".24"/>
+  </pattern>
+
+  <!-- 전서체 글자 (40×40) -->
+  <g id="scGRoe" fill="none" stroke-width="3.2" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M7,3 H33 M4,8 H36 M4,8 V17 M36,8 V17 M20,3 V18 M9,11.5 L14,12.5 M9,15.5 L14,16.5 M26,11.5 L31,12.5 M26,15.5 L31,16.5 M8,22 H32 V38 H8 Z M8,30 H32 M20,22 V38"/>
+  </g>
+  <g id="scGGyeon" fill="none" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M4,15 H36 M20,3 C20,19 14,30 4,38 M21,16 C25,27 30,33 37,38 M28,4 L32,9"/>
+  </g>
+  <g id="scGHap" fill="none" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M20,3 L3,17 M20,3 L37,17 M11,20 H29 M9,25 H31 V37 H9 Z"/>
+  </g>
+  <g id="scGIn" fill="none" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M15,3 L7,6 V34 H17 M7,19 H16 M22,5 H34 V25 H30 M22,5 V39"/>
+  </g>
+  <!-- 부적 글씨 (26×112) -->
+  <path id="scFuA" d="M13,4 C5,5 5,12 13,12 C21,12 21,19 13,19 M13,19 V102 M4,27 H22 M6,36 C10,31 16,31 20,36 C16,41 10,41 6,36 M3,48 H23 M8,54 H18 V63 H8 Z M5,72 C10,67 17,76 22,70 M3,82 H23 M13,90 C4,93 6,108 14,108 C22,108 22,96 14,98"/>
+  <path id="scFuB" d="M6,6 L20,6 M13,2 V104 M5,16 C9,12 17,20 21,14 M4,26 H22 M7,34 H19 V44 H7 Z M7,39 H19 M4,54 C8,50 18,58 22,52 M4,64 H22 M8,72 H18 V80 H8 Z M5,90 C9,86 17,94 21,88 M13,104 C7,106 7,112 13,112"/>
+
+  <g id="scWisp">
+    <path d="M0,10 C-9,10 -11,2 -9,-3 C-7,-9 -3,-12 -4,-19 C-4,-23 -1,-27 3,-31 C1,-25 3,-21 5,-17 C8,-11 11,-5 9,2 C8,7 4,10 0,10 Z" fill="url(#scWispG)" filter="url(#scInk)"/>
+    <ellipse cx="-3.6" cy="1.5" rx="1.7" ry="2.6" transform="rotate(24 -3.6 1.5)" fill="#ECE4D3"/>
+    <ellipse cx="3.6" cy="1.5" rx="1.7" ry="2.6" transform="rotate(-24 3.6 1.5)" fill="#ECE4D3"/>
+  </g>
+  <g id="scGiant">
+    <path d="M-8,-10 C-9,-16 -5,-19 0,-19 C5,-19 9,-16 8,-10 C12,-13 18,-15 22,-11 C27,-6 27,4 26,12 C26,18 28,22 24,24 C21,25 19,22 19,18 L17,8 C17,14 16,20 12,26 L4,26 L2,17 L-2,17 L-4,26 L-12,26 C-16,20 -17,14 -17,8 L-19,18 C-19,22 -21,25 -24,24 C-28,22 -26,18 -26,12 C-27,4 -27,-6 -22,-11 C-18,-15 -12,-13 -8,-10 Z" fill="#1A1A1A" filter="url(#scInk)"/>
+    <path d="M-5,-17 C-9,-21 -14,-24 -15,-32 C-11,-27 -6,-25 -2,-19 Z M5,-17 C9,-21 14,-24 15,-32 C11,-27 6,-25 2,-19 Z" fill="#1A1A1A"/>
+  </g>
+  <g id="scBeast">
+    <path d="M-3,-62 C-6,-42 -12,-24 -11,-9 C-11,-4 -9,1 -7,5 L-5,14 L-2.5,9 L0,15 L2.5,9 L5,14 L7,5 C9,1 11,-4 11,-9 C12,-24 6,-42 3,-62 Z" fill="#1A1A1A" filter="url(#scInk)"/>
+    <path d="M-6,-40 L-9,-88 M4,-46 L7,-92" fill="none" stroke="#1A1A1A" stroke-width="2" opacity=".5"/>
+  </g>
+  <g id="scDog">
+    <path d="M-30,-2 L-46,0 M-24,7 L-40,12 M-31,-9 L-43,-11" fill="none" stroke="#1A1A1A" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+    <path d="M-18,5 C-23,2 -27,-3 -27,-9 C-24,-6 -21,-3 -16,-1 C-9,-5 1,-7 8,-8 C10,-11 12,-14 15,-15 L17,-20 L19,-15 C22,-14 25,-12 29,-10 L28,-7 C25,-6.5 22,-6 19,-5 C18,-2 16,1 13,2 L21,8 L19.5,10 L10,5 L6,6 L12,12 L10,13.5 L2,7 C-3,7 -8,7 -11,7 L-20,13 L-21,11 L-15,5 Z" fill="#1A1A1A" filter="url(#scInk)"/>
+    <path d="M11,-11 L15,-3" stroke="#C8372D" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="21.5" cy="-12" r="1" fill="#ECE4D3"/>
+  </g>
+  <g id="scMine">
+    <circle r="5.6" fill="url(#scMineG)"/>
+    <path d="M-5.4,-.6 C-2,.8 2,.8 5.4,-.6" fill="none" stroke="#8C8577" stroke-width=".7"/>
+    <path d="M2.6,-4.6 C4.4,-7.4 6.6,-7.6 7.6,-9.6" fill="none" stroke="#1A1A1A" stroke-width=".9" stroke-linecap="round"/>
+    <circle cx="7.9" cy="-10" r="1.3" fill="#C8372D"/>
+  </g>
+</defs>
+
+<!-- 판 -->
+<rect width="390" height="844" fill="#ECE4D3"/>
+<rect width="390" height="844" filter="url(#scPaper)"/>
+<path d="M0,238 C26,220 46,196 72,198 C94,200 104,176 126,170 C146,165 160,188 182,192 C206,196 216,162 242,152 C264,144 280,172 302,178 C322,183 336,154 358,148 C372,145 384,154 390,158 L390,300 L0,300 Z" fill="url(#scMtnG)"/>
+<circle cx="150" cy="132" r="62" fill="url(#scMoonG)"/>
+<circle cx="150" cy="132" r="30" fill="#F5F0E6"/>
+<use href="#scWisp" transform="translate(40 122) scale(.85)"/>
+<use href="#scWisp" transform="translate(236 102) scale(.8)"/>
+<use href="#scWisp" transform="translate(338 98) scale(.8)"/>
+<use href="#scWisp" transform="translate(78 204) scale(.75)"/>
+<use href="#scWisp" transform="translate(360 524) scale(.85)"/>
+<use href="#scGiant" transform="translate(150 160)"/>
+<use href="#scGiant" transform="translate(252 516) scale(.9)"/>
+<use href="#scGiant" transform="translate(262 640) scale(.95)"/>
+<use href="#scBeast" transform="translate(262 180) scale(.85)"/>
+<use href="#scBeast" transform="translate(318 604) scale(.9)"/>
+<path d="M-6,696 Q195,708 396,696" fill="none" stroke="#8A6A33" stroke-width="8" stroke-linecap="round"/>
+<g fill="#E2D7C1" stroke="#1A1A1A" stroke-width="2.2">
+  <circle cx="28" cy="743" r="16.5"/><circle cx="101.5" cy="745" r="16.5"/><circle cx="145" cy="745" r="16.5"/><circle cx="188.5" cy="745" r="16.5"/><circle cx="231.5" cy="745" r="16.5"/><circle cx="275.5" cy="745" r="16.5"/><circle cx="318.5" cy="745" r="16.5"/><circle cx="362.5" cy="745" r="16.5"/>
+</g>
+<rect x="0" y="10" width="390" height="48" fill="#24201C"/>
+<rect x="0" y="10" width="390" height="48" fill="url(#scUnmun)"/>
+<rect x="0" y="0" width="390" height="10" fill="#1A1A1A"/>
+<rect x="0" y="58" width="390" height="5" fill="#4A3F2C"/>
+<rect x="0" y="58" width="390" height="5" fill="#B8913A"/>
+<rect x="173" y="19" width="44" height="44" rx="3" fill="#C8372D" transform="rotate(-4 195 41)"/>
+
+<!-- 먹물이 판 위로 번져 덮는다 -->
+<rect width="390" height="844" fill="url(#scInkPoolG)"/>
+<rect width="390" height="844" filter="url(#scMottle)"/>
+<rect x="0" y="836" width="390" height="8" fill="#0E0D0B"/>
+<circle cx="2" cy="840" r="6" fill="url(#scGoldG)" opacity=".7"/>
+<circle cx="388" cy="840" r="6" fill="url(#scGoldG)" opacity=".7"/>
+
+<!-- 제목 아래 금박 갈필 -->
+<path d="M108,156 C160,151 230,151 284,154 L283,160 C230,158 160,159 109,162 Z" fill="#B8913A" filter="url(#scDryH)"/>
+<!-- LV 10 낙관 -->
+<g transform="translate(306 112) rotate(8)">
+  <g filter="url(#scSeal)">
+    <rect x="-21" y="-21" width="42" height="42" rx="3" fill="#C8372D"/>
+    <rect x="-17.5" y="-17.5" width="35" height="35" rx="1.5" fill="none" stroke="#FFF7EA" stroke-width="1.2" opacity=".85"/>
+  </g>
+</g>
+</svg>
+
+<!-- ============ 제목 ============ -->
+<div style="position:absolute; left:0; top:66px; width:390px; text-align:center; font:400 13px/16px 'Gowun Batang',serif; letter-spacing:3px; color:#C9C0AE">부적 한 장을 고르시오</div>
+<div style="position:absolute; left:0; top:84px; width:390px; text-align:center; font-family:'East Sea Dokdo',cursive; font-size:70px; line-height:70px; color:#F3ECDD">레벨 업</div>
+<div style="position:absolute; left:285px; top:91px; width:42px; height:42px; transform:rotate(8deg); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#FFF7EA">
+  <span style="font:700 8px/1 'Gowun Batang',serif; letter-spacing:1px">LV</span>
+  <span style="font-family:'East Sea Dokdo',cursive; font-size:24px; line-height:20px">10</span>
+</div>
+
+<!-- ============ 1. 합성 카드 · 합인(合印) ============ -->
+<div style="position:absolute; left:14px; top:172px; width:362px; height:244px">
+  <svg width="362" height="244" viewBox="0 0 362 244" style="position:absolute; left:0; top:0; overflow:visible" aria-hidden="true">
+    <rect x="-6" y="-6" width="374" height="256" rx="8" fill="#B8913A" opacity=".5" filter="url(#scBlur12)"/>
+    <rect x="3" y="3" width="356" height="238" fill="#F2EAD7" filter="url(#scTorn)"/>
+    <rect x="3" y="3" width="356" height="238" filter="url(#scPaperIn)"/>
+    <g fill="#B8913A" opacity=".55">
+      <path d="M150,30 l5,-1 l-1.4,4.4 z"/><path d="M300,128 l4,1 l-2,3.4 z"/><path d="M332,206 l4.4,1.4 l-3.4,3 z"/><path d="M24,160 l3.4,-2 l.6,4 z"/><path d="M118,226 l4,.6 l-2.4,3.4 z"/><path d="M262,22 l3,-1.4 l.4,3.4 z"/><path d="M200,230 l3.6,.4 l-2,3 z"/>
+    </g>
+    <rect x="9" y="9" width="344" height="226" fill="none" stroke="#B8913A" stroke-width="1.8"/>
+    <rect x="13" y="13" width="336" height="218" fill="none" stroke="#C8372D" stroke-width=".8" opacity=".75"/>
+    <path d="M9,21 V9 H21 M341,9 H353 V21 M353,223 V235 H341 M21,235 H9 V223" fill="none" stroke="#B8913A" stroke-width="3.2"/>
+
+    <!-- 두 도장이 겹쳐 찍힘: 雷(지뢰밭) 네모 + 犬(군견) 동그라미 -->
+    <circle cx="70" cy="92" r="58" fill="#C8372D" opacity=".08" filter="url(#scBlur4)"/>
+    <g transform="translate(56 74) rotate(-6)">
+      <g filter="url(#scSeal)">
+        <rect x="-31" y="-31" width="62" height="62" rx="3" fill="#C8372D"/>
+        <rect x="-27" y="-27" width="54" height="54" rx="1.5" fill="none" stroke="#F3EADB" stroke-width="1.6"/>
+        <use href="#scGRoe" transform="translate(-21 -21) scale(1.05)" stroke="#F3EADB"/>
+      </g>
+    </g>
+    <g transform="translate(90 112) rotate(10)" style="mix-blend-mode:multiply">
+      <g filter="url(#scSeal)">
+        <circle r="31" fill="#B8913A"/>
+        <circle r="27" fill="none" stroke="#1A1A1A" stroke-width="1.4"/>
+        <use href="#scGGyeon" transform="translate(-19 -19) scale(.95)" stroke="#1A1A1A"/>
+      </g>
+    </g>
+    <!-- 그 아래 작은 먹그림: 지뢰밭 위로 뛰는 군견 -->
+    <path d="M18,214 C46,207 98,205 130,212" fill="none" stroke="#8C8577" stroke-width="5" stroke-linecap="round" opacity=".35" filter="url(#scBlur2)"/>
+    <use href="#scMine" transform="translate(32 210) scale(.9)"/>
+    <use href="#scMine" transform="translate(72 214) scale(.8)"/>
+    <use href="#scMine" transform="translate(112 209) scale(.9)"/>
+    <use href="#scDog" transform="translate(76 184) rotate(-12) scale(.9)"/>
+
+    <!-- 合印 세로 도장 -->
+    <g transform="translate(322 18)">
+      <g filter="url(#scSeal)">
+        <rect width="26" height="50" rx="2" fill="#C8372D"/>
+        <use href="#scGHap" transform="translate(3 3) scale(.5)" stroke="#F3EADB"/>
+        <use href="#scGIn" transform="translate(3 26) scale(.5)" stroke="#F3EADB"/>
+      </g>
+    </g>
+  </svg>
+
+  <div style="position:absolute; left:142px; top:22px; font:700 11px/14px 'Gowun Batang',serif; letter-spacing:3px; color:#A82A22">합인</div>
+  <div class="sc-name" style="position:absolute; left:140px; top:40px; font-size:42px; white-space:nowrap">군견 지뢰밭</div>
+  <div style="position:absolute; left:142px; top:88px; padding:3px 8px; background:#C8372D; font:700 12px/16px 'Gowun Batang',serif; color:#FFF7EA; white-space:nowrap">합성 · 전향 무리 · 강타</div>
+  <div style="position:absolute; left:142px; top:118px; display:flex; align-items:center; gap:5px; font:700 13px/16px 'Gowun Batang',serif; color:#1A1A1A; white-space:nowrap">
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1" width="12" height="12" rx="1" fill="#C8372D"/><use href="#scGRoe" transform="translate(2 2) scale(.25)" stroke="#F3EADB"/></svg>
+    <span>지뢰밭</span>
+    <span style="color:#5E584D">+</span>
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.2" fill="#B8913A"/><use href="#scGGyeon" transform="translate(2 2) scale(.25)" stroke="#1A1A1A"/></svg>
+    <span>군견</span>
+  </div>
+  <div style="position:absolute; left:142px; top:144px; width:200px; font:400 13px/20px 'Gowun Batang',serif; color:#1A1A1A; word-break:keep-all">지뢰밭에 묶인 적을 군견이 돌려세워 제 무리를 들이받게 한다</div>
+  <div style="position:absolute; left:142px; top:208px; font:400 11px/14px 'Gowun Batang',serif; color:#5E584D; white-space:nowrap"><b style="color:#A82A22">새 반응!</b> · 칸 1 중 1 · 등급 2</div>
+</div>
+
+<!-- ============ 2. 레벨 업 카드 (부적) ============ -->
+<div style="position:absolute; left:22px; top:428px; width:346px; height:128px">
+  <svg width="346" height="128" viewBox="0 0 346 128" style="position:absolute; left:0; top:0" aria-hidden="true">
+    <rect x="2" y="2" width="342" height="124" fill="#E9DAB0" filter="url(#scTorn)"/>
+    <rect x="2" y="2" width="342" height="124" filter="url(#scPaperIn)"/>
+    <path d="M117,4 V124 M232,4 V124" stroke="#8C8577" stroke-width=".8" opacity=".25"/>
+    <rect x="8" y="8" width="330" height="112" fill="none" stroke="#C8372D" stroke-width="1.2" opacity=".85"/>
+    <rect x="11" y="11" width="324" height="106" fill="none" stroke="#C8372D" stroke-width=".5" opacity=".6"/>
+    <rect x="15" y="14" width="26" height="100" fill="#DCC68C" opacity=".6"/>
+    <use href="#scFuA" transform="translate(15 10) scale(1 .96)" fill="none" stroke="#C8372D" stroke-width="2" stroke-linecap="round" filter="url(#scBleed)"/>
+    <circle cx="80" cy="64" r="28.5" fill="#E0CFA0" opacity=".7"/>
+    <circle cx="80" cy="64" r="30" fill="none" stroke="#1A1A1A" stroke-width="3.2" stroke-dasharray="160 28.5" stroke-linecap="round" transform="rotate(-62 80 64)" filter="url(#scDryH)"/>
+    <g transform="translate(80 66) scale(1.75)">
+      <g transform="rotate(-28)" fill="#1A1A1A" filter="url(#scBleed)">
+        <path d="M-13.5,.6 L-6,-1.8 L-5.2,2.8 L-12.8,5.4 Z"/>
+        <path d="M-6.4,-2.6 L5,-3 L5.4,1 L-5.4,2.4 Z"/>
+        <path d="M5,-2.6 L15,-2.9 L15,-1.4 L5,-1 Z"/>
+        <path d="M-1.2,1.8 C-.8,4.8 .4,6.6 2,7.8 L3.8,6.6 C2.8,5.4 2.4,3.6 2.6,1.4 Z"/>
+        <path d="M-2.4,-2.8 L-1.4,-4.8 L2.2,-4.9 L2.8,-2.9 Z"/>
+      </g>
+      <path d="M12.8,-9.6 L16,-12.4 M13.2,-8.6 L17.4,-8.8 M12.4,-10.4 L13,-14" fill="none" stroke="#C8372D" stroke-width="1.2" stroke-linecap="round"/>
+    </g>
+  </svg>
+  <div class="sc-tag">레벨 업</div>
+  <div style="position:absolute; left:124px; top:22px; display:flex; align-items:baseline; gap:8px; white-space:nowrap">
+    <span class="sc-name" style="font-size:38px">카빈</span>
+    <span style="font:700 15px/1 'Gowun Batang',serif; color:#1A1A1A">Lv 3 → <span style="color:#A82A22">4</span></span>
+  </div>
+  <div style="position:absolute; left:124px; top:68px; font:400 13px/18px 'Gowun Batang',serif; color:#1A1A1A; white-space:nowrap">관통 1 → <b style="color:#A82A22">2</b> · 쿨다운 0.9 → <b style="color:#A82A22">0.8초</b></div>
+  <div style="position:absolute; left:124px; top:96px; display:flex; align-items:center; gap:8px">
+    <svg width="62" height="10" viewBox="0 0 62 10" aria-hidden="true">
+      <g filter="url(#scBleed)">
+        <circle cx="5" cy="5" r="3.6" fill="#1A1A1A"/><circle cx="18" cy="5" r="3.6" fill="#1A1A1A"/><circle cx="31" cy="5" r="3.6" fill="#1A1A1A"/><circle cx="44" cy="5" r="3.6" fill="#C8372D"/><circle cx="57" cy="5" r="3.2" fill="none" stroke="#8C8577" stroke-width="1.2"/>
+      </g>
+    </svg>
+    <span style="font:400 11px/14px 'Gowun Batang',serif; color:#5E584D">갈래 총</span>
+  </div>
+</div>
+
+<!-- ============ 3. 새 무기 카드 (부적) ============ -->
+<div style="position:absolute; left:22px; top:568px; width:346px; height:128px">
+  <svg width="346" height="128" viewBox="0 0 346 128" style="position:absolute; left:0; top:0" aria-hidden="true">
+    <rect x="2" y="2" width="342" height="124" fill="#E9DAB0" filter="url(#scTorn)"/>
+    <rect x="2" y="2" width="342" height="124" filter="url(#scPaperIn)"/>
+    <path d="M117,4 V124 M232,4 V124" stroke="#8C8577" stroke-width=".8" opacity=".25"/>
+    <rect x="8" y="8" width="330" height="112" fill="none" stroke="#C8372D" stroke-width="1.2" opacity=".85"/>
+    <rect x="11" y="11" width="324" height="106" fill="none" stroke="#C8372D" stroke-width=".5" opacity=".6"/>
+    <rect x="15" y="14" width="26" height="100" fill="#DCC68C" opacity=".6"/>
+    <use href="#scFuB" transform="translate(15 8) scale(1 .96)" fill="none" stroke="#C8372D" stroke-width="2" stroke-linecap="round" filter="url(#scBleed)"/>
+    <circle cx="80" cy="64" r="28.5" fill="#E0CFA0" opacity=".7"/>
+    <circle cx="80" cy="64" r="30" fill="none" stroke="#1A1A1A" stroke-width="3.2" stroke-dasharray="160 28.5" stroke-linecap="round" transform="rotate(-62 80 64)" filter="url(#scDryH)"/>
+    <!-- 박격포: 낮고 굵은 포신을 하늘로, 포탄이 높이 넘어간다 -->
+    <g transform="translate(78 64) scale(1.12)">
+      <circle cx="8" cy="-11" r="4.5" fill="#8C8577" opacity=".4" filter="url(#scBlur2)"/>
+      <circle cx="12" cy="-15" r="3" fill="#8C8577" opacity=".3" filter="url(#scBlur2)"/>
+      <path d="M9,-12 C11,-20 16,-24 20,-21" fill="none" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="2 2.2" stroke-linecap="round"/>
+      <circle cx="20.6" cy="-19.4" r="2.4" fill="#1A1A1A"/>
+      <path d="M-16,13 L13,13 L10,19 L-13,19 Z" fill="#5E584D" filter="url(#scBleed)"/>
+      <path d="M-13,16 H10" stroke="#8C8577" stroke-width=".8"/>
+      <path d="M-2,8 L-10,14 M3,8 L9,14" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round"/>
+      <g transform="translate(-2 9) rotate(-62)">
+        <path d="M-4,-6.5 L17,-5.5 L17,5.5 L-4,6.5 C-8.5,6.5 -8.5,-6.5 -4,-6.5 Z" fill="#1A1A1A" filter="url(#scBleed)"/>
+        <rect x="15.5" y="-7" width="3.4" height="14" fill="#1A1A1A"/>
+        <path d="M3,-6 V6 M10,-5.8 V5.8" stroke="#8C8577" stroke-width="1"/>
+      </g>
+    </g>
+  </svg>
+  <div class="sc-tag">새 무기</div>
+  <div style="position:absolute; left:124px; top:22px; display:flex; align-items:center; gap:8px; white-space:nowrap">
+    <span class="sc-name" style="font-size:38px">박격포</span>
+    <span style="padding:2px 6px; background:#C8372D; font:700 11px/14px 'Gowun Batang',serif; letter-spacing:1px; color:#FFF7EA">NEW</span>
+  </div>
+  <div style="position:absolute; left:124px; top:68px; font:400 14px/18px 'Gowun Batang',serif; color:#1A1A1A; white-space:nowrap">멀리 높이, 크게 터진다</div>
+  <div style="position:absolute; left:124px; top:96px; display:flex; align-items:center; gap:6px; font:400 11px/14px 'Gowun Batang',serif; color:#5E584D; white-space:nowrap">
+    <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><path d="M4,0 L8,4 L4,8 L0,4 Z" fill="#B8913A"/></svg>
+    <span>새 갈래 · 칸까지 1</span>
+  </div>
+</div>
+
+<!-- ============ 리롤 ============ -->
+<button style="position:absolute; left:80px; top:722px; width:230px; height:48px; padding:0; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(26,26,26,.6); border:1px solid #B8913A; border-radius:2px; box-shadow:inset 0 0 0 3px rgba(20,18,15,.8), inset 0 0 0 4px rgba(184,145,58,.45); color:#F3ECDD; cursor:pointer">
+  <svg width="20" height="20" viewBox="-10 -10 20 20" aria-hidden="true">
+    <path d="M6.4,-4.2 A7.4,7.4 0 1 0 7.2,2.8" fill="none" stroke="#B8913A" stroke-width="1.9" stroke-linecap="round"/>
+    <path d="M7.6,-8.4 L6.6,-3.8 L2.2,-5" fill="none" stroke="#B8913A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span style="font-family:'East Sea Dokdo',cursive; font-size:28px; line-height:1">리롤</span>
+  <span style="font:400 13px/1 'Gowun Batang',serif; color:#C9C0AE">(2회 남음)</span>
+</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

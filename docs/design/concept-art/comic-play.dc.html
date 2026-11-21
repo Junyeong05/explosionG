@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>잉크 코믹 판</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Gothic+A1:wght@400;700;900&amp;display=swap">
+<style>
+body{margin:0}
+.bh{font-family:'Black Han Sans',sans-serif}
+.lb{position:absolute;top:762px;text-align:center;font:900 9px/1 'Gothic A1',sans-serif;color:#EFE6D2;letter-spacing:-0.2px;white-space:nowrap}
+.slot{position:absolute;top:714px;width:38px;height:40px;box-sizing:border-box;background:#EFE6D2;border:2.5px solid #141210;box-shadow:2px 2px 0 #3A4A5C;display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #EFE6D2; font-family: 'Gothic A1', sans-serif">
+
+<!-- 공통 정의: 망점·해칭·비·기호 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <pattern id="dkL" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="2.3" fill="#141210"/></pattern>
+  <pattern id="dkM" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="1.6" fill="#141210"/></pattern>
+  <pattern id="dkS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="1" fill="#141210"/></pattern>
+  <pattern id="dSl" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.15" fill="#3A4A5C"/></pattern>
+  <pattern id="dY" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.8" fill="#F5C518"/></pattern>
+  <pattern id="dR" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.25" fill="#D7352B"/></pattern>
+  <pattern id="hatchK" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 2.5H5" stroke="#141210" stroke-width="1.3"/></pattern>
+  <pattern id="hatchS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 3H6" stroke="#3A4A5C" stroke-width="1.2"/></pattern>
+  <pattern id="xhatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><path d="M0 2.5H5M2.5 0V5" stroke="#141210" stroke-width="0.9"/></pattern>
+  <pattern id="rain" width="26" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(14)"><path d="M3 2V15M15 21V32M9 35V44M21 5V12" stroke="#EFE6D2" stroke-width="0.9" stroke-linecap="round"/></pattern>
+  <pattern id="rain2" width="72" height="124" patternUnits="userSpaceOnUse" patternTransform="rotate(14)"><path d="M10 6V38M50 64V92" stroke="#EFE6D2" stroke-width="1.5" stroke-linecap="round"/></pattern>
+  <pattern id="haz" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="12" fill="#D7352B"/><rect x="6" width="6" height="12" fill="#EFE6D2"/></pattern>
+  <pattern id="wire" width="9" height="12" patternUnits="userSpaceOnUse"><ellipse cx="4.5" cy="6.5" rx="5.4" ry="4.6" fill="none" stroke="#141210" stroke-width="1.2"/><path d="M4.5 1.9L3 0.2M4.5 1.9L6 0.2" stroke="#141210" stroke-width="1"/></pattern>
+  <radialGradient id="gGlow"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.6"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gWarm"><stop offset="0" stop-color="#F5C518" stop-opacity="0.42"/><stop offset="1" stop-color="#F5C518" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141210" stop-opacity="0.75"/><stop offset="1" stop-color="#141210" stop-opacity="0"/></linearGradient>
+  <mask id="mGlow" maskUnits="userSpaceOnUse" x="0" y="0" width="374" height="620"><ellipse cx="196" cy="326" rx="196" ry="150" fill="url(#gGlow)"/></mask>
+  <clipPath id="cMoon"><circle cx="298" cy="30" r="21"/></clipPath>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7"/><feColorMatrix type="matrix" values="0 0 0 0 0.08  0 0 0 0 0.07  0 0 0 0 0.06  2.6 0 0 0 -1.35"/></filter>
+
+  <!-- 적: 그림자 짐승 (일반) -->
+  <symbol id="eHound" viewBox="0 0 48 40">
+    <path d="M5 31L2 23L7 25L5 16L11 20L12 11L17 17L20 7L24 15L28 7L31 17L36 11L37 20L43 16L41 25L46 23L43 31L40 32L42 38.5L36.5 38.5L34.5 34L29 34.5L24 37.5L19 34.5L13.5 34L11.5 38.5L6 38.5L8 32Z" fill="#141210" stroke="#141210" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M2.6 22.6L6.6 24.6M5.4 16.4L10.6 19.8M12.3 11.6L16.6 16.6M20.3 7.8L23.6 14.2" stroke="#EFE6D2" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+    <path d="M14.5 22.5L21.5 25.4L20 27L15.5 25ZM33.5 22.5L26.5 25.4L28 27L32.5 25Z" fill="#FFFFFF" filter="url(#glow)"/>
+    <path d="M18.5 30.2L19.8 33L21.2 30.6L22.6 33.6L24 31L25.4 33.6L26.8 30.6L28.2 33L29.5 30.2" fill="none" stroke="#EFE6D2" stroke-width="1" stroke-linejoin="round"/>
+  </symbol>
+  <!-- 전향된 짐승 (붉게 뒤집힘) -->
+  <symbol id="tHound" viewBox="0 0 48 40">
+    <path d="M5 31L2 23L7 25L5 16L11 20L12 11L17 17L20 7L24 15L28 7L31 17L36 11L37 20L43 16L41 25L46 23L43 31L40 32L42 38.5L36.5 38.5L34.5 34L29 34.5L24 37.5L19 34.5L13.5 34L11.5 38.5L6 38.5L8 32Z" fill="#D7352B" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M30 21L36 27M33 20L40 27M27 24L32 29" stroke="#141210" stroke-width="1.1"/>
+    <path d="M14.5 22.5L21.5 25.4L20 27L15.5 25ZM33.5 22.5L26.5 25.4L28 27L32.5 25Z" fill="#141210"/>
+    <path d="M18.5 30.2L19.8 33L21.2 30.6L22.6 33.6L24 31L25.4 33.6L26.8 30.6L28.2 33L29.5 30.2" fill="none" stroke="#EFE6D2" stroke-width="1.1" stroke-linejoin="round"/>
+  </symbol>
+  <!-- 적: 뿔 달린 거한 (장갑) -->
+  <symbol id="eBrute" viewBox="0 0 64 64">
+    <path d="M23 15C17 13 9 9 5 1C7 10 13 17 21 21ZM41 15C47 13 55 9 59 1C57 10 51 17 43 21Z" fill="#141210"/>
+    <path d="M5 1C9 9 17 13 23 15M59 1C55 9 47 13 41 15" stroke="#EFE6D2" stroke-width="1.1" fill="none"/>
+    <path d="M22 11H42L44 21L56 23C60 25 61 29 61 33L63 49C63 54 61 57 57 57C53 57 51 54 52 50L51 41L48 45L46 56L40 63H34V57H30V63H24L18 56L16 45L13 41L12 50C13 54 11 57 7 57C3 57 1 54 1 49L3 33C3 29 4 25 8 23L20 21Z" fill="#141210"/>
+    <path d="M5 25C9 20 17 20 22 24L20 32C15 30 10 30 4 32ZM59 25C55 20 47 20 42 24L44 32C49 30 54 30 60 32Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M23 29H41L43 43L32 48L21 43Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M35 31L42 38M33 33L42.5 42M31 36L39 45M37 30L41.5 34.5M48 23.5L55 30M51 23L58 29" stroke="#141210" stroke-width="1"/>
+    <path d="M23.8 30.2H32M6 25C10 21.5 15 21 19 23M3 33L1.6 48" stroke="#EFE6D2" stroke-width="1" fill="none"/>
+    <g fill="#EFE6D2"><circle cx="25" cy="31.6" r="0.9"/><circle cx="39" cy="31.6" r="0.9"/><circle cx="32" cy="45" r="0.9"/><circle cx="9" cy="25.4" r="0.8"/><circle cx="55" cy="25.4" r="0.8"/></g>
+    <path d="M25 15.5L30.5 17.8L29.5 19.2L25 17.4ZM39 15.5L33.5 17.8L34.5 19.2L39 17.4Z" fill="#FFFFFF" filter="url(#glow)"/>
+  </symbol>
+  <!-- 적: 날개 달린 것 (돌격, 내리꽂힘) -->
+  <symbol id="eWing" viewBox="0 0 64 48">
+    <path d="M30 16C22 10 12 6 2 4C5 9 6 13 5 18C8 16 11 17 12 21C14 18 18 19 19 23C21 20 25 21 27 26ZM34 16C42 10 52 6 62 4C59 9 58 13 59 18C56 16 53 17 52 21C50 18 46 19 45 23C43 20 39 21 37 26Z" fill="#141210" stroke="#141210" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M30 17L4 5M30 18L6 17M29 20L12 20M28 22L19 22M34 17L60 5M34 18L58 17M35 20L52 20M36 22L45 22" stroke="#3A4A5C" stroke-width="0.9" fill="none"/>
+    <path d="M30 16C22 10 12 6 2 4M34 16C42 10 52 6 62 4" stroke="#EFE6D2" stroke-width="1" fill="none"/>
+    <path d="M32 6C35.5 6 37 12 36 21C36 29 35 35 32 41C29 35 28 29 28 21C27 12 28.5 6 32 6ZM32 6L31 1L33.5 3.5Z" fill="#141210"/>
+    <path d="M27.5 36L29 31L32 33L35 31L36.5 36C36.5 41 34.5 45 32 46C29.5 45 27.5 41 27.5 36Z" fill="#141210"/>
+    <path d="M29 37.5L31.2 38.8L30.6 40L28.8 38.8ZM35 37.5L32.8 38.8L33.4 40L35.2 38.8Z" fill="#FFFFFF" filter="url(#glow)"/>
+  </symbol>
+  <!-- 아군: 군견 (도약) -->
+  <symbol id="aDog" viewBox="0 0 64 40">
+    <path d="M2 25C6 22 9 19 13 18C18 15 26 13 36 12C39 10 41 8 43 6L44 0L47 5L49 1L51 6C54 7 58 8 62 10L63 12L57 13L61 15L55 17C52 19 50 21 48 24L53 27L61 29L60 32L50 31L43 27C40 26 36 25 32 25L26 27L17 33L9 37L7 35L14 29L19 23C15 22 10 22 6 24Z" fill="#EFE6D2" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M18 16.5C25 13.6 32 12.6 37 12.4C35.5 16.5 30 19 23 19.4C20 19.4 17.6 18.4 18 16.5Z" fill="#141210"/>
+    <path d="M48 24L43 27C40 26 36 25 32 25L26 27L30 23C36 23 42 23 48 24Z" fill="#141210"/>
+    <path d="M41.5 8.5L46 10.5L44.6 17.5L40 15.5Z" fill="#D7352B" stroke="#141210" stroke-width="1.2"/>
+    <path d="M51 8.5L54 8.8L53 10Z" fill="#141210"/>
+  </symbol>
+  <!-- 무기 아이콘 -->
+  <symbol id="iMine" viewBox="0 0 40 40">
+    <path d="M2 33H38" stroke="#141210" stroke-width="2"/>
+    <path d="M5 37L8 33.5M11 37L14 33.5M17 37L20 33.5M23 37L26 33.5M29 37L32 33.5" stroke="#141210" stroke-width="1"/>
+    <rect x="5" y="27" width="30" height="5" fill="#141210"/>
+    <path d="M7 27C7 19.5 12.5 15.5 20 15.5C27.5 15.5 33 19.5 33 27Z" fill="#3A4A5C" stroke="#141210" stroke-width="2.2"/>
+    <path d="M25 18L31 25M22 17L29.5 26M28 17.5L32.5 22" stroke="#141210" stroke-width="1"/>
+    <path d="M11 24C11.5 20.5 14 18.5 17 18" stroke="#EFE6D2" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <rect x="15.5" y="12.5" width="9" height="3.5" fill="#141210"/>
+    <circle cx="20" cy="9.5" r="3" fill="#D7352B" stroke="#141210" stroke-width="1.5"/>
+    <path d="M20 2.5V4.5M13.5 5L15 6.5M26.5 5L25 6.5M12 10H14M26 10H28" stroke="#141210" stroke-width="1.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="iDog" viewBox="0 0 40 40">
+    <path d="M7 37L8.5 24C8.5 18 10.5 14 13.5 11.5L12.5 2.5L18 8.5L20 1.5L23.5 9.5C26.5 10.5 28.5 12.5 30.5 14.5L37 17.5C38.5 18.2 38.8 20 37.6 21.4L35.5 23.5L28.5 23.5C26.5 26 24.5 28 22.5 29L23 37Z" fill="#EFE6D2" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M8.5 24C8.5 18 10.5 14 13.5 11.5C14 16 13 21 15 25C16 28 18 30 22.5 29L23 37H7Z" fill="#141210"/>
+    <path d="M14 10L13.6 5L16.8 9Z" fill="#141210"/>
+    <path d="M23.5 14.5L27 15.2L25.5 16.6Z" fill="#141210"/>
+    <circle cx="37" cy="18.6" r="1.6" fill="#141210"/>
+    <path d="M35.5 23.5L29 22" stroke="#141210" stroke-width="1.4"/>
+    <path d="M8 29.5L23 28.5L23.3 33L7.6 34Z" fill="#D7352B" stroke="#141210" stroke-width="1.6"/>
+    <circle cx="16" cy="35.5" r="1.6" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+  </symbol>
+  <symbol id="iCarbine" viewBox="0 0 40 40">
+    <g transform="rotate(-32 20 21)">
+      <path d="M2 20.5L11 18.5L12 24.5L3 27.5Z" fill="#141210"/>
+      <rect x="11" y="18" width="15" height="6.4" fill="#3A4A5C" stroke="#141210" stroke-width="2"/>
+      <path d="M13 20.2H24" stroke="#EFE6D2" stroke-width="1"/>
+      <rect x="26" y="19.4" width="10.5" height="2.8" fill="#141210"/>
+      <path d="M16 24.4L14.6 31.5L18.8 32L20 24.4Z" fill="#141210"/>
+      <rect x="17" y="15.4" width="6" height="2.6" fill="#141210"/>
+      <polygon points="43.5,21.0 40.6,21.8 42.0,24.9 39.5,22.6 37.9,25.6 37.7,22.5 35.6,23.7 36.5,21.6 34.5,21.4 36.4,20.0 35.9,17.8 37.9,19.0 38.6,16.9 39.2,18.6 41.1,17.7 40.7,20.1" fill="#F5C518" stroke="#141210" stroke-width="1.2" stroke-linejoin="round"/>
+    </g>
+  </symbol>
+  <symbol id="iCannon" viewBox="0 0 40 40">
+    <path d="M14 29L3 36L5 38L16 32Z" fill="#141210"/>
+    <g transform="rotate(-30 15 25)">
+      <rect x="9" y="20.5" width="25" height="9" rx="1.5" fill="#3A4A5C" stroke="#141210" stroke-width="2"/>
+      <rect x="31" y="19" width="4.5" height="12" fill="#141210"/>
+      <path d="M11 23H29" stroke="#EFE6D2" stroke-width="1.2"/>
+      <path d="M17 20.5V29.5M24 20.5V29.5" stroke="#141210" stroke-width="1.4"/>
+      <path d="M19 27L27 29.4M23 26.4L29 28.2" stroke="#141210" stroke-width="0.8"/>
+    </g>
+    <circle cx="16" cy="29" r="8" fill="#D7352B" stroke="#141210" stroke-width="2.2"/>
+    <path d="M16 21.5V36.5M8.5 29H23.5M10.7 23.7L21.3 34.3M21.3 23.7L10.7 34.3" stroke="#141210" stroke-width="1.5"/>
+    <circle cx="16" cy="29" r="2.4" fill="#141210"/>
+    <path d="M10.4 25.6A7 7 0 0 1 13.6 22.4" stroke="#EFE6D2" stroke-width="1.1" fill="none"/>
+    <path d="M32 12C32 9 35 8 36.5 9.5C38 8 40.5 9.5 39.5 12C40.5 14 38.5 15.5 37 14.5C35.5 16 32 15 32 12Z" fill="#EFE6D2" stroke="#141210" stroke-width="1.3"/>
+  </symbol>
+  <symbol id="iLaser" viewBox="0 0 40 40">
+    <g transform="rotate(-24 18 24)">
+      <path d="M35 21.7H62" stroke="#141210" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M35 21.7H62" stroke="#D7352B" stroke-width="3.2"/>
+      <path d="M35 21.7H62" stroke="#F5C518" stroke-width="1.1"/>
+      <path d="M2 24L8 20H13L15 17H27L29 20H33V23.4H22L19 27.5H14L12.6 24Z" fill="#3A4A5C" stroke="#141210" stroke-width="1.9"/>
+      <path d="M14 24L12 31.5H16.2L18.2 24Z" fill="#141210"/>
+      <rect x="18.5" y="18.2" width="6.5" height="3" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+      <rect x="32.5" y="19.4" width="3.5" height="4.6" fill="#141210"/>
+      <path d="M4.2 23L8.6 20.7H13" stroke="#EFE6D2" stroke-width="0.9" fill="none"/>
+    </g>
+  </symbol>
+  <symbol id="mq" viewBox="0 0 20 20">
+    <path d="M10 10L3 14L2 18M10 10.5L5 16.5M10 10L17 14L18 18M10 10.5L15 16.5M10 9L4 7M10 9L16 7" stroke="#141210" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    <ellipse cx="6.2" cy="6" rx="4.8" ry="2.1" transform="rotate(30 6.2 6)" fill="#3A4A5C" stroke="#141210" stroke-width="1"/>
+    <ellipse cx="13.8" cy="6" rx="4.8" ry="2.1" transform="rotate(-30 13.8 6)" fill="#3A4A5C" stroke="#141210" stroke-width="1"/>
+    <ellipse cx="10" cy="14" rx="1.9" ry="4.2" fill="#D7352B" stroke="#141210" stroke-width="1.1"/>
+    <ellipse cx="10" cy="8.6" rx="2.3" ry="2.6" fill="#141210"/>
+    <circle cx="10" cy="5.2" r="1.6" fill="#141210"/>
+    <path d="M10 4V0.3" stroke="#141210" stroke-width="0.9"/>
+  </symbol>
+  <symbol id="iSwarm" viewBox="0 0 40 40">
+    <use href="#mq" x="2" y="4" width="17" height="17" transform="rotate(-20 10 12)"/>
+    <use href="#mq" x="20" y="2" width="15" height="15" transform="rotate(15 27 9)"/>
+    <use href="#mq" x="10" y="19" width="19" height="19" transform="rotate(-5 19 28)"/>
+    <path d="M33 22c2 1 2 3 0 4M36 20c3 2 3 6 0 8M6 27c-2 1-2 3 0 4" stroke="#141210" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="iLava" viewBox="0 0 40 40">
+    <path d="M12 17c-2-3 2-5 0-8s2-5 0-7M20 15c-2-3 2-5 0-8M28 17c-2-3 2-5 0-8s2-5 0-7" stroke="#141210" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M3 29C3 24 9 21 15 21.5C19 20 24 20.5 27 21.5C33 21 38 24 37.5 28.5C38 33 31 35.5 23 35C17 36 10 35 6 33C3.5 32 3 30.5 3 29Z" fill="#D7352B" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M3 29C3 24 9 21 15 21.5C19 20 24 20.5 27 21.5C33 21 38 24 37.5 28.5C38 33 31 35.5 23 35C17 36 10 35 6 33C3.5 32 3 30.5 3 29Z" fill="url(#dkS)" opacity="0.5"/>
+    <path d="M9 28.5C10 25.5 15 24.5 19 25C23 24 29 24.8 31 27.5C32 30.5 26 32 20 31.6C14 32 9 31 9 28.5Z" fill="#F5C518"/>
+    <circle cx="15" cy="27.5" r="2.4" fill="#EFE6D2" stroke="#141210" stroke-width="1.2"/>
+    <circle cx="25" cy="28.5" r="1.6" fill="#EFE6D2" stroke="#141210" stroke-width="1.1"/>
+    <circle cx="20.5" cy="19.5" r="2.2" fill="none" stroke="#141210" stroke-width="1.2" stroke-dasharray="2 1.6"/>
+    <path d="M4 30L7 28.5L8 31ZM33 25L36 26L34 28Z" fill="#141210"/>
+  </symbol>
+  <symbol id="iSpirit" viewBox="0 0 40 40">
+    <path d="M34.0 24.7L37.9 25.8M30.3 31.2L33.1 34.1M23.8 35.0L24.8 38.9M16.3 35.0L15.2 38.9M9.8 31.3L6.9 34.1M6.0 24.8L2.1 25.8M6.0 17.3L2.1 16.2M9.7 10.8L6.9 7.9M16.2 7.0L15.2 3.1M23.7 7.0L24.8 3.1M30.2 10.7L33.1 7.9M34.0 17.2L37.9 16.2" stroke="#141210" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M20 5C24 10 29 14 28.5 22C28 29 24.5 33 20 34C15.5 33 12 29 11.5 22C11 16 15 13 17 9C17.5 12 18.5 13 19.5 13C19 10 19 7.5 20 5Z" fill="#F5C518" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M20 16C23 19 24.5 22 24 26C23.5 29 22 30.5 20 31C18 30.5 16.5 29 16 26C15.5 22 17 19 20 16Z" fill="#EFE6D2"/>
+    <path d="M25 17L27.5 20M25.5 21L28 24M24.5 25L27 28" stroke="#141210" stroke-width="1"/>
+  </symbol>
+  <symbol id="iSaw" viewBox="0 0 40 40">
+    <path d="M5 13A16 16 0 0 1 13 4.5M35 27A16 16 0 0 1 27 35.5M3 19.5A17 17 0 0 1 4 15.5" stroke="#141210" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <polygon points="30.5,20.0 34.0,24.7 29.1,25.2 29.8,31.1 25.2,29.1 22.9,34.5 20.0,30.5 15.3,34.0 14.8,29.1 8.9,29.8 10.9,25.2 5.5,22.9 9.5,20.0 6.0,15.3 10.9,14.8 10.2,8.9 14.7,10.9 17.1,5.5 20.0,9.5 24.7,6.0 25.2,10.9 31.1,10.2 29.1,14.7 34.5,17.1" fill="#3A4A5C" stroke="#141210" stroke-width="1.8"/>
+    <circle cx="20" cy="20" r="7" fill="none" stroke="#141210" stroke-width="1"/>
+    <circle cx="20" cy="20" r="3.6" fill="#EFE6D2" stroke="#141210" stroke-width="1.6"/>
+    <circle cx="20" cy="20" r="1.3" fill="#141210"/>
+    <path d="M12.6 16A8 8 0 0 1 16.4 12.5" stroke="#EFE6D2" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M33 30.5L37 32.5M31.5 33.5L34.5 37.5M34.5 28.5L38.5 28" stroke="#D7352B" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+</defs>
+</svg>
+
+<!-- 위 HUD: 만화 칸 셋 -->
+<svg style="position:absolute; left:8px; top:8px" width="374" height="64" viewBox="0 0 374 64" aria-hidden="true">
+  <path d="M2 2H120L110 62H2Z" fill="#141210" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M66 2H120L110 62H50Z" fill="url(#dSl)"/>
+  <path d="M127 2H252L242 62H117Z" fill="#EFE6D2" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M259 2H372V62H249Z" fill="#EFE6D2" stroke="#141210" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M128 42H236L234.5 52H126.5Z" fill="#EFE6D2"/>
+  <path d="M128 42H192.8L191.3 52H126.5Z" fill="#F5C518"/>
+  <path d="M128 42H192.8L191.3 52H126.5Z" fill="url(#dR)" opacity="0.55"/>
+  <path d="M149.5 43V51M171 43V51M214 43V51" stroke="#141210" stroke-width="1"/>
+  <path d="M128 42H236L234.5 52H126.5Z" fill="none" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+  <g stroke="#141210" stroke-width="1.8" stroke-linejoin="round" fill="#D7352B">
+    <path transform="translate(262 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(284 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(306 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(328 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+    <path transform="translate(350 10)" fill="#EFE6D2" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z"/>
+  </g>
+  <path transform="translate(350 10)" d="M9 15L1.6 7.4C0 5.6 0.3 2.6 2.3 1.3C4.3 0 7.2 0.5 9 3C10.8 0.5 13.7 0 15.7 1.3C17.7 2.6 18 5.6 16.4 7.4Z" fill="url(#xhatch)" opacity="0.45"/>
+  <path transform="translate(350 10)" d="M9 3L7.4 6.6L10.2 8.6L8.2 12.6" fill="none" stroke="#141210" stroke-width="1.4"/>
+  <g fill="none" stroke-linecap="round">
+    <path transform="translate(262 10)" d="M3.4 5C3.6 3.6 4.6 2.6 6 2.6" stroke="#EFE6D2" stroke-width="1.3"/>
+    <path transform="translate(284 10)" d="M3.4 5C3.6 3.6 4.6 2.6 6 2.6" stroke="#EFE6D2" stroke-width="1.3"/>
+    <path transform="translate(306 10)" d="M3.4 5C3.6 3.6 4.6 2.6 6 2.6" stroke="#EFE6D2" stroke-width="1.3"/>
+    <path transform="translate(328 10)" d="M3.4 5C3.6 3.6 4.6 2.6 6 2.6" stroke="#EFE6D2" stroke-width="1.3"/>
+    <path transform="translate(262 10)" d="M10.5 10L14 6.5M8.8 12L14.6 6.2" stroke="#141210" stroke-width="0.9"/>
+    <path transform="translate(284 10)" d="M10.5 10L14 6.5M8.8 12L14.6 6.2" stroke="#141210" stroke-width="0.9"/>
+    <path transform="translate(306 10)" d="M10.5 10L14 6.5M8.8 12L14.6 6.2" stroke="#141210" stroke-width="0.9"/>
+    <path transform="translate(328 10)" d="M10.5 10L14 6.5M8.8 12L14.6 6.2" stroke="#141210" stroke-width="0.9"/>
+  </g>
+</svg>
+<div style="position:absolute; left:20px; top:16px; font:900 11px/1 'Gothic A1',sans-serif; color:#EFE6D2; letter-spacing:2px;">웨이브</div>
+<div class="bh" style="position:absolute; left:18px; top:31px; font-size:36px; line-height:1; color:#F5C518; text-shadow:3px 3px 0 #D7352B;">12</div>
+<div style="position:absolute; left:140px; top:13px; display:flex; align-items:baseline; gap:4px; color:#141210;"><span class="bh" style="font-size:15px; line-height:1;">LV</span><span class="bh" style="font-size:28px; line-height:1;">9</span></div>
+<div style="position:absolute; left:194px; top:33px; font:900 9.5px/1 'Gothic A1',sans-serif; color:#141210;">경험치 60%</div>
+<div style="position:absolute; left:270px; top:42px; display:flex; align-items:baseline; gap:6px; color:#141210;"><span style="font:900 10.5px/1 'Gothic A1',sans-serif;">목숨</span><span class="bh" style="font-size:17px; line-height:1;">4/5</span></div>
+
+<!-- 판: 비 오는 밤 거리, 큰 한 칸 -->
+<svg style="position:absolute; left:8px; top:80px" width="374" height="710" viewBox="0 0 374 710" role="img" aria-label="비 오는 밤 거리. 먹 괴물 무리가 내려오고, 가운데에서 폭발 여섯이 이어져 연쇄 23. 방벽 앞 지뢰밭에서 전향 무리 강타, 피해 119.">
+  <rect width="374" height="710" fill="#3A4A5C"/>
+  <!-- 하늘 망점 -->
+  <rect width="374" height="24" fill="url(#dkL)"/>
+  <rect y="24" width="374" height="22" fill="url(#dkM)"/>
+  <rect y="46" width="374" height="24" fill="url(#dkS)"/>
+  <rect width="374" height="9" fill="#141210" opacity="0.6"/>
+  <!-- 달 -->
+  <circle cx="298" cy="30" r="22" fill="#EFE6D2"/>
+  <g clip-path="url(#cMoon)"><rect x="270" y="4" width="60" height="56" fill="url(#dkS)"/><circle cx="306" cy="26" r="21" fill="#EFE6D2"/></g>
+  <circle cx="298" cy="30" r="22" fill="none" stroke="#141210" stroke-width="2"/>
+  <path d="M226 20C248 15 280 19 314 14C334 11 352 15 374 12V20C352 23 334 21 314 25C288 28 258 25 226 27Z" fill="#141210"/>
+  <path d="M226 20C248 15 280 19 314 14C334 11 352 15 374 12" fill="none" stroke="#EFE6D2" stroke-width="1"/>
+  <path d="M0 30C20 27 44 29 70 26C86 24 98 26 110 28C90 32 52 34 0 36Z" fill="#141210"/>
+  <path d="M0 30C20 27 44 29 70 26C86 24 98 26 110 28" fill="none" stroke="#EFE6D2" stroke-width="0.8" opacity="0.7"/>
+  <!-- 먼 도시 실루엣 -->
+  <path d="M0 80V54H12V42H20V48H32V32H37V26H41V32H50V50H64V38H80V56H94V44H102V36H110V46H126V60H144V52H158V40H168V46H182V24H186V12H188V24H192V42H208V54H222V36H238V48H252V42H264V30H276V50H290V38H318V50H330V32H346V44H360V36H374V80Z" fill="#141210"/>
+  <path d="M296 25L305 17L314 25Z" fill="#141210"/>
+  <rect x="297" y="25" width="16" height="10" fill="#141210"/>
+  <path d="M299 35L297 39M311 35L313 39M298.5 37H311.5" stroke="#141210" stroke-width="1.4"/>
+  <circle cx="187" cy="11" r="1.6" fill="#D7352B"/>
+  <g fill="#F5C518">
+    <rect x="15" y="58" width="2.5" height="3.5"/><rect x="24" y="64" width="2.5" height="3.5"/><rect x="35" y="40" width="2.5" height="3.5"/><rect x="44" y="54" width="2.5" height="3.5"/>
+    <rect x="68" y="44" width="2.5" height="3.5"/><rect x="84" y="62" width="2.5" height="3.5"/><rect x="105" y="42" width="2.5" height="3.5"/><rect x="114" y="54" width="2.5" height="3.5"/>
+    <rect x="150" y="60" width="2.5" height="3.5"/><rect x="162" y="48" width="2.5" height="3.5"/><rect x="196" y="48" width="2.5" height="3.5"/><rect x="212" y="60" width="2.5" height="3.5"/>
+    <rect x="226" y="44" width="2.5" height="3.5"/><rect x="242" y="56" width="2.5" height="3.5"/><rect x="268" y="38" width="2.5" height="3.5"/><rect x="280" y="56" width="2.5" height="3.5"/>
+    <rect x="322" y="58" width="2.5" height="3.5"/><rect x="334" y="40" width="2.5" height="3.5"/><rect x="350" y="52" width="2.5" height="3.5"/><rect x="364" y="44" width="2.5" height="3.5"/>
+  </g>
+  <!-- 거리: 원근, 인도 해칭 -->
+  <rect y="78" width="374" height="240" fill="url(#gFar)"/>
+  <path d="M0 78H146L0 470Z" fill="#141210" opacity="0.5"/>
+  <path d="M0 78H146L0 470Z" fill="url(#hatchK)" opacity="0.55"/>
+  <path d="M228 78H374V470Z" fill="#141210" opacity="0.5"/>
+  <path d="M228 78H374V470Z" fill="url(#hatchK)" opacity="0.55"/>
+  <path d="M146 78L0 470M228 78L374 470" stroke="#141210" stroke-width="3"/>
+  <path d="M150 80L5 470M224 80L369 470" stroke="#EFE6D2" stroke-width="0.9" opacity="0.45"/>
+  <g fill="#EFE6D2" opacity="0.32">
+    <path d="M186.4 92H187.6L187.8 100H186.2Z"/><path d="M186.1 116H187.9L188.1 127H185.9Z"/><path d="M185.7 146H188.3L188.6 161H185.4Z"/>
+    <path d="M185.2 186H188.8L189.2 206H184.8Z"/><path d="M184.5 236H189.5L190 262H184Z"/><path d="M183.6 298H190.4L191 332H183Z"/>
+    <path d="M182.6 376H191.4L192 420H182Z"/><path d="M181.4 470H192.6L193.4 526H180.6Z"/><path d="M180 572H194L194.6 612H179.4Z"/>
+  </g>
+  <g fill="#EFE6D2" opacity="0.13"><ellipse cx="96" cy="452" rx="40" ry="6"/><ellipse cx="292" cy="236" rx="22" ry="3.5"/><ellipse cx="128" cy="150" rx="16" ry="2.5"/><ellipse cx="300" cy="560" rx="34" ry="5"/></g>
+  <!-- 가로등 둘 -->
+  <path d="M37 241H45L94 432H-8Z" fill="url(#dY)" opacity="0.28"/>
+  <ellipse cx="42" cy="432" rx="52" ry="10" fill="#F5C518" opacity="0.14"/>
+  <path d="M14 402V248C14 239 20 233 29 233H41" fill="none" stroke="#141210" stroke-width="4"/>
+  <path d="M12.4 250V398" stroke="#EFE6D2" stroke-width="0.8" opacity="0.5"/>
+  <path d="M8 404H20V398H8Z" fill="#141210"/>
+  <path d="M33 229H49L46 238H36Z" fill="#141210"/>
+  <path d="M36.5 238H45.5L44.5 242H37.5Z" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+  <path d="M337 241H329L280 432H382Z" fill="url(#dY)" opacity="0.28"/>
+  <ellipse cx="332" cy="432" rx="52" ry="10" fill="#F5C518" opacity="0.14"/>
+  <path d="M360 402V248C360 239 354 233 345 233H333" fill="none" stroke="#141210" stroke-width="4"/>
+  <path d="M361.6 250V398" stroke="#EFE6D2" stroke-width="0.8" opacity="0.5"/>
+  <path d="M354 404H366V398H354Z" fill="#141210"/>
+  <path d="M341 229H325L328 238H338Z" fill="#141210"/>
+  <path d="M337.5 238H328.5L329.5 242H336.5Z" fill="#F5C518" stroke="#141210" stroke-width="1"/>
+  <g stroke="#F5C518" opacity="0.35" stroke-width="2"><path d="M44 438V470M50 442V462M330 438V472M324 442V460"/></g>
+  <!-- 폭발 불빛이 거리에 망점으로 -->
+  <ellipse cx="196" cy="326" rx="200" ry="150" fill="url(#gWarm)"/>
+  <rect y="170" width="374" height="320" fill="url(#dY)" mask="url(#mGlow)" opacity="0.55"/>
+  <!-- 뒤 비 -->
+  <rect width="374" height="620" fill="url(#rain)" opacity="0.35"/>
+
+  <!-- 그림자 해칭 -->
+  <g fill="url(#hatchK)">
+    <ellipse cx="67" cy="150" rx="24" ry="4.5"/><ellipse cx="140" cy="116" rx="15" ry="3"/><ellipse cx="198" cy="149" rx="17" ry="3.5"/>
+    <ellipse cx="324" cy="148" rx="15" ry="3"/><ellipse cx="281" cy="222" rx="26" ry="5"/><ellipse cx="112" cy="217" rx="17" ry="3.5"/>
+    <ellipse cx="185" cy="228" rx="14" ry="3"/><ellipse cx="43" cy="555" rx="18" ry="3.5"/>
+  </g>
+  <!-- 내려오는 무리 -->
+  <use href="#eBrute" x="40" y="96" width="54" height="54"/>
+  <use href="#eHound" x="122" y="86" width="36" height="30"/>
+  <use href="#eHound" x="178" y="116" width="40" height="33"/>
+  <path d="M247 64V50M257 62V42M267 64V48M277 62V52" stroke="#EFE6D2" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <use href="#eWing" x="232" y="68" width="54" height="40"/>
+  <use href="#eHound" x="306" y="118" width="36" height="30"/>
+  <use href="#eBrute" x="252" y="164" width="58" height="58"/>
+  <use href="#eHound" x="92" y="184" width="40" height="33"/>
+  <path d="M68 226V210M78 224V204M88 226V212" stroke="#EFE6D2" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <use href="#eWing" x="58" y="226" width="48" height="36"/>
+  <use href="#eHound" x="168" y="200" width="34" height="28"/>
+
+  <!-- 연쇄 폭발: 도화선 + 만화 폭발 여섯 -->
+  <path d="M52 286L70 297L63 305L96 318L117 300L125 305L148 290L169 315L178 306L204 330L231 301L239 310L262 292L287 323L296 313L316 344" fill="none" stroke="#141210" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M52 286L70 297L63 305L96 318L117 300L125 305L148 290L169 315L178 306L204 330L231 301L239 310L262 292L287 323L296 313L316 344" fill="none" stroke="#F5C518" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M369 355L379 357M363 376L377 385M349 394L355 402M326 397L329 413M305 400L303 410M282 394L274 407M271 374L263 379M260 355L244 358M257 332L247 330M271 314L258 305M285 296L279 288M305 285L301 269M327 291L329 281M348 297L357 283M366 311L374 305M369 334L385 331" stroke="#141210" stroke-width="2.4" stroke-linecap="round"/>
+  <g stroke="#141210" stroke-linejoin="round">
+    <polygon points="67.5,286.2 60.0,288.4 66.9,297.0 57.3,292.3 58.0,299.4 53.7,295.8 49.0,298.1 47.8,294.2 42.9,297.1 44.4,290.6 35.3,290.2 42.5,286.5 33.8,278.6 45.4,281.6 42.4,277.0 48.9,278.0 48.8,267.2 53.1,277.0 57.1,274.4 58.4,278.7 63.1,277.7 59.6,283.7" fill="#D7352B" stroke-width="2"/>
+    <polygon points="61.2,288.9 57.5,289.5 57.7,293.6 53.6,292.4 49.4,296.1 48.3,292.0 46.0,292.4 45.8,289.0 39.7,286.3 45.9,283.6 45.1,280.7 47.9,280.6 49.9,274.5 52.9,279.5 58.0,275.3 56.4,281.4 62.8,280.8 58.0,286.1" fill="#F5C518" stroke-width="1.2"/>
+    <polygon points="56.9,286.5 54.6,287.7 55.6,291.4 52.7,289.0 50.3,290.2 49.7,288.7 47.0,287.0 48.4,285.9 47.0,283.3 50.2,283.1 52.1,279.6 53.3,282.7 56.4,282.3 54.9,284.9" fill="#EFE6D2" stroke="none"/>
+
+    <polygon points="117.6,317.8 107.1,321.6 114.9,329.0 104.7,326.0 107.5,339.0 99.4,328.7 97.9,342.0 93.0,328.0 81.2,339.0 87.3,326.4 82.6,326.9 85.8,320.7 77.6,319.1 84.6,315.7 74.7,306.0 87.4,309.4 84.7,298.4 93.1,307.3 98.4,292.1 99.7,306.2 104.6,301.9 103.3,310.3 113.8,308.9 107.2,315.5" fill="#D7352B" stroke-width="2.2"/>
+    <polygon points="117.6,317.8 107.1,321.6 114.9,329.0 104.7,326.0 107.5,339.0 99.4,328.7 97.9,342.0 93.0,328.0 81.2,339.0 87.3,326.4 82.6,326.9 85.8,320.7 77.6,319.1 84.6,315.7 74.7,306.0 87.4,309.4 84.7,298.4 93.1,307.3 98.4,292.1 99.7,306.2 104.6,301.9 103.3,310.3 113.8,308.9 107.2,315.5" fill="url(#dkS)" stroke="none" opacity="0.5"/>
+    <polygon points="107.5,320.2 103.2,322.9 103.8,326.8 99.2,326.2 97.4,333.1 93.6,325.2 88.1,329.0 88.6,323.7 85.8,322.6 87.9,317.6 83.4,315.0 88.4,312.8 88.0,308.7 93.4,310.0 97.4,302.3 98.1,310.6 106.6,305.2 102.6,312.3 110.3,314.4 104.9,317.5" fill="#F5C518" stroke-width="1.3"/>
+    <polygon points="103.1,318.1 100.1,320.1 100.5,323.8 96.1,322.2 92.4,324.9 92.9,321.1 89.6,320.1 91.9,317.1 89.8,312.7 93.5,314.8 94.9,310.0 97.1,313.7 101.3,312.1 100.4,316.8" fill="#EFE6D2" stroke="none"/>
+
+    <polygon points="177.0,289.9 161.4,293.6 171.4,299.8 160.4,300.5 163.3,313.8 153.5,304.7 152.8,315.8 146.6,306.5 139.2,319.9 139.7,303.4 129.2,307.6 135.9,295.7 117.2,300.1 134.4,290.0 116.9,279.5 134.6,283.7 128.6,274.9 140.3,278.5 141.2,269.9 145.4,273.9 150.7,264.2 153.5,276.0 159.5,272.6 160.9,279.2 174.8,278.6 162.1,286.3" fill="#D7352B" stroke-width="2.4"/>
+    <polygon points="177.0,289.9 161.4,293.6 171.4,299.8 160.4,300.5 163.3,313.8 153.5,304.7 152.8,315.8 146.6,306.5 139.2,319.9 139.7,303.4 129.2,307.6 135.9,295.7 117.2,300.1 134.4,290.0 116.9,279.5 134.6,283.7 128.6,274.9 140.3,278.5 141.2,269.9 145.4,273.9 150.7,264.2 153.5,276.0 159.5,272.6 160.9,279.2 174.8,278.6 162.1,286.3" fill="url(#dkS)" stroke="none" opacity="0.5"/>
+    <polygon points="163.4,293.3 157.9,296.2 160.5,304.8 152.8,299.6 149.0,308.0 145.5,301.4 142.2,303.0 141.3,297.0 132.6,301.9 136.7,292.6 132.4,288.3 138.6,287.7 136.3,280.5 141.6,283.1 140.9,277.3 146.5,280.3 150.5,269.3 152.4,279.4 160.8,277.0 157.7,284.1 163.4,286.0 158.0,289.9" fill="#F5C518" stroke-width="1.4"/>
+    <polygon points="155.3,291.9 152.5,293.1 151.7,298.0 148.2,295.1 143.9,297.8 144.6,294.0 140.9,292.3 143.2,289.6 140.7,286.8 144.9,285.8 147.7,281.1 150.4,284.4 156.5,283.3 153.4,288.1" fill="#EFE6D2" stroke="none"/>
+
+    <polygon points="239.9,328.6 223.4,334.8 230.5,341.1 217.9,340.2 220.1,351.8 211.4,345.5 212.1,360.9 203.3,348.9 199.7,359.1 196.0,348.5 179.0,358.4 188.3,341.7 169.0,343.8 184.6,335.0 167.0,330.1 186.3,325.8 175.0,316.8 190.7,319.8 182.0,299.3 196.5,312.2 196.1,293.9 203.2,310.8 210.0,302.8 211.5,313.0 223.2,303.9 218.2,318.9 232.7,314.0 220.8,325.7" fill="#D7352B" stroke-width="2.6"/>
+    <polygon points="239.9,328.6 223.4,334.8 230.5,341.1 217.9,340.2 220.1,351.8 211.4,345.5 212.1,360.9 203.3,348.9 199.7,359.1 196.0,348.5 179.0,358.4 188.3,341.7 169.0,343.8 184.6,335.0 167.0,330.1 186.3,325.8 175.0,316.8 190.7,319.8 182.0,299.3 196.5,312.2 196.1,293.9 203.2,310.8 210.0,302.8 211.5,313.0 223.2,303.9 218.2,318.9 232.7,314.0 220.8,325.7" fill="url(#dkS)" stroke="none" opacity="0.5"/>
+    <polygon points="225.8,337.1 214.2,337.0 220.6,349.0 209.1,341.0 208.4,352.4 203.4,344.5 197.6,350.3 196.2,341.0 189.8,344.2 193.7,335.4 180.7,334.8 189.9,329.6 183.3,321.7 194.1,323.5 184.8,312.5 198.0,319.4 200.4,306.3 203.9,317.5 208.9,310.8 210.3,318.5 218.8,315.3 214.3,324.1 227.8,322.3 217.2,330.9" fill="#F5C518" stroke-width="1.5"/>
+    <polygon points="216.8,331.8 210.1,333.6 208.7,340.3 204.5,337.1 200.1,338.3 199.1,335.8 194.2,332.7 197.9,329.1 194.4,324.7 200.4,325.0 202.6,318.2 206.0,323.3 211.4,324.5 209.6,327.7" fill="#EFE6D2" stroke="none"/>
+
+    <polygon points="305.8,289.4 286.1,297.5 294.7,305.2 280.5,306.1 292.1,323.5 274.2,312.6 274.6,324.3 263.4,313.6 258.9,337.7 255.4,311.4 240.1,329.2 247.1,309.8 233.4,315.3 243.4,301.3 224.2,297.2 240.0,290.9 216.0,281.4 243.6,283.4 227.9,266.5 248.0,277.4 243.9,256.0 254.5,271.2 255.3,246.8 264.1,271.8 273.4,262.0 271.5,274.6 284.7,268.6 278.4,280.2 301.7,274.2 283.7,287.5" fill="#D7352B" stroke-width="2.8"/>
+    <polygon points="305.8,289.4 286.1,297.5 294.7,305.2 280.5,306.1 292.1,323.5 274.2,312.6 274.6,324.3 263.4,313.6 258.9,337.7 255.4,311.4 240.1,329.2 247.1,309.8 233.4,315.3 243.4,301.3 224.2,297.2 240.0,290.9 216.0,281.4 243.6,283.4 227.9,266.5 248.0,277.4 243.9,256.0 254.5,271.2 255.3,246.8 264.1,271.8 273.4,262.0 271.5,274.6 284.7,268.6 278.4,280.2 301.7,274.2 283.7,287.5" fill="url(#dkS)" stroke="none" opacity="0.5"/>
+    <polygon points="288.0,300.2 276.5,301.5 278.5,310.8 269.4,305.7 269.3,312.9 262.9,306.5 258.2,319.3 254.6,307.1 249.9,310.1 249.7,302.3 234.4,302.6 246.0,294.1 237.9,290.0 247.8,288.0 238.5,277.7 251.2,281.0 249.4,271.9 257.7,276.4 261.4,262.3 264.2,277.8 273.5,263.5 271.9,280.1 282.1,277.7 275.2,286.7 293.2,287.6 277.7,292.8" fill="#F5C518" stroke-width="1.6"/>
+    <polygon points="273.3,294.7 268.9,296.3 267.3,303.8 263.1,300.2 257.5,307.2 255.5,297.6 247.7,299.7 253.7,291.1 250.4,284.7 258.4,285.2 258.1,276.1 264.1,284.6 272.8,280.5 268.7,289.4" fill="#EFE6D2" stroke="none"/>
+
+    <polygon points="351.1,346.3 339.1,349.1 347.6,359.7 337.8,359.7 354.2,386.3 330.3,364.2 330.6,382.5 321.2,367.5 313.3,398.2 310.6,367.4 295.8,385.6 302.4,365.5 290.3,370.2 295.2,357.7 264.5,364.7 291.2,348.6 259.1,341.1 288.0,338.5 279.9,331.9 291.9,328.9 281.0,307.1 301.3,322.9 303.7,308.9 310.7,321.7 315.8,290.5 321.0,319.4 330.9,308.0 330.7,323.9 344.5,313.3 336.9,330.9 356.0,330.0 338.7,339.4" fill="#D7352B" stroke-width="3"/>
+    <polygon points="351.1,346.3 339.1,349.1 347.6,359.7 337.8,359.7 354.2,386.3 330.3,364.2 330.6,382.5 321.2,367.5 313.3,398.2 310.6,367.4 295.8,385.6 302.4,365.5 290.3,370.2 295.2,357.7 264.5,364.7 291.2,348.6 259.1,341.1 288.0,338.5 279.9,331.9 291.9,328.9 281.0,307.1 301.3,322.9 303.7,308.9 310.7,321.7 315.8,290.5 321.0,319.4 330.9,308.0 330.7,323.9 344.5,313.3 336.9,330.9 356.0,330.0 338.7,339.4" fill="url(#dkS)" stroke="none" opacity="0.5"/>
+    <polygon points="347.8,354.1 332.9,354.4 343.2,367.6 326.7,360.0 327.6,377.6 319.0,361.4 312.5,375.2 310.3,360.7 302.2,364.2 303.7,356.7 290.6,364.3 300.4,351.0 290.2,348.6 299.7,343.4 292.3,335.2 301.5,336.3 294.8,321.5 305.2,326.8 305.4,316.9 313.2,327.0 319.3,308.1 321.7,325.5 335.0,315.4 328.8,330.7 338.8,326.2 333.0,338.1 343.2,340.7 332.9,345.4" fill="#F5C518" stroke-width="1.7"/>
+    <polygon points="334.4,343.4 324.8,348.5 323.7,359.4 317.5,352.9 308.8,361.1 309.1,350.5 302.1,349.7 306.9,342.6 302.1,335.3 311.7,336.9 312.4,327.4 319.4,334.4 324.2,332.7 325.3,340.6" fill="#EFE6D2" stroke="none"/>
+  </g>
+  <!-- 폭발에 휩쓸린 실루엣 -->
+  <use href="#eHound" x="-16" y="-13" width="32" height="27" transform="translate(148 292) rotate(-28)"/>
+  <use href="#eWing" x="-23" y="-17" width="46" height="35" transform="translate(262 292) rotate(24)"/>
+  <use href="#eBrute" x="-22" y="-22" width="44" height="44" transform="translate(318 346) rotate(-16)"/>
+  <g fill="#141210"><path d="M236 252L242 246L243 254Z"/><path d="M352 298L359 294L357 303Z"/><path d="M176 364L182 370L174 372Z"/><path d="M120 344L114 352L122 353Z"/><path d="M212 286L216 278L220 287Z"/><path d="M70 262L74 256L77 264Z"/></g>
+
+  <use href="#eWing" x="312" y="418" width="48" height="36"/>
+  <path d="M324 416V402M334 414V398M344 416V404" stroke="#EFE6D2" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- 반응 무대: 지뢰밭 · 묶인 적 · 군견 · 전향 무리 · 강타 -->
+  <path d="M6 582C40 573 130 571 250 575C262 576 266 584 258 590L8 592Z" fill="#141210" opacity="0.5"/>
+  <use href="#iMine" x="20" y="572" width="18" height="18"/>
+  <use href="#iMine" x="66" y="574" width="18" height="18"/>
+  <use href="#iMine" x="112" y="571" width="18" height="18"/>
+  <use href="#iMine" x="163" y="572" width="18" height="18"/>
+  <use href="#iMine" x="206" y="573" width="18" height="18"/>
+  <polygon points="182.1,580.8 175.5,581.5 179.7,585.8 173.7,584.0 172.4,590.0 170.5,584.1 165.5,585.7 168.1,581.6 162.8,580.8 168.6,578.3 165.8,572.6 170.7,576.3 170.8,570.0 173.7,576.4 176.9,573.8 175.6,578.6" fill="#F5C518" stroke="#141210" stroke-width="1.4" stroke-linejoin="round"/>
+  <use href="#eHound" x="22" y="520" width="42" height="35"/>
+  <path d="M18 548L28 536L36 551L44 534L52 551L60 538L68 547" fill="none" stroke="#141210" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M18 548L28 536L36 551L44 534L52 551L60 538L68 547" fill="none" stroke="#D7352B" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M30 553L29 574" stroke="#D7352B" stroke-width="1.8" stroke-dasharray="3 2"/>
+  <path d="M72 548H88M68 556H86M74 564H90" stroke="#EFE6D2" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/>
+  <use href="#aDog" x="92" y="532" width="66" height="41"/>
+  <path d="M204 538L186 548M209 546L193 555M200 531L184 540M175 564L159 573M179 572L165 580M171 557L157 565" stroke="#EFE6D2" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/>
+  <use href="#tHound" x="-18" y="-15" width="36" height="30" transform="translate(190 556) rotate(-119)"/>
+  <use href="#tHound" x="-21" y="-17.5" width="42" height="35" transform="translate(222 530) rotate(-119)"/>
+  <use href="#eBrute" x="278" y="446" width="56" height="56" transform="rotate(10 306 474)"/>
+  <path d="M300 440L304 432M318 444L326 438M288 446L284 438" stroke="#EFE6D2" stroke-width="1.6" stroke-linecap="round"/>
+  <polygon points="282.9,513.4 273.9,515.4 281.5,523.7 268.9,521.6 271.4,534.6 262.0,524.5 256.2,539.7 255.2,522.3 240.2,527.8 251.7,515.9 235.9,514.4 251.9,508.6 246.6,502.4 254.7,502.9 253.8,488.0 261.2,499.6 272.6,488.5 269.7,502.2 279.0,497.1 273.4,507.5" fill="#F5C518" stroke="#141210" stroke-width="2.4" stroke-linejoin="round"/>
+  <polygon points="272.0,512.9 268.2,515.2 270.8,519.7 264.8,517.4 261.4,525.3 259.7,518.5 253.7,520.9 256.2,514.0 250.4,513.1 256.3,509.0 255.4,503.9 259.6,505.3 261.6,501.4 263.9,506.3 270.3,502.7 267.9,510.0" fill="#EFE6D2"/>
+  <text x="250" y="519" font-family="'Black Han Sans', sans-serif" font-size="15" fill="#141210" transform="rotate(-10 250 519)">퍽!</text>
+
+  <!-- 앞 비 -->
+  <rect width="374" height="620" fill="url(#rain2)" opacity="0.45"/>
+
+  <!-- 효과음: 연쇄마다 커짐 -->
+  <g font-family="'Black Han Sans', sans-serif" stroke="#141210" stroke-linejoin="round" paint-order="stroke">
+    <text x="80" y="306" font-size="14" fill="#EFE6D2" stroke-width="4" transform="rotate(-8 80 306)">쾅</text>
+    <text x="126" y="272" font-size="19" fill="#EFE6D2" stroke-width="5" transform="rotate(6 126 272)">쾅!</text>
+    <text x="176" y="318" font-size="24" fill="#F5C518" stroke-width="5.5" transform="rotate(-6 176 318)">콰광!</text>
+    <text x="228" y="271" font-size="31" fill="#D7352B" stroke-width="7" transform="rotate(-8 225 268)">콰과광!</text>
+    <text x="225" y="268" font-size="31" fill="#F5C518" stroke-width="7" transform="rotate(-8 225 268)">콰과광!</text>
+  </g>
+  <!-- 피해 숫자 -->
+  <g font-family="'Black Han Sans', sans-serif" fill="#EFE6D2" stroke="#141210" stroke-width="4" stroke-linejoin="round" paint-order="stroke">
+    <text x="20" y="322" font-size="14">18</text>
+    <text x="84" y="364" font-size="16">27</text>
+    <text x="160" y="250" font-size="17">36</text>
+    <text x="324" y="282" font-size="18">52</text>
+  </g>
+  <g transform="rotate(8 320 536)" font-family="'Black Han Sans', sans-serif" stroke="#141210" stroke-width="7" stroke-linejoin="round" paint-order="stroke">
+    <text x="294" y="553" font-size="36" fill="#D7352B">119</text>
+    <text x="291" y="550" font-size="36" fill="#F5C518">119</text>
+  </g>
+  <!-- 연쇄 23: 가장 큰 효과음 -->
+  <g transform="rotate(-7 187 410)" font-family="'Black Han Sans', sans-serif" stroke="#141210" stroke-linejoin="round" paint-order="stroke">
+    <text x="96" y="425" font-size="36" fill="#D7352B" stroke-width="8">연쇄</text>
+    <text x="92" y="421" font-size="36" fill="#EFE6D2" stroke-width="8">연쇄</text>
+    <text x="173" y="452" font-size="94" fill="#D7352B" stroke-width="10">23</text>
+    <text x="168" y="447" font-size="94" fill="#F5C518" stroke-width="10">23</text>
+    <path d="M280 370L291 356M287 386L303 380M268 362L270 346" stroke="#141210" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+    <path d="M280 370L291 356M287 386L303 380M268 362L270 346" stroke="#EFE6D2" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- 방어선: 굵은 먹선 + 낡은 바리케이드 -->
+  <rect y="620" width="374" height="90" fill="#141210"/>
+  <rect y="624" width="374" height="86" fill="url(#hatchS)" opacity="0.55"/>
+  <g stroke="#EFE6D2" opacity="0.18" stroke-width="1"><path d="M20 702H60M120 705H170M240 700H300"/></g>
+  <path d="M0 621H374" stroke="#141210" stroke-width="6"/>
+  <path d="M0 617.4H374" stroke="#EFE6D2" stroke-width="1" opacity="0.5"/>
+  <path d="M68 628L90 598M92 628L70 598M148 628L170 598M172 628L150 598M228 628L250 598M252 628L230 598M296 628L318 598M320 628L298 598" stroke="#141210" stroke-width="7" stroke-linecap="square"/>
+  <path d="M68 628L90 598M92 628L70 598M148 628L170 598M172 628L150 598M228 628L250 598M252 628L230 598M296 628L318 598M320 628L298 598" stroke="#3A4A5C" stroke-width="3.6" stroke-linecap="square"/>
+  <g stroke="#141210" stroke-width="2" stroke-linejoin="round">
+    <path d="M46 598L196 594L192 599L197 603L47 607Z" fill="#EFE6D2"/>
+    <path d="M150 606L330 603L331 612L151 615Z" fill="#EFE6D2"/>
+    <path d="M58 609L176 610L176 618L58 617Z" fill="url(#haz)"/>
+  </g>
+  <g stroke="#141210" fill="none"><path d="M60 601.4H118M128 600.4H180M168 609H238M252 608.2H322" stroke-width="0.8"/><path d="M118 595L122 600L119 606" stroke-width="1.1"/></g>
+  <g fill="#141210"><circle cx="52" cy="602.5" r="1.2"/><circle cx="188" cy="598.5" r="1.2"/><circle cx="158" cy="610.5" r="1.2"/><circle cx="324" cy="607.5" r="1.2"/></g>
+  <g fill="#EFE6D2" stroke="#141210" stroke-width="1.8">
+    <ellipse cx="13" cy="614" rx="14" ry="6.5"/><ellipse cx="38" cy="615" rx="13" ry="6"/><ellipse cx="25" cy="603" rx="13" ry="6"/>
+    <ellipse cx="361" cy="614" rx="14" ry="6.5"/><ellipse cx="336" cy="615" rx="13" ry="6"/><ellipse cx="349" cy="603" rx="13" ry="6"/>
+  </g>
+  <path d="M17 617L21 612M22 618L25 614M42 618L46 613M30 606L33 602M365 617L369 612M340 618L344 613M353 606L356 602" stroke="#141210" stroke-width="0.9"/>
+  <path d="M52 600V584M142 598V582M232 598V582M322 600V584" stroke="#141210" stroke-width="2.5"/>
+  <rect x="50" y="584" width="274" height="12" fill="url(#wire)"/>
+
+  <!-- 칸 테두리 -->
+  <rect x="2" y="2" width="370" height="706" fill="none" stroke="#141210" stroke-width="4"/>
+</svg>
+
+<!-- 반응 이름: 기울어진 캡션 박스 -->
+<div style="position:absolute; left:24px; top:530px; transform:rotate(-3deg); transform-origin:left top;">
+  <div style="display:inline-block; margin-left:8px; background:#141210; color:#F5C518; font:900 10.5px/1 'Gothic A1',sans-serif; letter-spacing:0.5px; padding:4px 7px;">합성 반응 · 군견 지뢰밭</div>
+  <div class="bh" style="background:#F5C518; border:3px solid #141210; box-shadow:4px 4px 0 #141210; padding:6px 12px 5px; font-size:26px; line-height:1.1; color:#141210; white-space:nowrap;">전향 무리 · 강타!</div>
+</div>
+
+<!-- 방어선 위 오른쪽 표시 (바리케이드에 걸린 팻말) -->
+<div style="position:absolute; left:282px; top:655px; transform:rotate(1.5deg); background:#EFE6D2; border:2px solid #141210; box-shadow:2px 2px 0 #141210; padding:3px 6px 2px; font:900 10.5px/1.2 'Gothic A1',sans-serif; color:#141210; white-space:nowrap;">갈래 6/7 · 칸 1</div>
+
+<!-- 무기 줄: 작은 인셋 칸 여덟 -->
+<div class="slot" style="left:20px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iCarbine"/></svg></div>
+<div class="slot" style="left:63px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iCannon"/></svg></div>
+<div class="slot" style="left:106px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iLaser"/></svg></div>
+<!-- 합친 무기: 두 컷이 한 칸에 겹침 -->
+<div style="position:absolute; left:149px; top:707px; width:48px; height:52px;">
+  <svg width="48" height="52" viewBox="0 0 48 52" aria-hidden="true">
+    <g transform="rotate(-6 17 34)">
+      <rect x="2" y="19" width="30" height="30" fill="#F5C518" stroke="#141210" stroke-width="2.5"/>
+      <rect x="3.3" y="20.3" width="27.4" height="27.4" fill="url(#dR)" opacity="0.5"/>
+      <svg x="3" y="20" width="28" height="28" viewBox="0 0 40 40"><use href="#iMine"/></svg>
+    </g>
+    <g transform="rotate(5 31 17)">
+      <rect x="16" y="2" width="30" height="30" fill="#D7352B" stroke="#141210" stroke-width="2.5"/>
+      <svg x="17" y="3" width="28" height="28" viewBox="0 0 40 40"><use href="#iDog"/></svg>
+    </g>
+    <polygon transform="translate(-9 6)" points="30.8,25.0 27.2,26.2 28.9,28.5 25.8,27.8 23.4,30.5 23.2,27.2 20.5,27.9 22.0,25.2 19.1,23.1 23.0,22.9 23.6,19.9 25.7,22.7 28.2,19.5 27.2,23.9" fill="#EFE6D2" stroke="#141210" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+</div>
+<div class="slot" style="left:202px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iSwarm"/></svg></div>
+<div class="slot" style="left:245px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iLava"/></svg></div>
+<div class="slot" style="left:288px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iSpirit"/></svg></div>
+<div class="slot" style="left:331px;"><svg width="33" height="33" viewBox="0 0 40 40" aria-hidden="true"><use href="#iSaw"/></svg></div>
+
+<div class="lb" style="left:17px; width:44px;">카빈</div>
+<div class="lb" style="left:60px; width:44px;">대포</div>
+<div class="lb" style="left:103px; width:44px; font-size:8.5px; letter-spacing:-0.4px;">레이저 소총</div>
+<div class="lb" style="left:146px; width:54px; color:#F5C518;">군견 지뢰밭</div>
+<div class="lb" style="left:199px; width:44px;">모기 떼</div>
+<div class="lb" style="left:242px; width:44px; font-size:8.5px; letter-spacing:-0.4px;">용암 웅덩이</div>
+<div class="lb" style="left:285px; width:44px;">빛 정령</div>
+<div class="lb" style="left:328px; width:44px;">원반</div>
+
+<!-- 아래 가장자리 -->
+<button style="position:absolute; left:8px; top:800px; height:32px; padding:0 12px 0 8px; display:flex; align-items:center; gap:5px; background:#EFE6D2; border:2.5px solid #141210; box-shadow:3px 3px 0 #141210; font-family:'Black Han Sans',sans-serif; font-size:15px; color:#141210; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.6 11H11.4L12.6 13.4C12.8 13.8 12.6 14 12.2 14H3.8C3.4 14 3.2 13.8 3.4 13.4Z" fill="#D7352B"/><path d="M6 1.5H10M6.8 1.5V6L2.6 13C2 14 2.7 15 3.8 15H12.2C13.3 15 14 14 13.4 13L9.2 6V1.5" fill="none" stroke="#141210" stroke-width="1.8" stroke-linejoin="round"/></svg>실험</button>
+<div style="position:absolute; left:96px; width:198px; top:811px; text-align:center; font:700 10.5px/1 'Gothic A1',sans-serif; color:#141210; letter-spacing:0.5px;">제12화 · 비 오는 밤, 마지막 방벽</div>
+<button style="position:absolute; right:8px; top:800px; height:32px; padding:0 11px 0 9px; display:flex; align-items:center; gap:5px; background:#141210; border:2.5px solid #141210; box-shadow:3px 3px 0 #D7352B; font-family:'Black Han Sans',sans-serif; font-size:16px; color:#F5C518; cursor:pointer;"><svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true"><path d="M1 1L7 6L1 11ZM7 1L13 6L7 11Z" fill="#F5C518"/></svg>×1</button>
+
+<!-- 인쇄 종이 결 -->
+<svg style="position:absolute; left:0; top:0; pointer-events:none" width="390" height="844" aria-hidden="true"><rect width="390" height="844" filter="url(#grain)" opacity="0.35"/></svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -49,3 +49,8 @@
   - `fuse5` (합성 v5: 한 몸 · 무기 이름 · 무기 성질 · 공명, 같은 갈래 짝을 무기만 바꿔 넷씩 + v4 vs v5 + 공명 + 성질 13 + 측정): https://claude.ai/artifact/SVTq3LtTnutG6eQ5D4WC4p
   - `pull` (끌어모으기 너프 + 적끼리 가운데 충돌: 중력 무기 여덟): https://claude.ai/artifact/Ce9etzt3wfK4pmCi7CA8d3
   - `clarity` (합성 카드 정리 + 공격 구분: 피해 숫자 색 · 무기 누르면 집중 보기, 표): https://claude.ai/artifact/Fhx8pqe88fsUc8CLAd5MU8
+
+## 디자인 캔버스 (정지 화면 시안, Design 타입)
+
+- 컨셉 시안 여섯 방향 (11-21, 세계·적·무기 재질까지): https://claude.ai/artifact/Frf9eGGrFij1ctYsvknrDe — 원본·정리 `docs/design/concept-art/`. 고치면 같은 주소로 (`root` = artboard 들이 `project/` 아래 있는 폴더)
+- UI 틀 시안 다섯 방향 (11-13): https://claude.ai/artifact/NBjkwbx61kbbLB2oGmtyLz

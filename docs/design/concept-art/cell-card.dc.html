@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>미시 세계 레벨 업</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+@keyframes cellPulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.18)}}
+.cell-pulse{transform-box:fill-box;transform-origin:center;animation:cellPulse 1.6s ease-in-out infinite}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: radial-gradient(ellipse 90% 70% at 50% 44%, #10464A 0%, #0B3236 36%, #072226 66%, #04161A 100%); font-family: 'IBM Plex Sans KR', sans-serif; color: #EFFFFD">
+
+<!-- 공통 정의 -->
+<svg width="0" height="0" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<defs>
+<radialGradient id="gVir" cx="38%" cy="34%" r="72%">
+<stop offset="0" stop-color="#FFC9C0" stop-opacity=".8"/>
+<stop offset=".45" stop-color="#FF6F61" stop-opacity=".42"/>
+<stop offset="1" stop-color="#6A1724" stop-opacity=".88"/>
+</radialGradient>
+<linearGradient id="gRod" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#F6DCA6" stop-opacity=".6"/>
+<stop offset=".5" stop-color="#A57834" stop-opacity=".45"/>
+<stop offset="1" stop-color="#3A280E" stop-opacity=".9"/>
+</linearGradient>
+<radialGradient id="gAmo" cx="45%" cy="34%" r="76%">
+<stop offset="0" stop-color="#FFBFD1" stop-opacity=".6"/>
+<stop offset=".55" stop-color="#FF4F7E" stop-opacity=".32"/>
+<stop offset="1" stop-color="#5A0F2A" stop-opacity=".8"/>
+</radialGradient>
+<radialGradient id="gBurst">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset=".22" stop-color="#D4FFFA" stop-opacity=".95"/>
+<stop offset=".5" stop-color="#5CF2E6" stop-opacity=".5"/>
+<stop offset="1" stop-color="#5CF2E6" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="gImpact">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset=".35" stop-color="#FFB4A9" stop-opacity=".9"/>
+<stop offset="1" stop-color="#FF6F61" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="gBind">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset=".3" stop-color="#E9FFB8" stop-opacity=".95"/>
+<stop offset=".6" stop-color="#C6FF4D" stop-opacity=".45"/>
+<stop offset="1" stop-color="#C6FF4D" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="gWell" cx="50%" cy="38%" r="62%">
+<stop offset="0" stop-color="#145055"/>
+<stop offset=".7" stop-color="#0A2D31"/>
+<stop offset="1" stop-color="#061C1F"/>
+</radialGradient>
+<radialGradient id="gMac" cx="42%" cy="38%" r="70%">
+<stop offset="0" stop-color="#A9FFF7" stop-opacity=".45"/>
+<stop offset=".6" stop-color="#5CF2E6" stop-opacity=".16"/>
+<stop offset="1" stop-color="#0E3B3F" stop-opacity=".7"/>
+</radialGradient>
+<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+<feGaussianBlur stdDeviation="2.2" result="b"/>
+<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<pattern id="lip" width="7" height="32" patternUnits="userSpaceOnUse">
+<rect x="0" y="9" width="7" height="14" fill="#062226"/>
+<g stroke="#3FB8AE" stroke-width=".9" stroke-linecap="round">
+<line x1="2.4" y1="10" x2="2.4" y2="14.5"/>
+<line x1="4.6" y1="10" x2="4.6" y2="14.5"/>
+<line x1="2.4" y1="17.5" x2="2.4" y2="22"/>
+<line x1="4.6" y1="17.5" x2="4.6" y2="22"/>
+</g>
+<circle cx="3.5" cy="7" r="2.9" fill="#5CF2E6"/>
+<circle cx="3.5" cy="25" r="2.9" fill="#3FB8AE"/>
+</pattern>
+
+<g id="spk"><path d="M14.5 -1.4 L20.4 -0.8 L20.4 0.8 L14.5 1.4 Z"/><circle cx="21.7" cy="0" r="2.3"/></g>
+<g id="spk2"><path d="M14.5 -1.2 L18.4 -0.7 L18.4 0.7 L14.5 1.2 Z"/><circle cx="19.5" cy="0" r="1.9"/></g>
+<g id="vir">
+<g fill="#FF8577">
+<use href="#spk"/>
+<use href="#spk2" transform="rotate(30)"/>
+<use href="#spk" transform="rotate(60)"/>
+<use href="#spk2" transform="rotate(90)"/>
+<use href="#spk" transform="rotate(120)"/>
+<use href="#spk2" transform="rotate(150)"/>
+<use href="#spk" transform="rotate(180)"/>
+<use href="#spk2" transform="rotate(210)"/>
+<use href="#spk" transform="rotate(240)"/>
+<use href="#spk2" transform="rotate(270)"/>
+<use href="#spk" transform="rotate(300)"/>
+<use href="#spk2" transform="rotate(330)"/>
+</g>
+<circle r="15.5" fill="url(#gVir)" stroke="#FF9A8D" stroke-width="1.3"/>
+<circle r="12" fill="none" stroke="#FFB4A9" stroke-opacity=".4" stroke-width="1" stroke-dasharray="2 2.4"/>
+<path d="M-7 -2 C-5 -8 1 -8 2.5 -3 S8 3 4 6.5 S-5 8.5 -5.5 3 S-2 -1 0 1" fill="none" stroke="#FFE0DA" stroke-width="1.2" stroke-linecap="round" opacity=".85"/>
+<ellipse cx="-6" cy="-9" rx="4.6" ry="1.9" fill="#FFFFFF" opacity=".38" transform="rotate(-32 -6 -9)"/>
+</g>
+<g id="rod">
+<rect x="-24" y="-10.5" width="48" height="21" rx="10.5" fill="url(#gRod)" stroke="#E8C27A" stroke-width="3.2"/>
+<rect x="-24" y="-10.5" width="48" height="21" rx="10.5" fill="none" stroke="#FFF2D6" stroke-opacity=".65" stroke-width="1" stroke-dasharray="1.6 2.4"/>
+<path d="M-12 1 C-9 -4 -5 4 -2 -1 S4 -4 6 1 S11 3 13 -1" fill="none" stroke="#FFE9C2" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
+</g>
+<g id="amo">
+<path d="M-14 -14 C-6 -22 10 -20 16 -12 C22 -4 18 4 14 8 C16 14 20 22 16 26 C12 28 9 20 6 14 C3 18 2 28 -2 30 C-6 30 -5 20 -6 14 C-10 18 -18 22 -21 18 C-23 14 -16 8 -16 4 C-22 -2 -22 -8 -14 -14 Z" fill="url(#gAmo)" stroke="#FF7FA0" stroke-width="1.3"/>
+<circle cx="0" cy="-5" r="6.5" fill="#FFB8CC" fill-opacity=".25" stroke="#FFB8CC" stroke-width="1"/>
+</g>
+<!-- 카빈: 항체 -->
+<g id="antibody">
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M0 12 L0 2 M0 2 L-7.5 -7.5 M0 2 L7.5 -7.5" stroke="#5CF2E6" stroke-width="4"/>
+<path d="M-4.4 -0.4 L-10 -7.6 M4.4 -0.4 L10 -7.6" stroke="#BFFBF5" stroke-width="2.2"/>
+<path d="M-1.6 4.2 L1.6 4.2" stroke="#04161A" stroke-width="1"/>
+</g>
+<circle cx="-9.4" cy="-10" r="2.3" fill="#C6FF4D" filter="url(#glow)"/>
+<circle cx="9.4" cy="-10" r="2.3" fill="#C6FF4D" filter="url(#glow)"/>
+</g>
+</defs>
+</svg>
+
+<!-- 뒤: 흐려진 판 -->
+<svg width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0; filter: blur(2.5px); opacity: .75" aria-hidden="true">
+<use href="#vir" transform="translate(62 128) scale(.9)"/>
+<use href="#rod" transform="translate(150 110) rotate(18)"/>
+<use href="#vir" transform="translate(238 150)"/>
+<use href="#rod" transform="translate(318 204) rotate(-35)"/>
+<use href="#amo" transform="translate(192 196) scale(.85)"/>
+<circle cx="176" cy="290" r="34" fill="url(#gBurst)" opacity=".6"/>
+<circle cx="280" cy="300" r="40" fill="url(#gBurst)" opacity=".75"/>
+<circle cx="104" cy="318" r="28" fill="url(#gBurst)" opacity=".45"/>
+<use href="#vir" transform="translate(352 440) scale(.8)"/>
+<use href="#rod" transform="translate(48 452) rotate(82)"/>
+<use href="#vir" transform="translate(130 560) scale(.9)"/>
+<use href="#amo" transform="translate(72 620)"/>
+<use href="#vir" transform="translate(212 600) scale(.85)"/>
+<use href="#rod" transform="translate(298 566) rotate(-22)"/>
+<use href="#amo" transform="translate(340 610) scale(.9)"/>
+<rect x="0" y="684" width="390" height="32" fill="url(#lip)"/>
+<g fill="url(#gWell)" stroke="#5CF2E6" stroke-opacity=".4">
+<circle cx="38" cy="740" r="20"/><circle cx="83" cy="740" r="20"/><circle cx="128" cy="740" r="20"/><circle cx="173" cy="740" r="20"/>
+<circle cx="217" cy="740" r="20"/><circle cx="262" cy="740" r="20"/><circle cx="307" cy="740" r="20"/><circle cx="352" cy="740" r="20"/>
+</g>
+</svg>
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: linear-gradient(180deg, rgba(3,14,16,.9) 0%, rgba(3,14,16,.74) 42%, rgba(3,14,16,.9) 100%)"></div>
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: radial-gradient(ellipse 68% 54% at 50% 46%, rgba(4,22,26,0) 60%, rgba(2,12,14,.5) 86%, rgba(1,7,9,.9) 100%)"></div>
+<svg width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<ellipse cx="195" cy="390" rx="265" ry="456" fill="none" stroke="#5CF2E6" stroke-opacity=".18" stroke-width="1"/>
+<ellipse cx="195" cy="390" rx="258" ry="449" fill="none" stroke="#5CF2E6" stroke-opacity=".24" stroke-width="5" stroke-dasharray="1 8"/>
+</svg>
+
+<!-- 제목 -->
+<div style="position: absolute; left: 0; top: 56px; width: 390px; text-align: center">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .18em; color: #5CF2E6; line-height: 15px">LV 9 → 10</div>
+<div style="margin-top: 4px; font-size: 34px; font-weight: 700; line-height: 41px; color: #F2FFFD; letter-spacing: -.01em; text-shadow: 0 0 18px rgba(92,242,230,.45)">레벨 업</div>
+<div style="margin-top: 4px; font-size: 12px; line-height: 17px; color: #9FD6D0">표본 한 장을 골라 재물대에 올린다</div>
+</div>
+<svg width="390" height="12" viewBox="0 0 390 12" style="position: absolute; left: 0; top: 89px" aria-hidden="true">
+<line x1="40" y1="6" x2="126" y2="6" stroke="#5CF2E6" stroke-opacity=".45" stroke-width="1"/>
+<line x1="40" y1="6" x2="126" y2="6" stroke="#5CF2E6" stroke-opacity=".5" stroke-width="6" stroke-dasharray="1 7"/>
+<circle cx="130" cy="6" r="1.8" fill="#5CF2E6"/>
+<line x1="264" y1="6" x2="350" y2="6" stroke="#5CF2E6" stroke-opacity=".45" stroke-width="1"/>
+<line x1="264" y1="6" x2="350" y2="6" stroke="#5CF2E6" stroke-opacity=".5" stroke-width="6" stroke-dasharray="1 7"/>
+<circle cx="260" cy="6" r="1.8" fill="#5CF2E6"/>
+</svg>
+
+<!-- 카드 1: 결합 (합성) -->
+<div style="position: absolute; left: 16px; top: 152px; width: 358px; height: 284px; border-radius: 8px; overflow: hidden; background: linear-gradient(165deg, rgba(198,255,77,.14) 0%, rgba(14,59,63,.94) 34%, rgba(7,32,36,.97) 100%); border: 1px solid rgba(198,255,77,.85); box-shadow: 0 0 0 3px rgba(198,255,77,.10), 0 0 30px rgba(198,255,77,.26), 0 16px 34px rgba(0,0,0,.55)">
+<div style="position: absolute; left: 0; top: 0; width: 358px; height: 284px; background: linear-gradient(115deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.07) 46%, rgba(255,255,255,0) 54%)"></div>
+<div style="position: absolute; left: 0; top: 0; width: 40px; height: 284px; box-sizing: border-box; padding: 14px 0 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background-color: rgba(214,255,240,.10); background-image: radial-gradient(rgba(255,255,255,.16) .7px, rgba(255,255,255,0) 1px); background-size: 3px 3px; border-right: 1px solid rgba(198,255,77,.35)">
+<div style="writing-mode: vertical-rl; font-size: 16px; font-weight: 700; color: #C6FF4D; letter-spacing: .3em">결합</div>
+<div style="writing-mode: vertical-rl; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 700; color: #D8F5A8; letter-spacing: .12em">No.01</div>
+</div>
+
+<!-- 표본 창: 두 분자가 결합 -->
+<div style="position: absolute; left: 52px; top: 12px; width: 294px; height: 118px; border-radius: 6px; overflow: hidden; background: radial-gradient(ellipse 70% 90% at 52% 50%, #13494D 0%, #0A2B2F 65%, #061B1E 100%); box-shadow: inset 0 0 0 1px rgba(92,242,230,.28), inset 0 0 18px rgba(0,0,0,.55)">
+<svg width="294" height="118" viewBox="0 0 294 118" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<g fill="#BFFBF5" opacity=".35"><circle cx="180" cy="20" r="1"/><circle cx="168" cy="100" r=".8"/><circle cx="118" cy="16" r=".9"/><circle cx="284" cy="62" r="1"/><circle cx="140" cy="30" r=".8"/></g>
+<!-- 지뢰밭: 그물 (함정) -->
+<ellipse cx="82" cy="64" rx="72" ry="38" fill="#C6FF4D" fill-opacity=".05"/>
+<g fill="none" stroke="#C6FF4D" stroke-width="1.3" stroke-linecap="round" stroke-opacity=".9">
+<path d="M18 46 C40 36 64 56 92 47 S132 54 150 64"/>
+<path d="M20 74 C42 66 64 86 92 77 S126 82 146 70"/>
+<path d="M28 98 C50 90 72 102 100 94"/>
+<path d="M34 28 C40 50 30 72 40 100"/>
+<path d="M64 26 C70 48 60 72 70 100"/>
+<path d="M98 32 C104 52 94 72 102 98"/>
+<path d="M126 42 C130 56 122 74 128 90"/>
+</g>
+<g fill="#C6FF4D">
+<circle cx="36" cy="42" r="2.2"/><circle cx="66" cy="50" r="2.2"/><circle cx="99" cy="47" r="2.2"/><circle cx="127" cy="53" r="2"/>
+<circle cx="35" cy="71" r="2.2"/><circle cx="64" cy="80" r="2.2"/><circle cx="96" cy="77" r="2.2"/><circle cx="125" cy="77" r="2"/>
+<circle cx="38" cy="94" r="2"/><circle cx="69" cy="96" r="2"/><circle cx="101" cy="94" r="2"/>
+</g>
+<!-- 묶인 적 + 돌려세움 -->
+<use href="#vir" transform="translate(81 64) scale(.46)"/>
+<circle cx="81" cy="64" r="13.5" fill="none" stroke="#C6FF4D" stroke-width="1" stroke-dasharray="2.5 2.5"/>
+<path d="M68 47 A15 15 0 0 1 96 52" fill="none" stroke="#ECFFFC" stroke-width="1.3" stroke-linecap="round"/>
+<path d="M91.5 47.5 L96.5 52.5 L90 53.5" fill="none" stroke="#ECFFFC" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- 군견: 대식세포 (소환수) -->
+<g transform="translate(0 6)">
+<path d="M196 36 C208 16 248 14 264 30 C280 46 278 74 262 88 C246 102 212 100 200 84 C194 76 184 70 170 66 C160 64 154 62 152 59 C154 53 164 52 174 52 C186 52 192 46 196 36 Z" fill="url(#gMac)" stroke="#5CF2E6" stroke-width="1.6"/>
+<path d="M204 40 C214 26 244 24 256 36 C268 48 266 70 254 80 C242 90 216 90 206 78" fill="none" stroke="#9FF7EF" stroke-opacity=".3" stroke-width="1"/>
+<path d="M222 46 C230 38 246 42 246 54 C246 62 238 64 234 60 C230 66 220 66 218 58 C216 52 218 49 222 46 Z" fill="#5CF2E6" fill-opacity=".35" stroke="#BFFBF5" stroke-width=".9"/>
+<circle cx="250" cy="76" r="6.5" fill="#04161A" fill-opacity=".35" stroke="#5CF2E6" stroke-opacity=".7" stroke-width="1"/>
+<circle cx="250" cy="76" r="2.4" fill="#FF8577"/>
+<g fill="#ECFFFC" opacity=".75"><circle cx="208" cy="72" r="2"/><circle cx="216" cy="84" r="1.6"/><circle cx="258" cy="44" r="1.6"/><circle cx="236" cy="86" r="1.4"/><circle cx="190" cy="60" r="1.2"/></g>
+</g>
+<!-- 결합 부위 -->
+<circle class="cell-pulse" cx="151" cy="65" r="20" fill="url(#gBind)"/>
+<circle cx="151" cy="65" r="4" fill="#FFFFFF"/>
+<g stroke="#ECFFB8" stroke-width="1.1" stroke-linecap="round" opacity=".9">
+<line x1="151" y1="53" x2="151" y2="48"/><line x1="140" y1="58" x2="136" y2="55"/><line x1="162" y1="72" x2="166" y2="75"/><line x1="140" y1="72" x2="136" y2="75"/>
+</g>
+<!-- 표지 글 -->
+<g font-family="'IBM Plex Sans KR', sans-serif" font-size="10" font-weight="700">
+<text x="14" y="17" fill="#C6FF4D">지뢰밭 <tspan fill="#9FD6D0" font-weight="500">· 함정</tspan></text>
+<text x="282" y="17" fill="#5CF2E6" text-anchor="end">군견 <tspan fill="#9FD6D0" font-weight="500">· 소환수</tspan></text>
+<text x="151" y="112" fill="#F2FFFD" text-anchor="middle">결합 부위</text>
+</g>
+<g stroke="#9FD6D0" stroke-width=".8" fill="none">
+<path d="M28 21 L34 28"/>
+<path d="M266 21 L262 32"/>
+<path d="M151 101 L151 86"/>
+</g>
+<g fill="#9FD6D0"><circle cx="34" cy="28" r="1.3"/><circle cx="262" cy="32" r="1.3"/><circle cx="151" cy="86" r="1.3"/></g>
+<line x1="14" y1="110" x2="40" y2="110" stroke="#ECFFFC" stroke-width="2"/>
+<text x="46" y="113" font-family="'Space Grotesk', sans-serif" font-size="9" font-weight="500" fill="#BFFBF5">5 μm</text>
+</svg>
+</div>
+
+<!-- 글 -->
+<div style="position: absolute; left: 52px; top: 142px; width: 294px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<span style="display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border: 1px solid rgba(198,255,77,.85); border-radius: 3px; background: rgba(198,255,77,.12); color: #C6FF4D; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; white-space: nowrap">합성 · 전향 무리 · 강타</span>
+<span style="display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; white-space: nowrap">
+<span style="width: 6px; height: 6px; border-radius: 3px; background: #C6FF4D"></span><span style="color: #C6FF4D">지뢰밭</span><span style="color: #9FD6D0">+</span><span style="width: 6px; height: 6px; border-radius: 3px; background: #5CF2E6"></span><span style="color: #5CF2E6">군견</span>
+</span>
+</div>
+<div style="margin-top: 8px; font-size: 27px; font-weight: 700; line-height: 31px; color: #F4FFF0; letter-spacing: -.01em; text-shadow: 0 0 14px rgba(198,255,77,.35)">군견 지뢰밭</div>
+<div style="margin-top: 6px; font-size: 12.5px; line-height: 19px; color: #D2EEEA">지뢰밭에 묶인 적을 군견이 돌려세워 제 무리를 들이받게 한다</div>
+<div style="margin-top: 9px; display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: #9FD6D0; white-space: nowrap">
+<span style="color: #C6FF4D; font-weight: 700">새 반응!</span><span>·</span><span>칸 1 중 1</span><span>·</span><span>등급 2</span>
+</div>
+</div>
+</div>
+
+<!-- 카드 2: 레벨 업 -->
+<div style="position: absolute; left: 16px; top: 450px; width: 358px; height: 130px; border-radius: 8px; overflow: hidden; background: linear-gradient(165deg, rgba(92,242,230,.09) 0%, rgba(12,50,54,.93) 40%, rgba(7,30,34,.97) 100%); border: 1px solid rgba(92,242,230,.45); box-shadow: 0 12px 28px rgba(0,0,0,.5)">
+<div style="position: absolute; left: 0; top: 0; width: 358px; height: 130px; background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.05) 48%, rgba(255,255,255,0) 56%)"></div>
+<div style="position: absolute; left: 0; top: 0; width: 40px; height: 130px; box-sizing: border-box; padding: 12px 0 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background-color: rgba(214,255,240,.08); background-image: radial-gradient(rgba(255,255,255,.14) .7px, rgba(255,255,255,0) 1px); background-size: 3px 3px; border-right: 1px solid rgba(92,242,230,.25)">
+<div style="writing-mode: vertical-rl; font-size: 14px; font-weight: 700; color: #5CF2E6; letter-spacing: .3em">강화</div>
+<div style="writing-mode: vertical-rl; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 700; color: #BFFBF5; letter-spacing: .12em">No.02</div>
+</div>
+<div style="position: absolute; left: 54px; top: 17px; width: 96px; height: 96px; border-radius: 48px; overflow: hidden; background: radial-gradient(circle at 50% 45%, #145055 0%, #0A2D31 70%, #061C1F 100%); box-shadow: inset 0 0 0 1px rgba(92,242,230,.42), inset 0 0 14px rgba(0,0,0,.6)">
+<svg width="96" height="96" viewBox="-48 -48 96 96" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<circle r="40" fill="none" stroke="#5CF2E6" stroke-opacity=".2" stroke-width="4" stroke-dasharray=".8 5.5"/>
+<use href="#antibody" transform="translate(0 -3) scale(2.05)"/>
+<circle cx="-12" cy="35" r="2.2" fill="#5CF2E6"/>
+<circle cx="-4" cy="37" r="2.2" fill="#5CF2E6"/>
+<circle cx="4" cy="37" r="2.2" fill="#5CF2E6"/>
+<circle class="cell-pulse" cx="12" cy="35" r="2.8" fill="#C6FF4D"/>
+</svg>
+</div>
+<div style="position: absolute; left: 164px; top: 15px; width: 180px">
+<span style="display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border: 1px solid rgba(92,242,230,.6); border-radius: 3px; color: #5CF2E6; font-size: 10px; font-weight: 700; letter-spacing: .04em">총 · 레벨 업</span>
+<div style="margin-top: 6px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+<span style="font-size: 22px; font-weight: 700; line-height: 28px; color: #F2FFFD">카빈</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #BFFBF5">Lv 3 <span style="color: #8ED8D0">→</span> <span style="color: #5CF2E6">4</span></span>
+</div>
+<div style="margin-top: 7px; border-top: 1px solid rgba(92,242,230,.2)">
+<div style="height: 21px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(92,242,230,.2); font-size: 11.5px">
+<span style="color: #9FD6D0">관통</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #EFFFFD">1 <span style="color: #8ED8D0">→</span> <span style="font-weight: 700; color: #5CF2E6">2</span></span>
+</div>
+<div style="height: 21px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(92,242,230,.2); font-size: 11.5px">
+<span style="color: #9FD6D0">쿨다운</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #EFFFFD">0.9 <span style="color: #8ED8D0">→</span> <span style="font-weight: 700; color: #5CF2E6">0.8</span><span style="font-family: 'IBM Plex Sans KR', sans-serif">초</span></span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 카드 3: 새 무기 -->
+<div style="position: absolute; left: 16px; top: 594px; width: 358px; height: 130px; border-radius: 8px; overflow: hidden; background: linear-gradient(165deg, rgba(255,111,97,.10) 0%, rgba(12,50,54,.93) 40%, rgba(7,30,34,.97) 100%); border: 1px solid rgba(255,138,126,.5); box-shadow: 0 12px 28px rgba(0,0,0,.5)">
+<div style="position: absolute; left: 0; top: 0; width: 358px; height: 130px; background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.05) 48%, rgba(255,255,255,0) 56%)"></div>
+<div style="position: absolute; left: 0; top: 0; width: 40px; height: 130px; box-sizing: border-box; padding: 12px 0 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background-color: rgba(255,228,222,.08); background-image: radial-gradient(rgba(255,255,255,.14) .7px, rgba(255,255,255,0) 1px); background-size: 3px 3px; border-right: 1px solid rgba(255,138,126,.3)">
+<div style="writing-mode: vertical-rl; font-size: 14px; font-weight: 700; color: #FF8A7E; letter-spacing: .3em">신규</div>
+<div style="writing-mode: vertical-rl; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 700; color: #FFC9C0; letter-spacing: .12em">No.03</div>
+</div>
+<div style="position: absolute; left: 54px; top: 17px; width: 96px; height: 96px; border-radius: 48px; overflow: hidden; background: radial-gradient(circle at 50% 45%, #145055 0%, #0A2D31 70%, #061C1F 100%); box-shadow: inset 0 0 0 1px rgba(255,138,126,.42), inset 0 0 14px rgba(0,0,0,.6)">
+<svg width="96" height="96" viewBox="-48 -48 96 96" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<circle r="40" fill="none" stroke="#FF8A7E" stroke-opacity=".2" stroke-width="4" stroke-dasharray=".8 5.5"/>
+<path d="M-8 4 Q12 -64 30 10" fill="none" stroke="#ECFFFC" stroke-opacity=".6" stroke-width="1.2" stroke-dasharray="1.5 3.5" stroke-linecap="round"/>
+<circle cx="30" cy="12" r="13" fill="url(#gImpact)" opacity=".9"/>
+<circle cx="30" cy="12" r="16" fill="none" stroke="#FF8A7E" stroke-opacity=".6" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="21" cy="-18" r="3.6" fill="#FFB59E" filter="url(#glow)"/>
+<circle cx="-16" cy="18" r="16" fill="#5CF2E6" fill-opacity=".12" stroke="#5CF2E6" stroke-width="1.5"/>
+<path d="M-25 18 C-25 12 -19 11 -17.5 15 C-16 11 -9 12 -9 18 C-9 23 -14 23 -16 20.5 C-18 23 -25 23 -25 18 Z" fill="#5CF2E6" fill-opacity=".4" stroke="#BFFBF5" stroke-width=".8"/>
+<g fill="#FF9C90"><circle cx="-24" cy="8" r="1.6"/><circle cx="-11" cy="8" r="1.6"/><circle cx="-6" cy="23" r="1.6"/><circle cx="-22" cy="28" r="1.6"/><circle cx="-14" cy="30" r="1.5"/><circle cx="-28" cy="20" r="1.4"/><circle cx="-5" cy="14" r="1.4"/><circle cx="-17" cy="6" r="1.3"/></g>
+</svg>
+</div>
+<div style="position: absolute; left: 164px; top: 15px; width: 180px">
+<span style="display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border: 1px solid rgba(255,138,126,.7); border-radius: 3px; color: #FF9C90; font-size: 10px; font-weight: 700; letter-spacing: .04em; white-space: nowrap">새 갈래 · 칸까지 1</span>
+<div style="margin-top: 6px; display: flex; align-items: center; gap: 8px; white-space: nowrap">
+<span style="font-size: 22px; font-weight: 700; line-height: 28px; color: #F2FFFD">박격포</span>
+<span style="display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 3px; background: #FF6F61; color: #04161A; font-family: 'Space Grotesk', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: .08em">NEW</span>
+</div>
+<div style="margin-top: 7px; font-size: 12.5px; line-height: 19px; color: #D2EEEA">멀리 높이, 크게 터진다</div>
+</div>
+</div>
+
+<!-- 리롤 -->
+<button style="position: absolute; left: 85px; top: 750px; width: 220px; height: 46px; padding: 0; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; border: 1px solid rgba(92,242,230,.7); background: linear-gradient(180deg, rgba(20,80,85,.95), rgba(10,43,47,.95)); box-shadow: 0 0 18px rgba(92,242,230,.18); color: #F2FFFD; font-family: 'IBM Plex Sans KR', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8 A5 5 0 1 1 11.5 4.4" fill="none" stroke="#5CF2E6" stroke-width="1.6" stroke-linecap="round"/><path d="M12.2 1.4 L11.8 4.8 L8.4 4.4" fill="none" stroke="#5CF2E6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span>리롤</span>
+<span style="font-size: 12px; font-weight: 500; color: #BFFBF5">(2회 남음)</span>
+</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

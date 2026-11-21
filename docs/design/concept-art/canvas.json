@@ -1,0 +1,165 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-21T09:00:00Z"
+  },
+  "title": "연쇄 폭발 컨셉 시안",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 980,
+      "title": "여섯 방향 한눈에"
+    },
+    "cell-play.dc.html": {
+      "x": 0,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "미시 세계 · 판 화면"
+    },
+    "cell-card.dc.html": {
+      "x": 470,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "미시 세계 · 레벨 업"
+    },
+    "radar-play.dc.html": {
+      "x": 0,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "방공 관제 · 판 화면"
+    },
+    "radar-card.dc.html": {
+      "x": 470,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "방공 관제 · 레벨 업"
+    },
+    "rift-play.dc.html": {
+      "x": 2040,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "균열 유물 · 판 화면"
+    },
+    "rift-card.dc.html": {
+      "x": 2510,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "균열 유물 · 레벨 업"
+    },
+    "sumi-play.dc.html": {
+      "x": 2040,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "수묵 요괴 · 판 화면"
+    },
+    "sumi-card.dc.html": {
+      "x": 2510,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "수묵 요괴 · 레벨 업"
+    },
+    "forge-play.dc.html": {
+      "x": 1020,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "강철 공방 · 판 화면"
+    },
+    "forge-card.dc.html": {
+      "x": 1490,
+      "y": 2824,
+      "w": 390,
+      "h": 844,
+      "title": "강철 공방 · 레벨 업"
+    },
+    "comic-play.dc.html": {
+      "x": 1020,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "잉크 코믹 · 판 화면"
+    },
+    "comic-card.dc.html": {
+      "x": 1490,
+      "y": 1460,
+      "w": 390,
+      "h": 844,
+      "title": "잉크 코믹 · 레벨 업"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "radar-play.dc.html",
+    "radar-card.dc.html",
+    "comic-play.dc.html",
+    "comic-card.dc.html",
+    "rift-play.dc.html",
+    "rift-card.dc.html",
+    "cell-play.dc.html",
+    "cell-card.dc.html",
+    "forge-play.dc.html",
+    "forge-card.dc.html",
+    "sumi-play.dc.html",
+    "sumi-card.dc.html"
+  ],
+  "notes": {
+    "t-radar": {
+      "x": 0,
+      "y": 1200,
+      "text": "1 · 방공 관제",
+      "kind": "title1",
+      "maxW": 860
+    },
+    "t-comic": {
+      "x": 1020,
+      "y": 1200,
+      "text": "2 · 잉크 코믹",
+      "kind": "title1",
+      "maxW": 860
+    },
+    "t-rift": {
+      "x": 2040,
+      "y": 1200,
+      "text": "3 · 균열 유물",
+      "kind": "title1",
+      "maxW": 860
+    },
+    "t-cell": {
+      "x": 0,
+      "y": 2564,
+      "text": "4 · 미시 세계",
+      "kind": "title1",
+      "maxW": 860
+    },
+    "t-forge": {
+      "x": 1020,
+      "y": 2564,
+      "text": "5 · 강철 공방",
+      "kind": "title1",
+      "maxW": 860
+    },
+    "t-sumi": {
+      "x": 2040,
+      "y": 2564,
+      "text": "6 · 수묵 요괴",
+      "kind": "title1",
+      "maxW": 860
+    }
+  },
+  "designSystems": []
+}
