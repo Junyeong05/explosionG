@@ -760,7 +760,7 @@
     const y0 = e.y;
     // 혼을 모으는 자리는 족자 반대쪽 위
     const side = -labelSide(clamp(x0, 112, W - 112));
-    const P = { x: clamp(x0 + side * 72, 26, W - 26), y: clamp(y0 - 80, 74, 380) };
+    const P = { x: clamp(x0 + side * 72, 42, W - 42), y: clamp(y0 - 80, 96, 380) };
     const ang = Math.atan2(y0 - P.y, x0 - P.x);
     const ux = Math.cos(ang);
     const uy = Math.sin(ang);
