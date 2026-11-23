@@ -221,7 +221,9 @@
       const sw = CX.wo(w.subWorld);
       sw.react(this, e, w);
       this.labels = this.labels.filter((l) => l.age < 0.5);
-      this.labels.push({ text: w.react || '반응', world: w.subWorld, age: 0, life: 1.9, x: clamp(e.x, 104, W - 104), y: clamp(e.y - 46, 118, 330) });
+      // 글씨는 반응 그림을 가리지 않게 적에서 떨어진 쪽(위쪽 적이면 아래, 아래쪽 적이면 위)에
+      const ly = e.y < 240 ? Math.min(e.y + 96, 372) : Math.max(e.y - 96, 120);
+      this.labels.push({ text: w.react || '반응', world: w.subWorld, age: 0, life: 1.9, x: clamp(e.x, 112, W - 112), y: ly });
     }
 
     // ── 공통 연쇄 ──
@@ -276,7 +278,10 @@
       const alive = this.enemies.filter((e) => e.alive).length;
       if (alive < (this.opt.density || 11)) this.spawnCluster(-24);
       for (const e of this.enemies) {
-        if (!e.alive) continue;
+        if (!e.alive) {
+          e.flash = Math.max(0, e.flash - dt);
+          continue;
+        }
         e.ph += dt;
         const slow = e.slow > 0 ? 0.45 : 1;
         e.slow = Math.max(0, e.slow - dt);
