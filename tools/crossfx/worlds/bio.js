@@ -16,6 +16,14 @@
 
   // 판마다 표지 간격 (같은 순간에 표지가 쌓이지 않게)
   const memo = new WeakMap();
+  // 반응 자리 기록 (글씨 지시선이 반응한 적을 가리키게). 판의 ctx 로 찾는다: label() 이 받는 c 가 그 판의 ctx
+  const spots = new WeakMap();
+  function spotFor(c, x) {
+    const l = spots.get(c);
+    if (!l) return null;
+    for (let i = l.length - 1; i >= 0; i--) if (Math.abs(clamp(l[i].ex, 112, W - 112) - x) < 2) return l[i];
+    return null;
+  }
   const st = (api) => {
     let s = memo.get(api);
     if (!s) memo.set(api, (s = { tag: -9, subTag: -9 }));
@@ -1005,7 +1013,7 @@
 
   // 융단 폭격 · 화염: 세포 구름 띠가 줄 전체를 덮고 산성비를 쓸어 붓는다 → 맞은 적은 산에 타들어 간다
   function carpet(api, e, w) {
-    const by = clamp(e.y - 118, 100, 290);
+    const by = clamp(e.y - 118, 108, 290);
     const bx = clamp(e.x, 125, W - 125);
     const half = 118;
     const rowY = e.y;
@@ -1506,6 +1514,12 @@
     },
 
     react(api, e, w) {
+      if (api.ctx) {
+        const l = spots.get(api.ctx) || [];
+        l.push({ ex: e.x, ey: e.y });
+        if (l.length > 4) l.shift();
+        spots.set(api.ctx, l);
+      }
       if (w.sub === 'arm_f_swamp') return slam(api, e, w);
       if (w.sub === 'arm_acid') return carpet(api, e, w);
       return brood(api, e, w);
@@ -1546,11 +1560,19 @@
       // 초점: 들어올 때 맞고, 나갈 때 다시 흐려진다
       const foc = Math.max(1 - ease(clamp((age - 0.16) / 0.4, 0, 1)), outK);
       c.globalAlpha = 1 - outK;
-      // 지시선: 표본 점 → 상자 왼쪽 아래 모서리
-      const dx = x - 6;
-      const dy = y + 44;
-      const ex = bx + 14;
-      const ey = by + bh;
+      // 지시선: 표본 점(반응한 적) → 그쪽 상자 모서리. 기록이 없으면 아래로 짧게
+      const sp = spotFor(c, x);
+      let dx = x - 6;
+      let dy = y + 44;
+      let ex = bx + 14;
+      let ey = by + bh;
+      if (sp) {
+        const below = sp.ey > y;
+        dx = sp.ex;
+        dy = sp.ey + (below ? -15 : 15);
+        ex = sp.ex < x ? bx : bx + bw;
+        ey = below ? by + bh : by;
+      }
       const lp = p1 * (1 - outK);
       c.strokeStyle = LIME;
       c.lineWidth = 1.1;

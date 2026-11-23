@@ -759,7 +759,7 @@
     const x0 = e.x;
     const y0 = e.y;
     // 혼을 모으는 자리는 족자 반대쪽 위
-    const side = -labelSide(clamp(x0, 104, W - 104));
+    const side = -labelSide(clamp(x0, 112, W - 112));
     const P = { x: clamp(x0 + side * 72, 26, W - 26), y: clamp(y0 - 80, 74, 380) };
     const ang = Math.atan2(y0 - P.y, x0 - P.x);
     const ux = Math.cos(ang);
@@ -1218,25 +1218,28 @@
       const h = e.hist;
       // 광선: 빔을 감아 도는 한지색 붓 실
       if (e.x1 != null && e.x2 != null) {
-        const a = clamp(1 - e.age / (e.life || 0.35), 0, 1);
+        const a = Math.sqrt(clamp(1 - e.age / (e.life || 0.35), 0, 1));
         const dx = e.x2 - e.x1;
         const dy = e.y2 - e.y1;
         const len = Math.hypot(dx, dy) || 1;
         const ux = dx / len;
         const uy = dy / len;
-        const reach = Math.min(len, Math.hypot(e.x - e.x1, e.y - e.y1) + 24);
-        c.strokeStyle = pa(0.85 * a);
-        c.lineWidth = 1.7;
+        const reach = Math.min(len, Math.hypot(e.x - e.x1, e.y - e.y1) + 40);
+        // 빔을 감아 오르는 한지색 붓 실 두 가닥
         c.lineCap = 'round';
-        c.beginPath();
-        for (let j = 0; j <= 24; j++) {
-          const k = j / 24;
-          const off = Math.sin(k * 16 - t * 18 + s) * 4.5 * Math.sin(Math.PI * k);
-          const px = e.x1 + ux * reach * k - uy * off;
-          const py = e.y1 + uy * reach * k + ux * off;
-          j ? c.lineTo(px, py) : c.moveTo(px, py);
+        for (let strand = 0; strand < 2; strand++) {
+          c.strokeStyle = pa((strand ? 0.55 : 0.9) * a);
+          c.lineWidth = strand ? 1.3 : 2.3;
+          c.beginPath();
+          for (let j = 0; j <= 28; j++) {
+            const k = j / 28;
+            const off = Math.sin(k * 16 - t * 18 + s + strand * Math.PI) * 5.5 * Math.sin(Math.PI * k);
+            const px = e.x1 + ux * reach * k - uy * off;
+            const py = e.y1 + uy * reach * k + ux * off;
+            j ? c.lineTo(px, py) : c.moveTo(px, py);
+          }
+          c.stroke();
         }
-        c.stroke();
         c.fillStyle = ga(a);
         for (let j = 1; j <= 4; j++) {
           const k = j / 5;
@@ -1382,10 +1385,11 @@
       const h1 = A.length * step + 24;
       const h2 = B ? B.length * step + 20 : 0;
       const tw = B ? w1 + gap + w2 : w1;
-      // 족자는 반응 자리 옆에 건다 (가운데에 걸면 반응 그림을 가린다): 판 왼쪽이면 오른쪽에, 오른쪽이면 왼쪽에
-      const cx = clamp(x + labelSide(x) * 62, tw / 2 + 8, W - tw / 2 - 8);
+      // 족자는 세로로 길어서, 공통이 정한 자리(적 위·아래)에서 조금 옆으로 비켜 건다: 판 왼쪽이면 오른쪽, 오른쪽이면 왼쪽
+      const cx = clamp(x + labelSide(x) * 44, tw / 2 + 8, W - tw / 2 - 8);
       const x1 = cx - tw / 2;
       let top = y - h1 / 2;
+      if (top + h1 > 438) top = 438 - h1;
       if (top < 94) top = 94;
       const out = clamp((life - age) / 0.32, 0, 1);
       c.globalAlpha = Math.min(1, out * 1.6);
@@ -1428,7 +1432,7 @@
     },
   });
 
-  /** 반응 이름 족자를 거는 쪽 (+1 오른쪽, -1 왼쪽). label 의 x 는 runtime 이 104..256 으로 죈 반응 자리 */
+  /** 반응 이름 족자를 거는 쪽 (+1 오른쪽, -1 왼쪽). label 의 x 는 runtime 이 112..248 로 죈 반응 자리 */
   function labelSide(x) {
     return x < W / 2 ? 1 : -1;
   }
