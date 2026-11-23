@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--PAGE-->
+<title>균열 크로스오버 연출</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=Noto+Sans+KR:wght@400;500;700;900&family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Black+Han+Sans&family=East+Sea+Dokdo&family=Nanum+Brush+Script&family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans+KR:wght@500;700&family=Oswald:wght@500;700&family=Gothic+A1:wght@700;900&display=swap">
+<style>
+/* 한 세계로 정한 어두운 쪽 (균열 허공). 카드마다 실제로 도는 캔버스 + 설명, 위에 목차·속도 */
+:root {
+  --void: #0B0816; --panel: #150D28; --panel2: #1D1236; --line: rgba(233,196,106,0.28);
+  --gold: #E9C46A; --fg: #F1ECFF; --muted: #B7ACD8; --magenta: #FF3FA4; --cyan: #38E1FF;
+  --display: "Orbit", "Noto Sans KR", system-ui, sans-serif;
+  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --num: "Cinzel", "Orbit", serif;
+  color-scheme: dark;
+}
+body { background: var(--void); color: var(--fg); font: 15px/1.6 var(--body); margin: 0 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--void) }
+main { max-width: 1180px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.eyebrow { font: 700 12px/1.4 var(--body); letter-spacing: 0.12em; color: var(--gold); margin: 0 0 6px }
+h1 { font: 400 clamp(30px, 6vw, 46px)/1.15 var(--display); margin: 0 0 10px; text-wrap: balance; letter-spacing: 0.01em }
+h1 .rift { color: var(--magenta); text-shadow: 0 0 18px rgba(255,63,164,0.55) }
+h2 { font: 400 24px/1.25 var(--display); margin: 44px 0 6px; text-wrap: balance; scroll-margin-top: 64px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap }
+h2 small { font: 500 13px/1.4 var(--body); color: var(--muted) }
+.lead { color: var(--muted); margin: 0 0 14px; max-width: 72ch; font-size: 14.5px }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 10px; margin: 16px 0 4px }
+.rule { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; min-width: 0 }
+.rule b { display: block; color: var(--gold); font-size: 12px; letter-spacing: 0.06em; margin-bottom: 2px }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(11,8,22,0.94); backdrop-filter: blur(6px); display: flex; gap: 8px 18px; flex-wrap: wrap; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); margin-top: 18px }
+.top nav { display: flex; gap: 6px 16px; flex-wrap: wrap }
+.top a { color: var(--fg); text-decoration: none; font-weight: 700; font-size: 14px }
+.top a:hover, .top a:focus-visible { color: var(--gold) }
+#speed { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; font-size: 13px; color: var(--muted) }
+button, select { font: inherit; color: var(--fg) }
+#speed button { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 3px 10px; cursor: pointer; font-family: var(--num); font-weight: 700 }
+#speed button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold) }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; margin-top: 14px }
+.card { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line); border-radius: 14px; padding: 12px; min-width: 0; display: flex; flex-direction: column; gap: 10px }
+.card.wide { max-width: 440px }
+.card canvas { display: block; width: 100%; aspect-ratio: 2 / 3; max-width: 100%; border-radius: 10px; background: #0B0816 }
+.card h3 { font: 700 17px/1.3 var(--body); margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; box-shadow: 0 0 8px currentColor }
+.tags { display: flex; flex-wrap: wrap; gap: 6px }
+.tag { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; color: var(--fg); background: rgba(255,255,255,0.03); white-space: nowrap }
+.tag.main { border-color: rgba(233,196,106,0.7) }
+.tag.sub { border-style: dashed }
+.react { font: 700 13px/1.4 var(--body); color: var(--gold) }
+.card p { margin: 0; font-size: 13.5px; color: var(--muted) }
+.mixbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin: 12px 0 }
+.mixbar label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0 }
+.mixbar select { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; max-width: 100% }
+.mixout { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 18px; align-items: start }
+.mixinfo { display: flex; flex-direction: column; gap: 10px; font-size: 14px }
+.mixinfo .big { font: 700 22px/1.3 var(--body) }
+.warn { color: #FFB4C6; font-size: 13px }
+.foot { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; font-size: 13.5px; color: var(--muted) }
+.foot b { color: var(--fg) }
+@media (max-width: 720px) { .mixout { grid-template-columns: minmax(0, 1fr) } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto } }
+</style>
+<!--/PAGE-->
+</head>
+<body>
+<!--BODY-->
+<main id="app">
+  <p class="eyebrow">연쇄 폭발 · 연출 미리보기 · 11-23</p>
+  <h1><span class="rift">균열</span> 크로스오버</h1>
+  <p class="lead">하늘이 갈라져 여러 세계의 무기가 떨어진다. 판·적·연쇄 폭발·숫자는 하나의 균열 말투로 두고, 무기만 제 세계의 그림체로 싸운다. 아래 화면은 모두 실제로 돌아가는 연출이다 (그림 파일 없이 코드로 그림).</p>
+  <div class="rules">
+    <div class="rule"><b>공통 (균열 틀)</b>적 · 연쇄 폭발(흰 섬광 + 금 빛줄) · 피해 숫자 · 봉인선 · 유물함 틀</div>
+    <div class="rule"><b>세계마다</b>유물함 안 재질 · 문장 · 무기 그림 · 공격 모양 · 맞는 무늬 · 반응 글씨</div>
+    <div class="rule"><b>합성 = 메인 + 보조</b>몸·쏘는 법은 메인 세계, 궤적 층·맞는 무늬·반응 연출·반응 글씨는 보조 세계</div>
+  </div>
+  <div class="top">
+    <nav aria-label="목차"><a href="#board">한 판</a><a href="#worlds">세계 여섯</a><a href="#fuse">합성</a><a href="#mix">섞어 보기</a></nav>
+    <div id="speed" role="group" aria-label="속도">속도 <button type="button" data-s="1" aria-pressed="true">1×</button><button type="button" data-s="0.5" aria-pressed="false">0.5×</button><button type="button" data-s="0.25" aria-pressed="false">0.25×</button></div>
+  </div>
+
+  <h2 id="board">한 판 <small>여섯 세계 무기 여덟이 한꺼번에</small></h2>
+  <p class="lead">세계가 섞여도 적·연쇄·숫자가 한 말투라 판이 시끄럽지 않은지 보는 화면. 군견 지뢰밭은 강철 지뢰밭(메인)에 관제 군견(보조)을 넣은 합친 무기.</p>
+  <div id="boardSlot"></div>
+
+  <h2 id="worlds">세계 여섯 <small>세계마다 무기 셋: 한 무기씩 → 셋 함께</small></h2>
+  <p class="lead">같은 세계 안에서도 갈래(싸우는 법)는 다르다. 세계가 정하는 건 그림체와 맞는 맛.</p>
+  <div class="grid" id="worldGrid"></div>
+
+  <h2 id="fuse">합성 <small>메인만 → 합친 뒤</small></h2>
+  <p class="lead">카드마다 메인 무기 혼자 쏘다가, 보조 무기가 유물함에 박히면 같은 몸에 보조 세계의 궤적·맞는 무늬·반응이 얹힌다. 반응 이름은 보조 세계 글씨.</p>
+  <div class="grid" id="fuseGrid"></div>
+
+  <h2 id="mix">섞어 보기 <small>무기 18개 중 아무 둘</small></h2>
+  <div class="mixbar">
+    <label for="mixMain">메인 (몸)<select id="mixMain"></select></label>
+    <label for="mixSub">보조 (연출)<select id="mixSub"></select></label>
+  </div>
+  <div class="mixout">
+    <div class="card" id="mixCard"><canvas id="mixCanvas" aria-label="섞어 본 합성 연출"></canvas></div>
+    <div class="mixinfo" id="mixInfo"></div>
+  </div>
+
+  <div class="foot">
+    <div><b>그림 부담</b><br>세계마다 한 벌: 유물함 재질 · 문장 · 공격 모양 · 맞는 무늬 · 반응 글씨. 무기마다는 아이콘 하나. 합성 그림은 따로 그리지 않고 두 세계의 한 벌을 겹쳐 나온다.</div>
+    <div><b>이 쪽의 무기</b><br>실제 게임 무기 18개 (세계마다 셋). 합친 이름·반응 이름은 게임의 합성 규칙 그대로.</div>
+    <div><b>정해야 할 것</b><br>세계 수 (여섯 · 여덟), 세계 시너지를 걸지, 세계마다 그림 말투를 어디까지 밀지.</div>
+  </div>
+</main>
+<!--/BODY-->
+/*__SCRIPTS__*/
+</body>
+</html>
