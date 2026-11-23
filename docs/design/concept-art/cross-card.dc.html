@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>크로스오버 레벨 업</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Cinzel:wght@600;800;900&amp;family=East+Sea+Dokdo&amp;family=Noto+Sans+KR:wght@400;500;700;900&amp;family=Orbit&amp;family=Share+Tech+Mono&amp;display=swap">
+<style>
+body{margin:0}
+.xo{font-family:'Orbit','Noto Sans KR',sans-serif;font-weight:400}
+.xc{font-family:'Cinzel','Noto Sans KR',serif}
+.xm{font-family:'Share Tech Mono','Noto Sans KR',monospace}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0B0816; font-family: 'Noto Sans KR', sans-serif">
+
+<!-- ============ 뒤: 흐릿한 판 + 어둠 + 위의 균열 ============ -->
+<svg aria-hidden="true" width="390" height="844" viewBox="0 0 390 844" style="position: absolute; left: 0; top: 0">
+<defs>
+<radialGradient id="k-neb-a" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#3D1B73" stop-opacity="0.85"/><stop offset="0.6" stop-color="#2A1450" stop-opacity="0.4"/><stop offset="1" stop-color="#2A1450" stop-opacity="0"/></radialGradient>
+<radialGradient id="k-neb-m" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#8A1C6C" stop-opacity="0.65"/><stop offset="1" stop-color="#4A0F44" stop-opacity="0"/></radialGradient>
+<linearGradient id="k-rift" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF3FA4"/><stop offset="0.5" stop-color="#FFD6EC"/><stop offset="1" stop-color="#FF3FA4"/></linearGradient>
+<linearGradient id="k-beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE3F2" stop-opacity="0.5"/><stop offset="1" stop-color="#FF3FA4" stop-opacity="0"/></linearGradient>
+<radialGradient id="k-core" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFF0F8"/><stop offset="0.3" stop-color="#FF7CC4"/><stop offset="0.6" stop-color="#FF3FA4" stop-opacity="0.7"/><stop offset="1" stop-color="#FF3FA4" stop-opacity="0"/></radialGradient>
+<radialGradient id="k-burst" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.3" stop-color="#FFF0C2" stop-opacity="0.8"/><stop offset="1" stop-color="#E9C46A" stop-opacity="0"/></radialGradient>
+<linearGradient id="k-crys" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4E2F8F"/><stop offset="0.5" stop-color="#21113F"/><stop offset="1" stop-color="#0D0620"/></linearGradient>
+<filter id="k-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="k-soft" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="8"/></filter>
+<filter id="k-blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3.2"/></filter>
+<g id="k-en">
+<circle r="20" fill="url(#k-core)" opacity="0.32"/>
+<path d="M-10,-6 L-19,-12 L-13,-1 Z M10,-6 L19,-12 L13,-1 Z M-9,7 L-16,15 L-6,11 Z M9,7 L16,15 L6,11 Z" fill="#2E1A5C" stroke="#A47FEA" stroke-width="0.7" stroke-linejoin="round"/>
+<path d="M0,-17 L11,-7 L10,8 L0,18 L-10,8 L-11,-7 Z" fill="url(#k-crys)" stroke="#C3A0FF" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M0,-17 L-11,-7 L-3,-1 Z" fill="#A98AEF" opacity="0.55"/>
+<path d="M0,-17 L3,-2 L11,-7 Z" fill="#6A47B8" opacity="0.6"/>
+<circle cy="4" r="8" fill="url(#k-core)" opacity="0.8"/>
+<path d="M-4,4 L0,-3 L4,4 L0,11 Z" fill="#FF3FA4"/>
+<path d="M-1.6,4 L0,1 L1.6,4 L0,7 Z" fill="#FFE6F3"/>
+<path d="M-6.5,-6 L-2.5,-4.5 M6.5,-6 L2.5,-4.5" stroke="#FF9ED2" stroke-width="1.5" stroke-linecap="round"/>
+</g>
+</defs>
+<rect x="0" y="0" width="390" height="844" fill="#0B0816"/>
+<ellipse cx="80" cy="300" rx="240" ry="220" fill="url(#k-neb-a)"/>
+<ellipse cx="320" cy="560" rx="230" ry="210" fill="url(#k-neb-a)"/>
+<ellipse cx="196" cy="30" rx="260" ry="110" fill="url(#k-neb-m)"/>
+
+<!-- 흐릿한 판 (적 · 연쇄 · 유물함 줄) -->
+<g filter="url(#k-blur)" opacity="0.75">
+<use href="#k-en" transform="translate(52,200) scale(0.9)"/>
+<use href="#k-en" transform="translate(330,180) scale(0.8)"/>
+<use href="#k-en" transform="translate(120,330) scale(0.8)"/>
+<use href="#k-en" transform="translate(288,300) scale(1)"/>
+<use href="#k-en" transform="translate(360,420) scale(0.8)"/>
+<use href="#k-en" transform="translate(40,520) scale(0.85)"/>
+<use href="#k-en" transform="translate(210,610) scale(0.9)"/>
+<use href="#k-en" transform="translate(340,640) scale(0.8)"/>
+<circle cx="200" cy="420" r="60" fill="url(#k-burst)"/>
+<circle cx="110" cy="460" r="40" fill="url(#k-burst)"/>
+<circle cx="300" cy="470" r="44" fill="url(#k-burst)"/>
+<path d="M110,460 L160,440 L200,420 L250,446 L300,470" fill="none" stroke="#F6DC92" stroke-width="3"/>
+<path d="M30,628 L60,602 L92,640" fill="none" stroke="#6CFFA0" stroke-width="2"/>
+<rect x="0" y="704" width="390" height="140" fill="#0E0820"/>
+<line x1="0" y1="700" x2="390" y2="700" stroke="#FFFFFF" stroke-width="2"/>
+<g fill="#1E1436" stroke="#E9C46A" stroke-width="1.2">
+<rect x="9.5" y="712" width="42" height="52" rx="4"/><rect x="56.5" y="712" width="42" height="52" rx="4"/><rect x="103.5" y="712" width="42" height="52" rx="4"/><rect x="150.5" y="712" width="42" height="52" rx="4"/>
+<rect x="197.5" y="712" width="42" height="52" rx="4"/><rect x="244.5" y="712" width="42" height="52" rx="4"/><rect x="291.5" y="712" width="42" height="52" rx="4"/><rect x="338.5" y="712" width="42" height="52" rx="4"/>
+</g>
+<rect x="197.5" y="712" width="42" height="52" rx="4" fill="#ECE4D3" opacity="0.6"/>
+<rect x="244.5" y="712" width="42" height="52" rx="4" fill="#EFE6D2" opacity="0.6"/>
+<rect x="9.5" y="712" width="42" height="52" rx="4" fill="#14301F"/>
+</g>
+<rect x="0" y="0" width="390" height="844" fill="#06040E" opacity="0.72"/>
+
+<!-- 위: 열린 균열에서 무기가 떨어진다 -->
+<ellipse cx="196" cy="26" rx="210" ry="30" fill="#FF3FA4" opacity="0.35" filter="url(#k-soft)"/>
+<path d="M20,28 L60,22 L96,16 L130,20 L160,10 L196,4 L230,12 L262,8 L298,18 L336,20 L372,26 L336,32 L300,36 L262,42 L228,38 L196,46 L162,38 L128,40 L94,36 L58,34 Z" fill="#6E1252" stroke="#FF3FA4" stroke-width="1.2" stroke-linejoin="round" filter="url(#k-glow)"/>
+<path d="M56,27 L110,22 L160,18 L196,14 L236,19 L290,23 L340,27 L290,30 L236,33 L196,37 L156,33 L110,31 Z" fill="url(#k-rift)" filter="url(#k-glow)"/>
+<path d="M100,26 L196,21 L300,26 L196,30 Z" fill="#FFFFFF" opacity="0.9"/>
+<path d="M112,32 L60,150 L84,150 Z" fill="url(#k-beam)" opacity="0.55"/>
+<path d="M280,32 L310,150 L334,150 Z" fill="url(#k-beam)" opacity="0.55"/>
+<g>
+<path d="M122,40 L117,60 L119.6,60.4 Z" fill="#C9A24D" opacity="0.8"/>
+<path d="M117,58 L120,62.5 L117,67 L114,62.5 Z" fill="#FFF3C0" filter="url(#k-glow)"/>
+<path d="M268,42 L274,60 L271.6,60.6 Z" fill="#ECE4D3" opacity="0.8"/>
+<path d="M273,58 L276,62.5 L273,67 L270,62.5 Z" fill="#FFE6E0" filter="url(#k-glow)"/>
+</g>
+</svg>
+
+<!-- ============ 제목 (공통) ============ -->
+<div class="xc" style="position: absolute; left: 0; top: 54px; width: 390px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.42em; color: #E9C46A; line-height: 14px">LEVEL · IX</div>
+<div class="xo" style="position: absolute; left: 0; top: 68px; width: 390px; text-align: center; font-size: 40px; line-height: 48px; color: #FBF6FF; letter-spacing: 0.04em; text-shadow: 0 0 2px #FF3FA4, 0 0 18px rgba(255,63,164,0.7), 0 3px 0 #4A0E36">레벨 업</div>
+<svg aria-hidden="true" width="390" height="10" viewBox="0 0 390 10" style="position: absolute; left: 0; top: 117px">
+  <defs>
+    <linearGradient id="tt-l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E9C46A" stop-opacity="0"/><stop offset="1" stop-color="#E9C46A"/></linearGradient>
+    <linearGradient id="tt-r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E9C46A"/><stop offset="1" stop-color="#E9C46A" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect x="96" y="4.5" width="88" height="1" fill="url(#tt-l)"/>
+  <rect x="206" y="4.5" width="88" height="1" fill="url(#tt-r)"/>
+  <path d="M195,0.5 L199.5,5 L195,9.5 L190.5,5 Z" fill="#FF3FA4" stroke="#E9C46A" stroke-width="0.8"/>
+</svg>
+<div style="position: absolute; left: 0; top: 129px; width: 390px; text-align: center; font-size: 12.5px; font-weight: 500; color: #D4CAEE; line-height: 16px">여러 세계에서 떨어진 무기 하나를 고른다</div>
+
+<!-- ============ 카드 1: 합성 크로스오버 (메인 강철 + 보조 수묵) ============ -->
+<div style="position: absolute; left: 18px; top: 154px; width: 354px; height: 380px">
+  <svg aria-hidden="true" width="374" height="400" viewBox="0 0 374 400" style="position: absolute; left: -10px; top: -10px">
+    <defs>
+      <radialGradient id="cf-bg" cx="50%" cy="24%" r="78%"><stop offset="0" stop-color="#3E1E70"/><stop offset="0.45" stop-color="#22103F"/><stop offset="1" stop-color="#120926"/></radialGradient>
+      <linearGradient id="cf-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0C2"/><stop offset="0.4" stop-color="#E9C46A"/><stop offset="0.7" stop-color="#B8903E"/><stop offset="1" stop-color="#F3D98C"/></linearGradient>
+      <filter id="cf-glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="6"/></filter>
+    </defs>
+    <path d="M24,10 L350,10 L364,24 L364,376 L350,390 L24,390 L10,376 L10,24 Z" fill="#FF3FA4" opacity="0.45" filter="url(#cf-glow)"/>
+    <path d="M24,10 L350,10 L364,24 L364,376 L350,390 L24,390 L10,376 L10,24 Z" fill="url(#cf-bg)" stroke="url(#cf-gold)" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M27,15 L347,15 L359,27 L359,373 L347,385 L27,385 L15,373 L15,27 Z" fill="none" stroke="#E9C46A" stroke-width="0.6" opacity="0.5"/>
+    <g fill="#E9C46A">
+      <path d="M22,19 L25,22 L22,25 L19,22 Z"/><path d="M352,19 L355,22 L352,25 L349,22 Z"/>
+      <path d="M352,375 L355,378 L352,381 L349,378 Z"/><path d="M22,375 L25,378 L22,381 L19,378 Z"/>
+    </g>
+    <path d="M10,194 L15,200 L10,206 L5,200 Z M364,194 L369,200 L364,206 L359,200 Z" fill="#FF3FA4" stroke="#E9C46A" stroke-width="0.8"/>
+    <path d="M187,3 L194,10 L187,17 L180,10 Z" fill="#FF3FA4" stroke="#FFF0C2" stroke-width="0.9"/>
+  </svg>
+
+  <div class="xo" style="position: absolute; left: 16px; top: 13px; padding: 2px 12px 2px 9px; background: #E9C46A; color: #1A0E2E; font-size: 12px; line-height: 16px; letter-spacing: 0.04em; clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%)">합성 · 크로스오버</div>
+  <div class="xc" style="position: absolute; right: 16px; top: 15px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.28em; color: #D9C4FF; line-height: 14px">CROSSOVER</div>
+
+  <!-- 그림 칸: 메인 대포(강철 공방) 2/3 + 보조 불여우(수묵 요괴) 1/3, 사선으로 나뉨 -->
+  <svg aria-hidden="true" width="322" height="150" viewBox="0 0 322 150" style="position: absolute; left: 16px; top: 38px">
+    <defs>
+      <clipPath id="p-clip"><path d="M8,0.5 L314,0.5 L321.5,8 L321.5,142 L314,149.5 L8,149.5 L0.5,142 L0.5,8 Z"/></clipPath>
+      <clipPath id="p-sub"><path d="M232,0 L322,0 L322,150 L200,150 Z"/></clipPath>
+      <linearGradient id="p-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5E626A"/><stop offset="0.5" stop-color="#383B41"/><stop offset="1" stop-color="#1F2125"/></linearGradient>
+      <pattern id="p-brush" width="322" height="3" patternUnits="userSpaceOnUse"><path d="M0,1.5 L322,1.5" stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="0.6"/></pattern>
+      <linearGradient id="p-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1DA97"/><stop offset="0.5" stop-color="#C9A24D"/><stop offset="1" stop-color="#7A5E22"/></linearGradient>
+      <linearGradient id="p-bronzeY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A2E12"/><stop offset="0.28" stop-color="#B07A3A"/><stop offset="0.42" stop-color="#F3CB86"/><stop offset="0.7" stop-color="#8A5A26"/><stop offset="1" stop-color="#3A220C"/></linearGradient>
+      <linearGradient id="p-steelY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9AA0A9"/><stop offset="0.5" stop-color="#4A4E55"/><stop offset="1" stop-color="#202226"/></linearGradient>
+      <radialGradient id="p-hot" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFFBE6"/><stop offset="0.35" stop-color="#FFC266"/><stop offset="0.7" stop-color="#FF6A13" stop-opacity="0.6"/><stop offset="1" stop-color="#FF6A13" stop-opacity="0"/></radialGradient>
+      <filter id="p-paper" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.31  0 0 0 0 0.24  1.05 0 0 0 -0.47"/></filter>
+      <filter id="p-wash" x="-10%" y="-20%" width="120%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="13" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="10" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="1.4"/></filter>
+      <filter id="p-dry" x="-20%" y="-40%" width="140%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.75" numOctaves="2" seed="2" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+      <filter id="p-seal" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="11" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="1" seed="5" result="t2"/><feDisplacementMap in="c" in2="t2" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+      <filter id="p-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <g id="p-fox">
+        <path d="M-8,3 C-16,6 -24,4 -30,-4 C-24,-1 -18,-1 -12,-2 Z" fill="#ECE4D3" stroke="#B8913A" stroke-width="0.8"/>
+        <path d="M-9,3 C-14,4 -19,2 -22,-2 C-18,-0.5 -15,-0.5 -11,-1 Z" fill="#C8372D"/>
+        <path d="M-8,5 C-17,11 -25,12 -31,7 C-25,7 -19,6 -12,2 Z" fill="#ECE4D3" stroke="#B8913A" stroke-width="0.8"/>
+        <path d="M-9,5 C-15,8 -20,9 -24,7 C-19,6.5 -15,5 -11,3 Z" fill="#C8372D"/>
+        <path d="M-9,1 C-14,-5 -15,-12 -11,-17 C-11,-11 -9,-6 -6,-2 Z" fill="#ECE4D3" stroke="#B8913A" stroke-width="0.8"/>
+        <path d="M-9,0 C-12,-4 -12.5,-8 -10.5,-12 C-10,-8 -8.6,-5 -7,-2.4 Z" fill="#C8372D"/>
+        <path d="M-9,3 C-6,-1 -1,-3 4,-3 L7,-7 L8,-12 L10,-8 L12.5,-11 L12.6,-6 C14.5,-5 16.5,-3.5 18,-1.6 L14,-0.6 C12.6,0.6 11,2 9.4,2.6 L12,8 L9.8,8.6 L6.4,3.8 C3,4.6 -1,5 -4,4.6 L-7.4,9.4 L-9.6,9 L-7.6,4.4 C-8.4,4.2 -8.8,3.6 -9,3 Z" fill="#1A1A1A" stroke="#ECE4D3" stroke-width="1" stroke-linejoin="round"/>
+        <path d="M8,-11.2 L10,-8 L12.4,-10.4" fill="none" stroke="#B8913A" stroke-width="0.7"/>
+        <circle cx="11.6" cy="-4.4" r="0.9" fill="#FFE3A0"/>
+        <path d="M8.6,-5.4 L10.6,-2" stroke="#C8372D" stroke-width="1" stroke-linecap="round"/>
+      </g>
+    </defs>
+    <g clip-path="url(#p-clip)">
+      <!-- 메인 재질: 리벳 강판 -->
+      <rect width="322" height="150" fill="url(#p-plate)"/>
+      <rect width="322" height="150" fill="url(#p-brush)"/>
+      <path d="M0,50 L232,50 M0,100 L212,100" stroke="#17181B" stroke-width="1"/>
+      <path d="M0,51 L232,51 M0,101 L212,101" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="0.6"/>
+      <path d="M80,0 L80,150 M160,0 L160,150" stroke="#17181B" stroke-width="1" opacity="0.6"/>
+      <g fill="#A9A49A">
+        <circle cx="74" cy="6" r="1.4"/><circle cx="86" cy="6" r="1.4"/><circle cx="154" cy="6" r="1.4"/><circle cx="166" cy="6" r="1.4"/>
+        <circle cx="74" cy="56" r="1.4"/><circle cx="86" cy="56" r="1.4"/><circle cx="154" cy="56" r="1.4"/><circle cx="166" cy="56" r="1.4"/>
+        <circle cx="74" cy="106" r="1.4"/><circle cx="86" cy="106" r="1.4"/><circle cx="154" cy="106" r="1.4"/>
+      </g>
+      <!-- 보조 재질: 한지 + 먹 산수 -->
+      <g clip-path="url(#p-sub)">
+        <rect width="322" height="150" fill="#ECE4D3"/>
+        <rect width="322" height="150" fill="#000000" filter="url(#p-paper)" opacity="0.9"/>
+        <path d="M200,150 L214,118 L232,128 L252,96 L270,114 L290,90 L322,112 L322,150 Z" fill="#7A746A" opacity="0.28" filter="url(#p-wash)"/>
+        <path d="M200,150 L224,132 L244,140 L268,122 L300,136 L322,128 L322,150 Z" fill="#4A463F" opacity="0.3" filter="url(#p-wash)"/>
+        <g fill="#B8913A" opacity="0.8"><path d="M300,20 l4,-1 l-1,3.6 z"/><path d="M252,12 l3,0.6 l-2.2,2.4 z"/><path d="M314,60 l3,1 l-2.4,2 z"/></g>
+      </g>
+      <!-- 사선 이음매 -->
+      <path d="M200,150 L232,0" stroke="#E9C46A" stroke-width="2.4"/>
+      <path d="M200,150 L232,0" stroke="#FFF6DA" stroke-width="0.9"/>
+
+      <!-- 바닥 그림자 -->
+      <ellipse cx="112" cy="138" rx="78" ry="7" fill="#0B0C0E" opacity="0.55"/>
+      <!-- 포가 -->
+      <path d="M46,140 L60,134 L130,100 L142,106 L84,142 Z" fill="url(#p-steelY)" stroke="#0B0C0E" stroke-width="0.9" stroke-linejoin="round"/>
+      <g fill="#D6DADF"><circle cx="66" cy="134" r="0.9"/><circle cx="84" cy="126" r="0.9"/><circle cx="102" cy="117" r="0.9"/><circle cx="120" cy="108" r="0.9"/></g>
+
+      <!-- 포신 (강철 공방: 청동 + 놋쇠 띠 + 리벳) · 그 위에 붓불 여우 (수묵 요괴) -->
+      <g transform="translate(118,96) rotate(-22)">
+        <!-- 여우 꼬리가 포신 뒤를 감는다 -->
+        <path d="M2,-12 C-6,-2 -4,12 8,15" fill="none" stroke="#1A1A1A" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+        <path d="M2,-12 C-6,-2 -4,12 8,15" fill="none" stroke="#ECE4D3" stroke-width="4.2" stroke-linecap="round" filter="url(#p-dry)"/>
+        <circle cx="-56" cy="0" r="4.6" fill="url(#p-bronzeY)" stroke="#2A1A08" stroke-width="0.8"/>
+        <rect x="-54" y="-2.4" width="6" height="4.8" fill="#6B4520"/>
+        <path d="M-40,-13 L60,-9.5 L74,-9 L76,-11.5 L84,-11.5 L84,11.5 L76,11.5 L74,9 L60,9.5 L-40,13 C-46,13 -50,8 -50,0 C-50,-8 -46,-13 -40,-13 Z" fill="url(#p-bronzeY)" stroke="#2A1A08" stroke-width="1" stroke-linejoin="round"/>
+        <g fill="url(#p-brass)" stroke="#3A2A0A" stroke-width="0.7">
+          <rect x="-32" y="-14" width="6" height="28"/>
+          <rect x="-6" y="-12.6" width="5" height="25.2"/>
+          <rect x="28" y="-11.2" width="5" height="22.4"/>
+          <rect x="56" y="-10.6" width="5" height="21.2"/>
+        </g>
+        <g fill="#3A2A0A"><circle cx="-29" cy="-9" r="0.9"/><circle cx="-29" cy="0" r="0.9"/><circle cx="-29" cy="9" r="0.9"/><circle cx="-3.5" cy="-8" r="0.8"/><circle cx="-3.5" cy="8" r="0.8"/><circle cx="30.5" cy="-7" r="0.8"/><circle cx="30.5" cy="7" r="0.8"/></g>
+        <path d="M-40,-8 L74,-5.6" stroke="#FFF1CC" stroke-width="1" opacity="0.55"/>
+        <ellipse cx="84" cy="0" rx="3" ry="11.5" fill="#3A220C" stroke="#2A1A08" stroke-width="0.8"/>
+        <ellipse cx="84.6" cy="0" rx="1.8" ry="7.4" fill="#0B0705"/>
+        <ellipse cx="84.6" cy="0" rx="1" ry="4.2" fill="#FF6A13" opacity="0.85"/>
+        <circle cx="-6" cy="6" r="5.4" fill="url(#p-brass)" stroke="#3A2A0A" stroke-width="0.8"/>
+        <circle cx="-6" cy="6" r="1.6" fill="#2B2E33"/>
+        <!-- 앞으로 감기는 붓불 꼬리 -->
+        <path d="M10,-14 C20,-2 22,9 34,14" fill="none" stroke="#1A1A1A" stroke-width="7.5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M10,-14 C20,-2 22,9 34,14" fill="none" stroke="#ECE4D3" stroke-width="4.8" stroke-linecap="round" filter="url(#p-dry)"/>
+        <path d="M12,-11 C20,-1 23,7 31,11" fill="none" stroke="#C8372D" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M34,14 L38,16.4" stroke="#B8913A" stroke-width="1.4" stroke-linecap="round"/>
+        <!-- 여우 몸: 포신 위에 엎드려 포구를 노린다 -->
+        <use href="#p-fox" transform="translate(42,-23) scale(1.45)"/>
+      </g>
+      <!-- 바퀴 -->
+      <g transform="translate(108,118)">
+        <circle r="21" fill="none" stroke="#141518" stroke-width="7"/>
+        <circle r="21" fill="none" stroke="#8E949C" stroke-width="3.4"/>
+        <circle r="21" fill="none" stroke="#D6DADF" stroke-width="0.6" stroke-dasharray="2 6" opacity="0.7"/>
+        <g stroke="#4A3A2A" stroke-width="2.6" stroke-linecap="round">
+          <path d="M0,-5 L0,-18"/><path d="M0,-5 L0,-18" transform="rotate(36)"/><path d="M0,-5 L0,-18" transform="rotate(72)"/><path d="M0,-5 L0,-18" transform="rotate(108)"/><path d="M0,-5 L0,-18" transform="rotate(144)"/>
+          <path d="M0,-5 L0,-18" transform="rotate(180)"/><path d="M0,-5 L0,-18" transform="rotate(216)"/><path d="M0,-5 L0,-18" transform="rotate(252)"/><path d="M0,-5 L0,-18" transform="rotate(288)"/><path d="M0,-5 L0,-18" transform="rotate(324)"/>
+        </g>
+        <circle r="6" fill="url(#p-brass)" stroke="#3A2A0A" stroke-width="0.8"/>
+        <circle r="2" fill="#2B2E33"/>
+      </g>
+
+      <!-- 포구 섬광 (메인: 쏘는 법은 강철) -->
+      <circle cx="202" cy="61" r="16" fill="url(#p-hot)"/>
+      <g stroke="#FFC266" stroke-width="1.4" stroke-linecap="round">
+        <path d="M206,58 L222,50 M206,63 L220,66 M203,55 L208,42 M200,66 L204,78"/>
+      </g>
+      <g fill="#5B5856" opacity="0.6"><circle cx="196" cy="48" r="7"/><circle cx="188" cy="42" r="5"/><circle cx="198" cy="76" r="5"/></g>
+
+      <!-- 포탄 궤적 (보조: 붓불 꼬리, 한지색 + 먹 가장자리 + 금박) -->
+      <path d="M206,60 Q226,18 252,30" fill="none" stroke="#1A1A1A" stroke-width="11" stroke-linecap="round" opacity="0.85" filter="url(#p-dry)"/>
+      <path d="M206,60 Q226,18 252,30" fill="none" stroke="#ECE4D3" stroke-width="7" stroke-linecap="round" filter="url(#p-dry)"/>
+      <path d="M212,52 Q228,22 248,30" fill="none" stroke="#C8372D" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M216,40 Q228,24 242,26" fill="none" stroke="#B8913A" stroke-width="1" stroke-dasharray="5 4"/>
+      <g fill="none" stroke="#C8372D" stroke-width="1.6" stroke-linecap="round" opacity="0.9">
+        <path d="M222,30 L218,22 M234,24 L234,15 M246,26 L250,18"/>
+      </g>
+      <!-- 포탄이 끌고 가는 붓불 여우 -->
+      <g transform="translate(262,40) rotate(36) scale(1.05)"><use href="#p-fox"/></g>
+      <!-- 포탄 (강철: 쇳덩이 + 달궈진 빛) -->
+      <circle cx="285" cy="60" r="11" fill="url(#p-hot)"/>
+      <circle cx="285" cy="60" r="6.4" fill="#2B2E33" stroke="#0B0C0E" stroke-width="0.9"/>
+      <path d="M281.6,56.6 A4.6,4.6 0 0 1 287.4,55.8" stroke="#FFB067" stroke-width="1.3" fill="none"/>
+      <!-- 맞은 적 (공통 결정 그림자) + 쇳불꽃 + 주홍 낙관 -->
+      <use href="#k-en" transform="translate(298,88) scale(0.95)"/>
+      <g stroke-linecap="round">
+        <path d="M290,70 L280,62 M292,68 L290,54 M294,70 L306,60 M288,74 L274,74" stroke="#FF8A2A" stroke-width="1.5"/>
+        <path d="M290,70 L284,65 M292,68 L291,60" stroke="#FFF3C0" stroke-width="0.8"/>
+      </g>
+      <g fill="#FF6A13" stroke="#2B1608" stroke-width="0.4"><path d="M306,56 L310,54 L309,58 Z"/><path d="M272,68 L276,67 L274,71 Z"/></g>
+      <circle cx="291" cy="70" r="4" fill="#FFF6DA" filter="url(#p-glow)"/>
+      <g transform="translate(305,108) rotate(-9)">
+        <g filter="url(#p-seal)">
+          <rect x="-11" y="-11" width="22" height="22" rx="1.5" fill="#C8372D"/>
+          <rect x="-8.6" y="-8.6" width="17.2" height="17.2" fill="none" stroke="#F3EADB" stroke-width="0.9"/>
+        </g>
+        <text x="0" y="5" text-anchor="middle" font-family="Noto Sans KR, serif" font-weight="700" font-size="13" fill="#F3EADB">狐</text>
+      </g>
+      <!-- 홀린 적이 제 무리로 돌아선다 (붓 화살) -->
+      <path d="M284,100 C272,108 264,112 252,112" fill="none" stroke="#C8372D" stroke-width="2.6" stroke-linecap="round" filter="url(#p-dry)"/>
+      <path d="M258,106 L251,112 L258,117" fill="none" stroke="#C8372D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <use href="#k-en" transform="translate(238,110) scale(0.46)"/>
+
+      <!-- 문장 둘 겹침 (강철 톱니 + 수묵 낙관) -->
+      <g transform="translate(8,8)">
+        <path d="M0,0 L20,0 L20,15.6 L15.6,20 L0,20 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.9"/>
+        <path transform="translate(10,10) scale(1.9)" d="M-0.77,-3.21 L-0.62,-4.36 L0.62,-4.36 L0.77,-3.21 L1.72,-2.81 L2.64,-3.52 L3.52,-2.64 L2.81,-1.72 L3.21,-0.77 L4.36,-0.62 L4.36,0.62 L3.21,0.77 L2.81,1.72 L3.52,2.64 L2.64,3.52 L1.72,2.81 L0.77,3.21 L0.62,4.36 L-0.62,4.36 L-0.77,3.21 L-1.72,2.81 L-2.64,3.52 L-3.52,2.64 L-2.81,1.72 L-3.21,0.77 L-4.36,0.62 L-4.36,-0.62 L-3.21,-0.77 L-2.81,-1.72 L-3.52,-2.64 L-2.64,-3.52 L-1.72,-2.81 Z" fill="#C9A24D"/>
+        <circle cx="10" cy="10" r="2.6" fill="#0B0816"/>
+      </g>
+      <g transform="translate(21,17)">
+        <path d="M0,0 L20,0 L20,15.6 L15.6,20 L0,20 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.9"/>
+        <g transform="translate(10,10) rotate(-6)">
+          <rect x="-6.6" y="-6.6" width="13.2" height="13.2" rx="1" fill="#C8372D"/>
+          <path d="M-3.6,-3.2 L3.6,-3.2 M0,-4.6 L0,4.6 M-3.8,2.6 L3.8,2.6" stroke="#F3EADB" stroke-width="1.2"/>
+        </g>
+      </g>
+    </g>
+    <path d="M8,0.5 L314,0.5 L321.5,8 L321.5,142 L314,149.5 L8,149.5 L0.5,142 L0.5,8 Z" fill="none" stroke="#E9C46A" stroke-width="1.3" stroke-linejoin="round"/>
+  </svg>
+  <!-- 그림 칸 꼬리표: 몸 / 연출 -->
+  <div style="position: absolute; left: 24px; top: 167px; height: 15px; padding: 0 7px; background: linear-gradient(180deg, #EFD58F 0%, #C9A24D 55%, #A8853A 100%); box-shadow: inset 0 1px 0 rgba(255,250,225,0.7), 0 1px 2px rgba(0,0,0,0.7); font-family: 'Black Han Sans', sans-serif; font-size: 10px; line-height: 15px; color: #24180A; letter-spacing: 0.02em; white-space: nowrap">몸 · 강철 공방</div>
+  <div style="position: absolute; right: 24px; top: 167px; height: 15px; padding: 0 7px 0 6px; display: flex; align-items: center; gap: 4px; background: #F5EFE2; border: 1px solid #B8913A; font-size: 10px; font-weight: 700; line-height: 13px; color: #1A1A1A; white-space: nowrap">
+    <svg aria-hidden="true" width="8" height="8" viewBox="0 0 8 8"><rect x="0.5" y="0.5" width="7" height="7" rx="0.6" fill="#C8372D"/></svg>
+    <span>연출 · 수묵 요괴</span>
+  </div>
+
+  <div class="xo" style="position: absolute; left: 0; top: 196px; width: 354px; text-align: center; font-size: 30px; line-height: 38px; color: #FBF6FF; letter-spacing: 0.04em; text-shadow: 0 0 2px #FF3FA4, 0 0 16px rgba(255,63,164,0.6), 0 2px 0 #3A0E2E">불여우 대포</div>
+
+  <!-- 꼬리: 합성 · 반응 이름 (보조 = 수묵 붓글씨) -->
+  <div style="position: absolute; left: 0; top: 238px; width: 354px; display: flex; justify-content: center; align-items: center; gap: 7px">
+    <span style="font-size: 11px; font-weight: 700; color: #F6DE98; border: 1px solid rgba(233,196,106,0.85); padding: 0 6px; line-height: 18px">합성</span>
+    <span style="position: relative; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; height: 28px; background: #ECE4D3; box-shadow: inset 0 0 0 1px #B8913A, 0 0 0 1px rgba(0,0,0,0.4); transform: rotate(-1.2deg)">
+      <span style="font-family: 'East Sea Dokdo', 'Noto Sans KR', sans-serif; font-size: 27px; line-height: 28px; color: #1A1A1A; white-space: nowrap">전향 무리 · <span style="color: #C8372D">화염</span></span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="1" fill="#C8372D" transform="rotate(-8 7 7)"/><path d="M4,5 L10,5 M7,3.4 L7,10.6 M4,9 L10,9" stroke="#F3EADB" stroke-width="1.1" transform="rotate(-8 7 7)"/></svg>
+    </span>
+  </div>
+
+  <!-- 구성: 메인 + 보조 -->
+  <div style="position: absolute; left: 0; top: 276px; width: 354px; display: flex; justify-content: center; align-items: center; gap: 6px; white-space: nowrap; font-size: 12.5px; line-height: 20px; color: #E8E0FA">
+    <svg aria-hidden="true" width="16" height="16" viewBox="-8 -8 16 16"><path d="M-7,-7 L7,-7 L7,4 L4,7 L-7,7 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.7"/><path transform="scale(1.25)" d="M-0.77,-3.21 L-0.62,-4.36 L0.62,-4.36 L0.77,-3.21 L1.72,-2.81 L2.64,-3.52 L3.52,-2.64 L2.81,-1.72 L3.21,-0.77 L4.36,-0.62 L4.36,0.62 L3.21,0.77 L2.81,1.72 L3.52,2.64 L2.64,3.52 L1.72,2.81 L0.77,3.21 L0.62,4.36 L-0.62,4.36 L-0.77,3.21 L-1.72,2.81 L-2.64,3.52 L-3.52,2.64 L-2.81,1.72 L-3.21,0.77 L-4.36,0.62 L-4.36,-0.62 L-3.21,-0.77 L-2.81,-1.72 L-3.52,-2.64 L-2.64,-3.52 L-1.72,-2.81 Z" fill="#C9A24D"/><circle r="1.7" fill="#0B0816"/></svg>
+    <span><b style="font-weight: 900; color: #FFFFFF">대포</b> <span style="color: #D8C7A0">(강철 공방)</span></span>
+    <span style="font-size: 9.5px; font-weight: 700; color: #1A0E2E; background: #E9C46A; padding: 0 4px; line-height: 14px">메인</span>
+    <span style="color: #FF6FB8; font-weight: 900; margin: 0 1px">+</span>
+    <svg aria-hidden="true" width="16" height="16" viewBox="-8 -8 16 16"><path d="M-7,-7 L7,-7 L7,4 L4,7 L-7,7 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.7"/><g transform="rotate(-6)"><rect x="-4.4" y="-4.4" width="8.8" height="8.8" rx="0.7" fill="#C8372D"/><path d="M-2.4,-2.2 L2.4,-2.2 M0,-3.2 L0,3.2 M-2.5,1.8 L2.5,1.8" stroke="#F3EADB" stroke-width="0.9"/></g></svg>
+    <span><b style="font-weight: 900; color: #FFFFFF">불여우</b> <span style="color: #E6D6C8">(수묵 요괴)</span></span>
+    <span style="font-size: 9.5px; font-weight: 700; color: #1A1A1A; background: #ECE4D3; padding: 0 4px; line-height: 14px">보조</span>
+  </div>
+
+  <svg aria-hidden="true" width="354" height="6" viewBox="0 0 354 6" style="position: absolute; left: 0; top: 304px">
+    <defs><linearGradient id="cd-line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E9C46A" stop-opacity="0"/><stop offset="0.5" stop-color="#E9C46A" stop-opacity="0.75"/><stop offset="1" stop-color="#E9C46A" stop-opacity="0"/></linearGradient></defs>
+    <rect x="47" y="2.5" width="260" height="1" fill="url(#cd-line)"/>
+    <path d="M177,0 L180,3 L177,6 L174,3 Z" fill="#E9C46A"/>
+  </svg>
+  <div style="position: absolute; left: 24px; top: 313px; width: 306px; text-align: center; font-size: 13.5px; font-weight: 500; line-height: 20px; color: #E8E0FA">강철 포탄이 붓불 여우를 끌고 날아가, 맞은 적을 홀려 제 무리를 들이받게 한다</div>
+  <div style="position: absolute; left: 0; top: 356px; width: 354px; text-align: center; font-size: 11.5px; font-weight: 500; line-height: 16px; color: #C9BEE6; white-space: nowrap"><span style="color: #FF6FB8; font-weight: 900">새 반응!</span> · 칸 1 중 1 · 등급 2 · <span style="color: #F6DE98; font-weight: 700">크로스오버</span></div>
+</div>
+
+<!-- ============ 카드 2: 레벨 업 (관제 전선 재질) ============ -->
+<div style="position: absolute; left: 18px; top: 546px; width: 354px; height: 88px">
+  <svg aria-hidden="true" width="354" height="88" viewBox="0 0 354 88" style="position: absolute; left: 0; top: 0">
+    <defs><linearGradient id="c2-bg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#21143E"/><stop offset="1" stop-color="#130B26"/></linearGradient></defs>
+    <path d="M10,0.75 L344,0.75 L353.25,10 L353.25,78 L344,87.25 L10,87.25 L0.75,78 L0.75,10 Z" fill="url(#c2-bg)" fill-opacity="0.97" stroke="#E9C46A" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M12,4 L342,4 L349.5,11.5 L349.5,76.5 L342,84 L12,84 L4.5,76.5 L4.5,11.5 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.35"/>
+  </svg>
+  <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" style="position: absolute; left: 12px; top: 12px">
+    <defs>
+      <clipPath id="c2-clip"><path d="M7,0.75 L57,0.75 L63.25,7 L63.25,57 L57,63.25 L7,63.25 L0.75,57 L0.75,7 Z"/></clipPath>
+      <linearGradient id="c2-rbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14301F"/><stop offset="1" stop-color="#07110C"/></linearGradient>
+      <pattern id="c2-grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M8,0 L0,0 L0,8" fill="none" stroke="#6CFFA0" stroke-width="0.5" stroke-opacity="0.24"/></pattern>
+    </defs>
+    <g clip-path="url(#c2-clip)">
+      <rect width="64" height="64" fill="url(#c2-rbg)"/>
+      <rect width="64" height="64" fill="url(#c2-grid)"/>
+      <circle cx="32" cy="33" r="23" fill="none" stroke="#6CFFA0" stroke-opacity="0.4" stroke-width="0.7"/>
+      <path d="M32,6 L32,12 M32,54 L32,60 M5,33 L11,33 M53,33 L59,33" stroke="#6CFFA0" stroke-opacity="0.6" stroke-width="0.7"/>
+      <g transform="translate(31,34) rotate(-36) scale(1.6)">
+        <g fill="#0C2416" stroke="#6CFFA0" stroke-width="0.55" stroke-linejoin="round">
+          <path d="M-18,-0.6 L-10,-3 L-10,2 L-17,4.6 Z"/>
+          <path d="M-10,-3.2 L4,-3.2 L4,1.6 L-10,1.6 Z"/>
+          <path d="M4,-2.8 L11.5,-2.8 L11.5,1 L4,1 Z"/>
+          <path d="M-1.6,1.6 L1.8,1.6 L3.6,7.4 L0.4,7.8 Z"/>
+          <path d="M-7.6,1.6 L-5.2,1.6 L-6.2,5.8 L-8.4,5.4 Z"/>
+          <path d="M-5,-6.4 L3,-6.4 L3,-4.2 L-5,-4.2 Z"/>
+        </g>
+        <path d="M11.5,-1.8 L18.5,-1.8" stroke="#6CFFA0" stroke-width="1.1"/>
+        <path d="M-3,-4.2 L-3,-3.2 M1,-4.2 L1,-3.2" stroke="#6CFFA0" stroke-width="0.5"/>
+        <circle cx="3" cy="-5.3" r="0.9" fill="#FFB547"/>
+        <path d="M5,-1.4 L10.5,-1.4 M5,-0.2 L10.5,-0.2" stroke="#6CFFA0" stroke-width="0.3" opacity="0.7"/>
+      </g>
+      <path d="M50,10 L56,4 M52,14 L60,10 M48,8 L49,2" stroke="#EFFFF4" stroke-width="0.9" stroke-linecap="round"/>
+      <rect x="34" y="50" width="26" height="9" fill="#07110C" stroke="#6CFFA0" stroke-width="0.5"/>
+      <text x="37" y="57" font-family="Share Tech Mono, monospace" font-size="6.8" fill="#6CFFA0">LV 3→4</text>
+    </g>
+    <path d="M7,0.75 L57,0.75 L63.25,7 L63.25,57 L57,63.25 L7,63.25 L0.75,57 L0.75,7 Z" fill="none" stroke="#E9C46A" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M3,3 L15,3 L15,12.4 L12.4,15 L3,15 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.6"/>
+    <g transform="translate(9,9)" fill="none" stroke="#6CFFA0" stroke-width="1"><path d="M-3.6,-1.4 L-3.6,-3.6 L-1.4,-3.6 M1.4,-3.6 L3.6,-3.6 L3.6,-1.4 M3.6,1.4 L3.6,3.6 L1.4,3.6 M-1.4,3.6 L-3.6,3.6 L-3.6,1.4"/><circle r="0.95" fill="#6CFFA0" stroke="none"/></g>
+  </svg>
+  <div style="position: absolute; left: 90px; top: 9px; display: flex; align-items: baseline; gap: 9px; white-space: nowrap">
+    <span class="xo" style="font-size: 21px; line-height: 28px; color: #F7F3FF">돌격소총</span>
+    <span style="font-size: 15px; font-weight: 700; color: #D4CAEE; line-height: 28px">Lv 3 <span style="color: #F6DE98">→</span> <span style="color: #FFE7A0; font-weight: 900; font-size: 19px">4</span></span>
+  </div>
+  <svg aria-hidden="true" width="52" height="10" viewBox="0 0 52 10" style="position: absolute; right: 16px; top: 19px">
+    <path d="M5,1 L9,5 L5,9 L1,5 Z M15.5,1 L19.5,5 L15.5,9 L11.5,5 Z M26,1 L30,5 L26,9 L22,5 Z" fill="#E9C46A"/>
+    <path d="M36.5,1 L40.5,5 L36.5,9 L32.5,5 Z" fill="#FF3FA4"/>
+    <path d="M47,1.5 L50.5,5 L47,8.5 L43.5,5 Z" fill="none" stroke="#8C7EB4" stroke-width="1"/>
+  </svg>
+  <div style="position: absolute; left: 90px; top: 40px; font-size: 12.5px; font-weight: 500; color: #D4CAEE; line-height: 18px; white-space: nowrap">관통 1 → <span style="color: #FFE7A0; font-weight: 900">2</span> · 쿨다운 0.9 → <span style="color: #FFE7A0; font-weight: 900">0.8초</span></div>
+  <div style="position: absolute; left: 90px; top: 63px; display: flex; align-items: center; gap: 6px; white-space: nowrap">
+    <span style="font-size: 10px; font-weight: 700; color: #1A0E2E; background: #E9C46A; padding: 0 6px; line-height: 15px">강화</span>
+    <span class="xm" style="font-size: 10.5px; color: #9FEABD; line-height: 15px; letter-spacing: 0.3px">관제 전선 · 총</span>
+  </div>
+</div>
+
+<!-- ============ 카드 3: 새 무기 (균열 비전 재질) ============ -->
+<div style="position: absolute; left: 18px; top: 644px; width: 354px; height: 88px">
+  <svg aria-hidden="true" width="354" height="88" viewBox="0 0 354 88" style="position: absolute; left: 0; top: 0">
+    <defs><linearGradient id="c3-bg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#21143E"/><stop offset="1" stop-color="#130B26"/></linearGradient></defs>
+    <path d="M10,0.75 L344,0.75 L353.25,10 L353.25,78 L344,87.25 L10,87.25 L0.75,78 L0.75,10 Z" fill="url(#c3-bg)" fill-opacity="0.97" stroke="#E9C46A" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M12,4 L342,4 L349.5,11.5 L349.5,76.5 L342,84 L12,84 L4.5,76.5 L4.5,11.5 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.35"/>
+  </svg>
+  <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" style="position: absolute; left: 12px; top: 12px">
+    <defs>
+      <clipPath id="c3-clip"><path d="M7,0.75 L57,0.75 L63.25,7 L63.25,57 L57,63.25 L7,63.25 L0.75,57 L0.75,7 Z"/></clipPath>
+      <radialGradient id="c3-neb" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#4A2390"/><stop offset="0.6" stop-color="#2A1450"/><stop offset="1" stop-color="#140A2A"/></radialGradient>
+      <linearGradient id="c3-robe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A2A86"/><stop offset="1" stop-color="#150A2C"/></linearGradient>
+      <filter id="c3-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <g clip-path="url(#c3-clip)">
+      <rect width="64" height="64" fill="url(#c3-neb)"/>
+      <circle cx="30" cy="36" r="24" fill="none" stroke="#E9C46A" stroke-width="0.8" stroke-dasharray="2.4 2.6" opacity="0.85"/>
+      <circle cx="30" cy="36" r="20" fill="none" stroke="#E9C46A" stroke-width="0.4" opacity="0.5"/>
+      <g fill="#EDE4FF"><circle cx="10" cy="12" r="0.6"/><circle cx="52" cy="50" r="0.6"/><circle cx="20" cy="56" r="0.5"/></g>
+      <!-- 뇌전 술사 -->
+      <path d="M30,16 C36.5,16 40.5,21.5 40.5,28 L43,42 L48,64 L12,64 L17,42 L19.5,28 C19.5,21.5 23.5,16 30,16 Z" fill="url(#c3-robe)" stroke="#E9C46A" stroke-width="0.8" stroke-linejoin="round"/>
+      <path d="M24,28 C24,22 36,22 36,28 C36,33 33,36 30,36 C27,36 24,33 24,28 Z" fill="#07040F"/>
+      <path d="M26.6,29 L28.8,29.6 M33.4,29 L31.2,29.6" stroke="#38E1FF" stroke-width="1.2" stroke-linecap="round" filter="url(#c3-glow)"/>
+      <path d="M30,36 L30,64 M17,42 L22,46 M43,42 L38,46" stroke="#E9C46A" stroke-width="0.9"/>
+      <path d="M39,37 L46,25" stroke="#3B1F6E" stroke-width="4.6" stroke-linecap="round"/>
+      <path d="M39,37 L46,25" stroke="#E9C46A" stroke-width="0.7" opacity="0.7"/>
+      <g transform="translate(57,11)"><path d="M0,-4 L3,0 L0,4 L-3,0 Z" fill="#2E1A5C" stroke="#C3A0FF" stroke-width="0.6"/><circle r="1.3" fill="#FF3FA4"/></g>
+      <g transform="translate(58,44)"><path d="M0,-4 L3,0 L0,4 L-3,0 Z" fill="#2E1A5C" stroke="#C3A0FF" stroke-width="0.6"/><circle r="1.3" fill="#FF3FA4"/></g>
+      <path d="M47,23 L51,16 L49.5,14 L56,11 M51,16 L56,21 L54,25 L60,28 L57,34 L58,44" fill="none" stroke="#FF3FA4" stroke-width="3.2" stroke-linejoin="round" opacity="0.7" filter="url(#c3-glow)"/>
+      <path d="M47,23 L51,16 L49.5,14 L56,11 M51,16 L56,21 L54,25 L60,28 L57,34 L58,44" fill="none" stroke="#38E1FF" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M47,23 L51,16 L49.5,14 L56,11 M51,16 L56,21 L54,25 L60,28 L57,34 L58,44" fill="none" stroke="#FFFFFF" stroke-width="0.6" stroke-linejoin="round"/>
+      <circle cx="47" cy="23" r="3.6" fill="#FFFFFF" filter="url(#c3-glow)"/>
+      <g fill="#FFFFFF"><circle cx="56" cy="11" r="1.6"/><circle cx="58" cy="44" r="1.6"/></g>
+    </g>
+    <path d="M7,0.75 L57,0.75 L63.25,7 L63.25,57 L57,63.25 L7,63.25 L0.75,57 L0.75,7 Z" fill="none" stroke="#E9C46A" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M3,3 L15,3 L15,12.4 L12.4,15 L3,15 Z" fill="#0B0816" stroke="#E9C46A" stroke-width="0.6"/>
+    <g transform="translate(9,9)"><circle r="3.2" fill="none" stroke="#E9C46A" stroke-width="0.9"/><path d="M0,-4.5 L0,-2.6 M0,2.6 L0,4.5 M-4.5,0 L-2.6,0 M2.6,0 L4.5,0" stroke="#E9C46A" stroke-width="0.8"/><path d="M0,-1.6 L1.6,0 L0,1.6 L-1.6,0 Z" fill="#FF3FA4"/></g>
+  </svg>
+  <div style="position: absolute; left: 90px; top: 9px; display: flex; align-items: center; gap: 9px; white-space: nowrap">
+    <span class="xo" style="font-size: 21px; line-height: 28px; color: #F7F3FF">뇌전 술사</span>
+    <span class="xc" style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em; color: #1A0E2E; background: #F6DE98; padding: 1px 7px 1px 8px; line-height: 14px; clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)">NEW</span>
+  </div>
+  <div style="position: absolute; left: 90px; top: 40px; font-size: 13px; font-weight: 500; color: #E8E0FA; line-height: 18px; white-space: nowrap">번개가 적 사이를 갈라 튄다</div>
+  <div style="position: absolute; left: 90px; top: 63px; display: flex; align-items: center; gap: 6px; white-space: nowrap">
+    <span style="font-size: 10.5px; font-weight: 700; color: #F6DE98; border: 1px solid rgba(233,196,106,0.8); padding: 0 6px; line-height: 14px">새 갈래 · 칸까지 1</span>
+    <span class="xc" style="font-size: 10.5px; font-weight: 600; color: #D9C4FF; line-height: 15px">균열 비전 · 광선</span>
+  </div>
+</div>
+
+<!-- ============ 리롤 ============ -->
+<button style="position: absolute; left: 85px; top: 752px; width: 220px; height: 44px; margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer; font-family: 'Noto Sans KR', sans-serif">
+  <svg aria-hidden="true" width="220" height="44" viewBox="0 0 220 44" style="position: absolute; left: 0; top: 0">
+    <defs><linearGradient id="rr-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A1650"/><stop offset="1" stop-color="#130A27"/></linearGradient></defs>
+    <path d="M10,0.75 L210,0.75 L219.25,10 L219.25,34 L210,43.25 L10,43.25 L0.75,34 L0.75,10 Z" fill="url(#rr-bg)" stroke="#E9C46A" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M12,4 L208,4 L215.5,11.5 L215.5,32.5 L208,40 L12,40 L4.5,32.5 L4.5,11.5 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.4"/>
+  </svg>
+  <span style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18">
+      <path d="M14.5,6 A6.5,6.5 0 0 0 3,6.5" fill="none" stroke="#E9C46A" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M3.5,12 A6.5,6.5 0 0 0 15,11.5" fill="none" stroke="#E9C46A" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M1.2,3.8 L3,6.6 L5.9,5.4" fill="none" stroke="#E9C46A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16.8,14.2 L15,11.4 L12.1,12.6" fill="none" stroke="#E9C46A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="xo" style="font-size: 16px; color: #FBF6FF; line-height: 20px">리롤</span>
+    <span style="font-size: 12px; font-weight: 500; color: #D4CAEE; line-height: 20px">(2회 남음)</span>
+  </span>
+</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -206,7 +206,7 @@
       }
       if (w) {
         w.hits++;
-        if (w.sub && !o.isReact && w.hits >= 3 && this.t - w.lastReact > 2.6) {
+        if (w.sub && !o.isReact && w.hits >= 3 && this.t - w.lastReact > 3.4) {
           w.hits = 0;
           w.lastReact = this.t;
           this.react(w, e);
@@ -395,7 +395,8 @@
         const on = this.active.includes(i);
         c.save();
         c.globalAlpha = on ? 1 : 0.32;
-        drawMount(c, w, w.x, w.y, BOX, this.t, on && this.mounts.length > 1 && this.active.length === 1);
+        const sz = this.mounts.length <= 3 ? 52 : BOX;
+        drawMount(c, w, w.x, w.y, sz, this.t, on && this.mounts.length > 1 && this.active.length === 1);
         c.restore();
         if (!this.opt.compact || this.mounts.length <= 4) {
           c.save();
@@ -405,7 +406,7 @@
           c.textBaseline = 'top';
           c.fillStyle = '#EDE6FF';
           const name = w.name;
-          c.fillText(name, w.x, w.y + BOX / 2 + 5, this.mounts.length > 5 ? 44 : 110);
+          c.fillText(name, w.x, w.y + (this.mounts.length <= 3 ? 26 : BOX / 2) + 5, this.mounts.length > 5 ? 44 : 110);
           c.restore();
         }
       });
@@ -780,6 +781,21 @@
       c.lineWidth = 2;
       roundRect(c, x - half - 4, y - half - 4, s + 8, s + 8, 10);
       c.stroke();
+      c.restore();
+    }
+    // 같은 세계 합성 = 세계 공명: 그 세계 색 겹 테가 맥박친다
+    if (w.sub && w.world === w.subWorld) {
+      const col = (mw.colors && mw.colors.main) || '#E9C46A';
+      c.save();
+      c.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 2; k++) {
+        const ph = (t * 0.9 + k * 0.5) % 1;
+        c.globalAlpha = 0.7 * (1 - ph);
+        c.strokeStyle = col;
+        c.lineWidth = 2;
+        roundRect(c, x - half - 3 - ph * 10, y - half - 3 - ph * 10, s + 6 + ph * 20, s + 6 + ph * 20, 9 + ph * 6);
+        c.stroke();
+      }
       c.restore();
     }
     // 틀 바깥

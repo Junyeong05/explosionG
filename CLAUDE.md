@@ -49,8 +49,9 @@
   - `fuse5` (합성 v5: 한 몸 · 무기 이름 · 무기 성질 · 공명, 같은 갈래 짝을 무기만 바꿔 넷씩 + v4 vs v5 + 공명 + 성질 13 + 측정): https://claude.ai/artifact/SVTq3LtTnutG6eQ5D4WC4p
   - `pull` (끌어모으기 너프 + 적끼리 가운데 충돌: 중력 무기 여덟): https://claude.ai/artifact/Ce9etzt3wfK4pmCi7CA8d3
   - `clarity` (합성 카드 정리 + 공격 구분: 피해 숫자 색 · 무기 누르면 집중 보기, 표): https://claude.ai/artifact/Fhx8pqe88fsUc8CLAd5MU8
+  - `cross` (균열 크로스오버 연출: 세계 여섯 무기 셋씩 · 합성 9쌍 메인만 → 합친 뒤 · 섞어 보기 18개): https://claude.ai/artifact/DYPFqaXTbzRF9DahYrFLn2 — 이 페이지만 만드는 법이 다르다: `node tools/crossfx/build.mjs` (공통 틀 `tools/crossfx/runtime.js`, 세계마다 `tools/crossfx/worlds/<세계>.js`, 확인 `node tools/crossfx/check.cjs docs/showcase/cross.html <폴더>`), 올리는 파일은 `dist-showcase/cross.html`
 
 ## 디자인 캔버스 (정지 화면 시안, Design 타입)
 
-- 컨셉 시안 여섯 방향 (11-21, 세계·적·무기 재질까지): https://claude.ai/artifact/Frf9eGGrFij1ctYsvknrDe — 원본·정리 `docs/design/concept-art/`. 고치면 같은 주소로 (`root` = artboard 들이 `project/` 아래 있는 폴더)
+- 컨셉 시안 여섯 방향 (11-21, 세계·적·무기 재질까지) + 7줄 균열 크로스오버 (11-23): https://claude.ai/artifact/Frf9eGGrFij1ctYsvknrDe — 원본·정리 `docs/design/concept-art/`. 고치면 같은 주소로 (`root` = artboard 들이 `project/` 아래 있는 폴더). 유저가 캔버스에서 직접 고치기도 하니(Page 2 등) `canvas.json` 은 올리기 전에 꼭 게시본을 읽어 합친다
 - UI 틀 시안 다섯 방향 (11-13): https://claude.ai/artifact/NBjkwbx61kbbLB2oGmtyLz

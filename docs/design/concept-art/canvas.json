@@ -1,105 +1,216 @@
 {
   "v": 3,
-  "createdOnFiles": {
-    "v": 1,
-    "at": "2026-11-21T09:00:00Z"
+  "attachments": {},
+  "boards": {
+    "Artboard-cs1o.dc.html": {
+      "h": 600,
+      "handmade": true,
+      "page": "page-2h96mb",
+      "title": "Artboard 1",
+      "w": 800,
+      "x": 0,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 980,
+      "title": "여섯 방향 한눈에",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "cell-card.dc.html": {
+      "h": 844,
+      "title": "미시 세계 · 레벨 업",
+      "w": 390,
+      "x": 470,
+      "y": 2824
+    },
+    "cell-play.dc.html": {
+      "h": 844,
+      "title": "미시 세계 · 판 화면",
+      "w": 390,
+      "x": 0,
+      "y": 2824
+    },
+    "comic-card.dc.html": {
+      "h": 844,
+      "title": "잉크 코믹 · 레벨 업",
+      "w": 390,
+      "x": 1490,
+      "y": 1460
+    },
+    "comic-play.dc.html": {
+      "h": 844,
+      "title": "잉크 코믹 · 판 화면",
+      "w": 390,
+      "x": 1020,
+      "y": 1460
+    },
+    "cross-card.dc.html": {
+      "h": 844,
+      "title": "크로스오버 · 레벨 업",
+      "w": 390,
+      "x": 1830,
+      "y": 3990
+    },
+    "cross-play.dc.html": {
+      "h": 844,
+      "title": "크로스오버 · 판 화면",
+      "w": 390,
+      "x": 1360,
+      "y": 3990
+    },
+    "cross-split.dc.html": {
+      "h": 1040,
+      "title": "무기 327개의 세계",
+      "w": 1280,
+      "x": 1360,
+      "y": 5260
+    },
+    "forge-card.dc.html": {
+      "h": 844,
+      "title": "강철 공방 · 레벨 업",
+      "w": 390,
+      "x": 1490,
+      "y": 2824
+    },
+    "forge-play.dc.html": {
+      "h": 844,
+      "title": "강철 공방 · 판 화면",
+      "w": 390,
+      "x": 1020,
+      "y": 2824
+    },
+    "radar-card.dc.html": {
+      "h": 844,
+      "title": "방공 관제 · 레벨 업",
+      "w": 390,
+      "x": 470,
+      "y": 1460
+    },
+    "radar-play.dc.html": {
+      "h": 844,
+      "title": "방공 관제 · 판 화면",
+      "w": 390,
+      "x": 0,
+      "y": 1460
+    },
+    "rift-card.dc.html": {
+      "h": 844,
+      "title": "균열 유물 · 레벨 업",
+      "w": 390,
+      "x": 2510,
+      "y": 1460
+    },
+    "rift-play.dc.html": {
+      "h": 844,
+      "title": "균열 유물 · 판 화면",
+      "w": 390,
+      "x": 2040,
+      "y": 1460
+    },
+    "sumi-card.dc.html": {
+      "h": 844,
+      "title": "수묵 요괴 · 레벨 업",
+      "w": 390,
+      "x": 2510,
+      "y": 2824
+    },
+    "sumi-play.dc.html": {
+      "h": 844,
+      "title": "수묵 요괴 · 판 화면",
+      "w": 390,
+      "x": 2040,
+      "y": 2824
+    },
+    "cross-fuse.dc.html": {
+      "x": 0,
+      "y": 5260,
+      "w": 1280,
+      "h": 1040,
+      "title": "크로스오버 · 메인 + 보조"
+    },
+    "cross-worlds.dc.html": {
+      "x": 0,
+      "y": 3990,
+      "w": 1280,
+      "h": 1180,
+      "title": "크로스오버 · 틀 하나, 세계 여섯"
+    }
   },
-  "title": "연쇄 폭발 컨셉 시안",
+  "createdOnFiles": {
+    "at": "2026-11-21T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
   "launch": {
     "view": "canvas"
   },
-  "pages": [],
-  "boards": {
-    "Main.dc.html": {
+  "noteOrder": [
+    "t-radar",
+    "t-comic",
+    "t-rift",
+    "t-cell",
+    "t-forge",
+    "t-sumi",
+    "t-cross"
+  ],
+  "notes": {
+    "t-cell": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "4 · 미시 세계",
+      "w": 240,
       "x": 0,
-      "y": 0,
-      "w": 1280,
-      "h": 980,
-      "title": "여섯 방향 한눈에"
+      "y": 2564
     },
-    "cell-play.dc.html": {
-      "x": 0,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "미시 세계 · 판 화면"
-    },
-    "cell-card.dc.html": {
-      "x": 470,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "미시 세계 · 레벨 업"
-    },
-    "radar-play.dc.html": {
-      "x": 0,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "방공 관제 · 판 화면"
-    },
-    "radar-card.dc.html": {
-      "x": 470,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "방공 관제 · 레벨 업"
-    },
-    "rift-play.dc.html": {
-      "x": 2040,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "균열 유물 · 판 화면"
-    },
-    "rift-card.dc.html": {
-      "x": 2510,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "균열 유물 · 레벨 업"
-    },
-    "sumi-play.dc.html": {
-      "x": 2040,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "수묵 요괴 · 판 화면"
-    },
-    "sumi-card.dc.html": {
-      "x": 2510,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "수묵 요괴 · 레벨 업"
-    },
-    "forge-play.dc.html": {
+    "t-comic": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "2 · 잉크 코믹",
+      "w": 240,
       "x": 1020,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "강철 공방 · 판 화면"
+      "y": 1200
     },
-    "forge-card.dc.html": {
-      "x": 1490,
-      "y": 2824,
-      "w": 390,
-      "h": 844,
-      "title": "강철 공방 · 레벨 업"
+    "t-cross": {
+      "kind": "title1",
+      "maxW": 1600,
+      "text": "7 · 균열 크로스오버 — 여러 세계의 무기가 한 판에 (11-23)",
+      "w": 240,
+      "x": 0,
+      "y": 3900
     },
-    "comic-play.dc.html": {
+    "t-forge": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "5 · 강철 공방",
+      "w": 240,
       "x": 1020,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "잉크 코믹 · 판 화면"
+      "y": 2564
     },
-    "comic-card.dc.html": {
-      "x": 1490,
-      "y": 1460,
-      "w": 390,
-      "h": 844,
-      "title": "잉크 코믹 · 레벨 업"
+    "t-radar": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "1 · 방공 관제",
+      "w": 240,
+      "x": 0,
+      "y": 1200
+    },
+    "t-rift": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "3 · 균열 유물",
+      "w": 240,
+      "x": 2040,
+      "y": 1200
+    },
+    "t-sumi": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "6 · 수묵 요괴",
+      "w": 240,
+      "x": 2040,
+      "y": 2564
     }
   },
   "order": [
@@ -115,51 +226,23 @@
     "forge-play.dc.html",
     "forge-card.dc.html",
     "sumi-play.dc.html",
-    "sumi-card.dc.html"
+    "sumi-card.dc.html",
+    "cross-worlds.dc.html",
+    "cross-play.dc.html",
+    "cross-card.dc.html",
+    "cross-fuse.dc.html",
+    "cross-split.dc.html",
+    "Artboard-cs1o.dc.html"
   ],
-  "notes": {
-    "t-radar": {
-      "x": 0,
-      "y": 1200,
-      "text": "1 · 방공 관제",
-      "kind": "title1",
-      "maxW": 860
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Page 1"
     },
-    "t-comic": {
-      "x": 1020,
-      "y": 1200,
-      "text": "2 · 잉크 코믹",
-      "kind": "title1",
-      "maxW": 860
-    },
-    "t-rift": {
-      "x": 2040,
-      "y": 1200,
-      "text": "3 · 균열 유물",
-      "kind": "title1",
-      "maxW": 860
-    },
-    "t-cell": {
-      "x": 0,
-      "y": 2564,
-      "text": "4 · 미시 세계",
-      "kind": "title1",
-      "maxW": 860
-    },
-    "t-forge": {
-      "x": 1020,
-      "y": 2564,
-      "text": "5 · 강철 공방",
-      "kind": "title1",
-      "maxW": 860
-    },
-    "t-sumi": {
-      "x": 2040,
-      "y": 2564,
-      "text": "6 · 수묵 요괴",
-      "kind": "title1",
-      "maxW": 860
+    {
+      "id": "page-2h96mb",
+      "name": "Page 2"
     }
-  },
-  "designSystems": []
+  ],
+  "title": "연쇄 폭발 컨셉 시안"
 }

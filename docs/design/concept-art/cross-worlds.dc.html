@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>틀은 하나 세계는 여섯</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Cinzel:wght@700;900&amp;family=East+Sea+Dokdo&amp;family=Noto+Sans+KR:wght@400;500;700;900&amp;family=Orbit&amp;family=Share+Tech+Mono&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.xw-card{position:absolute;width:314px;height:400px;box-sizing:border-box;border:1px solid #34245E;border-radius:6px;background:linear-gradient(180deg,#181033 0%,#110A23 100%);overflow:hidden}
+.xw-board{position:absolute;overflow:hidden;border-radius:4px;box-shadow:inset 0 0 0 1px #2C1F50;background:radial-gradient(ellipse 90% 80% at 25% 15%,rgba(74,35,140,0.55),rgba(42,20,80,0) 70%),linear-gradient(180deg,#0B0816 0%,#170C33 100%)}
+.xw-tag{position:absolute;left:5px;top:5px;padding:1px 5px;border-radius:2px;background:rgba(11,8,22,0.88);border:1px solid #3A2766;font-size:9px;line-height:11px;font-weight:700;color:#DCD3F7;white-space:nowrap}
+.xw-sec{position:absolute;left:14px;font-size:11px;line-height:14px;font-weight:700;color:#E9C46A;letter-spacing:0.03em;white-space:nowrap}
+.xw-name{position:absolute;width:76px;text-align:center;font-size:11px;line-height:14px;font-weight:700;color:#F1EAFF;white-space:nowrap}
+.xw-cat{position:absolute;width:76px;text-align:center;font-size:9.5px;line-height:12px;font-weight:500;color:#BFB4E0;white-space:nowrap}
+.xw-chip{flex:1;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.02em}
+.xw-cap{position:absolute;left:14px;top:368px;width:286px;font-size:10px;line-height:14px;color:#C9BFE6;white-space:nowrap}
+.xw-foot{position:absolute;left:0;right:0;bottom:7px;text-align:center;font-size:9.5px;line-height:12px;color:#D9CFF5;white-space:nowrap}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1180px; position: relative; overflow: hidden; background: radial-gradient(ellipse 60% 30% at 50% 0%, rgba(255,63,164,0.12), rgba(255,63,164,0) 70%), radial-gradient(ellipse 45% 45% at 12% 55%, rgba(61,27,115,0.45), rgba(61,27,115,0) 70%), radial-gradient(ellipse 50% 45% at 88% 78%, rgba(42,20,80,0.65), rgba(42,20,80,0) 70%), #0B0816; font-family: 'Noto Sans KR', sans-serif; color: #F1EAFF">
+
+<!-- ============ 공통 정의 (적 · 틀 · 문장 · 재질 · 아이콘) ============ -->
+<svg width="0" height="0" style="position: absolute; left: 0; top: 0" aria-hidden="true" focusable="false">
+<defs>
+<radialGradient id="xw-core" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFF0F8"/><stop offset="0.3" stop-color="#FF7CC4"/><stop offset="0.6" stop-color="#FF3FA4" stop-opacity="0.7"/><stop offset="1" stop-color="#FF3FA4" stop-opacity="0"/></radialGradient>
+<linearGradient id="xw-crys" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4E2F8F"/><stop offset="0.5" stop-color="#21113F"/><stop offset="1" stop-color="#0D0620"/></linearGradient>
+<linearGradient id="xw-shell" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0" stop-color="#A792E0"/><stop offset="0.45" stop-color="#4C3590"/><stop offset="1" stop-color="#1D1140"/></linearGradient>
+<linearGradient id="xw-trail-m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF3FA4" stop-opacity="0"/><stop offset="1" stop-color="#FF3FA4" stop-opacity="0.55"/></linearGradient>
+<linearGradient id="xw-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0C2"/><stop offset="0.5" stop-color="#E9C46A"/><stop offset="1" stop-color="#8A6420"/></linearGradient>
+<linearGradient id="xw-goldH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8A6420"/><stop offset="0.5" stop-color="#FFF0C2"/><stop offset="1" stop-color="#8A6420"/></linearGradient>
+<radialGradient id="xw-flash"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.25" stop-color="#FFF8E6"/><stop offset="0.5" stop-color="#F6DC92" stop-opacity="0.55"/><stop offset="1" stop-color="#E9C46A" stop-opacity="0"/></radialGradient>
+<linearGradient id="xw-plaque" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#341A62"/><stop offset="0.5" stop-color="#160A2C"/><stop offset="1" stop-color="#2A1450"/></linearGradient>
+<linearGradient id="xw-steelH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2E3135"/><stop offset="0.28" stop-color="#7E848C"/><stop offset="0.42" stop-color="#C6CBD1"/><stop offset="0.58" stop-color="#6C7178"/><stop offset="1" stop-color="#25272B"/></linearGradient>
+<linearGradient id="xw-steelV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6DADF"/><stop offset="0.45" stop-color="#7E848C"/><stop offset="1" stop-color="#2B2E33"/></linearGradient>
+<linearGradient id="xw-bronze" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5A3A12"/><stop offset="0.35" stop-color="#B88A3E"/><stop offset="0.5" stop-color="#E8C378"/><stop offset="0.7" stop-color="#8C6224"/><stop offset="1" stop-color="#3A2508"/></linearGradient>
+<linearGradient id="xw-brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2D48A"/><stop offset="0.5" stop-color="#C9A24D"/><stop offset="1" stop-color="#6E5016"/></linearGradient>
+<linearGradient id="xw-plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5E636B"/><stop offset="0.5" stop-color="#3A3E44"/><stop offset="1" stop-color="#24272B"/></linearGradient>
+<radialGradient id="xw-rivet" cx="35%" cy="35%" r="65%"><stop offset="0" stop-color="#E6E8EB"/><stop offset="0.5" stop-color="#9A948A"/><stop offset="1" stop-color="#3A3D42"/></radialGradient>
+<radialGradient id="xw-hot"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.35" stop-color="#FFE2B0"/><stop offset="0.7" stop-color="#FF9A3D"/><stop offset="1" stop-color="#FF6A13"/></radialGradient>
+<linearGradient id="xw-tailO" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF6A13" stop-opacity="0"/><stop offset="0.6" stop-color="#FF8A2A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFE2B0" stop-opacity="0.95"/></linearGradient>
+<pattern id="xw-brushed" width="40" height="3" patternUnits="userSpaceOnUse"><path d="M0,1 H40" stroke="#FFFFFF" stroke-width="0.4" opacity="0.09"/></pattern>
+<pattern id="xw-grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M8 0 L0 0 L0 8" fill="none" stroke="#173A25" stroke-width="0.8"/></pattern>
+<radialGradient id="xw-rglow"><stop offset="0" stop-color="#1E4A31" stop-opacity="0.9"/><stop offset="1" stop-color="#07110C" stop-opacity="0"/></radialGradient>
+<radialGradient id="xw-neb" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#5A2BA0"/><stop offset="0.55" stop-color="#2A1450"/><stop offset="1" stop-color="#120826"/></radialGradient>
+<linearGradient id="xw-robe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B3AA6"/><stop offset="1" stop-color="#1D1140"/></linearGradient>
+<linearGradient id="xw-ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#9FF3FF"/><stop offset="1" stop-color="#1E8FB8"/></linearGradient>
+<linearGradient id="xw-drag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B3592"/><stop offset="1" stop-color="#140A2E"/></linearGradient>
+<pattern id="xw-dots" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.1" fill="#3A4A5C"/></pattern>
+<pattern id="xw-dotsR" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="2.5" cy="2.5" r="1.2" fill="#D7352B"/></pattern>
+<radialGradient id="xw-cglow"><stop offset="0" stop-color="#0E3B3F"/><stop offset="1" stop-color="#04161A"/></radialGradient>
+<radialGradient id="xw-pool" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#E9FFB8"/><stop offset="0.4" stop-color="#C6FF4D" stop-opacity="0.75"/><stop offset="1" stop-color="#4E7A12" stop-opacity="0.5"/></radialGradient>
+<radialGradient id="xw-cburst"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.3" stop-color="#FFB4A9" stop-opacity="0.85"/><stop offset="1" stop-color="#FF6F61" stop-opacity="0"/></radialGradient>
+<filter id="xw-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="xw-blur2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2"/></filter>
+<filter id="xw-blur4" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+<filter id="xw-paper" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.36  0 0 0 0 0.31  0 0 0 0 0.24  1.05 0 0 0 -0.47"/></filter>
+<filter id="xw-dryH" x="-20%" y="-40%" width="140%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.75" numOctaves="2" seed="2" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="xw-dryV" x="-40%" y="-20%" width="180%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.75 0.035" numOctaves="2" seed="5" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feDisplacementMap in="c" in2="t" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="xw-seal" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="11" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="c"/><feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="1" seed="5" result="t2"/><feDisplacementMap in="c" in2="t2" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="xw-bleed" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter>
+<clipPath id="xw-clip"><path d="M8,1 L54,1 L61,8 L61,54 L54,61 L8,61 L1,54 L1,8 Z"/></clipPath>
+<clipPath id="xw-clip-sub"><path d="M61,11.4 L61,61 L11.4,61 Z"/></clipPath>
+
+<!-- 적: 균열 결정 그림자 (일반 · 장갑 · 돌격) -->
+<g id="xw-en-n">
+<circle r="20" fill="url(#xw-core)" opacity="0.32"/>
+<path d="M-10,-6 L-19,-12 L-13,-1 Z M10,-6 L19,-12 L13,-1 Z M-9,7 L-16,15 L-6,11 Z M9,7 L16,15 L6,11 Z" fill="#2E1A5C" stroke="#A47FEA" stroke-width="0.7" stroke-linejoin="round"/>
+<path d="M0,-17 L11,-7 L10,8 L0,18 L-10,8 L-11,-7 Z" fill="url(#xw-crys)" stroke="#C3A0FF" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M0,-17 L-11,-7 L-3,-1 Z" fill="#A98AEF" opacity="0.55"/>
+<path d="M0,-17 L3,-2 L11,-7 Z" fill="#6A47B8" opacity="0.6"/>
+<circle cy="4" r="8" fill="url(#xw-core)" opacity="0.8"/>
+<path d="M-3,-1 L3,-2 L10,8 M3,-2 L0,18 M-3,-1 L-10,8" fill="none" stroke="#7B58C6" stroke-width="0.6"/>
+<path d="M-4,4 L0,-3 L4,4 L0,11 Z" fill="#FF3FA4"/>
+<path d="M-1.6,4 L0,1 L1.6,4 L0,7 Z" fill="#FFE6F3"/>
+<path d="M-6.5,-6 L-2.5,-4.5 M6.5,-6 L2.5,-4.5" stroke="#FF9ED2" stroke-width="1.5" stroke-linecap="round"/>
+</g>
+<g id="xw-en-a">
+<circle r="28" fill="url(#xw-core)" opacity="0.2"/>
+<path d="M-18,-12 L-27,-19 L-21,-4 Z M18,-12 L27,-19 L21,-4 Z M-12,17 L-17,27 L-5,20 Z M12,17 L17,27 L5,20 Z" fill="#2B1A55" stroke="#A58AE8" stroke-width="0.7" stroke-linejoin="round"/>
+<path d="M0,-23 L20,-12 L21,10 L0,24 L-21,10 L-20,-12 Z" fill="url(#xw-shell)" stroke="#D6C6FF" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="M0,-23 L-20,-12 L-9,-5 L0,-10 Z" fill="#D3C2FF" opacity="0.35"/>
+<path d="M0,24 L-21,10 L-9,5 L0,11 Z M0,24 L21,10 L9,5 L0,11 Z" fill="#0E0622" opacity="0.35"/>
+<path d="M0,-23 L0,-10 M20,-12 L9,-5 M21,10 L9,5 M0,24 L0,11 M-21,10 L-9,5 M-20,-12 L-9,-5" stroke="#170C30" stroke-width="1.6"/>
+<path d="M0,-10 L9,-5 L9,5 L0,11 L-9,5 L-9,-5 Z" fill="#12082A" stroke="#8C6AD6" stroke-width="0.8"/>
+<circle r="7.5" fill="url(#xw-core)"/>
+<path d="M-2.6,0 L0,-3.6 L2.6,0 L0,3.6 Z" fill="#FFF0F8"/>
+</g>
+<g id="xw-en-s">
+<path d="M-4,-58 L0,-16 L4,-58 Z" fill="url(#xw-trail-m)"/>
+<path d="M-10,-50 L-5,-20 M10,-50 L5,-20" stroke="#FF3FA4" stroke-opacity="0.35" stroke-width="1"/>
+<circle r="16" fill="url(#xw-core)" opacity="0.28"/>
+<path d="M-6,2 L-15,-9 L-7,-10 Z M6,2 L15,-9 L7,-10 Z" fill="#2E1A5C" stroke="#A47FEA" stroke-width="0.7" stroke-linejoin="round"/>
+<path d="M0,30 L6.5,4 L5,-15 L0,-24 L-5,-15 L-6.5,4 Z" fill="url(#xw-crys)" stroke="#C9A6FF" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M0,30 L-6.5,4 L-1,-2 Z" fill="#A98AEF" opacity="0.5"/>
+<path d="M0,-11 L2.2,1 L0,16 L-2.2,1 Z" fill="#FF3FA4"/>
+<path d="M0,-4 L1,1 L0,8 L-1,1 Z" fill="#FFE6F3"/>
+<path d="M-3,-14 L-1,-12 M3,-14 L1,-12" stroke="#FF9ED2" stroke-width="1.3" stroke-linecap="round"/>
+</g>
+
+<!-- 공통 연쇄 섬광: 흰 섬광 + 금 고리 + 깨진 결정 -->
+<g id="xw-burst">
+<circle r="26" fill="url(#xw-flash)"/>
+<g fill="#FFFFFF">
+<path d="M-1.6,-6 L0,-34 L1.6,-6 Z"/>
+<path d="M-1.4,-6 L0,-22 L1.4,-6 Z" transform="rotate(45)"/>
+<path d="M-1.6,-6 L0,-30 L1.6,-6 Z" transform="rotate(90)"/>
+<path d="M-1.4,-6 L0,-20 L1.4,-6 Z" transform="rotate(135)"/>
+<path d="M-1.6,-6 L0,-32 L1.6,-6 Z" transform="rotate(180)"/>
+<path d="M-1.4,-6 L0,-21 L1.4,-6 Z" transform="rotate(225)"/>
+<path d="M-1.6,-6 L0,-29 L1.6,-6 Z" transform="rotate(270)"/>
+<path d="M-1.4,-6 L0,-22 L1.4,-6 Z" transform="rotate(315)"/>
+</g>
+<circle r="19" fill="none" stroke="#FFF3CF" stroke-width="1" opacity="0.75"/>
+<circle r="7" fill="#FFFFFF"/>
+<g fill="#24124A" stroke="#E6D6FF" stroke-width="0.7" stroke-linejoin="round"><path d="M24,-10 L31,-15 L29,-7 Z"/><path d="M-27,-6 L-34,-11 L-31,-1 Z"/><path d="M8,27 L13,34 L4,32 Z"/></g>
+</g>
+
+<!-- 공통 유물함 틀 (모양·크기·테 두께 같음) -->
+<g id="xw-frame">
+<path d="M8,1 L54,1 L61,8 L61,54 L54,61 L8,61 L1,54 L1,8 Z" fill="none" stroke="url(#xw-gold)" stroke-width="2"/>
+<path d="M9.2,3.5 L52.8,3.5 L58.5,9.2 L58.5,52.8 L52.8,58.5 L9.2,58.5 L3.5,52.8 L3.5,9.2 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.5"/>
+<path d="M31,-0.4 L33.2,1.8 L31,4 L28.8,1.8 Z" fill="#E9C46A" stroke="#FFF0C2" stroke-width="0.4"/>
+<path d="M31,58 L33.2,60.2 L31,62.4 L28.8,60.2 Z" fill="#E9C46A" stroke="#FFF0C2" stroke-width="0.4"/>
+</g>
+
+<!-- 수묵 낙관 글자 (斬) -->
+<g id="xw-g-zan" fill="none" stroke-width="3.4" stroke-linecap="square" stroke-linejoin="miter">
+<path d="M2,5 H18 M4,10 H16 V24 H4 Z M4,17 H16 M10,1 V39 M1,31 H19"/>
+<path d="M24,7 L37,3 M25,7 V22 C25,30 24,34 22,38 M25,17 H39 M33,17 V39"/>
+</g>
+
+<!-- 세계 문장 여섯 -->
+<symbol id="xw-cr-radar" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.3" fill="#07110C" stroke="#6CFFA0" stroke-width="1.2"/><path d="M5,8 V5 H8 M12,5 H15 V8 M15,12 V15 H12 M8,15 H5 V12" fill="none" stroke="#6CFFA0" stroke-width="1.6"/><circle cx="10" cy="10" r="1.6" fill="#FFB547"/></symbol>
+<symbol id="xw-cr-forge" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.3" fill="#2B2E33" stroke="#C9A24D" stroke-width="1.2"/><g transform="translate(10 10) scale(0.78) translate(-10 -10)"><path d="M7.55,4.09 L8.58,3.76 L8.75,1.49 L11.25,1.49 L11.42,3.76 L12.45,4.09 L13.41,4.58 L15.14,3.1 L16.9,4.86 L15.42,6.59 L15.91,7.55 L16.24,8.58 L18.51,8.75 L18.51,11.25 L16.24,11.42 L15.91,12.45 L15.42,13.41 L16.9,15.14 L15.14,16.9 L13.41,15.42 L12.45,15.91 L11.42,16.24 L11.25,18.51 L8.75,18.51 L8.58,16.24 L7.55,15.91 L6.59,15.42 L4.86,16.9 L3.1,15.14 L4.58,13.41 L4.09,12.45 L3.76,11.42 L1.49,11.25 L1.49,8.75 L3.76,8.58 L4.09,7.55 L4.58,6.59 L3.1,4.86 L4.86,3.1 L6.59,4.58 Z" fill="#C9A24D"/></g><circle cx="10" cy="10" r="2.4" fill="#2B2E33"/></symbol>
+<symbol id="xw-cr-sumi" viewBox="0 0 20 20"><rect x="1.6" y="1.6" width="16.8" height="16.8" rx="1.6" fill="#C8372D" stroke="#ECE4D3" stroke-width="0.8"/><use href="#xw-g-zan" transform="translate(3.6 3.6) scale(0.32)" stroke="#ECE4D3"/></symbol>
+<symbol id="xw-cr-rift" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.3" fill="#2A1450" stroke="#E9C46A" stroke-width="1.2"/><circle cx="10" cy="10" r="6" fill="none" stroke="#E9C46A" stroke-width="0.8" stroke-dasharray="1.6 1.2"/><path d="M10,5.6 L12.6,10 L10,14.4 L7.4,10 Z" fill="#38E1FF"/><circle cx="10" cy="10" r="1.2" fill="#FFFFFF"/></symbol>
+<symbol id="xw-cr-comic" viewBox="0 0 20 20"><path d="M10,0.88 L11.64,4.95 L14.85,3.32 L14.24,6.92 L18.23,7.33 L15.3,10 L17.81,12.54 L14.23,13.07 L15.32,17.33 L11.61,14.95 L10,18.23 L8.42,14.86 L4.66,17.34 L5.84,13.02 L1.83,12.66 L4.61,10 L2.1,7.43 L5.87,7 L5.09,3.24 L8.35,4.93 Z" fill="#F5C518" stroke="#FFFFFF" stroke-width="2.6" stroke-linejoin="round"/><path d="M10,0.88 L11.64,4.95 L14.85,3.32 L14.24,6.92 L18.23,7.33 L15.3,10 L17.81,12.54 L14.23,13.07 L15.32,17.33 L11.61,14.95 L10,18.23 L8.42,14.86 L4.66,17.34 L5.84,13.02 L1.83,12.66 L4.61,10 L2.1,7.43 L5.87,7 L5.09,3.24 L8.35,4.93 Z" fill="#F5C518" stroke="#141210" stroke-width="1.2" stroke-linejoin="round"/><path d="M10,6 L10,10.8" stroke="#141210" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="13.4" r="1" fill="#141210"/></symbol>
+<symbol id="xw-cr-cell" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.3" fill="#04161A" stroke="#5CF2E6" stroke-width="1.2"/><circle cx="10" cy="10" r="6.2" fill="#5CF2E6" fill-opacity="0.15" stroke="#5CF2E6" stroke-width="0.8"/><circle cx="11.6" cy="8.8" r="2.4" fill="#C6FF4D"/><circle cx="7.6" cy="12" r="0.9" fill="#FF6F61"/></symbol>
+
+<!-- 유물함 안 재질 여섯 (0..62) -->
+<g id="xw-mat-radar" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="#07110C"/>
+<circle cx="31" cy="32" r="30" fill="url(#xw-rglow)"/>
+<rect width="62" height="62" fill="url(#xw-grid)"/>
+<circle cx="31" cy="32" r="23" fill="none" stroke="#2E7A4E" stroke-width="0.8"/>
+<circle cx="31" cy="32" r="13" fill="none" stroke="#1F5A39" stroke-width="0.6" stroke-dasharray="2 2"/>
+<path d="M31,6 V12 M31,52 V58 M5,32 H11 M51,32 H57" stroke="#2E7A4E" stroke-width="0.8"/>
+<rect y="40" width="62" height="1" fill="#6CFFA0" opacity="0.08"/>
+</g>
+<g id="xw-mat-forge" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="url(#xw-plate)"/>
+<rect width="62" height="62" fill="url(#xw-brushed)"/>
+<path d="M0,20.5 H62" stroke="#17191C" stroke-width="1"/>
+<path d="M0,21.5 H62" stroke="#8E939A" stroke-width="0.5" opacity="0.5"/>
+<g fill="url(#xw-rivet)"><circle cx="24" cy="6" r="1.5"/><circle cx="38" cy="6" r="1.5"/><circle cx="6" cy="30" r="1.5"/><circle cx="56" cy="30" r="1.5"/><circle cx="6" cy="44" r="1.5"/><circle cx="56" cy="44" r="1.5"/></g>
+<rect x="18" y="52" width="26" height="5.5" rx="1" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.5"/>
+<g fill="#3A2A0A"><circle cx="20.5" cy="54.75" r="0.8"/><circle cx="41.5" cy="54.75" r="0.8"/></g>
+</g>
+<g id="xw-mat-sumi" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="#ECE4D3"/>
+<rect width="62" height="62" filter="url(#xw-paper)"/>
+<circle cx="31" cy="32" r="22" fill="none" stroke="#2B2926" stroke-width="3" stroke-dasharray="112 26" stroke-linecap="round" transform="rotate(-70 31 32)" opacity="0.55" filter="url(#xw-dryH)"/>
+<g fill="#B8913A"><path d="M50,12 L53,11 L52,14 Z"/><path d="M10,48 L12.5,47 L12,50 Z"/><path d="M54,46 L56,45.5 L55.5,47.5 Z"/></g>
+</g>
+<g id="xw-mat-rift" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="#120826"/>
+<circle cx="31" cy="31" r="36" fill="url(#xw-neb)"/>
+<ellipse cx="44" cy="16" rx="18" ry="10" fill="#FF3FA4" opacity="0.14" filter="url(#xw-blur4)"/>
+<circle cx="31" cy="31" r="24" fill="none" stroke="#E9C46A" stroke-width="0.9" opacity="0.75"/>
+<circle cx="31" cy="31" r="21" fill="none" stroke="#E9C46A" stroke-width="1.6" stroke-dasharray="1 2.6" opacity="0.45"/>
+<g fill="#E9C46A"><path d="M31,5 L33,7 L31,9 L29,7 Z"/><path d="M55,29 L57,31 L55,33 L53,31 Z"/><path d="M31,53 L33,55 L31,57 L29,55 Z"/><path d="M7,29 L9,31 L7,33 L5,31 Z"/></g>
+<g fill="#EDE4FF"><circle cx="12" cy="18" r="0.6"/><circle cx="50" cy="48" r="0.7"/><circle cx="46" cy="10" r="0.5"/><circle cx="16" cy="50" r="0.6"/></g>
+</g>
+<g id="xw-mat-comic" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="#EFE6D2"/>
+<rect width="62" height="62" fill="url(#xw-dots)" opacity="0.32"/>
+<circle cx="56" cy="56" r="16" fill="url(#xw-dotsR)" opacity="0.5"/>
+<path d="M9,4.5 L53,4.5 L57.5,9 L57.5,53 L53,57.5 L9,57.5 L4.5,53 L4.5,9 Z" fill="none" stroke="#141210" stroke-width="1.8"/>
+</g>
+<g id="xw-mat-cell" clip-path="url(#xw-clip)">
+<rect width="62" height="62" fill="#04161A"/>
+<circle cx="31" cy="31" r="30" fill="url(#xw-cglow)"/>
+<circle cx="31" cy="32" r="24" fill="none" stroke="#5CF2E6" stroke-width="1" opacity="0.45"/>
+<circle cx="31" cy="32" r="21.6" fill="none" stroke="#5CF2E6" stroke-width="0.5" opacity="0.3"/>
+<path d="M14,55.5 H48 M14,53 V55.5 M20,54.2 V55.5 M26,54.2 V55.5 M31,53 V55.5 M36,54.2 V55.5 M42,54.2 V55.5 M48,53 V55.5" stroke="#5CF2E6" stroke-width="0.6" opacity="0.7" fill="none"/>
+<g fill="#9FF7EF" opacity="0.5"><circle cx="12" cy="20" r="0.8"/><circle cx="50" cy="16" r="0.6"/><circle cx="52" cy="40" r="0.7"/><circle cx="9" cy="40" r="0.6"/></g>
+</g>
+
+<!-- 다시 쓰는 아이콘 -->
+<g id="xw-ic-drone">
+<path d="M-5.5,-5.5 L5.5,5.5 M5.5,-5.5 L-5.5,5.5" stroke="#6CFFA0" stroke-width="1.3"/>
+<g fill="#07110C" stroke="#6CFFA0" stroke-width="0.9"><circle cx="-6" cy="-6" r="3"/><circle cx="6" cy="-6" r="3"/><circle cx="-6" cy="6" r="3"/><circle cx="6" cy="6" r="3"/></g>
+<rect x="-2.4" y="-2.4" width="4.8" height="4.8" fill="#6CFFA0"/>
+<circle r="1" fill="#FFB547"/>
+</g>
+<g id="xw-ic-mine">
+<path d="M-13,0 L-13,3 A13,4.6 0 0 0 13,3 L13,0 Z" fill="#1F2226"/>
+<ellipse rx="13" ry="4.6" fill="url(#xw-steelV)" stroke="#0B0C0E" stroke-width="0.6"/>
+<ellipse rx="6" ry="2.1" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.5"/>
+<rect x="-1.6" y="-5.5" width="3.2" height="4" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.4"/>
+<circle cy="-6" r="3" fill="#FF6A13" opacity="0.35"/>
+<circle cy="-6" r="1.4" fill="#FF6A13"/>
+</g>
+<g id="xw-ic-cannon">
+<ellipse cx="0" cy="18" rx="16" ry="5" fill="#15161A" stroke="url(#xw-brass)" stroke-width="1"/>
+<path d="M-15,16 L-12,-2 L-7,-2 L-7,16Z" fill="url(#xw-steelV)" stroke="#0B0C0E" stroke-width="0.7"/>
+<path d="M15,16 L12,-2 L7,-2 L7,16Z" fill="url(#xw-steelV)" stroke="#0B0C0E" stroke-width="0.7"/>
+<path d="M-8.5,12 L-6.5,-20 L6.5,-20 L8.5,12Z" fill="url(#xw-bronze)" stroke="#2A1A08" stroke-width="0.9"/>
+<rect x="-8.9" y="5" width="17.8" height="4" fill="url(#xw-bronze)" stroke="#2A1A08" stroke-width="0.7"/>
+<rect x="-8" y="-6" width="16" height="3.4" fill="url(#xw-bronze)" stroke="#2A1A08" stroke-width="0.7"/>
+<rect x="-7.4" y="-16" width="14.8" height="3" fill="url(#xw-bronze)" stroke="#2A1A08" stroke-width="0.7"/>
+<g fill="#3A2A0A"><circle cx="-5.5" cy="7" r="0.7"/><circle cx="0" cy="7" r="0.7"/><circle cx="5.5" cy="7" r="0.7"/><circle cx="-4.6" cy="-4.3" r="0.7"/><circle cx="4.6" cy="-4.3" r="0.7"/></g>
+<circle cx="-9.6" cy="2.5" r="3" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.6"/>
+<circle cx="9.6" cy="2.5" r="3" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.6"/>
+<ellipse cx="0" cy="-20.5" rx="8" ry="3" fill="url(#xw-bronze)" stroke="#2A1A08" stroke-width="0.8"/>
+<ellipse cx="0" cy="-20.8" rx="5.2" ry="1.9" fill="#080504"/>
+<ellipse cx="0" cy="-20.6" rx="3" ry="1" fill="#FF6A13" opacity="0.8"/>
+</g>
+<g id="xw-ic-fox">
+<g filter="url(#xw-bleed)" fill="#1A1A1A">
+<path d="M-8,3 C-14,0 -18,-6 -16,-14 C-14,-9 -11,-6 -6,-3 Z"/>
+<path d="M-8,4 C-16,4 -22,0 -23,-8 C-19,-4 -14,-1 -7,1 Z"/>
+<path d="M-8,5 C-15,8 -21,8 -24,4 C-19,5 -14,4 -8,3 Z"/>
+<path d="M-8,4 C-4,-2 4,-4 9,-4 L12,-9 L13,-14 L15.5,-10 L17,-14 L18.5,-8.5 C20,-7 22,-6 24,-5 L23,-3.5 C20,-3 17,-2.5 15,-1 C13,2 11,5 8,6 L10,13 L7,13 L4,7 C1,8 -3,8 -6,7 L-9,13 L-12,13 L-10,6 Z"/>
+</g>
+<g fill="#C8372D"><path d="M-16,-14 C-15,-17 -13,-18 -12,-20 C-12,-17 -13,-15 -14,-12 Z"/><path d="M-23,-8 C-25,-11 -25,-13 -24,-16 C-22,-13 -21,-11 -21,-8 Z"/><path d="M-24,4 C-27,3 -28,1 -29,-1 C-26,0 -24,1 -22,3 Z"/></g>
+<g fill="#B8913A"><circle cx="-15" cy="-15" r="1.2"/><circle cx="-23.5" cy="-10" r="1.1"/></g>
+<circle cx="16.4" cy="-6.6" r="0.9" fill="#ECE4D3"/>
+<path d="M5,-1.5 C6,0.5 7,1.5 9,1.5" stroke="#C8372D" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+</g>
+<g id="xw-ic-crow">
+<path d="M-10,0 C-6,-1 -2,-1 2,-2 L6,-3 L9.5,-2.4 L6,-1.2 C5,0.2 3,1.6 0,2 C-3,2.4 -6,2 -10,0 Z"/>
+<path d="M-3,-1 C-6,-6 -10,-9 -16,-10.5 C-12,-6.5 -9,-3 -6.5,0 Z"/>
+<path d="M-1,-1 C0,-5 -2,-9 -6,-12 C-4,-8 -4.5,-4 -4,-0.6 Z"/>
+<path d="M-10,0 L-15.5,-1.8 L-14.5,1.8 Z"/>
+</g>
+<g id="xw-ic-mosq">
+<ellipse cx="-1" cy="-4" rx="4.5" ry="1.8" transform="rotate(-25 -1 -4)" fill="#5CF2E6" fill-opacity="0.2" stroke="#9FF7EF" stroke-width="0.6"/>
+<ellipse cx="-3" cy="-3.5" rx="4" ry="1.6" transform="rotate(-50 -3 -3.5)" fill="#5CF2E6" fill-opacity="0.2" stroke="#9FF7EF" stroke-width="0.6"/>
+<path d="M-2,2 L-4,6 M0,2 L1,6 M2,1.8 L4,5.5" stroke="#9FF7EF" stroke-width="0.6" fill="none"/>
+<ellipse cx="-3" cy="0" rx="5" ry="2.2" fill="#0E3B3F" stroke="#5CF2E6" stroke-width="0.9"/>
+<circle cx="3.5" cy="0.4" r="1.9" fill="#0E3B3F" stroke="#5CF2E6" stroke-width="0.9"/>
+<path d="M5.2,1 L10,3.4" stroke="#FF6F61" stroke-width="1"/>
+<circle cx="4" cy="0" r="0.6" fill="#C6FF4D"/>
+</g>
+<path id="xw-drop" d="M0,-3.2 C1.7,-0.6 2.1,0.9 2.1,1.9 A2.1,2.1 0 0 1 -2.1,1.9 C-2.1,0.9 -1.7,-0.6 0,-3.2 Z"/>
+</defs>
+</svg>
+
+<!-- ============ 머리 ============ -->
+<div style="position: absolute; left: 24px; top: 18px; font-size: 11.5px; line-height: 14px; font-weight: 700; letter-spacing: 0.08em; color: #C9B8F0; white-space: nowrap">연쇄 폭발 · 균열 크로스오버 · 스타일 가이드</div>
+<div style="position: absolute; left: 24px; top: 36px; font-size: 30px; line-height: 36px; font-weight: 900; color: #FFFFFF; white-space: nowrap; text-shadow: 0 0 18px rgba(255,63,164,0.35)">틀은 하나, 세계는 여섯</div>
+<div style="position: absolute; left: 640px; top: 16px; width: 616px">
+  <div style="display: flex; align-items: center; gap: 8px; height: 20px">
+    <span style="flex: none; width: 34px; height: 16px; border-radius: 2px; background: #E9C46A; color: #1A0F02; font-size: 10px; line-height: 16px; font-weight: 900; text-align: center">공통</span>
+    <span style="font-size: 12.5px; line-height: 16px; color: #F1EAFF; white-space: nowrap">적 · 연쇄 · 숫자 · 방어선 · 유물함 틀 · 카드 금테 · HUD</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px; height: 20px; margin-top: 3px">
+    <span style="flex: none; width: 32px; height: 14px; border-radius: 2px; border: 1px solid #E9C46A; color: #F3D98C; font-size: 10px; line-height: 14px; font-weight: 900; text-align: center">세계</span>
+    <span style="font-size: 12.5px; line-height: 16px; color: #F1EAFF; white-space: nowrap">유물함 안 재질 · 투사체 · 맞는 순간 무늬 · 반응 이름 글씨</span>
+  </div>
+  <div style="margin-top: 5px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">대난투처럼 무대(균열)는 하나, 무기는 여러 세계에서 온다. 적은 한 세계라 몇십 마리여도 읽힌다.</div>
+</div>
+<div style="position: absolute; left: 24px; top: 82px; width: 1232px; height: 1px; background: linear-gradient(90deg, rgba(233,196,106,0), rgba(233,196,106,0.7) 20%, rgba(255,63,164,0.6) 50%, rgba(233,196,106,0.7) 80%, rgba(233,196,106,0))"></div>
+
+<!-- ============ 왼쪽 띠: 공통 (균열 틀) ============ -->
+<div style="position: absolute; left: 24px; top: 92px; width: 250px; height: 812px; box-sizing: border-box; border: 1px solid #8A6420; border-radius: 6px; background: radial-gradient(ellipse 90% 30% at 50% 0%, rgba(255,63,164,0.16), rgba(255,63,164,0) 70%), linear-gradient(180deg, #120A26 0%, #1A0F38 60%, #231247 100%); overflow: hidden">
+  <div style="position: absolute; left: 14px; top: 14px; font-size: 18px; line-height: 22px; font-weight: 900; color: #FFFFFF; white-space: nowrap">공통 · 균열 틀</div>
+  <div style="position: absolute; left: 14px; top: 40px; width: 222px; font-size: 11px; line-height: 16px; color: #C9BFE6; word-break: keep-all">여섯 세계가 모두 같이 쓰는 것. 판이 시끄러워지지 않게 하는 쪽.</div>
+
+  <div class="xw-sec" style="top: 82px">판 바탕 · 하늘 균열</div>
+  <svg width="222" height="40" viewBox="0 0 222 40" style="position: absolute; left: 14px; top: 100px" aria-hidden="true">
+    <defs><linearGradient id="xw-bgsw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0B0816"/><stop offset="1" stop-color="#2A1450"/></linearGradient></defs>
+    <rect x="0.5" y="0.5" width="221" height="39" rx="3" fill="url(#xw-bgsw)" stroke="#3A2766"/>
+    <ellipse cx="111" cy="14" rx="100" ry="9" fill="#FF3FA4" opacity="0.35" filter="url(#xw-blur4)"/>
+    <path d="M16,14 L42,11 L66,13 L92,8 L118,12 L146,9 L174,13 L206,12 L174,16 L146,18 L118,16 L92,19 L66,16 L42,17 Z" fill="#FF3FA4" stroke="#FF8ACB" stroke-width="0.6" stroke-linejoin="round"/>
+    <path d="M40,14 L92,12 L146,13 L190,14" stroke="#FFFFFF" stroke-width="1.2" fill="none"/>
+    <g fill="#EDE4FF"><circle cx="30" cy="30" r="0.8"/><circle cx="84" cy="33" r="0.7"/><circle cx="150" cy="29" r="0.8"/><circle cx="200" cy="32" r="0.7"/></g>
+  </svg>
+  <div style="position: absolute; left: 14px; top: 143px; font-family: 'Share Tech Mono', monospace; font-size: 9.5px; line-height: 12px; color: #C9BFE6; white-space: nowrap">#0B0816 → #2A1450 · 균열 #FF3FA4</div>
+
+  <div class="xw-sec" style="top: 166px">적 셋 · 균열 결정 그림자</div>
+  <svg width="222" height="70" viewBox="0 0 222 70" style="position: absolute; left: 14px; top: 184px" aria-hidden="true">
+    <use href="#xw-en-n" transform="translate(37,36) scale(0.95)"/>
+    <use href="#xw-en-a" transform="translate(111,34) scale(0.95)"/>
+    <use href="#xw-en-s" transform="translate(185,46) scale(0.72)"/>
+  </svg>
+  <div style="position: absolute; left: 14px; top: 256px; width: 222px; display: flex; font-size: 10.5px; line-height: 14px; color: #E4DCFA; text-align: center">
+    <span style="flex: 1">일반</span><span style="flex: 1">장갑</span><span style="flex: 1">돌격</span>
+  </div>
+
+  <div class="xw-sec" style="top: 280px">방어선 · 봉인선</div>
+  <svg width="222" height="24" viewBox="0 0 222 24" style="position: absolute; left: 14px; top: 298px" aria-hidden="true">
+    <rect x="0" y="6" width="222" height="12" fill="#38E1FF" opacity="0.3" filter="url(#xw-blur2)"/>
+    <line x1="0" y1="8.5" x2="222" y2="8.5" stroke="#38E1FF" stroke-width="0.6" opacity="0.7"/>
+    <line x1="0" y1="12" x2="222" y2="12" stroke="#FFFFFF" stroke-width="2"/>
+    <line x1="0" y1="16" x2="222" y2="16" stroke="#E9C46A" stroke-width="0.9" opacity="0.85"/>
+    <g fill="#140B28" stroke="#E9C46A" stroke-width="1"><path d="M18,7 L23,12 L18,17 L13,12 Z"/><path d="M55,7 L60,12 L55,17 L50,12 Z"/><path d="M92,7 L97,12 L92,17 L87,12 Z"/><path d="M129,7 L134,12 L129,17 L124,12 Z"/><path d="M166,7 L171,12 L166,17 L161,12 Z"/><path d="M203,7 L208,12 L203,17 L198,12 Z"/></g>
+    <g fill="#38E1FF"><circle cx="18" cy="12" r="1.4"/><circle cx="55" cy="12" r="1.4"/><circle cx="92" cy="12" r="1.4"/><circle cx="129" cy="12" r="1.4"/><circle cx="166" cy="12" r="1.4"/><circle cx="203" cy="12" r="1.4"/></g>
+  </svg>
+
+  <div class="xw-sec" style="top: 332px">무기 자리 · 빈 유물함</div>
+  <svg width="78" height="78" viewBox="0 0 62 62" style="position: absolute; left: 18px; top: 354px; overflow: visible" aria-hidden="true">
+    <path d="M8,1 L54,1 L61,8 L61,54 L54,61 L8,61 L1,54 L1,8 Z" fill="#0E0820"/>
+    <path d="M12,9 L50,9 L53,12 L53,50 L50,53 L12,53 L9,50 L9,12 Z" fill="none" stroke="#6A4F9E" stroke-width="0.6" stroke-dasharray="2 2"/>
+    <use href="#xw-frame"/>
+    <circle cx="5.5" cy="5.5" r="6.5" fill="#0B0816" stroke="#E9C46A" stroke-width="0.8" stroke-dasharray="1.5 1.2"/>
+    <g font-family="'Noto Sans KR', sans-serif" font-size="6" font-weight="900" text-anchor="middle" fill="#1A0F02">
+      <circle cx="5.5" cy="5.5" r="3.6" fill="#E9C46A"/><text x="5.5" y="7.6">1</text>
+      <circle cx="61" cy="31" r="3.6" fill="#E9C46A"/><text x="61" y="33.1">2</text>
+      <circle cx="31" cy="31" r="3.6" fill="#E9C46A"/><text x="31" y="33.1">3</text>
+    </g>
+  </svg>
+  <div style="position: absolute; left: 108px; top: 352px; width: 128px; font-size: 10px; line-height: 13px; color: #E4DCFA; word-break: keep-all">
+    <div><b style="color: #F3D98C">1</b> 세계 문장 (왼쪽 위)</div>
+    <div style="margin-top: 5px"><b style="color: #F3D98C">2</b> 금테: 모양·크기·두께 같음</div>
+    <div style="margin-top: 5px"><b style="color: #F3D98C">3</b> 안쪽 재질만 그 무기의 세계</div>
+  </div>
+
+  <div class="xw-sec" style="top: 440px">연쇄 · 피해 숫자 (한 문법)</div>
+  <svg width="222" height="118" viewBox="0 0 222 118" style="position: absolute; left: 14px; top: 458px" aria-hidden="true">
+    <path d="M22,98 L40,92 L52,96 L70,84 L86,92 L100,90 L118,100 L134,88 L150,90 L164,78 L176,74 L190,64 L206,58" fill="none" stroke="#E9C46A" stroke-width="5" opacity="0.45" filter="url(#xw-blur2)"/>
+    <path d="M22,98 L40,92 L52,96 L70,84 L86,92 L100,90 L118,100 L134,88 L150,90 L164,78 L176,74 L190,64 L206,58" fill="none" stroke="#F6DC92" stroke-width="2"/>
+    <path d="M22,98 L40,92 L52,96 L70,84 L86,92 L100,90 L118,100 L134,88 L150,90 L164,78 L176,74 L190,64 L206,58" fill="none" stroke="#FFFFFF" stroke-width="0.8"/>
+    <use href="#xw-burst" transform="translate(22,98) scale(0.45)" opacity="0.5"/>
+    <use href="#xw-burst" transform="translate(70,84) scale(0.6)" opacity="0.75"/>
+    <use href="#xw-burst" transform="translate(118,100) scale(0.7)" opacity="0.9"/>
+    <use href="#xw-burst" transform="translate(176,74) scale(0.95)"/>
+    <g font-family="'Noto Sans KR', sans-serif" font-weight="900" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">
+      <text x="52" y="72" font-size="14">36</text>
+      <text x="124" y="80" font-size="15">52</text>
+      <text x="168" y="34" font-size="24">119</text>
+    </g>
+  </svg>
+  <div style="position: absolute; left: 14px; top: 456px; display: flex; align-items: baseline; gap: 6px; white-space: nowrap">
+    <span style="font-size: 15px; line-height: 18px; font-weight: 900; color: #FFFFFF; text-shadow: 0 0 8px rgba(255,255,255,0.5), 0 2px 0 #3A2408">연쇄</span>
+    <span style="font-size: 46px; line-height: 48px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; text-shadow: 0 0 6px rgba(255,255,255,0.8), 0 0 22px rgba(233,196,106,0.75), 0 3px 0 #3A2408">23</span>
+  </div>
+
+  <div class="xw-sec" style="top: 588px">레벨 업 카드 · 금테</div>
+  <div style="position: absolute; left: 14px; top: 606px; width: 222px; height: 88px">
+    <svg width="222" height="88" viewBox="0 0 222 88" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <defs><linearGradient id="xw-cardbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A1650"/><stop offset="1" stop-color="#120A26"/></linearGradient></defs>
+      <path d="M8,1 L214,1 L221,8 L221,80 L214,87 L8,87 L1,80 L1,8 Z" fill="url(#xw-cardbg)" stroke="url(#xw-goldH)" stroke-width="1.6"/>
+      <path d="M10,4.5 L212,4.5 L217.5,10 L217.5,78 L212,83.5 L10,83.5 L4.5,78 L4.5,10 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.5"/>
+      <path d="M111,-1 L114,2 L111,5 L108,2 Z" fill="#E9C46A"/>
+      <path d="M18,12 L68,12 L74,18 L74,70 L68,76 L18,76 L12,70 L12,18 Z" fill="#0E0820" stroke="#E9C46A" stroke-width="1"/>
+      <path d="M20,17 L66,17 L69,20 L69,68 L66,71 L20,71 L17,68 L17,20 Z" fill="none" stroke="#6A4F9E" stroke-width="0.6" stroke-dasharray="2 2"/>
+    </svg>
+    <div style="position: absolute; left: 12px; top: 33px; width: 62px; text-align: center; font-size: 9px; line-height: 12px; color: #C9BFE6">그림 칸<br>= 세계 재질</div>
+    <div style="position: absolute; left: 86px; top: 13px; font-size: 15px; line-height: 19px; font-weight: 900; color: #FFFFFF; white-space: nowrap">무기 이름</div>
+    <div style="position: absolute; left: 86px; top: 37px; padding: 0 6px; height: 16px; border: 1px solid rgba(233,196,106,0.8); border-radius: 2px; font-size: 9.5px; line-height: 16px; font-weight: 700; color: #F3D98C; white-space: nowrap">갈래 · 세계 문장</div>
+    <div style="position: absolute; left: 86px; top: 60px; font-size: 10px; line-height: 14px; color: #C9BFE6; white-space: nowrap">글꼴·틀·버튼은 공통</div>
+  </div>
+
+  <div class="xw-sec" style="top: 706px">HUD</div>
+  <div style="position: absolute; left: 14px; top: 724px; width: 222px; height: 54px; box-sizing: border-box; border: 1px solid #3A2766; border-radius: 4px; background: rgba(8,5,18,0.9)">
+    <div style="position: absolute; left: 9px; top: 6px; display: flex; align-items: baseline; gap: 4px; white-space: nowrap">
+      <span style="font-size: 10px; color: #D8CEF2">웨이브</span><span style="font-size: 17px; line-height: 20px; font-weight: 900; color: #FFFFFF">12</span>
+      <span style="margin-left: 8px; font-size: 10px; color: #D8CEF2">LV</span><span style="font-size: 17px; line-height: 20px; font-weight: 900; color: #FFFFFF">9</span>
+    </div>
+    <div style="position: absolute; right: 9px; top: 9px; display: flex; align-items: center; gap: 2px">
+      <svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M6,10.5 L1.2,5.6 C-0.4,4 -0.2,1.4 1.8,0.6 C3.4,0 4.9,0.6 6,1.9 C7.1,0.6 8.6,0 10.2,0.6 C12.2,1.4 12.4,4 10.8,5.6 Z" fill="#FF5CAD"/></svg>
+      <svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M6,10.5 L1.2,5.6 C-0.4,4 -0.2,1.4 1.8,0.6 C3.4,0 4.9,0.6 6,1.9 C7.1,0.6 8.6,0 10.2,0.6 C12.2,1.4 12.4,4 10.8,5.6 Z" fill="#FF5CAD"/></svg>
+      <svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M6,10.5 L1.2,5.6 C-0.4,4 -0.2,1.4 1.8,0.6 C3.4,0 4.9,0.6 6,1.9 C7.1,0.6 8.6,0 10.2,0.6 C12.2,1.4 12.4,4 10.8,5.6 Z" fill="#FF5CAD"/></svg>
+      <svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M6,10.5 L1.2,5.6 C-0.4,4 -0.2,1.4 1.8,0.6 C3.4,0 4.9,0.6 6,1.9 C7.1,0.6 8.6,0 10.2,0.6 C12.2,1.4 12.4,4 10.8,5.6 Z" fill="#FF5CAD"/></svg>
+      <svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M6,10 L1.6,5.4 C0.2,4 0.4,1.8 2,1.1 C3.4,0.6 4.8,1.2 6,2.6 C7.2,1.2 8.6,0.6 10,1.1 C11.6,1.8 11.8,4 10.4,5.4 Z" fill="none" stroke="#B9A3D8" stroke-width="1"/></svg>
+      <span style="margin-left: 3px; font-size: 10px; font-weight: 700; color: #FFFFFF">4/5</span>
+    </div>
+    <div style="position: absolute; left: 9px; top: 35px; width: 170px; height: 6px; border-radius: 3px; background: #2A1F45; overflow: hidden"><div style="width: 60%; height: 6px; background: linear-gradient(90deg, #8A6420, #F6DC92)"></div></div>
+    <div style="position: absolute; right: 9px; top: 31px; font-size: 10px; line-height: 14px; font-weight: 700; color: #F3D98C">60%</div>
+  </div>
+  <div style="position: absolute; left: 14px; top: 788px; width: 222px; font-size: 10px; line-height: 14px; color: #F3D98C; white-space: nowrap">여섯 세계가 한꺼번에 터져도 이 줄은 한 언어</div>
+</div>
+
+<!-- ============ 세계 1 · 관제 전선 ============ -->
+<div class="xw-card" style="left: 290px; top: 92px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: #6CFFA0"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-radar" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 11px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">관제 전선</span>
+    <span style="font-family: 'Share Tech Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; color: #6CFFA0">TACTICAL FRONT</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">근미래 군사·전술. 녹색 예광선과 조준 브래킷.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #07110C; color: #CFF5DC; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#07110C</div>
+    <div class="xw-chip" style="background: #14301F; color: #CFF5DC; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#14301F</div>
+    <div class="xw-chip" style="background: #6CFFA0; color: #07110C">#6CFFA0</div>
+    <div class="xw-chip" style="background: #FFB547; color: #2A1A02">#FFB547</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-radar"/>
+    <g transform="translate(31,35) rotate(-18)">
+      <path d="M-23,1 L-19,-3 L-9,-3 L-8,-5 L9,-5 L9,-3.5 L22,-3.5 L22,-1 L9,-1 L7,2 L-1,2 L-3,8 L-7,8 L-6,2 L-12,2 L-20,6 L-23,5 Z" fill="#6CFFA0" fill-opacity="0.2" stroke="#6CFFA0" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M1,2 L5,2 L7.5,10 L4,11 Z" fill="#6CFFA0" fill-opacity="0.35" stroke="#6CFFA0" stroke-width="1" stroke-linejoin="round"/>
+      <rect x="-4" y="-9" width="9" height="3" fill="#07110C" stroke="#6CFFA0" stroke-width="1"/>
+      <path d="M23,-2.2 L29,-2.2" stroke="#FFB547" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <text x="56" y="13" text-anchor="end" font-family="'Share Tech Mono', monospace" font-size="6.5" fill="#58B07D">AR-07</text>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-radar" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-radar"/>
+    <path d="M31,22 L18,40 M31,22 L44,40 M18,40 L44,40" stroke="#FFB547" stroke-width="0.7" stroke-dasharray="1.6 1.6" opacity="0.85"/>
+    <use href="#xw-ic-drone" transform="translate(31,22)"/>
+    <use href="#xw-ic-drone" transform="translate(18,41) scale(0.85)"/>
+    <use href="#xw-ic-drone" transform="translate(44,41) scale(0.85)"/>
+    <text x="56" y="55" text-anchor="end" font-family="'Share Tech Mono', monospace" font-size="6.5" fill="#58B07D">DR×3</text>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-radar" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-radar"/>
+    <path d="M31,27 L31,54" stroke="#6CFFA0" stroke-width="5" opacity="0.18"/>
+    <path d="M31,27 L31,54" stroke="#FFB547" stroke-width="1.4"/>
+    <path d="M25,51 L25,55 L28,55 M37,51 L37,55 L34,55" stroke="#FFB547" stroke-width="1" fill="none"/>
+    <g transform="translate(31,19)">
+      <rect x="-4" y="-5" width="8" height="10" fill="#6CFFA0" fill-opacity="0.25" stroke="#6CFFA0" stroke-width="1.1"/>
+      <rect x="-18" y="-3.5" width="11" height="7" fill="#07110C" stroke="#6CFFA0" stroke-width="1"/>
+      <rect x="7" y="-3.5" width="11" height="7" fill="#07110C" stroke="#6CFFA0" stroke-width="1"/>
+      <path d="M-14.3,-3.5 V3.5 M-10.7,-3.5 V3.5 M10.7,-3.5 V3.5 M14.3,-3.5 V3.5 M-18,0 H-7 M7,0 H18" stroke="#6CFFA0" stroke-width="0.5"/>
+      <path d="M-7,0 H-4 M4,0 H7" stroke="#6CFFA0" stroke-width="1"/>
+      <path d="M-3,5 L0,8 L3,5 Z" fill="#FFB547"/>
+    </g>
+    <text x="56" y="44" text-anchor="end" font-family="'Share Tech Mono', monospace" font-size="6.5" fill="#58B07D">SAT-1</text>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-radar" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-radar"/>
+    <g transform="translate(30,38)">
+      <path d="M-14,-5 L6,-5 L9,-10 L11,-16 L13.5,-12 L16,-12 L22,-9 L22,-7 L16,-5.5 L11,0 L9,3 L9,12 L6,12 L5.5,3 L-8,3 L-9,12 L-12,12 L-13,3 L-15,0 Z" fill="#6CFFA0" fill-opacity="0.18" stroke="#6CFFA0" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M-14,-4 Q-19,-7 -20,-12" fill="none" stroke="#6CFFA0" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M-6,-5 L3,-5 L3,3 L-6,3 Z" fill="#FFB547" fill-opacity="0.35" stroke="#FFB547" stroke-width="0.8"/>
+      <circle cx="15" cy="-9.5" r="0.9" fill="#6CFFA0"/>
+    </g>
+    <text x="56" y="56" text-anchor="end" font-family="'Share Tech Mono', monospace" font-size="6.5" fill="#58B07D">K9-02</text>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-radar" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">돌격소총</div><div class="xw-cat" style="left: 7px; top: 166px">총</div>
+  <div class="xw-name" style="left: 82px; top: 152px">드론 편대</div><div class="xw-cat" style="left: 82px; top: 166px">정령</div>
+  <div class="xw-name" style="left: 156px; top: 152px">위성 레이저</div><div class="xw-cat" style="left: 156px; top: 166px">공중</div>
+  <div class="xw-name" style="left: 231px; top: 152px">군견</div><div class="xw-cat" style="left: 231px; top: 166px">소환수</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(110,34) scale(0.75)"/>
+      <g stroke-linecap="round">
+        <path d="M10,76 L27,69 M40,63 L58,56 M70,51 L88,43" stroke="#6CFFA0" stroke-width="3.4" opacity="0.4" filter="url(#xw-blur2)"/>
+        <path d="M10,76 L27,69 M40,63 L58,56 M70,51 L88,43" stroke="#6CFFA0" stroke-width="1.8"/>
+        <path d="M12,75 L27,69 M42,62 L58,56 M72,50 L88,43" stroke="#EFFFF5" stroke-width="0.8"/>
+      </g>
+      <path d="M95,25 V19 H101 M119,19 H125 V25 M125,43 V49 H119 M101,49 H95 V43" fill="none" stroke="#6CFFA0" stroke-width="1.4"/>
+      <circle cx="110" cy="34" r="1.4" fill="#FFB547"/>
+      <text x="86" y="62" font-family="'Share Tech Mono', monospace" font-size="8" fill="#8FD9AC">TGT-07 840m</text>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(52,46) scale(0.8)"/>
+      <circle cx="52" cy="46" r="12" fill="#6CFFA0" opacity="0.25" filter="url(#xw-blur2)"/>
+      <path d="M52,38 L60,46 L52,54 L44,46 Z" fill="none" stroke="#EFFFF5" stroke-width="1.2"/>
+      <path d="M33,34 V27 H40 M64,27 H71 V34 M71,58 V65 H64 M40,65 H33 V58" fill="none" stroke="#FFB547" stroke-width="2"/>
+      <path d="M52,22 V18 M52,70 V74 M28,46 H24 M76,46 H80" stroke="#6CFFA0" stroke-width="1.2"/>
+      <path d="M71,27 L84,16 H88" fill="none" stroke="#FFB547" stroke-width="0.8"/>
+      <rect x="88" y="9" width="46" height="13" fill="#07110C" stroke="#FFB547" stroke-width="0.8"/>
+      <text x="92" y="18.5" font-family="'Share Tech Mono', monospace" font-size="8" fill="#FFB547">HIT 0x2F</text>
+      <text x="88" y="64" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">36</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <div class="xw-tag">반응 글씨</div>
+    <div style="position: absolute; left: 8px; top: 34px; width: 124px; box-sizing: border-box; padding: 6px 6px 7px 11px; border: 1px solid #FFB547; background: linear-gradient(90deg, rgba(44,31,9,0.96), rgba(7,17,12,0.94)); box-shadow: 0 0 16px rgba(255,181,71,0.25)">
+      <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #FFB547"></div>
+      <div style="font-family: 'Share Tech Mono', monospace; font-size: 9px; line-height: 12px; color: #FFB547; letter-spacing: 0.06em; white-space: nowrap">OPS-LOG // K9</div>
+      <div style="margin-top: 2px; font-size: 21px; line-height: 25px; font-weight: 900; color: #FFF6E6; white-space: nowrap; text-shadow: 0 0 12px rgba(255,181,71,0.5)">전향 무리</div>
+      <div style="font-size: 21px; line-height: 25px; font-weight: 900; color: #FFB547; white-space: nowrap">· 강타</div>
+      <div style="margin-top: 3px; font-family: 'Share Tech Mono', 'Noto Sans KR', monospace; font-size: 9px; line-height: 12px; color: #8FD9AC; white-space: nowrap">&gt; 묶임→전향→충돌</div>
+    </div>
+    <div class="xw-foot">보조: 군견 (소환수)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 녹색 선은 가늘게, 경고·코드만 호박색.</div>
+</div>
+
+<!-- ============ 세계 2 · 강철 공방 ============ -->
+<div class="xw-card" style="left: 616px; top: 92px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: linear-gradient(90deg, #C9A24D, #FF6A13)"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-forge" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 11px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">강철 공방</span>
+    <span style="font-family: 'Black Han Sans', sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #E0B860">STEEL FORGE</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">디젤펑크 기계·포. 리벳 강판, 놋쇠, 쇳물.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #2B2E33; color: #E6E8EB; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#2B2E33</div>
+    <div class="xw-chip" style="background: #9A948A; color: #17181B">#9A948A</div>
+    <div class="xw-chip" style="background: #C9A24D; color: #1E1504">#C9A24D</div>
+    <div class="xw-chip" style="background: #FF6A13; color: #1A0A02">#FF6A13</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-forge"/>
+    <use href="#xw-ic-cannon" transform="translate(31,33) scale(0.95)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-forge"/>
+    <g transform="translate(31,32)">
+      <circle r="20" fill="#FF6A13" opacity="0.22" filter="url(#xw-blur2)"/>
+      <path d="M17,0 L12.92,3.92 L12.22,5.06 L15.71,6.51 L10.44,8.56 L9.36,9.36 L12.02,12.02 L6.36,11.91 L5.06,12.22 L6.51,15.71 L1.32,13.43 L0,13.23 L0,17 L-3.92,12.92 L-5.06,12.22 L-6.51,15.71 L-8.56,10.44 L-9.36,9.36 L-12.02,12.02 L-11.91,6.36 L-12.22,5.06 L-15.71,6.51 L-13.43,1.32 L-13.23,0 L-17,0 L-12.92,-3.92 L-12.22,-5.06 L-15.71,-6.51 L-10.44,-8.56 L-9.36,-9.36 L-12.02,-12.02 L-6.36,-11.91 L-5.06,-12.22 L-6.51,-15.71 L-1.32,-13.43 L0,-13.23 L0,-17 L3.92,-12.92 L5.06,-12.22 L6.51,-15.71 L8.56,-10.44 L9.36,-9.36 L12.02,-12.02 L11.91,-6.36 L12.22,-5.06 L15.71,-6.51 L13.43,-1.32 L13.23,0 Z" fill="url(#xw-steelH)" stroke="#0B0C0E" stroke-width="0.8"/>
+      <circle r="11.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="0.6"/>
+      <g fill="none" stroke="#17181B" stroke-width="2.2" stroke-linecap="round"><path d="M0,-8 A8,8 0 0 1 5.6,-5.7"/><path d="M0,-8 A8,8 0 0 1 5.6,-5.7" transform="rotate(120)"/><path d="M0,-8 A8,8 0 0 1 5.6,-5.7" transform="rotate(240)"/></g>
+      <circle r="5" fill="url(#xw-brass)" stroke="#3A2A0A" stroke-width="0.7"/>
+      <path d="M0,-2.6 L2.25,-1.3 L2.25,1.3 L0,2.6 L-2.25,1.3 L-2.25,-1.3Z" fill="#2B2E33"/>
+      <path d="M17,0 A17,17 0 0 0 12.02,-12.02" fill="none" stroke="#FF6A13" stroke-width="1.8"/>
+      <path d="M13,-12 L17,-17 M15,-8 L21,-10 M10,-14 L11,-20" stroke="#FFB25A" stroke-width="1.1" stroke-linecap="round"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-forge"/>
+    <path d="M20,26 Q26,22 36,36" stroke="#C9A24D" stroke-width="0.8" stroke-dasharray="1.5 1.2" fill="none"/>
+    <use href="#xw-ic-mine" transform="translate(21,28) scale(0.7)"/>
+    <use href="#xw-ic-mine" transform="translate(36,42)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-forge"/>
+    <g transform="translate(31,36) scale(0.88)">
+      <circle cx="-2" cy="-28" r="4" fill="#6E6A64" opacity="0.7" filter="url(#xw-blur2)"/>
+      <circle cx="4" cy="-32" r="5" fill="#57534E" opacity="0.6" filter="url(#xw-blur2)"/>
+      <rect x="-6" y="-24" width="12" height="3" fill="url(#xw-steelH)" stroke="#0B0C0E" stroke-width="0.6"/>
+      <rect x="-4" y="-21" width="8" height="8" fill="url(#xw-steelH)" stroke="#0B0C0E" stroke-width="0.6"/>
+      <ellipse cx="0" cy="-23.5" rx="4" ry="1" fill="#FF6A13"/>
+      <circle cx="0" cy="-2" r="12.5" fill="url(#xw-steelV)" stroke="#0B0C0E" stroke-width="0.9"/>
+      <circle cx="0" cy="-2" r="9.5" fill="none" stroke="url(#xw-brass)" stroke-width="1.6"/>
+      <g fill="#2B2E33"><circle cx="11" cy="-2" r="0.8"/><circle cx="5.5" cy="7.5" r="0.8"/><circle cx="-5.5" cy="7.5" r="0.8"/><circle cx="-11" cy="-2" r="0.8"/><circle cx="-5.5" cy="-11.5" r="0.8"/><circle cx="5.5" cy="-11.5" r="0.8"/></g>
+      <circle cx="0" cy="-2" r="6" fill="#FF6A13" opacity="0.4" filter="url(#xw-blur2)"/>
+      <circle cx="0" cy="-2" r="4" fill="#FFE2B0" stroke="#3A2A0A" stroke-width="0.8"/>
+      <circle cx="0" cy="-2" r="2" fill="#FFFFFF"/>
+      <rect x="-16" y="9" width="32" height="4" fill="#7A2A12" stroke="#0B0C0E" stroke-width="0.7"/>
+      <path d="M-15,13 L15,13 L10,22 L-10,22 Z" fill="url(#xw-steelH)" stroke="#0B0C0E" stroke-width="0.8"/>
+      <path d="M-9,13 L-6.5,22 M-3,13 L-2,22 M3,13 L2,22 M9,13 L6.5,22" stroke="#0B0C0E" stroke-width="0.9"/>
+      <path d="M-23,2 L-17,2 M-24,8 L-18,8 M23,2 L17,2 M24,8 L18,8" stroke="#FF6A13" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">대포</div><div class="xw-cat" style="left: 7px; top: 166px">포격</div>
+  <div class="xw-name" style="left: 82px; top: 152px">회전톱</div><div class="xw-cat" style="left: 82px; top: 166px">회전체</div>
+  <div class="xw-name" style="left: 156px; top: 152px">지뢰밭</div><div class="xw-cat" style="left: 156px; top: 166px">함정</div>
+  <div class="xw-name" style="left: 231px; top: 152px">폭주 기관차</div><div class="xw-cat" style="left: 231px; top: 166px">돌격</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(120,28) scale(0.7)"/>
+      <g fill="#5E5A55" filter="url(#xw-blur2)"><circle cx="24" cy="72" r="5" opacity="0.5"/><circle cx="42" cy="64" r="6" opacity="0.5"/><circle cx="60" cy="57" r="5" opacity="0.45"/></g>
+      <path d="M100,36 L18,72 L22,78 L102,44 Z" fill="url(#xw-tailO)"/>
+      <ellipse cx="102" cy="40" rx="7" ry="4" transform="rotate(-24 102 40)" fill="url(#xw-hot)" stroke="#2B2E33" stroke-width="0.8"/>
+      <path d="M64,62 L60,67 M78,54 L76,60 M88,50 L92,55 M50,66 L47,72" stroke="#FFB25A" stroke-width="1" stroke-linecap="round"/>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <circle cx="54" cy="46" r="24" fill="#FF6A13" opacity="0.35" filter="url(#xw-blur4)"/>
+      <use href="#xw-en-n" transform="translate(50,48) scale(0.8)"/>
+      <g transform="translate(56,44)">
+        <path d="M0,-16.98 L1.55,-7.81 L7.95,-19.2 L5.43,-8.12 L15.23,-15.23 L6.89,-4.61 L20.23,-8.38 L9.09,-1.81 L15.33,0 L9.06,1.8 L16,6.63 L6.74,4.5 L9.69,9.69 L4.91,7.34 L7.95,19.2 L1.75,8.81 L0,19.2 L-1.69,8.52 L-8.12,19.61 L-4.54,6.79 L-16.07,16.07 L-6.85,4.58 L-21.78,9.02 L-9.11,1.81 L-19.24,0 L-8.61,-1.71 L-16.24,-6.73 L-7.09,-4.74 L-11.36,-11.36 L-5.09,-7.62 L-5.72,-13.82 L-1.93,-9.72 Z" fill="#FF8A2A"/>
+        <path d="M0,-16.98 L1.55,-7.81 L7.95,-19.2 L5.43,-8.12 L15.23,-15.23 L6.89,-4.61 L20.23,-8.38 L9.09,-1.81 L15.33,0 L9.06,1.8 L16,6.63 L6.74,4.5 L9.69,9.69 L4.91,7.34 L7.95,19.2 L1.75,8.81 L0,19.2 L-1.69,8.52 L-8.12,19.61 L-4.54,6.79 L-16.07,16.07 L-6.85,4.58 L-21.78,9.02 L-9.11,1.81 L-19.24,0 L-8.61,-1.71 L-16.24,-6.73 L-7.09,-4.74 L-11.36,-11.36 L-5.09,-7.62 L-5.72,-13.82 L-1.93,-9.72 Z" transform="scale(0.55)" fill="#FFF3D6"/>
+      </g>
+      <g fill="#2B2E33" stroke="#9A948A" stroke-width="0.6" stroke-linejoin="round"><path d="M84,26 L91,23 L88,30 Z"/><path d="M22,24 L28,21 L27,28 Z"/><path d="M20,64 L27,62 L24,69 Z"/><path d="M82,58 L88,61 L82,64 Z"/></g>
+      <path d="M72,30 L82,21 M76,48 L90,50 M36,30 L27,21 M38,60 L29,67 M60,66 L64,76" stroke="#FFD27A" stroke-width="1.2" stroke-linecap="round"/>
+      <text x="96" y="66" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">52</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <div class="xw-tag">반응 글씨</div>
+    <div style="position: absolute; left: 8px; top: 36px; width: 124px; height: 46px; box-sizing: border-box; border-radius: 3px; border: 1px solid #0B0C0E; background: linear-gradient(180deg, #D2D6DB 0%, #9AA0A8 55%, #80868E 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.35), 0 2px 0 #0B0C0E; display: flex; align-items: center; justify-content: center; font-family: 'Black Han Sans', sans-serif; font-size: 21px; line-height: 26px; color: #141518; text-shadow: 0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(0,0,0,0.3); white-space: nowrap">올가미 돌파</div>
+    <div style="position: absolute; left: 12px; top: 40px; width: 4px; height: 4px; border-radius: 50%; background: #3A3D42"></div>
+    <div style="position: absolute; left: 124px; top: 40px; width: 4px; height: 4px; border-radius: 50%; background: #3A3D42"></div>
+    <div style="position: absolute; left: 12px; top: 74px; width: 4px; height: 4px; border-radius: 50%; background: #3A3D42"></div>
+    <div style="position: absolute; left: 124px; top: 74px; width: 4px; height: 4px; border-radius: 50%; background: #3A3D42"></div>
+    <div style="position: absolute; left: 28px; top: 92px; width: 84px; height: 40px; box-sizing: border-box; border-radius: 3px; border: 1px solid #3A1404; background: linear-gradient(180deg, #FFE2B0 0%, #FF9A3D 45%, #FF6A13 100%); box-shadow: 0 0 16px rgba(255,106,19,0.65), inset 0 1px 0 rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-family: 'Black Han Sans', sans-serif; font-size: 24px; line-height: 28px; color: #1A0A02; transform: rotate(-3deg); white-space: nowrap">강타!</div>
+    <div class="xw-foot">보조: 폭주 기관차 (돌격)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 쇳물 주황은 강철 몫. 연기는 짧게 끊는다.</div>
+</div>
+
+<!-- ============ 세계 3 · 수묵 요괴 ============ -->
+<div class="xw-card" style="left: 942px; top: 92px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: linear-gradient(90deg, #ECE4D3, #C8372D)"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-sumi" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 9px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">수묵 요괴</span>
+    <span style="font-family: 'East Sea Dokdo', cursive; font-size: 20px; line-height: 22px; color: #ECE4D3">먹으로 그린 요괴</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">한지·먹·요괴. 붓 획과 주홍 낙관.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #ECE4D3; color: #1A1A1A">#ECE4D3</div>
+    <div class="xw-chip" style="background: #1A1A1A; color: #ECE4D3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#1A1A1A</div>
+    <div class="xw-chip" style="background: #C8372D; color: #FFF3EE">#C8372D</div>
+    <div class="xw-chip" style="background: #B8913A; color: #1A1204">#B8913A</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-sumi"/>
+    <use href="#xw-ic-fox" transform="translate(34,37) scale(0.92)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-sumi" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-sumi"/>
+    <g transform="translate(31,33)">
+      <path d="M-21,-5 A21,21 0 0 1 2,-21" fill="none" stroke="#6E675B" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>
+      <path d="M4.5,0 L14,0 M3.18,3.18 L9.9,9.9 M0,4.5 L0,14 M-3.18,3.18 L-9.9,9.9 M-4.5,0 L-14,0 M-3.18,-3.18 L-9.9,-9.9 M0,-4.5 L0,-14 M3.18,-3.18 L9.9,-9.9" stroke="#1A1A1A" stroke-width="1.6"/>
+      <circle r="14.5" fill="none" stroke="#1A1A1A" stroke-width="3" filter="url(#xw-dryH)"/>
+      <circle r="9" fill="none" stroke="#C8372D" stroke-width="1"/>
+      <circle r="4.5" fill="#1A1A1A"/>
+      <circle r="1.6" fill="#B8913A"/>
+      <g fill="#B8913A" stroke="#1A1A1A" stroke-width="0.5"><circle cx="17.5" cy="0" r="1.7"/><circle cx="12.37" cy="12.37" r="1.7"/><circle cx="0" cy="17.5" r="1.7"/><circle cx="-12.37" cy="12.37" r="1.7"/><circle cx="-17.5" cy="0" r="1.7"/><circle cx="-12.37" cy="-12.37" r="1.7"/><circle cx="0" cy="-17.5" r="1.7"/><circle cx="12.37" cy="-12.37" r="1.7"/></g>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-sumi" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-sumi"/>
+    <g transform="translate(31,36)">
+      <g fill="none" stroke="#1A1A1A" stroke-width="1.6" stroke-linecap="round" filter="url(#xw-bleed)"><path d="M-19,-8 C-22,-3 -22,3 -19,8 M-23,-11 C-27,-4 -27,5 -23,11"/><path d="M19,-8 C22,-3 22,3 19,8 M23,-11 C27,-4 27,5 23,11"/></g>
+      <path d="M-13,-8 C-15,-2 -15,6 -13,12 L13,12 C15,6 15,-2 13,-8 Z" fill="#C8372D" stroke="#1A1A1A" stroke-width="1.6"/>
+      <path d="M-13,12 C-8,15.5 8,15.5 13,12" fill="none" stroke="#1A1A1A" stroke-width="1.6"/>
+      <path d="M-14,2 C-6,4 6,4 14,2" stroke="#1A1A1A" stroke-width="0.8" fill="none" opacity="0.6"/>
+      <ellipse cx="0" cy="-8" rx="13" ry="3.8" fill="#ECE4D3" stroke="#1A1A1A" stroke-width="1.6"/>
+      <circle cx="0" cy="-8" r="2" fill="#B8913A"/>
+      <g fill="#1A1A1A"><circle cx="-10" cy="-4.6" r="0.8"/><circle cx="-5" cy="-3.8" r="0.8"/><circle cx="0" cy="-3.5" r="0.8"/><circle cx="5" cy="-3.8" r="0.8"/><circle cx="10" cy="-4.6" r="0.8"/></g>
+      <path d="M4,-22 L12,-12 M16,-22 L8,-12" stroke="#1A1A1A" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="4" cy="-22" r="1.8" fill="#C8372D" stroke="#1A1A1A" stroke-width="0.8"/>
+      <circle cx="16" cy="-22" r="1.8" fill="#C8372D" stroke="#1A1A1A" stroke-width="0.8"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-sumi" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-sumi"/>
+    <g filter="url(#xw-bleed)">
+      <use href="#xw-ic-crow" transform="translate(34,26) scale(1.45)" fill="#1A1A1A"/>
+      <use href="#xw-ic-crow" transform="translate(20,42) scale(1.1)" fill="#1A1A1A"/>
+      <use href="#xw-ic-crow" transform="translate(46,47) scale(0.9)" fill="#1A1A1A"/>
+    </g>
+    <circle cx="40.5" cy="22.4" r="0.9" fill="#C8372D"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-sumi" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">불여우</div><div class="xw-cat" style="left: 7px; top: 166px">소환수</div>
+  <div class="xw-name" style="left: 82px; top: 152px">법륜</div><div class="xw-cat" style="left: 82px; top: 166px">회전체</div>
+  <div class="xw-name" style="left: 156px; top: 152px">전쟁 북</div><div class="xw-cat" style="left: 156px; top: 166px">음파</div>
+  <div class="xw-name" style="left: 231px; top: 152px">까마귀 떼</div><div class="xw-cat" style="left: 231px; top: 166px">떼</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(120,28) scale(0.7)"/>
+      <path d="M8,78 C34,66 62,52 96,36 C99,40 97,43 93,45 C64,58 36,70 8,78 Z" fill="#ECE4D3" opacity="0.92" filter="url(#xw-bleed)"/>
+      <path d="M30,70 C50,61 70,51 94,40" fill="none" stroke="#7A7366" stroke-width="0.7" opacity="0.7"/>
+      <path d="M8,78 C34,66 62,52 96,36" fill="none" stroke="#B8913A" stroke-width="0.9"/>
+      <path d="M99,40 C95,35 96,30 100,26 C100,30 103,31 105,33 C106,37 103,41 99,40 Z" fill="#C8372D"/>
+      <path d="M100,37 C99,35 100,33 101,31.5 C102,33.5 103,34.5 102,37 Z" fill="#FFD27A"/>
+      <g fill="#ECE4D3"><circle cx="34" cy="60" r="1.2"/><circle cx="56" cy="52" r="0.9"/><circle cx="72" cy="44" r="1.1"/></g>
+      <g fill="#B8913A"><path d="M46,62 L49,61 L48,64 Z"/><path d="M80,48 L82,47 L82,50 Z"/></g>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(42,48) scale(0.8)"/>
+      <g fill="#ECE4D3" stroke="#B8913A" stroke-width="0.6"><path d="M22,28 C24,25 28,26 27,29 C26,31 22,31 22,28 Z"/><path d="M84,24 C87,22 90,24 88,27 C86,29 83,27 84,24 Z"/><path d="M80,62 C82,60 85,61 84,64 C83,66 80,65 80,62 Z"/></g>
+      <g fill="#ECE4D3"><circle cx="30" cy="66" r="1.3"/><circle cx="90" cy="40" r="1"/><circle cx="18" cy="46" r="0.9"/></g>
+      <g transform="translate(62,40) rotate(-8)">
+        <g filter="url(#xw-seal)">
+          <rect x="-15" y="-15" width="30" height="30" rx="2" fill="#C8372D"/>
+          <use href="#xw-g-zan" transform="translate(-12,-12) scale(0.6)" stroke="#ECE4D3"/>
+        </g>
+      </g>
+      <text x="96" y="66" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">36</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <svg width="140" height="170" viewBox="0 0 140 170" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <path d="M44,24 C52,20 68,21 76,24 L77,138 C70,144 52,145 44,139 Z" fill="#ECE4D3" filter="url(#xw-bleed)"/>
+      <path d="M46,136 C52,142 64,143 74,138 L76,146 C66,150 52,149 45,144 Z M48,22 C56,17 66,17 74,21 L73,15 C64,12 54,13 49,17 Z" fill="#ECE4D3" filter="url(#xw-dryV)" opacity="0.85"/>
+      <path d="M44,24 L44,139 M76,24 L77,138" stroke="#B8913A" stroke-width="1" fill="none"/>
+      <path d="M86,32 C92,29 104,30 108,33 L108,88 C103,92 92,92 86,88 Z" fill="#ECE4D3" filter="url(#xw-bleed)"/>
+      <path d="M86,32 L86,88 M108,33 L108,88" stroke="#B8913A" stroke-width="1" fill="none"/>
+      <g transform="translate(97,106) rotate(6)"><g filter="url(#xw-seal)"><rect x="-8" y="-8" width="16" height="16" rx="1.2" fill="#C8372D"/><use href="#xw-g-zan" transform="translate(-6.4,-6.4) scale(0.32)" stroke="#ECE4D3"/></g></g>
+    </svg>
+    <div style="position: absolute; left: 44px; top: 32px; width: 33px; height: 50px; writing-mode: vertical-rl; text-orientation: upright; font-family: 'East Sea Dokdo', cursive; font-size: 25px; line-height: 33px; color: #1A1A1A; text-align: center; white-space: nowrap">전향</div>
+    <div style="position: absolute; left: 44px; top: 86px; width: 33px; height: 50px; writing-mode: vertical-rl; text-orientation: upright; font-family: 'East Sea Dokdo', cursive; font-size: 25px; line-height: 33px; color: #1A1A1A; text-align: center; white-space: nowrap">무리</div>
+    <div style="position: absolute; left: 86px; top: 37px; width: 22px; height: 50px; writing-mode: vertical-rl; text-orientation: upright; font-family: 'East Sea Dokdo', cursive; font-size: 24px; line-height: 22px; color: #B2241C; text-align: center; white-space: nowrap">화염</div>
+    <div class="xw-tag">반응 글씨</div>
+    <div class="xw-foot">보조: 불여우 (소환수)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 먹은 한지색 띠·금박 테 위에만 올린다.</div>
+</div>
+
+<!-- ============ 세계 4 · 균열 비전 ============ -->
+<div class="xw-card" style="left: 290px; top: 504px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: linear-gradient(90deg, #38E1FF, #E9C46A, #FF3FA4)"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-rift" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 11px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">균열 비전</span>
+    <span style="font-family: 'Cinzel', serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; color: #E9C46A">RIFT ARCANA</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">판타지 마법·유물. 룬 고리와 청록 빛줄기.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #2A1450; color: #E9DEFF; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#2A1450</div>
+    <div class="xw-chip" style="background: #FF3FA4; color: #1A0410">#FF3FA4</div>
+    <div class="xw-chip" style="background: #38E1FF; color: #04161F">#38E1FF</div>
+    <div class="xw-chip" style="background: #E9C46A; color: #1E1504">#E9C46A</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-rift"/>
+    <g transform="translate(27,37)">
+      <circle cx="13" cy="-15" r="6" fill="#38E1FF" opacity="0.4" filter="url(#xw-blur2)"/>
+      <path d="M0,-14 C-5,-14 -7,-9 -7,-5 L-11,15 L11,15 L7,-5 C7,-9 5,-14 0,-14 Z" fill="url(#xw-robe)" stroke="#C3A0FF" stroke-width="0.8"/>
+      <path d="M0,-2 L0,15 M-7,-5 C-3,-3 3,-3 7,-5" stroke="#E9C46A" stroke-width="0.8" fill="none"/>
+      <ellipse cx="0" cy="-7" rx="3.4" ry="4" fill="#0B0816"/>
+      <circle cx="-1.3" cy="-7.4" r="0.8" fill="#38E1FF"/><circle cx="1.3" cy="-7.4" r="0.8" fill="#38E1FF"/>
+      <path d="M8,15 L13,-14" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="13" cy="-15" r="2.4" fill="#DFFAFF" stroke="#38E1FF" stroke-width="1"/>
+      <path d="M14.5,-17 L18,-21 L16.2,-21.6 L21,-27" fill="none" stroke="#DFFAFF" stroke-width="1.3" stroke-linejoin="round" filter="url(#xw-glow)"/>
+      <path d="M11.5,-17.5 L9,-21 L10.8,-21.4 L8,-25" fill="none" stroke="#38E1FF" stroke-width="1" stroke-linejoin="round"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-rift" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-rift"/>
+    <g transform="translate(31,32)">
+      <circle r="12" fill="#38E1FF" opacity="0.3" filter="url(#xw-blur2)"/>
+      <path d="M-19,-6 A20,20 0 0 1 8,-18" fill="none" stroke="#38E1FF" stroke-width="0.9" opacity="0.7"/>
+      <path d="M19,6 A20,20 0 0 1 -8,18" fill="none" stroke="#38E1FF" stroke-width="0.9" opacity="0.7"/>
+      <g fill="url(#xw-ice)" stroke="#DFFAFF" stroke-width="0.6" stroke-linejoin="round">
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z"/>
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z" transform="rotate(60)"/>
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z" transform="rotate(120)"/>
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z" transform="rotate(180)"/>
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z" transform="rotate(240)"/>
+        <path d="M0,-17 L2.6,-6 L0,-3 L-2.6,-6 Z" transform="rotate(300)"/>
+      </g>
+      <path d="M-3,0 L-1.5,-2.6 L1.5,-2.6 L3,0 L1.5,2.6 L-1.5,2.6 Z" fill="#FFFFFF"/>
+      <g fill="#9FF3FF"><path d="M-14,-14 L-12,-11 L-15,-10 Z"/><path d="M15,13 L13,16 L12,12 Z"/><path d="M16,-12 L17,-9 L14,-10 Z"/></g>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-rift" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-rift"/>
+    <g transform="translate(28,37)">
+      <path d="M18,-14 C22,-17 27,-15 29,-12 C25,-12 22,-11 20,-9 Z" fill="#9FF3FF" opacity="0.85" filter="url(#xw-glow)"/>
+      <path d="M-6,-4 L-15,-15 L-4,-8 Z" fill="#E9C46A"/>
+      <path d="M0,-9 L-3,-21 L3,-11 Z" fill="#E9C46A"/>
+      <path d="M-14,14 L-11,3 L-6,-4 L0,-9 L8,-13 L18,-14 L14,-10 L20,-8 L12,-5 L6,-1 L4,7 L-2,14 Z" fill="url(#xw-drag)" stroke="#E9C46A" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M-11,3 L-6,6 L-8,9 M-6,-4 L-2,0 M-4,8 L1,5" stroke="#E9C46A" stroke-width="0.6" fill="none" opacity="0.7"/>
+      <path d="M3,-9 L7.5,-10.5 L5,-7.6 Z" fill="#38E1FF"/>
+      <path d="M-14,14 L-17,8 L-12,9 Z M-6,14 L-7,19 L-3,15 Z" fill="#E9C46A"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-rift" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-rift"/>
+    <g transform="translate(31,35)">
+      <circle cy="-2" r="14" fill="#FFF0C2" opacity="0.25" filter="url(#xw-blur2)"/>
+      <g fill="url(#xw-gold)" stroke="#FFF0C2" stroke-width="0.5" stroke-linejoin="round">
+        <path d="M-2,-6 C-10,-14 -20,-12 -24,-4 C-19,-6 -16,-5 -14,-3 C-18,-2 -21,1 -22,5 C-17,2 -12,1 -8,2 C-11,4 -13,7 -13,10 C-9,6 -5,3 -2,0 Z"/>
+        <path d="M-2,-6 C-10,-14 -20,-12 -24,-4 C-19,-6 -16,-5 -14,-3 C-18,-2 -21,1 -22,5 C-17,2 -12,1 -8,2 C-11,4 -13,7 -13,10 C-9,6 -5,3 -2,0 Z" transform="scale(-1,1)"/>
+      </g>
+      <path d="M0,-10 C4,-8 5,2 3,14 L-3,14 C-5,2 -4,-8 0,-10 Z" fill="#E9FBFF" stroke="#38E1FF" stroke-width="0.6"/>
+      <circle cy="-13" r="3" fill="#FFF6DD"/>
+      <ellipse cy="-18.5" rx="6" ry="1.8" fill="none" stroke="#FFE7A0" stroke-width="1.4"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-rift" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">뇌전 술사</div><div class="xw-cat" style="left: 7px; top: 166px">광선</div>
+  <div class="xw-name" style="left: 82px; top: 152px">얼음 폭풍</div><div class="xw-cat" style="left: 82px; top: 166px">주문</div>
+  <div class="xw-name" style="left: 156px; top: 152px">드래곤</div><div class="xw-cat" style="left: 156px; top: 166px">돌격</div>
+  <div class="xw-name" style="left: 231px; top: 152px">천사</div><div class="xw-cat" style="left: 231px; top: 166px">정령</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(116,30) scale(0.72)"/>
+      <path d="M6,80 L106,34" stroke="#38E1FF" stroke-width="5" opacity="0.35" filter="url(#xw-blur2)"/>
+      <path d="M6,80 L106,34" stroke="#38E1FF" stroke-width="2"/>
+      <path d="M6,80 L106,34" stroke="#E9FBFF" stroke-width="0.8"/>
+      <path d="M44,82 L106,36" stroke="#FF3FA4" stroke-width="1.2" opacity="0.85"/>
+      <g fill="#9FF3FF" stroke="#E9FBFF" stroke-width="0.4"><path d="M36,58 L38.5,54 L41,58 L38.5,62 Z"/><path d="M64,50 L66,47 L68,50 L66,53 Z"/><path d="M22,70 L24,67 L26,70 L24,73 Z"/></g>
+      <g fill="#E9C46A"><path d="M52,62 L53.5,60 L55,62 L53.5,64 Z"/><path d="M82,46 L83.5,44 L85,46 L83.5,48 Z"/></g>
+      <path d="M106,26 L107.2,32.8 L114,34 L107.2,35.2 L106,42 L104.8,35.2 L98,34 L104.8,32.8 Z" fill="#FFFFFF"/>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(52,46) scale(0.8)"/>
+      <circle cx="52" cy="46" r="25" fill="none" stroke="#E9C46A" stroke-width="1.2"/>
+      <circle cx="52" cy="46" r="21" fill="none" stroke="#E9C46A" stroke-width="2.6" stroke-dasharray="1.5 4.2" opacity="0.9"/>
+      <circle cx="52" cy="46" r="29" fill="none" stroke="#E9C46A" stroke-width="0.8" stroke-dasharray="7 9" opacity="0.7"/>
+      <g fill="none" stroke-linejoin="round">
+        <path d="M52,46 L60,36 L58,30 L66,22 M52,46 L40,40 L36,32 M52,46 L48,58 L54,66 M52,46 L66,52 L76,50" stroke="#38E1FF" stroke-width="2.6" opacity="0.5" filter="url(#xw-blur2)"/>
+        <path d="M52,46 L60,36 L58,30 L66,22 M52,46 L40,40 L36,32 M52,46 L48,58 L54,66 M52,46 L66,52 L76,50" stroke="#E9FBFF" stroke-width="1"/>
+      </g>
+      <g fill="#9FF3FF"><path d="M80,30 L84,28 L82,33 Z"/><path d="M24,58 L28,60 L23,62 Z"/><path d="M70,70 L74,72 L70,74 Z"/></g>
+      <text x="96" y="66" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">28</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <svg width="124" height="82" viewBox="0 0 124 82" style="position: absolute; left: 8px; top: 40px" aria-hidden="true">
+      <path d="M12,1 L112,1 L123,41 L112,81 L12,81 L1,41 Z" fill="url(#xw-plaque)" stroke="url(#xw-goldH)" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M15,5 L109,5 L118.5,41 L109,77 L15,77 L5.5,41 Z" fill="none" stroke="#E9C46A" stroke-width="0.5" opacity="0.55"/>
+      <path d="M1,41 L5,37 L9,41 L5,45 Z M115,41 L119,37 L123,41 L119,45 Z" fill="#38E1FF"/>
+    </svg>
+    <div style="position: absolute; left: 8px; top: 40px; width: 124px; height: 82px; display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: nowrap">
+      <div style="font-family: 'Cinzel', serif; font-size: 7.5px; line-height: 10px; font-weight: 700; letter-spacing: 0.22em; color: #E9C46A">ARC · REACTION</div>
+      <div style="font-family: 'Orbit', 'Noto Sans KR', sans-serif; font-size: 19px; line-height: 24px; color: #F6DE98; text-shadow: 0 0 10px rgba(233,196,106,0.55), 0 2px 0 #3A2408">갈래 광선</div>
+      <div style="font-family: 'Orbit', 'Noto Sans KR', sans-serif; font-size: 21px; line-height: 26px; color: #FFFFFF; text-shadow: 0 0 6px #38E1FF, 0 0 16px rgba(56,225,255,0.8), 0 2px 0 #12304A">강타!</div>
+    </div>
+    <div class="xw-tag">반응 글씨</div>
+    <div class="xw-foot">보조: 뇌전 술사 (광선)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 적 핵(자홍)과 겹치지 않게 청록·금 위주.</div>
+</div>
+
+<!-- ============ 세계 5 · 잉크 코믹 ============ -->
+<div class="xw-card" style="left: 616px; top: 504px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: linear-gradient(90deg, #F5C518, #D7352B)"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-comic" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 11px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">잉크 코믹</span>
+    <span style="display: inline-block; transform: skewX(-10deg); font-family: 'Black Han Sans', sans-serif; font-size: 12px; letter-spacing: 0.06em; color: #F5C518">INK COMIC</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">만화 도시 히어로. 집중선과 효과음 글자.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #EFE6D2; color: #141210">#EFE6D2</div>
+    <div class="xw-chip" style="background: #141210; color: #EFE6D2; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#141210</div>
+    <div class="xw-chip" style="background: #D7352B; color: #FFFFFF">#D7352B</div>
+    <div class="xw-chip" style="background: #F5C518; color: #141210">#F5C518</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-comic"/>
+    <g transform="translate(28,34) rotate(-14) scale(0.95)">
+      <path d="M12,-8 Q16,0 12,8 M17,-12 Q23,0 17,12" fill="none" stroke="#141210" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M-6,4 L-4,13 L0,13 L-1,5 Z" fill="#141210"/>
+      <path d="M-12,-4 L6,-12 L6,12 L-12,4 Z" fill="#F5C518" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M-9,-2.5 L3,-8" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+      <rect x="-17" y="-5" width="6" height="10" fill="#141210"/>
+      <ellipse cx="6" cy="0" rx="3" ry="12" fill="#D7352B" stroke="#141210" stroke-width="2"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-comic" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-comic"/>
+    <g transform="translate(31,34) scale(0.85)">
+      <path d="M-30,-6 L-24,-6 M-32,0 L-24,0 M-30,6 L-24,6" stroke="#141210" stroke-width="2" stroke-linecap="round"/>
+      <rect x="-21" y="-9" width="7" height="19" fill="#D7352B" stroke="#141210" stroke-width="2"/>
+      <path d="M-14,-8 L2,-10 C7,-10 10,-8 10,-4 L10,6 C10,9 7,11 3,11 L-14,10 Z" fill="#3A4A5C" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M3,-4.5 L10,-4.5 M3,0.5 L10,0.5 M3,5.5 L10,5.5 M3,-10 L3,11" stroke="#141210" stroke-width="1.3"/>
+      <path d="M-11,-5 L0,-6.5" stroke="#EFE6D2" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M-5,2 C-1,1 3,3 4,6 L-4,7 Z" fill="#5A6B7E" stroke="#141210" stroke-width="1.3"/>
+      <g transform="translate(19,0) scale(0.85)"><path d="M0,-11.4 L1.87,-5.77 L6.44,-8.86 L4.97,-3.61 L10.32,-3.35 L6.6,0 L12.29,3.99 L5.53,4.02 L5.39,7.42 L2.02,6.21 L0,12.54 L-1.92,5.91 L-6.47,8.91 L-4.94,3.59 L-12,3.9 L-6.34,0 L-9.45,-3.07 L-5.29,-3.84 L-7.15,-9.85 L-2.06,-6.33 Z" fill="#F5C518" stroke="#141210" stroke-width="1.6" stroke-linejoin="round"/></g>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-comic" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-comic"/>
+    <g transform="translate(31,31)">
+      <path d="M0,-16 C9,-16 15,-10 15,-2 C15,4 18,8 16,12 C12,17 -12,17 -16,12 C-18,8 -15,4 -15,-2 C-15,-10 -9,-16 0,-16 Z" fill="#141210"/>
+      <path d="M-12,-5 C-6,-10 6,-10 12,-5 L11,-1.5 C5,-5 -5,-5 -11,-1.5 Z" fill="#3A4A5C"/>
+      <path d="M-9,-3 L-3.5,-1.8 L-4.2,0 L-8.6,-1 Z M9,-3 L3.5,-1.8 L4.2,0 L8.6,-1 Z" fill="#F5C518"/>
+      <ellipse cx="0" cy="6" rx="8.5" ry="6" fill="#3A4A5C" stroke="#141210" stroke-width="1.5"/>
+      <circle cx="-2.5" cy="4" r="1.1" fill="#141210"/><circle cx="2.5" cy="4" r="1.1" fill="#141210"/>
+      <path d="M-4,9 L4,9" stroke="#141210" stroke-width="1.4"/>
+      <path d="M-6,-12 C-3,-14 3,-14 6,-12" stroke="#5A6B7E" stroke-width="1.2" fill="none"/>
+      <rect x="-14" y="14" width="28" height="7" rx="2" fill="#EFE6D2" stroke="#141210" stroke-width="2"/>
+      <g fill="#3A4A5C" stroke="#141210" stroke-width="1"><circle cx="-9" cy="17.5" r="2.3"/><circle cx="-3" cy="17.5" r="2.3"/><circle cx="3" cy="17.5" r="2.3"/><circle cx="9" cy="17.5" r="2.3"/></g>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-comic" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-comic"/>
+    <g transform="translate(34,34)">
+      <path d="M-26,8 C-20,0 -16,-4 -10,-7 M-24,14 C-18,8 -12,4 -6,2" fill="none" stroke="#141210" stroke-width="2" stroke-linecap="round"/>
+      <path d="M-14,-4 L8,-12 L16,2 L-6,10 Z" fill="#3A4A5C" stroke="#141210" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M-10,-3 L6,-9" stroke="#EFE6D2" stroke-width="1.4" stroke-linecap="round"/>
+      <g fill="#141210"><circle cx="-10" cy="-2.5" r="1"/><circle cx="7" cy="-9" r="1"/><circle cx="13" cy="1.5" r="1"/><circle cx="-5" cy="7.5" r="1"/></g>
+      <path d="M-14,-4 L-6,10" stroke="#D7352B" stroke-width="2.5"/>
+      <path d="M8,-18 A20,20 0 0 1 20,-5" fill="none" stroke="#D7352B" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-comic" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">확성기</div><div class="xw-cat" style="left: 7px; top: 166px">음파</div>
+  <div class="xw-name" style="left: 82px; top: 152px">충격 타격</div><div class="xw-cat" style="left: 82px; top: 166px">손공격</div>
+  <div class="xw-name" style="left: 156px; top: 152px">철권 고릴라</div><div class="xw-cat" style="left: 156px; top: 166px">소환수</div>
+  <div class="xw-name" style="left: 231px; top: 152px">철판 투척</div><div class="xw-cat" style="left: 231px; top: 166px">투척</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <g opacity="0.9">
+        <path d="M0,18 L106,30 L0,22 Z" fill="#D7352B"/>
+        <path d="M0,40 L106,31 L0,45 Z" fill="#F5C518"/>
+        <path d="M0,62 L106,33 L0,69 Z" fill="#D7352B"/>
+        <path d="M24,82 L108,35 L34,82 Z" fill="#F5C518"/>
+        <path d="M60,82 L110,36 L66,82 Z" fill="#D7352B"/>
+      </g>
+      <use href="#xw-en-n" transform="translate(116,30) scale(0.72)"/>
+      <path d="M58,52 L68,48 M56,58 L66,54" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+      <path d="M74,46 L86,40 L92,48 L80,54 Z" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M74,46 L86,40 L92,48 L80,54 Z" fill="#3A4A5C" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M77,46 L85,42" stroke="#EFE6D2" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(36,52) scale(0.75)"/>
+      <g transform="translate(56,44)">
+        <path d="M0,-24.85 L3.01,-13.19 L12.49,-25.94 L8.95,-11.23 L19.82,-15.8 L12.32,-5.93 L28.44,-6.49 L12.69,0 L23.21,5.3 L12.54,6.04 L21.12,16.84 L8.07,10.12 L10.02,20.81 L3.29,14.43 L0,24.77 L-3.2,14.02 L-9.96,20.67 L-9.09,11.4 L-18.85,15.04 L-12.36,5.95 L-27.44,6.26 L-14.87,0 L-19.63,-4.48 L-11.22,-5.4 L-22.46,-17.91 L-8.63,-10.82 L-8.66,-17.99 L-3.23,-14.14 Z" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M0,-24.85 L3.01,-13.19 L12.49,-25.94 L8.95,-11.23 L19.82,-15.8 L12.32,-5.93 L28.44,-6.49 L12.69,0 L23.21,5.3 L12.54,6.04 L21.12,16.84 L8.07,10.12 L10.02,20.81 L3.29,14.43 L0,24.77 L-3.2,14.02 L-9.96,20.67 L-9.09,11.4 L-18.85,15.04 L-12.36,5.95 L-27.44,6.26 L-14.87,0 L-19.63,-4.48 L-11.22,-5.4 L-22.46,-17.91 L-8.63,-10.82 L-8.66,-17.99 L-3.23,-14.14 Z" fill="#D7352B" stroke="#141210" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M0,-24.85 L3.01,-13.19 L12.49,-25.94 L8.95,-11.23 L19.82,-15.8 L12.32,-5.93 L28.44,-6.49 L12.69,0 L23.21,5.3 L12.54,6.04 L21.12,16.84 L8.07,10.12 L10.02,20.81 L3.29,14.43 L0,24.77 L-3.2,14.02 L-9.96,20.67 L-9.09,11.4 L-18.85,15.04 L-12.36,5.95 L-27.44,6.26 L-14.87,0 L-19.63,-4.48 L-11.22,-5.4 L-22.46,-17.91 L-8.63,-10.82 L-8.66,-17.99 L-3.23,-14.14 Z" transform="scale(0.5)" fill="#F5C518"/>
+      </g>
+      <g transform="rotate(-10 84 34)" font-family="'Black Han Sans', sans-serif" font-size="26" stroke-linejoin="round" paint-order="stroke">
+        <text x="66" y="44" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="9">쾅!</text>
+        <text x="66" y="44" fill="#F5C518" stroke="#141210" stroke-width="5">쾅!</text>
+      </g>
+      <text x="104" y="72" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">52</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <div style="position: absolute; left: 10px; top: 46px; transform: rotate(-4deg); transform-origin: left top">
+      <div style="display: inline-block; margin-left: 6px; background: #141210; color: #F5C518; font-size: 9px; line-height: 9px; font-weight: 900; padding: 4px 6px; box-shadow: 0 0 0 1.5px #FFFFFF; white-space: nowrap">합성 반응 · 확성기</div>
+      <div style="width: 118px; box-sizing: border-box; background: #F5C518; border: 2.5px solid #141210; box-shadow: 0 0 0 2px #FFFFFF, 5px 5px 0 2px #D7352B; padding: 5px 8px 4px">
+        <div style="transform: skewX(-8deg); font-family: 'Black Han Sans', sans-serif; font-size: 19px; line-height: 23px; color: #141210; white-space: nowrap">날려 보내기</div>
+        <div style="transform: skewX(-8deg); font-family: 'Black Han Sans', sans-serif; font-size: 23px; line-height: 26px; color: #B2241C; white-space: nowrap">강타!</div>
+      </div>
+    </div>
+    <div class="xw-tag">반응 글씨</div>
+    <div class="xw-foot">보조: 확성기 (음파)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 먹선 밖에 흰 외곽선 한 겹 더. 망점은 틀 안만.</div>
+</div>
+
+<!-- ============ 세계 6 · 미시 생체 ============ -->
+<div class="xw-card" style="left: 942px; top: 504px">
+  <div style="position: absolute; left: 0; top: 0; width: 314px; height: 3px; background: linear-gradient(90deg, #5CF2E6, #C6FF4D, #FF6F61)"></div>
+  <svg width="34" height="34" viewBox="0 0 20 20" style="position: absolute; left: 14px; top: 14px" aria-hidden="true"><use href="#xw-cr-cell" width="20" height="20"/></svg>
+  <div style="position: absolute; left: 56px; top: 11px; display: flex; align-items: baseline; gap: 8px; white-space: nowrap">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 900; color: #FFFFFF">미시 생체</span>
+    <span style="font-family: 'Space Grotesk', sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: #5CF2E6">MICRO-BIO · ×400</span>
+  </div>
+  <div style="position: absolute; left: 56px; top: 33px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">현미경 속 생물·독. 반투명 막, 점액, 표지 상자.</div>
+  <div style="position: absolute; left: 14px; top: 58px; width: 286px; display: flex; gap: 4px">
+    <div class="xw-chip" style="background: #04161A; color: #BFFBF5; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#04161A</div>
+    <div class="xw-chip" style="background: #0E3B3F; color: #BFFBF5; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2)">#0E3B3F</div>
+    <div class="xw-chip" style="background: #5CF2E6; color: #04161A">#5CF2E6</div>
+    <div class="xw-chip" style="background: #FF6F61; color: #1A0604">#FF6F61</div>
+    <div class="xw-chip" style="background: #C6FF4D; color: #10200A">#C6FF4D</div>
+  </div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 14px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-cell"/>
+    <path d="M12,48 C20,40 28,44 36,36 C42,30 48,32 52,26" fill="none" stroke="#5CF2E6" stroke-width="0.7" stroke-dasharray="1.5 2" opacity="0.6"/>
+    <use href="#xw-ic-mosq" transform="translate(26,24) scale(1.55)"/>
+    <use href="#xw-ic-mosq" transform="translate(41,40) scale(1.3)"/>
+    <use href="#xw-ic-mosq" transform="translate(19,45) scale(1.05)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-cell" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 89px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-cell"/>
+    <ellipse cx="31" cy="40" rx="21" ry="9" fill="url(#xw-pool)" stroke="#C6FF4D" stroke-width="1"/>
+    <ellipse cx="31" cy="40" rx="17" ry="6.5" fill="none" stroke="#E9FFB8" stroke-width="0.6" opacity="0.6"/>
+    <g fill="none" stroke="#E9FFB8" stroke-width="0.9"><circle cx="24" cy="38" r="2.4"/><circle cx="37" cy="41" r="1.6"/><circle cx="31" cy="27" r="2"/><circle cx="38" cy="19" r="1.3"/><circle cx="26" cy="16" r="1"/></g>
+    <g fill="#FF6F61"><circle cx="30" cy="42" r="1"/><circle cx="42" cy="38" r="0.8"/><circle cx="20" cy="41" r="0.8"/></g>
+    <path d="M14,43 C13,47 14,50 16,51 M47,43 C48,46 48,48 47,50" stroke="#C6FF4D" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-cell" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 163px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-cell"/>
+    <path d="M15,22 C13,15 19,10 25,12 C27,6 37,6 40,11 C46,9 51,14 49,20 C52,24 48,28 43,27 L19,27 C14,28 12,24 15,22 Z" fill="#0E3B3F" stroke="#5CF2E6" stroke-width="1.1"/>
+    <g fill="#5CF2E6" opacity="0.6"><circle cx="25" cy="19" r="1.4"/><circle cx="34" cy="16" r="1.8"/><circle cx="42" cy="20" r="1.2"/></g>
+    <path d="M21,30 L21,33 M31,31 L31,37 M41,30 L41,33 M27,41 L27,46 M37,42 L37,46" stroke="#C6FF4D" stroke-width="0.8" opacity="0.5"/>
+    <g fill="#C6FF4D"><use href="#xw-drop" transform="translate(21,36)"/><use href="#xw-drop" transform="translate(31,41)"/><use href="#xw-drop" transform="translate(41,36)"/><use href="#xw-drop" transform="translate(27,50) scale(0.9)"/><use href="#xw-drop" transform="translate(37,50) scale(0.9)"/></g>
+    <path d="M18,56 Q22,53 26,56 M34,56 Q38,53 42,56" stroke="#C6FF4D" stroke-width="1" fill="none"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-cell" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 238px; top: 88px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-cell"/>
+    <g stroke="#FF8A7E" stroke-width="1.3" stroke-linecap="round"><path d="M31,31 L31,18"/><path d="M25,32 L18,22"/><path d="M37,32 L44,22"/><path d="M21,36 L12,30"/><path d="M41,36 L50,30"/></g>
+    <ellipse cx="31" cy="41" rx="12.5" ry="9.5" fill="#FF6F61" fill-opacity="0.35" stroke="#FF8A7E" stroke-width="1.2"/>
+    <path d="M21,41 L24,38 L27,42 L31,38 L35,42 L38,38 L41,41" fill="none" stroke="#FFD0C9" stroke-width="1"/>
+    <g fill="#C6FF4D"><circle cx="31" cy="17" r="1.6"/><circle cx="17.5" cy="21" r="1.3"/><circle cx="44.5" cy="21" r="1.3"/><circle cx="11.5" cy="29.5" r="1.1"/><circle cx="50.5" cy="29.5" r="1.1"/></g>
+    <path d="M1,46 Q31,41 61,46 L61,61 L1,61 Z" fill="#04161A" opacity="0.82" clip-path="url(#xw-clip)"/>
+    <path d="M4,46 Q31,41 58,46" stroke="#5CF2E6" stroke-width="1" fill="none" opacity="0.7"/>
+    <path d="M4,49 Q31,44 58,49" stroke="#5CF2E6" stroke-width="0.6" fill="none" opacity="0.35"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-cell" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div class="xw-name" style="left: 7px; top: 152px">모기 떼</div><div class="xw-cat" style="left: 7px; top: 166px">떼</div>
+  <div class="xw-name" style="left: 82px; top: 152px">독늪</div><div class="xw-cat" style="left: 82px; top: 166px">장판</div>
+  <div class="xw-name" style="left: 156px; top: 152px">산성비</div><div class="xw-cat" style="left: 156px; top: 166px">공중</div>
+  <div class="xw-name" style="left: 231px; top: 152px">독 함정</div><div class="xw-cat" style="left: 231px; top: 166px">함정</div>
+
+  <div class="xw-board" style="left: 14px; top: 190px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(118,28) scale(0.7)"/>
+      <path d="M6,78 C24,70 30,74 46,64 C60,56 66,60 82,48" fill="none" stroke="#C6FF4D" stroke-width="4" opacity="0.3"/>
+      <path d="M6,78 C24,70 30,74 46,64 C60,56 66,60 82,48" fill="none" stroke="#C6FF4D" stroke-width="1.2" opacity="0.85"/>
+      <g fill="#C6FF4D"><circle cx="20" cy="76" r="1.4"/><circle cx="52" cy="64" r="1.2"/><circle cx="68" cy="58" r="1"/></g>
+      <circle cx="92" cy="43" r="10" fill="#5CF2E6" fill-opacity="0.16" stroke="#5CF2E6" stroke-width="1.3"/>
+      <path d="M86,37 A8,8 0 0 1 94,35" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.8"/>
+      <circle cx="89" cy="45" r="1.8" fill="#C6FF4D"/><circle cx="95" cy="47" r="1.2" fill="#FF6F61"/><circle cx="94" cy="40" r="1" fill="#9FF7EF"/>
+    </svg>
+    <div class="xw-tag">투사체</div>
+  </div>
+  <div class="xw-board" style="left: 14px; top: 278px; width: 140px; height: 82px">
+    <svg width="140" height="82" viewBox="0 0 140 82" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(46,48) scale(0.8)"/>
+      <circle cx="46" cy="48" r="22" fill="url(#xw-cburst)" opacity="0.55"/>
+      <circle cx="46" cy="48" r="15" fill="none" stroke="#FF8A7E" stroke-width="2.2" stroke-dasharray="8 5 4 6 10 5" stroke-linecap="round"/>
+      <circle cx="46" cy="48" r="21" fill="none" stroke="#5CF2E6" stroke-width="1" stroke-dasharray="3 6" opacity="0.8"/>
+      <g fill="#FF8A7E"><path d="M70,40 L76,37 L74,43 Z"/><path d="M22,40 L16,37 L18,43 Z"/><path d="M48,74 L50,80 L45,78 Z"/></g>
+      <g fill="#E9FFFC"><circle cx="72" cy="56" r="1.2"/><circle cx="24" cy="62" r="1"/><circle cx="58" cy="24" r="1.1"/></g>
+      <path d="M60,34 L74,20 L84,20" fill="none" stroke="#C6FF4D" stroke-width="0.9"/>
+      <circle cx="60" cy="34" r="1.6" fill="#C6FF4D"/>
+      <rect x="84" y="11" width="50" height="17" rx="2" fill="#04161A" stroke="#C6FF4D" stroke-width="0.9"/>
+      <text x="109" y="23" text-anchor="middle" font-family="'Space Grotesk', 'Noto Sans KR', sans-serif" font-weight="700" font-size="9" fill="#C6FF4D">용해 LYSIS</text>
+      <text x="96" y="68" font-family="'Noto Sans KR', sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" stroke="#0B0816" stroke-width="3" paint-order="stroke" stroke-linejoin="round">36</text>
+    </svg>
+    <div class="xw-tag">맞는 순간</div>
+  </div>
+  <div class="xw-board" style="left: 160px; top: 190px; width: 140px; height: 170px">
+    <div style="position: absolute; left: 0; right: 0; top: 40px; display: flex; flex-direction: column; align-items: center">
+      <div style="display: flex; align-items: center; gap: 4px; height: 18px; padding: 0 6px; border: 1px solid rgba(198,255,77,0.85); border-radius: 3px; background: rgba(4,22,26,0.85); color: #C6FF4D; font-size: 9px; font-weight: 700; white-space: nowrap">
+        <svg width="10" height="10" viewBox="-6 -6 12 12" aria-hidden="true"><path d="M0,5 L0,0.5 L-3.6,-4 M0,0.5 L3.6,-4" fill="none" stroke="#C6FF4D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>결합 신호 · 모기 떼</span>
+      </div>
+      <div style="position: relative; margin-top: 10px; padding: 5px 12px; text-align: center; font-size: 21px; line-height: 26px; font-weight: 700; color: #F6FFE6; white-space: nowrap; text-shadow: 0 0 8px rgba(198,255,77,0.8), 0 0 20px rgba(198,255,77,0.35), 0 2px 0 #04161A">
+        <div style="position: absolute; left: 0; top: 0; width: 9px; height: 9px; border-left: 1.5px solid #C6FF4D; border-top: 1.5px solid #C6FF4D"></div>
+        <div style="position: absolute; right: 0; top: 0; width: 9px; height: 9px; border-right: 1.5px solid #C6FF4D; border-top: 1.5px solid #C6FF4D"></div>
+        <div style="position: absolute; left: 0; bottom: 0; width: 9px; height: 9px; border-left: 1.5px solid #C6FF4D; border-bottom: 1.5px solid #C6FF4D"></div>
+        <div style="position: absolute; right: 0; bottom: 0; width: 9px; height: 9px; border-right: 1.5px solid #C6FF4D; border-bottom: 1.5px solid #C6FF4D"></div>
+        번지는 떼<br><span style="color: #C6FF4D">· 추적</span>
+      </div>
+      <div style="margin-top: 6px; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 500; letter-spacing: 0.12em; color: #8FE9E0">SWARM · TRACK</div>
+    </div>
+    <div class="xw-tag">반응 글씨</div>
+    <div class="xw-foot">보조: 모기 떼 (떼)</div>
+  </div>
+  <div class="xw-cap">판 위 규칙: 반투명 막은 테두리를 밝게, 개수는 적게.</div>
+</div>
+
+<!-- ============ 아래 띠 1 · 합성 = 메인 몸 + 보조 연출 ============ -->
+<div style="position: absolute; left: 24px; top: 918px; width: 650px; height: 242px; box-sizing: border-box; border: 1px solid #8A6420; border-radius: 6px; background: linear-gradient(180deg, #181033 0%, #110A23 100%); overflow: hidden">
+  <div style="position: absolute; left: 16px; top: 12px; font-size: 16px; line-height: 20px; font-weight: 900; color: #FFFFFF; white-space: nowrap">합성 = 메인 몸 + 보조 연출</div>
+  <div style="position: absolute; left: 16px; top: 34px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">불여우 대포 = 대포 (강철 공방 · 메인) + 불여우 (수묵 요괴 · 보조)</div>
+
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 16px; top: 64px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-forge"/>
+    <use href="#xw-ic-cannon" transform="translate(31,33) scale(0.95)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div style="position: absolute; left: 6px; top: 130px; width: 82px; text-align: center; white-space: nowrap"><div style="font-size: 11px; line-height: 14px; font-weight: 700; color: #F1EAFF">대포</div><div style="font-size: 9.5px; line-height: 12px; color: #BFB4E0">메인 · 강철</div></div>
+  <div style="position: absolute; left: 82px; top: 80px; width: 20px; text-align: center; font-size: 22px; line-height: 26px; font-weight: 900; color: #E9C46A">+</div>
+  <svg width="62" height="62" viewBox="0 0 62 62" style="position: absolute; left: 106px; top: 64px; overflow: visible" aria-hidden="true">
+    <use href="#xw-mat-sumi"/>
+    <use href="#xw-ic-fox" transform="translate(34,37) scale(0.92)"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-sumi" x="-3" y="-3" width="17" height="17"/>
+  </svg>
+  <div style="position: absolute; left: 96px; top: 130px; width: 82px; text-align: center; white-space: nowrap"><div style="font-size: 11px; line-height: 14px; font-weight: 700; color: #F1EAFF">불여우</div><div style="font-size: 9.5px; line-height: 12px; color: #BFB4E0">보조 · 수묵</div></div>
+  <svg width="22" height="16" viewBox="0 0 22 16" style="position: absolute; left: 174px; top: 87px" aria-hidden="true"><path d="M1,8 H17 M12,2 L19,8 L12,14" fill="none" stroke="#E9C46A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+  <svg width="88" height="88" viewBox="0 0 62 62" style="position: absolute; left: 204px; top: 58px; overflow: visible" aria-hidden="true">
+    <circle cx="31" cy="31" r="33" fill="#E9C46A" opacity="0.12" filter="url(#xw-blur4)"/>
+    <use href="#xw-mat-forge"/>
+    <g clip-path="url(#xw-clip-sub)"><use href="#xw-mat-sumi"/></g>
+    <path d="M61,11.4 L11.4,61" stroke="#E9C46A" stroke-width="1.1"/>
+    <path d="M17,34 C12,28 15,20 23,19 C30,18 33,13 31,8" fill="none" stroke="#ECE4D3" stroke-width="2.4" stroke-linecap="round" opacity="0.9"/>
+    <path d="M17,34 C12,28 15,20 23,19 C30,18 33,13 31,8" fill="none" stroke="#C8372D" stroke-width="0.9" stroke-linecap="round"/>
+    <use href="#xw-ic-cannon" transform="translate(29,35) scale(0.82)"/>
+    <use href="#xw-ic-fox" transform="translate(39,14) scale(0.5)" stroke="#ECE4D3" stroke-width="2.2" stroke-linejoin="round"/>
+    <use href="#xw-ic-fox" transform="translate(39,14) scale(0.5)"/>
+    <path d="M27,6 C25,2 27,-1 29,-3 C29,0 31,1 32,3 C33,5 30,8 27,6 Z" fill="#C8372D"/>
+    <use href="#xw-frame"/>
+    <use href="#xw-cr-forge" x="-4" y="-4" width="16" height="16"/>
+    <use href="#xw-cr-sumi" x="7" y="-2" width="13" height="13"/>
+  </svg>
+  <div style="position: absolute; left: 186px; top: 150px; width: 124px; text-align: center; white-space: nowrap">
+    <div style="font-size: 12.5px; line-height: 16px; font-weight: 900; color: #FFF0C2">불여우 대포</div>
+    <div style="font-family: 'East Sea Dokdo', cursive; font-size: 19px; line-height: 20px; color: #ECE4D3">전향 무리 · 화염</div>
+  </div>
+
+  <div class="xw-board" style="left: 322px; top: 56px; width: 100px; height: 96px">
+    <svg width="100" height="96" viewBox="0 0 100 96" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(84,30) scale(0.6)"/>
+      <path d="M6,92 C24,78 44,62 68,42 C72,44 72,48 69,50 C46,68 26,82 6,92 Z" fill="#ECE4D3" opacity="0.92" filter="url(#xw-bleed)"/>
+      <path d="M6,92 C24,78 44,62 68,42" fill="none" stroke="#B8913A" stroke-width="0.9"/>
+      <g fill="#C8372D"><path d="M40,64 C37,60 38,57 41,55 C41,58 43,59 44,61 C44,63 42,65 40,64 Z"/><path d="M56,52 C53,48 54,45 57,43 C57,46 59,47 60,49 C60,51 58,53 56,52 Z"/></g>
+      <ellipse cx="71" cy="45" rx="7" ry="4" transform="rotate(-38 71 45)" fill="url(#xw-hot)" stroke="#2B2E33" stroke-width="0.8"/>
+    </svg>
+    <div class="xw-tag">궤적 = 보조</div>
+  </div>
+  <div class="xw-board" style="left: 430px; top: 56px; width: 100px; height: 96px">
+    <svg width="100" height="96" viewBox="0 0 100 96" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <circle cx="44" cy="58" r="22" fill="#FF6A13" opacity="0.35" filter="url(#xw-blur4)"/>
+      <use href="#xw-en-n" transform="translate(38,60) scale(0.75)"/>
+      <path d="M44,40 L52,30 M60,52 L74,50 M28,44 L20,36 M30,74 L22,82 M50,76 L54,86" stroke="#FFD27A" stroke-width="1.3" stroke-linecap="round"/>
+      <g fill="#2B2E33" stroke="#9A948A" stroke-width="0.6"><path d="M66,36 L72,33 L70,39 Z"/><path d="M16,60 L21,57 L21,63 Z"/></g>
+      <g transform="translate(62,62) rotate(-8)"><g filter="url(#xw-seal)"><rect x="-12" y="-12" width="24" height="24" rx="1.8" fill="#C8372D"/><use href="#xw-g-zan" transform="translate(-9.6,-9.6) scale(0.48)" stroke="#ECE4D3"/></g></g>
+    </svg>
+    <div class="xw-tag">쇳불꽃 + 낙관</div>
+  </div>
+  <div class="xw-board" style="left: 538px; top: 56px; width: 100px; height: 96px">
+    <svg width="100" height="96" viewBox="0 0 100 96" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <path d="M8,30 C30,25 70,25 92,29 L93,82 C70,87 30,87 7,83 Z" fill="#ECE4D3" filter="url(#xw-bleed)"/>
+      <path d="M8,30 C30,25 70,25 92,29 M7,83 C30,87 70,87 93,82" fill="none" stroke="#B8913A" stroke-width="1"/>
+    </svg>
+    <div style="position: absolute; left: 0; top: 32px; width: 100px; text-align: center; font-family: 'East Sea Dokdo', cursive; white-space: nowrap">
+      <div style="font-size: 26px; line-height: 26px; color: #1A1A1A">전향 무리</div>
+      <div style="font-size: 26px; line-height: 26px; color: #B2241C">화염!</div>
+    </div>
+    <div class="xw-tag">반응 글씨 = 보조</div>
+  </div>
+
+  <div style="position: absolute; left: 322px; top: 158px; width: 316px; font-size: 10px; line-height: 15px; color: #C9BFE6; white-space: nowrap">유물함 안: 메인 2/3 + 보조 1/3 사선, 문장 둘 겹침.<br>같은 세계끼리 = <b style="color: #F3D98C">세계 공명</b> (회전톱 대포: 강철 재질이 한층 진해짐)</div>
+  <div style="position: absolute; left: 16px; top: 196px; display: flex; align-items: center; gap: 7px; white-space: nowrap">
+    <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-forge" width="20" height="20"/></svg>
+    <span style="font-size: 12px; line-height: 16px; color: #F1EAFF"><b style="color: #E0B860">메인의 세계</b> = 몸 · 실루엣 · 쏘는 법</span>
+  </div>
+  <div style="position: absolute; left: 16px; top: 216px; display: flex; align-items: center; gap: 7px; white-space: nowrap">
+    <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-sumi" width="20" height="20"/></svg>
+    <span style="font-size: 12px; line-height: 16px; color: #F1EAFF"><b style="color: #F0A196">보조의 세계</b> = 궤적 · 맞는 무늬 · 반응 글씨 (반응은 보조가 터뜨리니까)</span>
+  </div>
+</div>
+
+<!-- ============ 아래 띠 2 · 세계 시너지 (예시) ============ -->
+<div style="position: absolute; left: 686px; top: 918px; width: 290px; height: 242px; box-sizing: border-box; border: 1px solid #34245E; border-radius: 6px; background: linear-gradient(180deg, #181033 0%, #110A23 100%); overflow: hidden">
+  <div style="position: absolute; left: 16px; top: 12px; font-size: 16px; line-height: 20px; font-weight: 900; color: #FFFFFF; white-space: nowrap">세계 시너지 (예시)</div>
+  <div style="position: absolute; left: 16px; top: 34px; font-size: 11px; line-height: 15px; color: #C9BFE6; white-space: nowrap">판 왼쪽 가장자리, 세로로 작게</div>
+  <div class="xw-board" style="left: 16px; top: 58px; width: 76px; height: 168px">
+    <svg width="76" height="168" viewBox="0 0 76 168" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+      <use href="#xw-en-n" transform="translate(72,40) scale(0.55)" opacity="0.6"/>
+      <use href="#xw-en-a" transform="translate(74,120) scale(0.5)" opacity="0.6"/>
+    </svg>
+    <div style="position: absolute; left: 5px; top: 7px; display: flex; flex-direction: column; gap: 4px">
+      <div style="width: 58px; height: 22px; box-sizing: border-box; border: 1px solid #E9C46A; border-radius: 3px; background: rgba(43,46,51,0.92); box-shadow: 0 0 8px rgba(233,196,106,0.45); display: flex; align-items: center; gap: 3px; padding-left: 3px">
+        <svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-forge" width="20" height="20"/></svg>
+        <span style="font-size: 10.5px; line-height: 12px; font-weight: 900; color: #FFF0C2">3/4</span>
+        <span style="display: flex; gap: 1px"><span style="width: 2px; height: 7px; background: #E9C46A"></span><span style="width: 2px; height: 7px; background: #E9C46A"></span><span style="width: 2px; height: 7px; background: #E9C46A"></span><span style="width: 2px; height: 7px; background: #5A4E6E"></span></span>
+      </div>
+      <div style="width: 38px; height: 22px; box-sizing: border-box; border: 1px solid rgba(108,255,160,0.55); border-radius: 3px; background: rgba(7,17,12,0.9); display: flex; align-items: center; gap: 4px; padding-left: 3px"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-radar" width="20" height="20"/></svg><span style="font-size: 10.5px; font-weight: 900; color: #FFFFFF">2</span></div>
+      <div style="width: 38px; height: 22px; box-sizing: border-box; border: 1px solid rgba(236,228,211,0.55); border-radius: 3px; background: rgba(26,26,26,0.9); display: flex; align-items: center; gap: 4px; padding-left: 3px"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-sumi" width="20" height="20"/></svg><span style="font-size: 10.5px; font-weight: 900; color: #FFFFFF">1</span></div>
+      <div style="width: 38px; height: 22px; box-sizing: border-box; border: 1px solid rgba(233,196,106,0.5); border-radius: 3px; background: rgba(42,20,80,0.9); display: flex; align-items: center; gap: 4px; padding-left: 3px"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-rift" width="20" height="20"/></svg><span style="font-size: 10.5px; font-weight: 900; color: #FFFFFF">1</span></div>
+      <div style="width: 38px; height: 22px; box-sizing: border-box; border: 1px solid rgba(245,197,24,0.55); border-radius: 3px; background: rgba(20,18,16,0.9); display: flex; align-items: center; gap: 4px; padding-left: 3px"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-comic" width="20" height="20"/></svg><span style="font-size: 10.5px; font-weight: 900; color: #FFFFFF">1</span></div>
+      <div style="width: 38px; height: 22px; box-sizing: border-box; border: 1px solid rgba(92,242,230,0.55); border-radius: 3px; background: rgba(4,22,26,0.9); display: flex; align-items: center; gap: 4px; padding-left: 3px"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><use href="#xw-cr-cell" width="20" height="20"/></svg><span style="font-size: 10.5px; font-weight: 900; color: #FFFFFF">1</span></div>
+    </div>
+  </div>
+  <div style="position: absolute; left: 106px; top: 62px; width: 170px; font-size: 11px; line-height: 16px; color: #E4DCFA; word-break: keep-all">
+    <div><b style="color: #F3D98C">문장 + 숫자</b> = 판 위 그 세계 무기 수. 강철 3 · 관제 2 · 나머지 1.</div>
+    <div style="margin-top: 10px"><b style="color: #F3D98C">강철만 3/4</b>: 다음 단계가 하나 남은 세계만 분모를 보인다.</div>
+    <div style="margin-top: 10px">세계로 모으는 맛이 생기고, 시너지로 넓힐 자리가 된다.</div>
+  </div>
+</div>
+
+<!-- ============ 아래 띠 3 · 텍스처 부담 ============ -->
+<div style="position: absolute; left: 988px; top: 918px; width: 268px; height: 242px; box-sizing: border-box; border: 1px solid #34245E; border-radius: 6px; background: linear-gradient(180deg, #181033 0%, #110A23 100%); overflow: hidden">
+  <div style="position: absolute; left: 16px; top: 12px; font-size: 16px; line-height: 20px; font-weight: 900; color: #FFFFFF; white-space: nowrap">텍스처 부담</div>
+  <div style="position: absolute; left: 16px; top: 38px; width: 236px; font-size: 13.5px; line-height: 19px; font-weight: 700; color: #FFF0C2; word-break: keep-all">세계마다 재질 한 벌 + 효과 한 벌, 무기마다는 실루엣 하나</div>
+  <div style="position: absolute; left: 16px; top: 86px; display: flex; gap: 5px">
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-radar"/><use href="#xw-frame"/></svg>
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-forge"/><use href="#xw-frame"/></svg>
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-sumi"/><use href="#xw-frame"/></svg>
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-rift"/><use href="#xw-frame"/></svg>
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-comic"/><use href="#xw-frame"/></svg>
+    <svg width="24" height="24" viewBox="0 0 62 62" aria-hidden="true"><use href="#xw-mat-cell"/><use href="#xw-frame"/></svg>
+  </div>
+  <div style="position: absolute; left: 196px; top: 91px; font-size: 11px; line-height: 14px; font-weight: 700; color: #F3D98C; white-space: nowrap">× 6 세계</div>
+  <div style="position: absolute; left: 16px; top: 113px; font-size: 10px; line-height: 14px; color: #C9BFE6; white-space: nowrap">재질 1 + 효과 1 (궤적 · 맞는 무늬 · 글씨)</div>
+  <div style="position: absolute; left: 16px; top: 136px; display: flex; align-items: center; gap: 8px">
+    <svg width="30" height="20" viewBox="-24 -12 48 24" aria-hidden="true"><path d="M-23,1 L-19,-3 L-9,-3 L-8,-5 L9,-5 L9,-3.5 L22,-3.5 L22,-1 L9,-1 L7,2 L-1,2 L-3,8 L-7,8 L-6,2 L-12,2 L-20,6 L-23,5 Z M1,2 L5,2 L7.5,10 L4,11 Z" fill="#EDE6FF"/></svg>
+    <svg width="14" height="20" viewBox="-16 -24 32 46" aria-hidden="true"><path d="M-8.5,12 L-6.5,-20 L6.5,-20 L8.5,12 Z M-15,16 L-12,-2 L-7,-2 L-7,16 Z M15,16 L12,-2 L7,-2 L7,16 Z" fill="#EDE6FF"/><ellipse cx="0" cy="18" rx="16" ry="4.5" fill="#EDE6FF"/></svg>
+    <svg width="30" height="20" viewBox="-30 -21 56 36" aria-hidden="true"><g fill="#EDE6FF"><path d="M-8,3 C-14,0 -18,-6 -16,-14 C-14,-9 -11,-6 -6,-3 Z"/><path d="M-8,4 C-16,4 -22,0 -23,-8 C-19,-4 -14,-1 -7,1 Z"/><path d="M-8,4 C-4,-2 4,-4 9,-4 L12,-9 L13,-14 L15.5,-10 L17,-14 L18.5,-8.5 C20,-7 22,-6 24,-5 L23,-3.5 C20,-3 17,-2.5 15,-1 C13,2 11,5 8,6 L10,13 L7,13 L4,7 C1,8 -3,8 -6,7 L-9,13 L-12,13 L-10,6 Z"/></g></svg>
+    <svg width="24" height="20" viewBox="-18 -22 46 42" aria-hidden="true"><path d="M-14,14 L-11,3 L-6,-4 L0,-9 L8,-13 L18,-14 L14,-10 L20,-8 L12,-5 L6,-1 L4,7 L-2,14 Z M-6,-4 L-15,-15 L-4,-8 Z M0,-9 L-3,-21 L3,-11 Z" fill="#EDE6FF"/></svg>
+    <svg width="22" height="20" viewBox="-10 -9 22 18" aria-hidden="true"><g fill="#EDE6FF"><ellipse cx="-3" cy="0" rx="5" ry="2.2"/><circle cx="3.5" cy="0.4" r="1.9"/><ellipse cx="-2" cy="-4" rx="4.5" ry="1.8" transform="rotate(-35 -2 -4)"/></g><path d="M5.2,1 L10,3.4 M-2,2 L-4,6 M1,2 L2,6" stroke="#EDE6FF" stroke-width="0.9"/></svg>
+    <span style="font-size: 11px; font-weight: 700; color: #F3D98C; white-space: nowrap">… 300+</span>
+  </div>
+  <div style="position: absolute; left: 16px; top: 160px; font-size: 10px; line-height: 14px; color: #C9BFE6; white-space: nowrap">무기는 실루엣 한 겹, 색은 그 세계 팔레트</div>
+  <div style="position: absolute; left: 16px; top: 184px; width: 240px; font-size: 10.5px; line-height: 15px; color: #E4DCFA; word-break: keep-all">
+    <div><b style="color: #8FFFB9">쉬움</b> 관제 · 미시 · 균열: 선 · 반투명 · 빛, 벡터로 끝남</div>
+    <div style="margin-top: 3px"><b style="color: #FF9E8F">어려움</b> 수묵 · 강철: 한지 결 · 먹 번짐 · 금속광은 손그림 텍스처가 필요</div>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
