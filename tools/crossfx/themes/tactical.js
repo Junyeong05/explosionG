@@ -476,6 +476,30 @@
       c.fill();
     });
 
+  // 스프라이트 묶음 기억 (매 프레임 새 객체 안 만들게)
+  const REC = new Map();
+  const rec = (key, make) => {
+    let v = REC.get(key);
+    if (!v) REC.set(key, (v = make()));
+    return v;
+  };
+  // 적성 표지 (붉은 마름모, 어두운 테)
+  const pipSpr = (big) =>
+    sprite(big ? 'tac-pip2' : 'tac-pip', 10, 10, (c) => {
+      const s = big ? 3.4 : 2.5;
+      c.beginPath();
+      c.moveTo(5, 5 - s);
+      c.lineTo(5 + s, 5);
+      c.lineTo(5, 5 + s);
+      c.lineTo(5 - s, 5);
+      c.closePath();
+      c.fillStyle = C.red;
+      c.fill();
+      c.strokeStyle = 'rgba(8,8,6,0.75)';
+      c.lineWidth = 1;
+      c.stroke();
+    });
+
   // 흰 실루엣 (맞은 번쩍)
   const SIL = new Map();
   function sil(spr) {
@@ -495,6 +519,9 @@
 
   // 적 1: 사륜 드론 (위에서, 앞 = 아래)
   function droneSpr(r) {
+    return rec('droneSpr' + r, () => droneSpr_(r));
+  }
+  function droneSpr_(r) {
     const S = r * 3.4;
     return {
       w: S,
@@ -565,6 +592,9 @@
 
   // 적 2: 자폭 드론 (삼각 날개, 앞 = 아래)
   function kamiSpr(r) {
+    return rec('kamiSpr' + r, () => kamiSpr_(r));
+  }
+  function kamiSpr_(r) {
     const w = r * 2.8;
     const h = r * 3.4;
     return {
@@ -634,6 +664,9 @@
 
   // 적 3: 장갑차 · 4: 지휘 전차 (몸 + 포탑 따로)
   function hullSpr(r, boss) {
+    return rec('hullSpr' + r, () => hullSpr_(r, boss));
+  }
+  function hullSpr_(r, boss) {
     const w = r * 2.1;
     const h = r * 2.7;
     return {
@@ -699,6 +732,9 @@
     };
   }
   function turretSpr(r, boss) {
+    return rec('turretSpr' + r, () => turretSpr_(r, boss));
+  }
+  function turretSpr_(r, boss) {
     const w = r * 1.5;
     const h = r * 3.8;
     return {
@@ -773,6 +809,9 @@
 
   // 진지: 모래주머니 고리 + 웅덩이 + 땅 그림자 (s 마다 한 장)
   function baseSpr(s) {
+    return rec('baseSpr' + s, () => baseSpr_(s));
+  }
+  function baseSpr_(s) {
     const bw = s * 1.4;
     const bh = s * 0.74;
     return {
@@ -996,12 +1035,7 @@
         c.fillText('HVT', e.x, by - 4);
         return;
       }
-      diamond(c, e.x, my, kind === 'armor' ? 3.4 : 2.5);
-      c.fillStyle = C.red;
-      c.fill();
-      c.strokeStyle = 'rgba(8,8,6,0.75)';
-      c.lineWidth = 1;
-      c.stroke();
+      c.drawImage(pipSpr(kind === 'armor'), e.x - 5, my - 5, 10, 10);
       if (kind === 'armor' && e.hp < e.max) {
         const bw = 18;
         const k = clamp(e.hp / e.max, 0, 1);
@@ -1050,8 +1084,8 @@
         const fs = fireSpr();
         c.globalAlpha = (1 - fk) ** 1.2;
         const fr = R * (0.5 + 0.5 * ease(fk * 1.6));
-        for (let i = 0; i < 4; i++) {
-          const a = seed * 5 + i * 1.71;
+        for (let i = 0; i < 3; i++) {
+          const a = seed * 5 + i * 2.09;
           const sr = fr * (0.5 + 0.14 * ((i * 7 + Math.floor(seed)) % 3));
           const od = fr * (0.35 + 0.35 * ease(fk * 2));
           c.drawImage(fs, b.x + Math.cos(a) * od - sr, b.y + Math.sin(a) * od - sr, sr * 2, sr * 2);
@@ -1059,7 +1093,7 @@
         c.drawImage(fs, b.x - fr, b.y - fr, fr * 2, fr * 2);
       }
       // 연기: 불 위를 덮으며 퍼지고 바람(오른쪽)에 밀린다
-      const nP = b.big ? 7 : 5;
+      const nP = b.big ? 6 : 4;
       for (let i = 0; i < nP; i++) {
         const a = seed * 7 + i * 2.399;
         const f = frac(seed * 3.1 + i * 0.618);
