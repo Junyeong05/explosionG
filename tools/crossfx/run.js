@@ -8,6 +8,8 @@
   const HUD_H = 64;
   const CH = 640;
   const MB = 36;
+  /** 판 위 무기 크기 */
+  const GUN = 40;
   const CAT_TH = [4, 7, 10, 13];
   const GRADE = { 1: 1.2, 2: 1.3, 3: 1.45, 4: 1.6, 5: 1.8 };
   const D = CX.data;
@@ -121,11 +123,12 @@
     relayout() {
       const n = this.owned.length;
       const rows = n <= 7 ? [this.owned] : [this.owned.slice(0, Math.ceil(n / 2)), this.owned.slice(Math.ceil(n / 2))];
-      const ys = rows.length === 1 ? [498] : [478, 524];
+      // 판 위에 놓인 총처럼: 한 줄이면 방어선 아래 가운데, 둘이면 앞뒤 두 줄 엇갈려
+      const ys = rows.length === 1 ? [496] : [480, 522];
       rows.forEach((row, r) => {
-        const gap = Math.min(48, (W - 30) / row.length);
+        const gap = Math.min(50, (W - 34) / row.length);
         row.forEach((w, i) => {
-          w.x = W / 2 + (i - (row.length - 1) / 2) * gap;
+          w.x = W / 2 + (i - (row.length - 1) / 2) * gap + (rows.length > 1 ? (r ? gap / 4 : -gap / 4) : 0);
           w.y = ys[r];
         });
       });
@@ -336,81 +339,143 @@
       }
     }
 
-    // ── 그리기 ──
+    // ── 그리기: 틀은 테마 (CX.th()), 세계 그림은 세계 모듈 ──
     draw() {
       super.draw();
       const c = this.ctx;
+      const T = CX.th();
       c.setTransform(this.scale, 0, 0, this.scale, 0, 0);
-      this.drawHudBand(c);
+      c.save();
+      T.hud(c, this);
+      c.restore();
       c.translate(0, this.oy);
-      this.drawWorldChips(c);
-      this.drawGateChip(c);
-      if (this.hurt > 0) {
-        const g = c.createRadialGradient(W / 2, 270, 120, W / 2, 270, 360);
-        g.addColorStop(0, 'rgba(255,40,80,0)');
-        g.addColorStop(1, `rgba(255,40,80,${0.45 * (this.hurt / 0.6)})`);
-        c.fillStyle = g;
-        c.fillRect(0, 0, W, 540);
+      for (const f of ['chips', 'gate']) {
+        c.save();
+        T[f](c, this);
+        c.restore();
       }
-      if (this.banner) this.drawBanner(c, this.banner);
-      if (this.offer) this.drawOffer(c, this.offer);
-      if (this.over) this.drawOver(c);
+      if (this.hurt > 0) {
+        c.save();
+        T.hurt(c, this, this.hurt / 0.6);
+        c.restore();
+      }
+      if (this.banner) {
+        c.save();
+        T.banner(c, this.banner, this);
+        c.restore();
+      }
+      if (this.offer) {
+        c.save();
+        T.offer(c, this.offer, this);
+        c.restore();
+      }
+      if (this.over) {
+        c.save();
+        T.over(c, this);
+        c.restore();
+      }
     }
 
     drawMounts() {
       const c = this.ctx;
+      const T = CX.th();
       for (const w of this.owned) {
+        CX.drawGun(c, w, w.x, w.y, GUN, this.t);
         c.save();
-        CX.drawMount(c, w, w.x, w.y, MB, this.t, false);
+        T.pips(c, w, w.x, w.y, GUN, this);
         c.restore();
-        // 레벨 점
-        for (let i = 0; i < 5; i++) {
-          c.fillStyle = i < w.lv ? '#E9C46A' : 'rgba(233,196,106,0.22)';
-          c.beginPath();
-          const px = w.x - 12 + i * 6;
-          const py = w.y + MB / 2 + 6;
-          c.moveTo(px, py - 2.2);
-          c.lineTo(px + 2.2, py);
-          c.lineTo(px, py + 2.2);
-          c.lineTo(px - 2.2, py);
-          c.closePath();
-          c.fill();
-        }
       }
       for (const p of this.pops) {
-        const k = p.age / 1.6;
         c.save();
-        c.globalAlpha = k < 0.75 ? 1 : 1 - (k - 0.75) / 0.25;
-        c.font = '800 12px "Noto Sans KR", sans-serif';
-        c.textAlign = 'center';
-        const ty = p.w.y - MB / 2 - 10 - ease(Math.min(1, p.age / 0.3)) * 14;
-        const tw = c.measureText(p.text).width + 14;
-        c.fillStyle = 'rgba(12,6,26,0.9)';
-        roundRect(c, p.w.x - tw / 2, ty - 11, tw, 17, 6);
-        c.fill();
-        c.strokeStyle = '#E9C46A';
-        c.lineWidth = 1;
-        c.stroke();
-        c.fillStyle = '#FFE7A3';
-        c.fillText(p.text, p.w.x, ty + 2);
+        T.pop(c, p, this);
         c.restore();
       }
     }
+  }
 
-    drawHudBand(c) {
-      const g = c.createLinearGradient(0, 0, 0, this.oy);
+  // 지금 틀(균열)의 실전 판 그림. 다른 테마는 themes/<key>.js 에서 같은 이름으로 바꾼다 (CX.defineTheme).
+  CX.extendTheme('rift', {
+    /** 무기 받침 (판 위에 놓인 총의 자리): (x,y) 무기 가운데, s 크기. 세계 색은 CX.wo(w.world).colors.main */
+    base(c, w, x, y, s) {
+      const col = (CX.wo(w.world).colors || {}).main || '#E9C46A';
+      const g = c.createRadialGradient(x, y + s * 0.42, 2, x, y + s * 0.42, s * 0.62);
+      g.addColorStop(0, 'rgba(0,0,0,0.55)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = g;
+      c.fillRect(x - s, y, s * 2, s);
+      c.fillStyle = '#1A1030';
+      c.beginPath();
+      c.ellipse(x, y + s * 0.36, s * 0.46, s * 0.15, 0, 0, TAU);
+      c.fill();
+      c.strokeStyle = '#E9C46A';
+      c.lineWidth = 1.3;
+      c.stroke();
+      c.strokeStyle = col;
+      c.globalAlpha = 0.8;
+      c.beginPath();
+      c.ellipse(x, y + s * 0.36, s * 0.34, s * 0.1, 0, 0, TAU);
+      c.stroke();
+      if (w.sub) {
+        c.strokeStyle = (CX.wo(w.subWorld).colors || {}).main || '#E9C46A';
+        c.beginPath();
+        c.ellipse(x, y + s * 0.36, s * 0.52, s * 0.18, 0, 0.2, Math.PI - 0.2);
+        c.stroke();
+      }
+    },
+    /** 무기 레벨 (1~5) 표시: 받침 아래 */
+    pips(c, w, x, y, s) {
+      for (let i = 0; i < 5; i++) {
+        c.fillStyle = i < w.lv ? '#E9C46A' : 'rgba(233,196,106,0.22)';
+        c.beginPath();
+        const px = x - 12 + i * 6;
+        const py = y + s * 0.62;
+        c.moveTo(px, py - 2.2);
+        c.lineTo(px + 2.2, py);
+        c.lineTo(px, py + 2.2);
+        c.lineTo(px - 2.2, py);
+        c.closePath();
+        c.fill();
+      }
+    },
+    /** 무기 위에 잠깐 뜨는 글 (NEW, Lv 3 → 4): p = { w, text, age(0~1.6) } */
+    pop(c, p) {
+      const k = p.age / 1.6;
+      c.globalAlpha = k < 0.75 ? 1 : 1 - (k - 0.75) / 0.25;
+      c.font = '800 12px "Noto Sans KR", sans-serif';
+      c.textAlign = 'center';
+      const ty = p.w.y - GUN * 0.75 - ease(Math.min(1, p.age / 0.3)) * 14;
+      const tw = c.measureText(p.text).width + 14;
+      c.fillStyle = 'rgba(12,6,26,0.9)';
+      roundRect(c, p.w.x - tw / 2, ty - 11, tw, 17, 6);
+      c.fill();
+      c.strokeStyle = '#E9C46A';
+      c.lineWidth = 1;
+      c.stroke();
+      c.fillStyle = '#FFE7A3';
+      c.fillText(p.text, p.w.x, ty + 2);
+    },
+    /** 목숨을 잃은 순간 (k 1 → 0) */
+    hurt(c, run, k) {
+      const g = c.createRadialGradient(W / 2, 270, 120, W / 2, 270, 360);
+      g.addColorStop(0, 'rgba(255,40,80,0)');
+      g.addColorStop(1, `rgba(255,40,80,${0.45 * k})`);
+      c.fillStyle = g;
+      c.fillRect(0, 0, W, 540);
+    },
+    hud(c, run) {
+      const g = c.createLinearGradient(0, 0, 0, run.oy);
       g.addColorStop(0, '#120926');
       g.addColorStop(1, '#0B0816');
       c.fillStyle = g;
-      c.fillRect(0, 0, W, this.oy);
+      c.fillRect(0, 0, W, run.oy);
       c.strokeStyle = 'rgba(233,196,106,0.55)';
       c.lineWidth = 1;
       c.beginPath();
-      c.moveTo(0, this.oy - 0.5);
-      c.lineTo(W, this.oy - 0.5);
+      c.moveTo(0, run.oy - 0.5);
+      c.lineTo(W, run.oy - 0.5);
       c.stroke();
       // 목숨
-      for (let i = 0; i < 5; i++) heart(c, 20 + i * 21, 21, 8.5, i < this.hearts);
+      for (let i = 0; i < 5; i++) heart(c, 20 + i * 21, 21, 8.5, i < run.hearts);
       // LV
       c.textBaseline = 'alphabetic';
       c.textAlign = 'center';
@@ -419,7 +484,7 @@
       c.fillText('LV', W / 2 - 16, 27);
       c.fillStyle = '#FFFFFF';
       c.font = '900 22px "Cinzel", serif';
-      c.fillText(String(this.level), W / 2 + 8, 29);
+      c.fillText(String(run.level), W / 2 + 8, 29);
       // 웨이브
       c.textAlign = 'right';
       c.fillStyle = '#CDBEF2';
@@ -427,9 +492,9 @@
       c.fillText('WAVE', W - 46, 27);
       c.fillStyle = '#FFFFFF';
       c.font = '900 22px "Cinzel", serif';
-      c.fillText(String(this.wave), W - 14, 29);
+      c.fillText(String(run.wave), W - 14, 29);
       // 경험치
-      const k = clamp(this.exp / this.need, 0, 1);
+      const k = clamp(run.exp / run.need, 0, 1);
       c.fillStyle = 'rgba(233,196,106,0.16)';
       roundRect(c, 14, 44, W - 28, 7, 3.5);
       c.fill();
@@ -439,10 +504,9 @@
       c.fillStyle = eg;
       roundRect(c, 14, 44, Math.max(7, (W - 28) * k), 7, 3.5);
       c.fill();
-    }
-
-    drawWorldChips(c) {
-      const m = this.worlds();
+    },
+    chips(c, run) {
+      const m = run.worlds();
       let y = 44;
       for (const k of ORDER) {
         if (!m[k]) continue;
@@ -463,12 +527,11 @@
         c.fillText(String(m[k]), 41, y + 10);
         y += 23;
       }
-    }
-
-    drawGateChip(c) {
-      const n = this.cats().size;
+    },
+    gate(c, run) {
+      const n = run.cats().size;
       const next = CAT_TH.find((t) => t > n) || 15;
-      const slots = this.fuseSlots();
+      const slots = run.fuseSlots();
       const text = `갈래 ${n}/${next} · 합성 칸 ${slots}`;
       c.font = '700 10.5px "Noto Sans KR", sans-serif';
       const tw = c.measureText(text).width + 16;
@@ -482,9 +545,8 @@
       c.textAlign = 'left';
       c.textBaseline = 'middle';
       c.fillText(text, W - tw, 50);
-    }
-
-    drawBanner(c, b) {
+    },
+    banner(c, b, run) {
       const k = b.age / b.life;
       const a = k < 0.15 ? k / 0.15 : k > 0.75 ? (1 - k) / 0.25 : 1;
       c.save();
@@ -513,13 +575,12 @@
         c.fillText(b.sub, W / 2, y + 15, W - 70);
       }
       c.restore();
-    }
-
-    drawOffer(c, o) {
+    },
+    offer(c, o, run) {
       const t = o.age;
       c.save();
       c.fillStyle = `rgba(7,4,16,${0.78 * Math.min(1, t / 0.2)})`;
-      c.fillRect(0, -this.oy, W, this.ch);
+      c.fillRect(0, -run.oy, W, run.ch);
       c.textAlign = 'center';
       c.textBaseline = 'alphabetic';
       c.fillStyle = '#E9C46A';
@@ -542,19 +603,18 @@
           c.scale(s, s);
           c.translate(-W / 2, -(y + 50));
         }
-        this.drawCard(c, cd, 18, y, W - 36, 100, picked);
+        CX.th().card(c, cd, 18, y, W - 36, 100, picked, run);
         c.restore();
       });
-      if (!this.auto && o.pick < 0) {
+      if (!run.auto && o.pick < 0) {
         c.fillStyle = '#CDBEF2';
         c.font = '500 11px "Noto Sans KR", sans-serif';
         c.textAlign = 'center';
         c.fillText('카드를 눌러 고른다', W / 2, 140 + 3 * 112 + 4);
       }
       c.restore();
-    }
-
-    drawCard(c, cd, x, y, w, h, picked) {
+    },
+    card(c, cd, x, y, w, h, picked, run) {
       const g = c.createLinearGradient(x, y, x, y + h);
       g.addColorStop(0, '#22163E');
       g.addColorStop(1, '#140C26');
@@ -575,7 +635,7 @@
       // 그림: 유물함 (합성이면 사선 두 세계)
       const v = cd.view;
       c.save();
-      CX.drawMount(c, v, x + 50, y + h / 2, 66, this.t, false);
+      CX.drawGun(c, v, x + 50, y + h / 2 + 10, 50, run.t);
       c.restore();
       const tx = x + 96;
       const tw = w - 106;
@@ -587,16 +647,16 @@
       let l1;
       let l2 = '';
       if (cd.kind === 'fuse') {
-        tag = `합성 · 칸 ${this.fuseSlots()} 중 1 · 등급 ${Math.min(cd.a.lv, cd.b.lv)}`;
+        tag = `합성 · 칸 ${run.fuseSlots()} 중 1 · 등급 ${Math.min(cd.a.lv, cd.b.lv)}`;
         name = v.name;
         l1 = `몸 ${cd.a.name} (${CX.wo(cd.a.world).short}) + 연출 ${cd.b.name} (${CX.wo(cd.b.world).short})`;
         l2 = `반응: ${v.react}`;
       } else if (cd.kind === 'new') {
-        const own = this.worlds();
+        const own = run.worlds();
         tag = `새 무기 · ${wn(v.world)} · ${v.catLabel}${own[v.world] ? '' : ' · 새 세계'}`;
         name = v.name;
-        const left = (CAT_TH.find((tt) => tt > this.cats().size) || 15) - this.cats().size - 1;
-        l1 = this.cats().has(v.cat) ? `${v.catLabel} 갈래 하나 더` : left <= 0 ? '새 갈래 · 이걸로 합성 칸이 열린다' : `새 갈래 · 합성 칸까지 갈래 ${left}`;
+        const left = (CAT_TH.find((tt) => tt > run.cats().size) || 15) - run.cats().size - 1;
+        l1 = run.cats().has(v.cat) ? `${v.catLabel} 갈래 하나 더` : left <= 0 ? '새 갈래 · 이걸로 합성 칸이 열린다' : `새 갈래 · 합성 칸까지 갈래 ${left}`;
       } else {
         tag = `강화 · ${wn(v.world)} · ${v.catLabel}`;
         name = `${v.name}  Lv ${v.lv} → ${v.lv + 1}`;
@@ -616,13 +676,12 @@
         c.font = '700 11px "Noto Sans KR", sans-serif';
         c.fillText(l2, tx, y + 87, tw);
       }
-    }
-
-    drawOver(c) {
-      const a = Math.min(1, this.over / 0.4);
+    },
+    over(c, run) {
+      const a = Math.min(1, run.over / 0.4);
       c.save();
       c.fillStyle = `rgba(7,4,16,${0.8 * a})`;
-      c.fillRect(0, -this.oy, W, this.ch);
+      c.fillRect(0, -run.oy, W, run.ch);
       c.globalAlpha = a;
       c.textAlign = 'center';
       c.fillStyle = '#FF7A9C';
@@ -630,13 +689,13 @@
       c.fillText('봉인선 붕괴', W / 2, 220);
       c.fillStyle = '#FFFFFF';
       c.font = '700 14px "Noto Sans KR", sans-serif';
-      c.fillText(`웨이브 ${this.wave} · LV ${this.level} · 연쇄 최고 ${this.chainPeak} · 합성 ${this.fusedN}`, W / 2, 252);
+      c.fillText(`웨이브 ${run.wave} · LV ${run.level} · 연쇄 최고 ${run.chainPeak} · 합성 ${run.fusedN}`, W / 2, 252);
       c.fillStyle = '#CDBEF2';
       c.font = '500 12px "Noto Sans KR", sans-serif';
       c.fillText('잠시 뒤 새 판', W / 2, 278);
       c.restore();
-    }
-  }
+    },
+  });
 
   function heart(c, x, y, r, full) {
     c.save();
@@ -661,6 +720,9 @@
   }
 
   CX.Run = Run;
+  CX.util.heart = heart;
+  /** 테마가 쓰는 실전 판 치수 · 규칙 (themes/*.js) */
+  CX.runInfo = { W, CH, HUD: HUD_H, FIELD_H: 540, GUN, CAT_TH, ORDER, card: (i) => ({ x: 18, y: 140 + i * 112, w: W - 36, h: 100 }) };
 
   // ── 쪽 ──
   function boot() {
@@ -687,6 +749,35 @@
       au.textContent = s.auto ? '자동 고르기 켬' : '자동 고르기 끔 (카드를 눌러 고름)';
     });
     document.getElementById('again').addEventListener('click', () => s.reset());
+    // 테마 고르기: 같은 판을 그대로 두고 틀만 바꾼다
+    const box = document.getElementById('themes');
+    const keys = ['rift', ...Object.keys(CX.themes).filter((k) => k !== 'rift')];
+    const note = document.getElementById('themeNote');
+    const pick = (k) => {
+      if (!CX.themes[k]) k = 'rift';
+      CX.themeKey = k;
+      for (const b of box.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.k === k));
+      const th = CX.themes[k];
+      note.textContent = th.desc || '';
+      try {
+        history.replaceState(null, '', '#theme-' + k);
+      } catch (e) {
+        location.hash = 'theme-' + k;
+      }
+    };
+    for (const k of keys) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.k = k;
+      b.textContent = CX.themes[k].name || k;
+      b.addEventListener('click', () => pick(k));
+      box.appendChild(b);
+    }
+    pick((/#theme-([a-z]+)/.exec(location.hash) || [])[1] || keys[1] || 'rift');
+    window.addEventListener('hashchange', () => {
+      const k = (/#theme-([a-z]+)/.exec(location.hash) || [])[1];
+      if (k && k !== CX.themeKey) pick(k);
+    });
     CX.start();
   }
   void LINE_Y;
@@ -699,6 +790,8 @@
     started = true;
     boot();
   };
-  Promise.all(loads).then(go);
-  setTimeout(go, 2500);
+  // 테마 파일(run.js 뒤에 오는 <script>)까지 다 읽힌 뒤에 시작
+  const ready = new Promise((r) => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r) : r()));
+  Promise.all([...loads, ready]).then(go);
+  setTimeout(() => ready.then(go), 2500);
 })();

@@ -13,6 +13,7 @@ const path = require('path');
   p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(3000);
+  if (process.env.THEME) await p.evaluate((k) => { CX.themeKey = k; }, process.env.THEME);
   const state = () =>
     p.evaluate(() => {
       const s = window.__run;
@@ -43,6 +44,14 @@ const path = require('path');
     await cv.screenshot({ path: path.join(out, `r${i}.png`) });
   }
   console.log(JSON.stringify(await state()));
+  // 레벨 업 카드 · 배너 · 끝 화면도 한 장씩 (멈춘 채)
+  await p.evaluate(() => { CX.speed = 0; const s = window.__run; s.openOffer(); s.offer.age = 0.9; s.draw(); });
+  await cv.screenshot({ path: path.join(out, 'offer.png') });
+  await p.evaluate(() => { const s = window.__run; s.offer.pick = 0; s.offer.pickAt = 0.6; s.offer.age = 0.75; s.draw(); });
+  await cv.screenshot({ path: path.join(out, 'offer-pick.png') });
+  await p.evaluate(() => { const s = window.__run; s.offer = null; s.over = 1; s.draw(); });
+  await cv.screenshot({ path: path.join(out, 'over.png') });
+  await p.evaluate(() => { const s = window.__run; s.over = 0; CX.speed = 1; });
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
   await m.goto('file://' + path.resolve(file));
   await m.waitForTimeout(2500);

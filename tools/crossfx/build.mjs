@@ -15,7 +15,10 @@ const name = args[0] && !args[0].startsWith('--') ? args[0] : 'cross';
 const P = PAGES[name];
 if (!P) throw new Error(`모르는 쪽: ${name} (cross | run)`);
 const WORLDS = ['base', 'ops', 'steel', 'sumi', 'rift', 'comic', 'bio'];
-const files = [`${dir}/data.js`, `${dir}/runtime.js`, ...WORLDS.map((k) => `${dir}/worlds/${k}.js`).filter((f) => existsSync(f)), `${dir}/${P.page}`];
+const THEMES = ['glass', 'city', 'anime', 'tactical', 'mono', 'orbit'];
+const themeFiles = name === 'run' ? THEMES.map((k) => `${dir}/themes/${k}.js`).filter((f) => existsSync(f)) : [];
+// 쪽 스크립트(run.js)가 기본 틀(rift)을 채운 뒤에 테마 파일이 온다
+const files = [`${dir}/data.js`, `${dir}/runtime.js`, ...WORLDS.map((k) => `${dir}/worlds/${k}.js`).filter((f) => existsSync(f)), `${dir}/${P.page}`, ...themeFiles];
 const scripts = files.map((f) => `<script>/* ${f} */\n${readFileSync(f, 'utf8').replace(/<\/script/gi, '<\\/script')}\n</script>`).join('\n');
 const tpl = readFileSync(`${dir}/${P.tpl}`, 'utf8').replace('/*__SCRIPTS__*/', () => scripts);
 

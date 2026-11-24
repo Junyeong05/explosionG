@@ -313,12 +313,16 @@
         const w = this.mounts[i];
         if (!w) continue;
         const wo = CX.wo(w.world);
+        w.aim = (w.aim || 0) + ((w.aimTo || 0) - (w.aim || 0)) * Math.min(1, dt * 8);
+        w.kick = Math.max(0, (w.kick || 0) - dt * 5);
         if (wo.tick) wo.tick(this, w, dt);
         w.cool -= dt;
         if (w.cool <= 0) {
           const tg = this.target('front');
           if (tg) {
             const cd = wo.fire(this, w, tg);
+            w.aimTo = Math.atan2(tg.x - w.x, w.y - tg.y);
+            w.kick = 1;
             w.cool = (cd || 1.2) * (w.cdMul || 1) * rnd(0.9, 1.1);
           } else w.cool = 0.25;
         }
@@ -366,23 +370,27 @@
         c.fillRect(0, 0, W, this.ch);
       }
       if (this.oy) c.translate(0, this.oy);
-      if (!this.bg) this.bg = makeBg(this.scale);
+      const T = CX.th();
+      if (!this.bg || this.bgKey !== T.key) {
+        this.bg = T.bg(this.scale);
+        this.bgKey = T.key;
+      }
       c.drawImage(this.bg, 0, 0, W, H);
-      drawRift(c, this.t);
+      T.sky(c, this.t);
       const sx = this.shakeA ? rnd(-this.shakeA, this.shakeA) : 0;
       const sy = this.shakeA ? rnd(-this.shakeA, this.shakeA) : 0;
       c.save();
       c.translate(sx, sy);
       this.drawFx(-1);
-      for (const e of this.enemies) drawEnemy(c, e, this.t);
+      for (const e of this.enemies) if (e.alive || e.flash > 0) T.enemy(c, e, this.t);
       this.drawFx(0);
-      for (const s of this.seams) drawSeam(c, s);
-      for (const b of this.booms) drawBoom(c, b);
+      for (const s of this.seams) T.seam(c, s);
+      for (const b of this.booms) T.boom(c, b);
       this.drawFx(1);
       c.restore();
-      drawLine(c, this.t);
+      T.line(c, this.t);
       this.drawMounts();
-      for (const n of this.nums) drawNum(c, n);
+      for (const n of this.nums) T.num(c, n);
       this.drawChain();
       for (const l of this.labels) {
         c.save();
@@ -431,26 +439,9 @@
     }
 
     drawChain() {
-      const c = this.ctx;
       const since = this.t - this.chainT;
       if (this.chainN < 3 || since > 1.1) return;
-      const pop = 1 + 0.35 * Math.max(0, 1 - since / 0.18);
-      const a = since > 0.8 ? 1 - (since - 0.8) / 0.3 : 1;
-      c.save();
-      c.globalAlpha = a;
-      c.translate(W / 2, 196);
-      c.scale(pop, pop);
-      c.textAlign = 'center';
-      c.textBaseline = 'alphabetic';
-      c.font = '700 15px "Noto Sans KR", sans-serif';
-      c.fillStyle = '#E9C46A';
-      c.fillText('연쇄', 0, -44);
-      c.font = '900 58px "Cinzel", "Orbit", serif';
-      c.shadowColor = 'rgba(233,196,106,0.9)';
-      c.shadowBlur = 18;
-      c.fillStyle = '#FFFFFF';
-      c.fillText(String(this.chainN), 0, 12);
-      c.restore();
+      CX.th().chain(this.ctx, this.chainN, since);
     }
 
     drawCaption() {
@@ -494,6 +485,27 @@
     }
   }
   CX.Scene = Scene;
+
+  /** 공통(균열) 연쇄 숫자: n 연쇄 수, since 마지막 폭발 뒤 초 (0 ~ 1.1) */
+  function drawChainNum(c, n, since) {
+      const pop = 1 + 0.35 * Math.max(0, 1 - since / 0.18);
+      const a = since > 0.8 ? 1 - (since - 0.8) / 0.3 : 1;
+      c.save();
+      c.globalAlpha = a;
+      c.translate(W / 2, 196);
+      c.scale(pop, pop);
+      c.textAlign = 'center';
+      c.textBaseline = 'alphabetic';
+      c.font = '700 15px "Noto Sans KR", sans-serif';
+      c.fillStyle = '#E9C46A';
+      c.fillText('연쇄', 0, -44);
+      c.font = '900 58px "Cinzel", "Orbit", serif';
+      c.shadowColor = 'rgba(233,196,106,0.9)';
+      c.shadowBlur = 18;
+      c.fillStyle = '#FFFFFF';
+      c.fillText(String(n), 0, 12);
+      c.restore();
+  }
 
   // ── 공통 그림 ───────────────────────────────────────────────
   function roundRect(c, x, y, w, h, r) {
@@ -1155,6 +1167,77 @@
     return api.add({ x, y, life, z: z == null ? 1 : z, noTrail: true, update() {}, draw(c, a) {
       draw(c, clamp(this.age / life, 0, 1), this, a);
     } });
+  };
+
+  // ── 테마: 판의 틀 (바탕 · 하늘 · 적 · 연쇄 폭발 · 숫자 · 방어선 · 연쇄 수 · 무기 받침 · HUD · 카드 …) ──
+  // 세계 모듈(무기 그림·공격·반응)은 그대로, 틀만 바꾼다. 빠진 함수는 'rift'(지금 틀)의 것을 쓴다.
+  CX.themes = CX.themes || {};
+  let thVer = 0;
+  const thCache = { k: null, v: -1, t: null };
+  CX.defineTheme = function (key, def) {
+    CX.themes[key] = Object.assign({ key }, def);
+    thVer++;
+  };
+  CX.extendTheme = function (key, def) {
+    CX.themes[key] = Object.assign(CX.themes[key] || { key }, def);
+    thVer++;
+  };
+  CX.themeKey = 'rift';
+  CX.th = function () {
+    if (thCache.k === CX.themeKey && thCache.v === thVer) return thCache.t;
+    const t = Object.assign({}, CX.themes.rift, CX.themes[CX.themeKey] || {}, { key: CX.themeKey });
+    thCache.k = CX.themeKey;
+    thCache.v = thVer;
+    thCache.t = t;
+    return t;
+  };
+  /** 판 바탕 한 장 (W×H, 배율 scale 로 미리 그려 둠): theme.bg(scale) 에서 쓴다 */
+  CX.util.bgCanvas = function (scale, draw) {
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(W * scale);
+    cv.height = Math.round(H * scale);
+    const c = cv.getContext('2d');
+    c.setTransform(scale, 0, 0, scale, 0, 0);
+    draw(c, W, H);
+    return cv;
+  };
+  CX.defineTheme('rift', {
+    name: '균열 (지금)',
+    desc: '보라 허공 · 금테 · 세리프 숫자',
+    bg: (scale) => makeBg(scale),
+    sky: drawRift,
+    enemy: drawEnemy,
+    boom: drawBoom,
+    seam: drawSeam,
+    num: drawNum,
+    line: drawLine,
+    chain: drawChainNum,
+  });
+
+  /**
+   * 무기를 판 위에 "놓인 총"처럼: 테마 받침(theme.base) 위에 세계 그림(아이콘)을 세우고,
+   * 겨누는 무기(총·광선·포·투척·회전체·음파)는 쏜 쪽으로 기울고 쏠 때 뒤로 튄다. 합친 무기는 보조가 곁에 붙어 맴돈다.
+   */
+  const AIM = { gun: 1, ray: 1, turret: 1, throw: 1, spinner: 1, sound: 1 };
+  CX.drawGun = function (c, w, x, y, s, t) {
+    const T = CX.th();
+    c.save();
+    if (T.base) {
+      c.save();
+      T.base(c, w, x, y, s, t);
+      c.restore();
+    }
+    const tilt = AIM[w.cat] ? clamp(w.aim || 0, -0.55, 0.55) : 0;
+    c.translate(x, y - s * 0.18);
+    c.rotate(tilt);
+    c.translate(0, (w.kick || 0) * s * 0.12);
+    CX.wo(w.world).icon(c, w.id, 0, 0, s, t);
+    if (w.sub) {
+      c.rotate(-tilt);
+      const a = t * 1.7;
+      CX.wo(w.subWorld).icon(c, w.sub, s * 0.46 + Math.cos(a) * 1.6, -s * 0.34 + Math.sin(a) * 1.6, s * 0.5, t);
+    }
+    c.restore();
   };
 
   // ── 돌리기 ──────────────────────────────────────────────────
