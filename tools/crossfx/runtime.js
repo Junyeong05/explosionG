@@ -74,6 +74,9 @@
       this.cv = canvas;
       this.ctx = canvas.getContext('2d');
       this.opt = Object.assign({ density: 11 }, opt);
+      /** 캔버스 논리 높이 · 판을 아래로 미는 값 (실전 판은 위에 HUD 띠) */
+      this.ch = this.opt.height || H;
+      this.oy = this.opt.offsetY || 0;
       this.t = 0;
       this.enemies = [];
       this.fx = [];
@@ -103,7 +106,7 @@
       const cw = Math.max(200, r.width || 360);
       this.scale = (cw / W) * dpr;
       this.cv.width = Math.round(W * this.scale);
-      this.cv.height = Math.round(H * this.scale);
+      this.cv.height = Math.round(this.ch * this.scale);
       this.bg = null;
     }
 
@@ -150,7 +153,9 @@
 
     /** 노릴 적: 'front' 방어선에 가까운 쪽(셋 중 하나), 'near' (x,y)에 가까운, 'cluster' 이웃 많은, 'any' 아무나 */
     target(mode, x, y) {
-      const al = this.enemies.filter((e) => e.alive && e.y > 34 && e.y < LINE_Y - 8);
+      // 사거리: 이 높이 아래로 내려온 적만 노린다 (실전 판은 더 아래로: 대형이 내려오는 게 보이게)
+      const top = this.minTargetY || 34;
+      const al = this.enemies.filter((e) => e.alive && e.y > top && e.y < LINE_Y - 8);
       if (!al.length) return null;
       if (mode === 'near') {
         let best = null;
@@ -197,6 +202,7 @@
       const hy = y == null ? e.y : y;
       e.hp -= dmg;
       e.flash = 0.12;
+      if (w && w.pow) dmg *= w.pow;
       if (o.push) e.y = Math.max(-30, e.y - o.push);
       if (o.slow) e.slow = Math.max(e.slow, o.slow);
       this.num(hx, hy - e.r - 4, dmg, o.big ? 2 : o.isReact ? 1 : 0);
@@ -230,6 +236,7 @@
     kill(e) {
       if (!e.alive) return;
       e.alive = false;
+      if (this.onKill) this.onKill(e);
       if (this.t - this.chainT > 1.3) this.chainN = 0;
       this.chainN++;
       this.chainT = this.t;
@@ -254,6 +261,12 @@
       }
     }
 
+    /** 적 채우기 (실전 판은 웨이브로 바꿔 씀) */
+    spawnTick() {
+      const alive = this.enemies.filter((e) => e.alive).length;
+      if (alive < (this.opt.density || 11)) this.spawnCluster(-24);
+    }
+
     /** sec 초 뒤에 fn(api) (판 시간 기준: 속도·멈춤을 따른다). 연발·지연 폭발에 */
     later(sec, fn) {
       this.timers.push({ at: this.t + sec, fn });
@@ -275,8 +288,7 @@
       if (this.opt.phases.length > 1 && this.phaseT >= ph.dur) this.nextPhase();
 
       // 적
-      const alive = this.enemies.filter((e) => e.alive).length;
-      if (alive < (this.opt.density || 11)) this.spawnCluster(-24);
+      this.spawnTick(dt);
       for (const e of this.enemies) {
         if (!e.alive) {
           e.flash = Math.max(0, e.flash - dt);
@@ -291,6 +303,7 @@
         if (e.y > LINE_Y - 6) {
           e.alive = false;
           this.booms.push({ x: e.x, y: LINE_Y, r: 14, age: 0, leak: true });
+          if (this.onLeak) this.onLeak(e);
         }
       }
       this.enemies = this.enemies.filter((e) => e.alive || e.flash > 0);
@@ -306,7 +319,7 @@
           const tg = this.target('front');
           if (tg) {
             const cd = wo.fire(this, w, tg);
-            w.cool = (cd || 1.2) * rnd(0.9, 1.1);
+            w.cool = (cd || 1.2) * (w.cdMul || 1) * rnd(0.9, 1.1);
           } else w.cool = 0.25;
         }
       }
@@ -348,6 +361,11 @@
       c.setTransform(this.scale, 0, 0, this.scale, 0, 0);
       c.globalAlpha = 1;
       c.globalCompositeOperation = 'source-over';
+      if (this.ch > H) {
+        c.fillStyle = '#07050F';
+        c.fillRect(0, 0, W, this.ch);
+      }
+      if (this.oy) c.translate(0, this.oy);
       if (!this.bg) this.bg = makeBg(this.scale);
       c.drawImage(this.bg, 0, 0, W, H);
       drawRift(c, this.t);
@@ -854,6 +872,7 @@
   CX.drawMount = drawMount;
 
   // 합성 순간: 보조 무기가 메인 유물함으로 날아 들어가 박힌다
+  CX.introFx = (w) => introFx(w);
   function introFx(w) {
     return {
       age: 0,
@@ -1140,15 +1159,15 @@
 
   // ── 돌리기 ──────────────────────────────────────────────────
   const scenes = [];
-  CX.mount = function (canvas, opt) {
-    const s = new Scene(canvas, opt);
+  CX.mount = function (canvas, opt, existing) {
+    const s = existing || new Scene(canvas, opt);
     scenes.push(s);
     if ('IntersectionObserver' in window) {
       io.observe(canvas);
     } else s.visible = true;
     canvas.__scene = s;
     // 처음 한 장은 보이게 미리 몇 프레임 돌려 그린다
-    for (let i = 0; i < 40; i++) s.step(1 / 30);
+    if (!existing) for (let i = 0; i < 40; i++) s.step(1 / 30);
     s.draw();
     return s;
   };

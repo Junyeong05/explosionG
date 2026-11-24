@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--PAGE-->
+<title>균열 크로스오버 실전</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbit&family=Noto+Sans+KR:wght@400;500;700;900&family=Cinzel:wght@700;900&family=Share+Tech+Mono&family=Black+Han+Sans&family=East+Sea+Dokdo&family=Nanum+Brush+Script&family=Gowun+Batang:wght@400;700&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans+KR:wght@500;700&family=Oswald:wght@500;700&family=Gothic+A1:wght@700;900&display=swap">
+<style>
+/* 폰 한 화면처럼: 가운데 게임 화면, 옆(넓을 때)·아래(좁을 때)에 조작과 볼 것 */
+:root {
+  --void: #0B0816; --panel: #150D28; --line: rgba(233,196,106,0.3);
+  --gold: #E9C46A; --fg: #F1ECFF; --muted: #B7ACD8;
+  --display: "Orbit", "Noto Sans KR", system-ui, sans-serif;
+  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --num: "Cinzel", "Orbit", serif;
+  color-scheme: dark;
+}
+body { background: var(--void); color: var(--fg); font: 15px/1.6 var(--body); margin: 0 }
+main { max-width: 980px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 28px; align-items: start }
+.screen { display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 360 / 640; border-radius: 18px; border: 1px solid var(--line); background: #07050F; box-shadow: 0 10px 40px rgba(0,0,0,0.5); cursor: pointer }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+button { font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 5px 11px; cursor: pointer; font-size: 13.5px }
+button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold) }
+#speed button { font-family: var(--num); font-weight: 700 }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+.side { min-width: 0; display: flex; flex-direction: column; gap: 14px }
+.eyebrow { font: 700 12px/1.4 var(--body); letter-spacing: 0.12em; color: var(--gold); margin: 0 }
+h1 { font: 400 clamp(28px, 5vw, 40px)/1.15 var(--display); margin: 0; text-wrap: balance }
+p { margin: 0; color: var(--muted); font-size: 14.5px; max-width: 60ch }
+ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 6px }
+ul b { color: var(--fg) }
+a { color: var(--gold) }
+@media (max-width: 760px) { main { grid-template-columns: minmax(0, 1fr) } .side { order: 2 } }
+</style>
+<!--/PAGE-->
+</head>
+<body>
+<!--BODY-->
+<main>
+  <div class="screen">
+    <canvas id="run" width="360" height="640" role="img" aria-label="균열 크로스오버로 그린 실전 한 판: 웨이브, 레벨 업 카드, 합성"></canvas>
+    <div class="bar">
+      <div id="speed" role="group" aria-label="속도" class="bar"><button type="button" data-s="0.5" aria-pressed="false">0.5×</button><button type="button" data-s="1" aria-pressed="true">1×</button><button type="button" data-s="2" aria-pressed="false">2×</button></div>
+      <button type="button" id="auto" aria-pressed="true">자동 고르기 켬</button>
+      <button type="button" id="again">새 판</button>
+    </div>
+  </div>
+  <div class="side">
+    <p class="eyebrow">연쇄 폭발 · 실전 시뮬 · 11-24</p>
+    <h1>균열 크로스오버 실전</h1>
+    <p>게임 한 판을 그대로 돌린다. 웨이브가 대형으로 내려오고, 레벨 업마다 카드(새 무기 · 강화 · 합성)를 고르고, 무기 줄이 두 줄로 차 간다. 그림은 세계 여섯의 무기 18개와 균열 틀.</p>
+    <ul>
+      <li><b>위</b>: 목숨 · LV · 웨이브 · 경험치. 왼쪽 세계 칩은 세계마다 가진 무기 수 (시너지를 건다면 여기).</li>
+      <li><b>합성 칸</b>: 갈래 4 · 7 · 10 · 13종마다 하나 (게임의 '폭=칸' 규칙). 재료는 둘 다 Lv 2 이상, 낮은 레벨이 등급.</li>
+      <li><b>합성 순간</b>: 보조 무기가 메인 유물함으로 날아 박히고, 그 뒤 메인 공격에 보조 세계의 궤적·맞는 무늬·반응이 얹힌다.</li>
+      <li><b>5웨이브마다</b> 균열 군주. 봉인선을 넘으면 목숨이 준다. 다 잃으면 새 판.</li>
+      <li>자동 고르기를 끄면 카드를 직접 눌러 고른다. 무기 하나씩 따로 보려면 <a href="https://claude.ai/artifact/DYPFqaXTbzRF9DahYrFLn2" target="_blank" rel="noopener">연출 미리보기</a>.</li>
+    </ul>
+  </div>
+</main>
+<!--/BODY-->
+/*__SCRIPTS__*/
+</body>
+</html>

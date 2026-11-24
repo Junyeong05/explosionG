@@ -50,6 +50,7 @@
   - `pull` (끌어모으기 너프 + 적끼리 가운데 충돌: 중력 무기 여덟): https://claude.ai/artifact/Ce9etzt3wfK4pmCi7CA8d3
   - `clarity` (합성 카드 정리 + 공격 구분: 피해 숫자 색 · 무기 누르면 집중 보기, 표): https://claude.ai/artifact/Fhx8pqe88fsUc8CLAd5MU8
   - `cross` (균열 크로스오버 연출: 세계 여섯 무기 셋씩 · 합성 9쌍 메인만 → 합친 뒤 · 섞어 보기 18개): https://claude.ai/artifact/DYPFqaXTbzRF9DahYrFLn2 — 이 페이지만 만드는 법이 다르다: `node tools/crossfx/build.mjs` (공통 틀 `tools/crossfx/runtime.js`, 세계마다 `tools/crossfx/worlds/<세계>.js`, 확인 `node tools/crossfx/check.cjs docs/showcase/cross.html <폴더>`), 올리는 파일은 `dist-showcase/cross.html`
+  - `cross-run` (균열 크로스오버 실전 시뮬: 게임 한 판처럼 HUD · 웨이브 · 레벨 업 카드 · 합성 칸 · 목숨): https://claude.ai/artifact/MszdNXtVJhd1DkYz6TVh5L — `node tools/crossfx/build.mjs run` (`tools/crossfx/run.js`), 확인 `node tools/crossfx/check-run.cjs docs/showcase/cross-run.html <폴더> [빨리 돌릴 초]` (TUNE='{"hpA":..}' 로 난이도), 녹화본 `docs/design/concept-art/cross-run.mp4`
 
 ## 디자인 캔버스 (정지 화면 시안, Design 타입)
 
