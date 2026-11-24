@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>스튜디오 무대 판 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Noto+Sans+KR:wght@500;700;900&amp;display=swap">
+<style>
+body{margin:0}
+@keyframes stTally{0%,60%{opacity:1}61%,100%{opacity:.3}}
+@keyframes stGlint{0%{transform:translateX(-120px) skewX(-20deg)}60%,100%{transform:translateX(420px) skewX(-20deg)}}
+.st-tally{animation:stTally 1.2s steps(1) infinite}
+.st-glint{animation:stGlint 2.8s ease-in-out infinite}
+.st-num{font-family:'Noto Sans KR',sans-serif;font-weight:900;color:#FFFFFF;line-height:1;text-shadow:0 0 0 #1C1E21,-2px -2px 0 #1C1E21,2px -2px 0 #1C1E21,-2px 2px 0 #1C1E21,2px 2px 0 #1C1E21,0 2px 0 #1C1E21,0 -2px 0 #1C1E21,2px 0 0 #1C1E21,-2px 0 0 #1C1E21,3px 4px 6px rgba(10,12,14,.45)}
+.st-btn{position:absolute;bottom:4px;height:26px;padding:0 14px;border:1px solid rgba(255,255,255,.42);border-radius:3px;background:#1C1E21;color:#FFFFFF;font:700 12px/24px 'Noto Sans KR',sans-serif;letter-spacing:.02em;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #7E8185; font-family: 'Noto Sans KR', sans-serif; color: #FFFFFF">
+
+<!-- ======== 무대 · 적 · 연쇄 · 받침 · 무기 (SVG 한 장) ======== -->
+<svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+<defs>
+  <!-- 무대 -->
+  <linearGradient id="stBack" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5C5F63"/>
+    <stop offset=".36" stop-color="#777A7E"/>
+    <stop offset=".5" stop-color="#8E9195"/>
+    <stop offset=".56" stop-color="#9C9FA3"/>
+    <stop offset=".63" stop-color="#8F9296"/>
+    <stop offset=".79" stop-color="#7C7F83"/>
+    <stop offset="1" stop-color="#7C7F83"/>
+  </linearGradient>
+  <radialGradient id="stKey" gradientUnits="userSpaceOnUse" cx="60" cy="120" r="420">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".26"/>
+    <stop offset=".45" stop-color="#FFFFFF" stop-opacity=".08"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="stPool" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".2"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="stVig" gradientUnits="userSpaceOnUse" cx="195" cy="380" r="470">
+    <stop offset=".55" stop-color="#202226" stop-opacity="0"/>
+    <stop offset="1" stop-color="#202226" stop-opacity=".5"/>
+  </radialGradient>
+  <linearGradient id="stBeam" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".16"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="stRiser" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5A5D61"/>
+    <stop offset=".5" stop-color="#4A4D51"/>
+    <stop offset="1" stop-color="#3A3D40"/>
+  </linearGradient>
+  <linearGradient id="stCone" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".02"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity=".11"/>
+  </linearGradient>
+  <linearGradient id="stPlF" x1="0" x2="1">
+    <stop offset="0" stop-color="#4E5155"/>
+    <stop offset=".55" stop-color="#3A3C40"/>
+    <stop offset="1" stop-color="#26282B"/>
+  </linearGradient>
+  <linearGradient id="stPlT" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#B9BCC0"/>
+    <stop offset="1" stop-color="#7D8084"/>
+  </linearGradient>
+  <linearGradient id="stSoft" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#E6E8EA"/>
+  </linearGradient>
+  <linearGradient id="stStreak" x1="0" x2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+    <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".95"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="stBossFade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3E4045"/>
+    <stop offset=".7" stop-color="#2A2C30"/>
+    <stop offset="1" stop-color="#2A2C30" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="stB1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <filter id="stB3" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="stB8" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter>
+
+  <!-- 공통 처리: 왼쪽 위 키 라이트 테두리광 + 오른쪽 아래 그림자 (무기 열 개 모두 같은 필터) -->
+  <filter id="stLit" x="-50%" y="-40%" width="200%" height="170%" color-interpolation-filters="sRGB">
+    <feOffset in="SourceAlpha" dx="1.3" dy="1.3" result="sh"/>
+    <feComposite in="SourceAlpha" in2="sh" operator="out" result="edge"/>
+    <feFlood flood-color="#FFFFFF" flood-opacity=".9"/>
+    <feComposite in2="edge" operator="in" result="rim"/>
+    <feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="bl"/>
+    <feOffset in="bl" dx="5" dy="3" result="blo"/>
+    <feFlood flood-color="#131517" flood-opacity=".5"/>
+    <feComposite in2="blo" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="rim"/></feMerge>
+  </filter>
+
+  <!-- 적: 공허 회색 무표정 인형 + 붉은 띠 하나 -->
+  <linearGradient id="stEg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#63666B"/>
+    <stop offset=".45" stop-color="#404247"/>
+    <stop offset="1" stop-color="#25272A"/>
+  </linearGradient>
+  <g id="stEN">
+    <ellipse cx="5" cy="5.4" rx="10" ry="3.2" fill="#17191B" opacity=".42" filter="url(#stB1)"/>
+    <path d="M -7.6,-12 C -9.4,-6 -7,1 -4.4,4 L 4.4,4 C 7,1 9.4,-6 7.6,-12 C 5.4,-15 -5.4,-15 -7.6,-12 Z" fill="url(#stEg)"/>
+    <ellipse cx="0" cy="-20.5" rx="5.8" ry="6.8" fill="url(#stEg)"/>
+    <path d="M -4.8,-23.4 C -3.8,-26 -1.4,-27.2 .8,-27.2" stroke="#9A9DA2" stroke-width=".9" fill="none"/>
+    <path d="M -7.3,-11.4 C -8.6,-7 -7.4,-2 -5.4,1.6" stroke="#85888D" stroke-width=".8" fill="none"/>
+    <rect x="-5.6" y="-22.8" width="11.2" height="3.9" rx="1.9" fill="#FF3B2F" opacity=".55" filter="url(#stB1)"/>
+    <rect x="-4.6" y="-21.7" width="9.2" height="1.7" rx=".85" fill="#FF4A3A"/>
+  </g>
+  <g id="stEA">
+    <ellipse cx="6" cy="6" rx="14" ry="3.6" fill="#17191B" opacity=".42" filter="url(#stB1)"/>
+    <path d="M -12.4,-14 L 12.4,-14 L 10.6,5 L -10.6,5 Z" fill="url(#stEg)"/>
+    <path d="M -14.8,-16 L -5.4,-16.8 L -6,-8.6 L -15.2,-7.6 Z" fill="#4C4F54"/>
+    <path d="M 14.8,-16 L 5.4,-16.8 L 6,-8.6 L 15.2,-7.6 Z" fill="#303236"/>
+    <path d="M -5.4,-14 L -4.8,-22 C -3,-24.8 3,-24.8 4.8,-22 L 5.4,-14 Z" fill="url(#stEg)"/>
+    <path d="M -9,-9.6 H 9 M -8.6,-3 H 8.6" stroke="#25272A" stroke-width=".9"/>
+    <path d="M -14.6,-15.8 L -5.6,-16.6 M -12.2,-13.4 L -10.6,4.6" stroke="#9A9DA2" stroke-width=".8" fill="none"/>
+    <rect x="-4.6" y="-20.8" width="9.2" height="3.6" rx="1.8" fill="#FF3B2F" opacity=".55" filter="url(#stB1)"/>
+    <rect x="-3.8" y="-19.8" width="7.6" height="1.6" rx=".8" fill="#FF4A3A"/>
+  </g>
+  <g id="stEC">
+    <path d="M -3.4,-32 V -48 M 1.6,-31 V -54 M 5.6,-28 V -42" stroke="#D3D5D8" stroke-width="1" opacity=".55"/>
+    <ellipse cx="5" cy="5.4" rx="9" ry="3" fill="#17191B" opacity=".42" filter="url(#stB1)"/>
+    <path d="M 0,-26 C 6,-22 9.4,-10 7.4,4 L -7.4,4 C -9.4,-10 -6,-22 0,-26 Z" fill="url(#stEg)"/>
+    <path d="M -.6,-25.4 C -5,-22 -7.8,-12 -7.4,-2" stroke="#9A9DA2" stroke-width=".9" fill="none"/>
+    <path d="M -5,-17.6 L 0,-14.8 L 5,-17.6" stroke="#FF3B2F" stroke-width="3.4" opacity=".5" fill="none" filter="url(#stB1)"/>
+    <path d="M -5,-17.6 L 0,-14.8 L 5,-17.6" stroke="#FF4A3A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 연쇄: 스트로브 섬광 -->
+  <g id="stFlash">
+    <circle r="34" fill="url(#stPool)" opacity="1"/>
+    <circle r="20" fill="#FFFFFF" opacity=".55" filter="url(#stB8)"/>
+    <path d="M -40,0 L -3,-1.7 L 0,-30 L 3,-1.7 L 40,0 L 3,1.7 L 0,30 L -3,1.7 Z" fill="#FFFFFF"/>
+    <path d="M -15,-15 L -1,-2 L 15,-15 L 2,0 L 15,15 L 1,2 L -15,15 L -2,0 Z" fill="#FFFFFF" opacity=".75"/>
+    <circle r="9.5" fill="#FFFFFF"/>
+    <circle r="19" fill="none" stroke="#E8402F" stroke-width="1.8" opacity=".95"/>
+    <circle r="25" fill="none" stroke="#FFFFFF" stroke-width=".8" opacity=".55"/>
+  </g>
+  <g id="stShard">
+    <path d="M 0,-2.6 L 2.4,.4 L .4,2.2 L -2,.6 Z" fill="#3C3E42"/>
+    <path d="M 0,-2.6 L -2,.6" stroke="#9A9DA2" stroke-width=".6"/>
+  </g>
+  <path id="stHex" d="M 6,0 L 3,5.2 L -3,5.2 L -6,0 L -3,-5.2 L 3,-5.2 Z"/>
+
+  <!-- 받침 (열 개 모두 같은 것) -->
+  <g id="stPl">
+    <ellipse cx="4" cy="14.6" rx="28" ry="4.2" fill="#121416" opacity=".45" filter="url(#stB1)"/>
+    <path d="M -26,0 L -26,12.6 A 26,4.2 0 0 0 26,12.6 L 26,0 Z" fill="url(#stPlF)"/>
+    <ellipse cx="0" cy="0" rx="26" ry="4.4" fill="url(#stPlT)"/>
+    <path d="M -25.4,-.9 A 26,4.4 0 0 1 10,-4.2" stroke="#E4E6E8" stroke-width=".8" fill="none"/>
+  </g>
+
+  <!-- W:BEGIN 무기 열 개 (저마다 다른 그림체) -->
+  <linearGradient id="stWg1" x1="0" x2="1">
+    <stop offset="0" stop-color="#767D5E"/>
+    <stop offset=".45" stop-color="#5A604A"/>
+    <stop offset="1" stop-color="#3D4233"/>
+  </linearGradient>
+  <linearGradient id="stWg2s" x1="0" x2="1">
+    <stop offset="0" stop-color="#8F979F"/>
+    <stop offset=".35" stop-color="#5E656D"/>
+    <stop offset="1" stop-color="#32373D"/>
+  </linearGradient>
+  <linearGradient id="stWg2b" x1="0" x2="1">
+    <stop offset="0" stop-color="#F6D98A"/>
+    <stop offset=".4" stop-color="#C9933B"/>
+    <stop offset="1" stop-color="#7A5420"/>
+  </linearGradient>
+  <linearGradient id="stWg3" x1="0" x2="1">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".55" stop-color="#E3E8EC"/>
+    <stop offset="1" stop-color="#A7B1B9"/>
+  </linearGradient>
+  <linearGradient id="stWg4" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#B3231A"/>
+    <stop offset=".5" stop-color="#E8472A"/>
+    <stop offset="1" stop-color="#FFA048"/>
+  </linearGradient>
+  <linearGradient id="stWg5" x1="0" x2="1">
+    <stop offset="0" stop-color="#F4F7FA"/>
+    <stop offset=".25" stop-color="#A9B3BE"/>
+    <stop offset=".5" stop-color="#5A6470"/>
+    <stop offset=".72" stop-color="#C7CED6"/>
+    <stop offset="1" stop-color="#47505B"/>
+  </linearGradient>
+  <radialGradient id="stWg8" cx=".4" cy=".35" r=".7">
+    <stop offset="0" stop-color="#ECFFDF" stop-opacity=".9"/>
+    <stop offset=".55" stop-color="#9BE36D" stop-opacity=".5"/>
+    <stop offset="1" stop-color="#5FB83A" stop-opacity=".32"/>
+  </radialGradient>
+  <linearGradient id="stWg9" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#7B4FE0"/>
+    <stop offset="1" stop-color="#2B1863"/>
+  </linearGradient>
+  <linearGradient id="stWg10" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#DDBD6C"/>
+    <stop offset="1" stop-color="#8E7234"/>
+  </linearGradient>
+  <pattern id="stWdot" patternUnits="userSpaceOnUse" width="2.4" height="2.4" patternTransform="rotate(45)">
+    <circle cx="1.2" cy="1.2" r=".72" fill="#0D0D0D"/>
+  </pattern>
+  <filter id="stWglow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  <filter id="stWink" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+
+  <!-- 1 카빈: 현대 군사 실사풍 -->
+  <g id="stW1">
+    <path d="M 0,-11 L -11,0 M 0,-11 L 10,0 M 0,-11 L 2,0" stroke="#26282A" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+    <rect x="-3.2" y="-14" width="6.4" height="4.6" rx="1" fill="#34373A"/>
+    <g transform="rotate(7 0 -12)">
+      <path d="M -3.6,-13 L 3.4,-13 L 3.8,-16 L 2.6,-25 L -1.6,-25 L -3.8,-16 Z" fill="url(#stWg1)"/>
+      <rect x="-3.8" y="-14.4" width="7.6" height="1.8" fill="#1F2122"/>
+      <rect x="-1.6" y="-29" width="3.2" height="4.2" fill="#2C2E2C"/>
+      <path d="M 3,-29 L 7.6,-27.4 L 8.6,-22.6 L 5.4,-23.4 L 3,-26 Z" fill="#33372C"/>
+      <path d="M 3.4,-39 L 10.4,-38.2 L 12.6,-31 L 8.6,-31.2 L 3.4,-33.6 Z" fill="#2C2F27"/>
+      <path d="M 4.6,-37.2 L 9.8,-36.6 M 5,-35 L 10.6,-34.4" stroke="#4A4F3E" stroke-width=".6"/>
+      <rect x="-4.4" y="-41" width="8.4" height="13" rx=".8" fill="url(#stWg1)"/>
+      <path d="M -4.4,-35 H 4" stroke="#373B2E" stroke-width=".6"/>
+      <circle cx="1.6" cy="-31.6" r=".7" fill="#25271F"/>
+      <circle cx="-1.4" cy="-38.4" r=".6" fill="#25271F"/>
+      <rect x="-6.4" y="-40" width="2.4" height="3" fill="#232526"/>
+      <rect x="-9.6" y="-44" width="4.2" height="10" rx="1.4" fill="#2A2C2D"/>
+      <rect x="-9.2" y="-44.4" width="3.4" height="1.3" fill="#6BB8C6" opacity=".85"/>
+      <rect x="-3.8" y="-50.4" width="7.4" height="9.8" rx=".6" fill="url(#stWg1)"/>
+      <g fill="#2F3328">
+        <rect x="-2.6" y="-49" width="1.3" height="2.8" rx=".6"/>
+        <rect x="-2.6" y="-45" width="1.3" height="2.8" rx=".6"/>
+        <rect x="1.2" y="-49" width="1.3" height="2.8" rx=".6"/>
+        <rect x="1.2" y="-45" width="1.3" height="2.8" rx=".6"/>
+      </g>
+      <path d="M -3.8,-51.6 L -6.2,-51.6 L -6.2,-49.8 L -3.8,-49 Z" fill="#232526"/>
+      <rect x="-1" y="-55.6" width="2" height="5.4" fill="#2A2C2D"/>
+      <rect x="-1.7" y="-58.4" width="3.4" height="3" rx=".4" fill="#1C1D1E"/>
+      <path d="M -3.9,-50 V -41.4 M -4.3,-40.4 V -28.6" stroke="#A3AA8C" stroke-width=".6" opacity=".75"/>
+    </g>
+  </g>
+
+  <!-- 2 대포: 디젤 강철 (놋쇠 · 리벳) -->
+  <g id="stW2">
+    <path d="M -19,0 L 19,0 L 16.5,-15 L -16.5,-15 Z" fill="url(#stWg2s)" stroke="#1A1C1F" stroke-width=".8"/>
+    <path d="M -18.2,-5 H 18.2" stroke="#2A2E33" stroke-width=".7"/>
+    <g fill="#1E2125">
+      <circle cx="-14" cy="-9.4" r="1.05"/><circle cx="-8.4" cy="-9.4" r="1.05"/><circle cx="-2.8" cy="-9.4" r="1.05"/><circle cx="2.8" cy="-9.4" r="1.05"/><circle cx="8.4" cy="-9.4" r="1.05"/><circle cx="14" cy="-9.4" r="1.05"/>
+      <circle cx="-15" cy="-2.4" r="1.05"/><circle cx="-9" cy="-2.4" r="1.05"/><circle cx="-3" cy="-2.4" r="1.05"/><circle cx="3" cy="-2.4" r="1.05"/><circle cx="9" cy="-2.4" r="1.05"/><circle cx="15" cy="-2.4" r="1.05"/>
+    </g>
+    <g fill="#D6DBE0" opacity=".75">
+      <circle cx="-14.35" cy="-9.75" r=".4"/><circle cx="-8.75" cy="-9.75" r=".4"/><circle cx="-3.15" cy="-9.75" r=".4"/><circle cx="2.45" cy="-9.75" r=".4"/><circle cx="8.05" cy="-9.75" r=".4"/><circle cx="13.65" cy="-9.75" r=".4"/>
+    </g>
+    <rect x="-17.4" y="-17.6" width="34.8" height="3.6" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+    <rect x="12.6" y="-27" width="3.8" height="10" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+    <circle cx="15.4" cy="-31" r="3" fill="#4E5155" opacity=".6"/>
+    <circle cx="18" cy="-35.4" r="2.2" fill="#5E6165" opacity=".45"/>
+    <path d="M -11,-17.6 A 11,9 0 0 1 11,-17.6 Z" fill="#41464D" stroke="#1A1C1F" stroke-width=".8"/>
+    <g transform="rotate(16 0 -21)">
+      <path d="M -6.8,-18 L 6.8,-18 L 5.2,-52 L -5.2,-52 Z" fill="url(#stWg2s)" stroke="#1A1C1F" stroke-width=".8"/>
+      <rect x="-7.4" y="-27" width="14.8" height="4.4" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+      <rect x="-6.2" y="-39" width="12.4" height="3" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+      <rect x="-7" y="-56" width="14" height="5.4" rx=".6" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+      <ellipse cx="0" cy="-56" rx="5" ry="1.5" fill="#101112"/>
+      <g fill="#3A2A10">
+        <circle cx="-5" cy="-24.8" r=".6"/><circle cx="-1.7" cy="-24.8" r=".6"/><circle cx="1.7" cy="-24.8" r=".6"/><circle cx="5" cy="-24.8" r=".6"/>
+        <circle cx="-3.6" cy="-37.5" r=".55"/><circle cx="0" cy="-37.5" r=".55"/><circle cx="3.6" cy="-37.5" r=".55"/>
+        <circle cx="-4.6" cy="-53.3" r=".55"/><circle cx="0" cy="-53.3" r=".55"/><circle cx="4.6" cy="-53.3" r=".55"/>
+      </g>
+      <path d="M -4.6,-29 L -4,-48" stroke="#C4CBD2" stroke-width=".9" opacity=".6"/>
+    </g>
+    <circle cx="0" cy="-21" r="2.6" fill="url(#stWg2b)" stroke="#3A2A10" stroke-width=".5"/>
+  </g>
+
+  <!-- 3 레이저 소총: 매끈한 SF (흰 외장 + 청록 빛) -->
+  <g id="stW3">
+    <path d="M -9,0 C -8,-3 -4,-4 -2.4,-9 L 2.4,-9 C 4,-4 8,-3 9,0 Z" fill="url(#stWg3)" stroke="#8E99A2" stroke-width=".5"/>
+    <rect x="-1.2" y="-6" width="2.4" height="2" rx="1" fill="#2FE6D5"/>
+    <g transform="rotate(-6 0 -10)">
+      <path d="M -4.6,-10 C -6.4,-18 -6.6,-32 -5.2,-42 C -4.4,-48 -2.4,-53 0,-56 C 2.2,-53 3.8,-48 4.6,-42 C 6,-32 6.8,-18 5,-10 Z" fill="url(#stWg3)" stroke="#8E99A2" stroke-width=".5"/>
+      <path d="M -5.6,-26 C -2,-27.4 2,-27.4 6,-26" stroke="#9AA5AE" stroke-width=".5" fill="none"/>
+      <path d="M -5,-40 C -2,-41 2,-41 4.7,-40" stroke="#9AA5AE" stroke-width=".5" fill="none"/>
+      <rect x="4" y="-31" width="7.4" height="13" rx="3.7" fill="url(#stWg3)" stroke="#8E99A2" stroke-width=".5"/>
+      <rect x="6.2" y="-28.6" width="3" height="8" rx="1.5" fill="#2FE6D5"/>
+      <path d="M 3.6,-17 L 8.6,-14.4 L 8,-11 L 4,-12.4 Z" fill="#C9D1D7" stroke="#8E99A2" stroke-width=".5"/>
+      <path d="M -5.4,-34 L -10,-37 L -9.4,-30 L -5.8,-29 Z" fill="url(#stWg3)" stroke="#8E99A2" stroke-width=".5"/>
+      <path d="M 0,-14 V -50" stroke="#2FE6D5" stroke-width="3.4" opacity=".6" filter="url(#stWglow)"/>
+      <path d="M 0,-14 V -50" stroke="#C4FFF9" stroke-width="1.1"/>
+      <circle cx="0" cy="-56" r="5" fill="#2FE6D5" opacity=".5" filter="url(#stWglow)"/>
+      <circle cx="0" cy="-56" r="1.8" fill="#E8FFFD"/>
+      <path d="M -3.6,-16 C -4.8,-26 -4.6,-36 -3.4,-44" stroke="#FFFFFF" stroke-width="1" fill="none"/>
+    </g>
+  </g>
+
+  <!-- 4 불여우: 동양 요괴 (먹 붓 + 주홍 불꼬리) -->
+  <g id="stW4">
+    <ellipse cx="0" cy="-1" rx="15" ry="2.4" fill="#1A1716" opacity=".5" filter="url(#stWink)"/>
+    <path d="M 6,-6 C 15,-9 21,-19 17,-29 C 15,-35 18,-42 23,-47 C 13,-46 8,-38 9,-30 C 10,-22 6,-15 2,-10 Z" fill="url(#stWg4)"/>
+    <path d="M 4,-9 C 11,-18 10,-31 5,-40 C 2,-46 5,-52 10,-57 C 1,-55 -3,-46 -1,-37 C 1,-28 1,-18 0,-12 Z" fill="url(#stWg4)"/>
+    <path d="M 7,-3 C 17,-3 23,-10 23,-18 C 23,-23 21,-26 23,-31 C 17,-28 15,-22 15,-17 C 14,-11 10,-7 5,-5 Z" fill="url(#stWg4)" opacity=".92"/>
+    <path d="M 9,-14 C 14,-20 14,-27 12,-33" stroke="#FFD58A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M 3,-20 C 6,-28 5,-36 3,-42" stroke="#FFD58A" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <g filter="url(#stWink)" fill="none" stroke="#141110" stroke-linecap="round">
+      <path d="M 17,-29 C 15,-35 18,-42 23,-47" stroke-width=".9"/>
+      <path d="M 5,-40 C 2,-46 5,-52 10,-57" stroke-width=".9"/>
+    </g>
+    <path d="M -9,0 C -12,-6 -11,-16 -6,-22 C -3,-25 2,-25 5,-21 C 9,-15 9,-6 7,0 Z" fill="#EFE6D4"/>
+    <path d="M -3,-21 C -6,-24 -10,-27 -15,-29.5 C -11,-31.5 -8,-33 -6,-35 L -7.4,-42 L -2.6,-36.6 L .6,-41.4 L 1.4,-34 C 2.4,-30 1,-24 -3,-21 Z" fill="#EFE6D4"/>
+    <g filter="url(#stWink)" fill="none" stroke="#141110" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M -15,-29.5 C -11,-31.5 -8,-33 -6,-35 L -7.4,-42 L -2.6,-36.6 L .6,-41.4 L 1.4,-34" stroke-width="1.6"/>
+      <path d="M -15,-29.5 C -10,-27 -6,-24 -4,-21 C -9,-16 -12,-8 -9,0" stroke-width="2.4"/>
+      <path d="M -9.4,.2 H 6" stroke-width="1.4"/>
+      <path d="M 5,-21 C 8,-16 9,-8 7,-1" stroke-width="1"/>
+      <path d="M -8.4,-31.6 L -4.4,-32.8" stroke-width="1.3"/>
+      <path d="M -3,-10 C -1,-8 1,-8 3,-10" stroke-width=".8"/>
+    </g>
+    <path d="M -8,-31.9 L -5,-32.6" stroke="#E8472A" stroke-width=".7" stroke-linecap="round"/>
+    <path d="M -4.2,-36.4 C -3.4,-34.6 -3.6,-33.6 -4.6,-32.6" stroke="#E8472A" stroke-width=".9" fill="none" stroke-linecap="round"/>
+    <circle cx="20" cy="-52" r="1" fill="#FF9A45"/><circle cx="14" cy="-58" r=".7" fill="#FFB060"/><circle cx="25" cy="-38" r=".8" fill="#FF7A35"/>
+    <circle cx="-13" cy="-12" r=".7" fill="#141110"/><circle cx="-15.4" cy="-6" r=".5" fill="#141110"/>
+  </g>
+
+  <!-- 5 기사단: 서양 판타지 (판금 + 문장 방패) -->
+  <g id="stW5">
+    <path d="M -17,0 L -21,-55" stroke="#6A5236" stroke-width="1.3"/>
+    <path d="M -21,-55 L -21.5,-59 L -20.1,-55.2 Z" fill="#D8DEE6"/>
+    <path d="M -20.6,-53.4 L -10,-50.6 L -20.1,-47 Z" fill="#2D5DB5"/>
+    <path d="M -20.4,-50.6 L -12.6,-50.3" stroke="#F2F4F7" stroke-width="1"/>
+    <path d="M -22,0 C -22,-8 -21,-18 -18,-22 C -17,-26 -13,-27 -12,-24 L -12,0 Z" fill="#4D5661"/>
+    <circle cx="-15.4" cy="-27" r="3" fill="#5C6570"/>
+    <path d="M -6,0 L -6.6,-15 L -1.2,-15 L -1.4,0 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M 1.4,0 L 1.2,-15 L 6.6,-15 L 6,0 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M -7.4,0 L -.8,0 L -.8,-2 L -6.8,-2 Z M .8,0 L 7.4,0 L 6.8,-2 L .8,-2 Z" fill="#3E4650"/>
+    <circle cx="-3.9" cy="-8" r="1.3" fill="#DDE3EA"/><circle cx="3.9" cy="-8" r="1.3" fill="#DDE3EA"/>
+    <path d="M -6.6,-15 L 6.6,-15 L 5.2,-9 L -5.2,-9 Z" fill="#2D5DB5"/>
+    <path d="M -8,-31 C -9.4,-25 -8,-18 -6.6,-15 L 6.6,-15 C 8,-18 9.4,-25 8,-31 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M 0,-30 V -16" stroke="#3E4650" stroke-width=".6"/>
+    <path d="M -8,-31 C -12,-32 -14,-29 -13.6,-25 L -8.4,-26 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M 8,-31 C 12,-32 14,-29 13.6,-25 L 8.4,-26 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M -4.6,-31 L -4.8,-39 C -4.8,-42 -2.6,-43.4 0,-43.4 C 2.6,-43.4 4.8,-42 4.8,-39 L 4.6,-31 Z" fill="url(#stWg5)" stroke="#252A30" stroke-width=".5"/>
+    <path d="M -4.4,-37.4 H 4.4" stroke="#111418" stroke-width="1.3"/>
+    <path d="M 0,-36.6 V -31.6" stroke="#3E4650" stroke-width=".5"/>
+    <path d="M 0,-43.4 C 1,-46 3,-47 5.4,-46.4" stroke="#2D5DB5" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M 8.6,-27 C 10.6,-28 11.8,-30 12,-33" stroke="#8A95A0" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    <rect x="9.6" y="-35.4" width="5" height="1.6" rx=".6" fill="#8A95A0"/>
+    <path d="M 11.2,-35.4 L 11.4,-55 L 12.1,-56.8 L 12.8,-55 L 13,-35.4 Z" fill="#EEF2F5" stroke="#59626D" stroke-width=".4"/>
+    <path d="M 12.1,-36 V -54" stroke="#9AA5B0" stroke-width=".4"/>
+    <path d="M -15,-30 L -2.6,-30 L -2.6,-20 C -2.6,-14 -6.8,-9.4 -8.8,-6.6 C -10.8,-9.4 -15,-14 -15,-20 Z" fill="#2D5DB5" stroke="#D8DEE6" stroke-width="1.1"/>
+    <path d="M -8.8,-29 V -8.6 M -14,-22.6 H -3.6" stroke="#F2F4F7" stroke-width="2"/>
+    <path d="M -14.2,-29.2 L -10,-29.2 L -14.2,-24 Z" fill="#FFFFFF" opacity=".28"/>
+  </g>
+
+  <!-- 6 전투 로봇: 메카 애니 (셀 음영 · 굵은 외곽선) -->
+  <g id="stW6" stroke="#0E0F12" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M -9.5,0 L -2.5,0 L -2,-15 L -8.6,-16 Z" fill="#F4F5F7"/>
+    <path d="M 2.5,0 L 9.5,0 L 8.6,-16 L 2,-15 Z" fill="#F4F5F7"/>
+    <path d="M 5.6,-15.4 L 8.4,-15.8 L 9.2,-.8 L 6.4,-.8 Z" fill="#AEBAD0" stroke="none"/>
+    <path d="M -5,-15.4 L -2.3,-15 L -2.7,-.8 L -4.6,-.8 Z" fill="#AEBAD0" stroke="none"/>
+    <path d="M -10.4,0 L -2,0 L -2.6,-4 L -9.6,-4 Z" fill="#2F57C8"/>
+    <path d="M 2,0 L 10.4,0 L 9.6,-4 L 2.6,-4 Z" fill="#2F57C8"/>
+    <path d="M -7,-15 L 7,-15 L 6,-19 L -6,-19 Z" fill="#F4F5F7"/>
+    <rect x="-2" y="-18.4" width="4" height="3" fill="#F5C81E" stroke-width="1"/>
+    <path d="M -10,-19 L 10,-19 L 11.6,-31 L -11.6,-31 Z" fill="#2F57C8"/>
+    <path d="M 2.6,-19.7 L 9.3,-19.7 L 10.8,-30.3 L 6.4,-30.3 Z" fill="#1E3B96" stroke="none"/>
+    <path d="M -7,-29 L -2,-29 L -2.6,-24 L -6.6,-24 Z M 2,-29 L 7,-29 L 6.6,-24 L 2.6,-24 Z" fill="#F5C81E" stroke-width="1"/>
+    <path d="M -18,-33 L -10.6,-33 L -10,-24 L -17,-24 Z" fill="#F4F5F7"/>
+    <path d="M -16.4,-24 L -11.8,-24 L -12.2,-14 L -16.2,-14 Z" fill="#F4F5F7"/>
+    <rect x="-16.8" y="-14" width="5.2" height="4" fill="#2F57C8"/>
+    <path d="M 12,-33 L 16.6,-33 L 17.2,-41 L 12.6,-41 Z" fill="#F4F5F7"/>
+    <path d="M 12.2,-55 L 17.8,-55 L 18.4,-38 L 11.6,-38 Z" fill="#4C5468"/>
+    <path d="M 15.6,-54.3 L 17.1,-54.3 L 17.7,-38.7 L 16,-38.7 Z" fill="#30364A" stroke="none"/>
+    <rect x="12.6" y="-58" width="4.8" height="3.4" fill="#F5C81E" stroke-width="1.2"/>
+    <path d="M 10.6,-33 L 18,-33 L 17,-24 L 10,-24 Z" fill="#F4F5F7"/>
+    <path d="M 14.4,-32.3 L 17.2,-32.3 L 16.4,-24.7 L 13.8,-24.7 Z" fill="#AEBAD0" stroke="none"/>
+    <path d="M -4.4,-31 L 4.4,-31 L 4.6,-38.4 L -4.6,-38.4 Z" fill="#F4F5F7"/>
+    <path d="M -3.2,-35.4 L 3.2,-35.4 L 2.6,-33.6 L -2.6,-33.6 Z" fill="#35E07A" stroke-width=".8"/>
+    <path d="M 0,-38 L -9,-45 L -1.6,-39.4 Z M 0,-38 L 9,-45 L 1.6,-39.4 Z" fill="#F5C81E" stroke-width="1.1"/>
+    <rect x="-1.2" y="-40.6" width="2.4" height="2.6" fill="#E23B3B" stroke-width=".9"/>
+    <path d="M -13,-46 L -12.2,-43.4 L -9.6,-42.6 L -12.2,-41.8 L -13,-39.2 L -13.8,-41.8 L -16.4,-42.6 L -13.8,-43.4 Z" fill="#FFFFFF" stroke="none"/>
+  </g>
+
+  <!-- 7 확성기: 잉크 코믹 (굵은 먹선 + 망점 + 효과음) -->
+  <g id="stW7" stroke="#0D0D0D" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M -9,0 L 9,0 L 6,-3 L -6,-3 Z" fill="#FFFFFF" stroke-width="1.6"/>
+    <path d="M 0,-3 V -15" stroke-width="2.6"/>
+    <path d="M -2.6,-15 L 2.6,-14 L 4.4,-22 L -.4,-23 Z" fill="#FFFFFF" stroke-width="1.6"/>
+    <path d="M -3.6,-16.2 L 22.7,-37.3 L 5.3,-50.7 L -8.4,-19.8 Z" fill="#FFFFFF" stroke-width="2"/>
+    <path d="M -6,-18 L 14,-44 L 22.7,-37.3 L -3.6,-16.2 Z" fill="url(#stWdot)" stroke="none"/>
+    <path d="M 17.4,-33.1 L 20.1,-35.2 L 3.9,-47.6 L 2.6,-44.5 Z" fill="#E2388A" stroke-width="1.3"/>
+    <ellipse cx="14" cy="-44" rx="11" ry="4.2" transform="rotate(37.6 14 -44)" fill="#0D0D0D" stroke-width="2"/>
+    <ellipse cx="14.8" cy="-44.6" rx="7" ry="2.2" transform="rotate(37.6 14 -44)" fill="#E2388A" stroke="none" opacity=".55"/>
+    <ellipse cx="-6" cy="-18" rx="3" ry="1.4" transform="rotate(37.6 -6 -18)" fill="#FFFFFF" stroke-width="1.3"/>
+    <path d="M 23.4,-47 L 27.6,-51.4 M 19,-52.4 L 21.4,-57.4 M 26.4,-41.4 L 31.4,-42.6" stroke-width="1.7"/>
+    <path d="M -22,-44 L -16.6,-46 L -16.8,-51.4 L -12.4,-48.4 L -8.4,-53.6 L -7,-48 L -1.6,-48.6 L -4.6,-44.2 L -.4,-40.4 L -6.2,-40 L -6.6,-35 L -10.8,-38.4 L -15,-34.6 L -15.6,-39.2 L -21.4,-38.8 L -17.8,-42 Z" fill="#FFE14A" stroke-width="1.3"/>
+    <text x="-11" y="-40.6" text-anchor="middle" font-family="'Black Han Sans', sans-serif" font-size="6.6" fill="#0D0D0D" stroke="none" transform="rotate(-10 -11 -42)">와앙!</text>
+  </g>
+
+  <!-- 8 모기 떼: 미시 생체 (반투명 세포 몸) -->
+  <g id="stW8c">
+    <path d="M -2.6,-3 C -6,-1 -8,2 -9,6 M -2.8,-4.6 C -7,-5 -9,-3 -11,-1 M -2.6,-6 C -6,-9 -8,-10 -10,-14 M 2.6,-3 C 6,-1 8,2 9,6 M 2.8,-4.6 C 7,-5 9,-3 11,-1 M 2.6,-6 C 6,-9 8,-10 10,-14" stroke="#E2F9CF" stroke-width=".5" fill="none"/>
+    <ellipse cx="-5" cy="-6" rx="6" ry="2.4" transform="rotate(-28 -5 -6)" fill="#FFFFFF" fill-opacity=".24" stroke="#F2FFF2" stroke-width=".4"/>
+    <ellipse cx="5" cy="-6" rx="6" ry="2.4" transform="rotate(28 5 -6)" fill="#FFFFFF" fill-opacity=".24" stroke="#F2FFF2" stroke-width=".4"/>
+    <ellipse cx="0" cy="3.5" rx="3.8" ry="7" fill="url(#stWg8)" stroke="#CFF7B0" stroke-width=".6"/>
+    <path d="M -3.4,.5 Q 0,1.6 3.4,.5 M -3.6,4 Q 0,5.2 3.6,4 M -3,7.4 Q 0,8.4 3,7.4" stroke="#CFF7B0" stroke-width=".35" fill="none"/>
+    <circle cx=".6" cy="3.4" r="1.6" fill="#D9468F" opacity=".8"/>
+    <circle cx="-1.4" cy="6.4" r=".6" fill="#F2A6C8"/><circle cx="1.6" cy="0" r=".5" fill="#F2A6C8"/>
+    <circle cx="0" cy="-5" r="3.2" fill="url(#stWg8)" stroke="#CFF7B0" stroke-width=".6"/>
+    <circle cx="0" cy="-10" r="2.1" fill="url(#stWg8)" stroke="#CFF7B0" stroke-width=".55"/>
+    <circle cx="-.6" cy="-10.4" r=".55" fill="#D9468F"/>
+    <path d="M 0,-12 V -18" stroke="#E2F9CF" stroke-width=".55"/>
+  </g>
+  <g id="stW8">
+    <ellipse cx="0" cy="-3" rx="13" ry="3" fill="#9BE36D" opacity=".2"/>
+    <use href="#stW8c" transform="translate(-11,-44) rotate(-12) scale(.62)"/>
+    <use href="#stW8c" transform="translate(12,-46) rotate(14) scale(.58)"/>
+    <use href="#stW8c" transform="translate(-13,-19) rotate(-20) scale(.55)"/>
+    <use href="#stW8c" transform="translate(13,-21) rotate(18) scale(.6)"/>
+    <use href="#stW8c" transform="translate(0,-30) scale(1.05)"/>
+    <g fill="#CFF7B0" opacity=".8">
+      <circle cx="-4" cy="-54" r=".8"/><circle cx="6" cy="-56" r=".6"/><circle cx="-18" cy="-32" r=".7"/><circle cx="19" cy="-34" r=".6"/><circle cx="2" cy="-8" r=".6"/>
+    </g>
+  </g>
+
+  <!-- 9 뇌전 술사: 수정 마법 (보라 결정 + 룬) -->
+  <g id="stW9">
+    <ellipse cx="0" cy="-2" rx="19" ry="4.6" fill="none" stroke="#B98CFF" stroke-width="1"/>
+    <ellipse cx="0" cy="-2" rx="14.6" ry="3.4" fill="#9A6BFF" fill-opacity=".2" stroke="#B98CFF" stroke-width=".5"/>
+    <path d="M -17,-3.6 l 1,-1.8 l 1,1.8 M -9,-5.6 v -1.8 l 1.2,.9 M 9,-5.6 v -1.8 l -1.2,.9 M 16,-3.6 l 1,-1.8 l 1,1.8 M -12,1.2 l .8,1.4 l .8,-1.4 M 12,1.2 l .8,1.4 l .8,-1.4 M 0,2.4 v 1.4" stroke="#EADCFF" stroke-width=".6" fill="none"/>
+    <path d="M -9,-1 C -8.6,-10 -6.6,-20 -4.4,-28 L 4.4,-28 C 6.6,-20 8.6,-10 9,-1 Z" fill="url(#stWg9)"/>
+    <path d="M 1,-28 L 4.4,-28 C 6.6,-20 8.6,-10 9,-1 L 3,-1 Z" fill="#1E104A" opacity=".55"/>
+    <path d="M -6,-12 L -3,-18 L -1,-11 Z" fill="#CDB4FF"/><path d="M -3,-18 L -1,-11 L 0,-15 Z" fill="#8A5CF0"/>
+    <path d="M 2,-6 L 4.6,-12 L 6.4,-5 Z" fill="#A47BFF"/>
+    <path d="M -7,-26 L -9.6,-32 L -5.6,-28.4 Z" fill="#DCC6FF"/><path d="M 7,-26 L 9.6,-32 L 5.6,-28.4 Z" fill="#8A5CF0"/>
+    <path d="M -5.4,-26.6 C -6.4,-33 -3.6,-38 0,-38.6 C 3.6,-38 6.4,-33 5.4,-26.6 Z" fill="#4A2BA8"/>
+    <path d="M -3.2,-28 C -3.4,-32 -1.8,-34.6 0,-34.8 C 1.8,-34.6 3.4,-32 3.2,-28 Z" fill="#120A2A"/>
+    <circle cx="-1.2" cy="-31" r=".6" fill="#EADCFF"/><circle cx="1.2" cy="-31" r=".6" fill="#EADCFF"/>
+    <path d="M 7.6,-4 L 12,-42" stroke="#2A1A55" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 4.4,-22 L 8.8,-24" stroke="#4A2BA8" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="12.4" cy="-48" r="6.4" fill="#B98CFF" opacity=".45" filter="url(#stWglow)"/>
+    <path d="M 12.4,-54 L 15.6,-48.6 L 14.6,-42.6 L 12,-40.8 L 9.6,-42.6 L 9,-48.6 Z" fill="#9A6BFF"/>
+    <path d="M 12.4,-54 L 15.6,-48.6 L 12.4,-46 Z" fill="#EEE3FF"/>
+    <path d="M 12.4,-54 L 9,-48.6 L 12.4,-46 Z" fill="#B48CFF"/>
+    <path d="M 12.4,-46 L 15.6,-48.6 L 14.6,-42.6 L 12,-40.8 Z" fill="#5A31C8"/>
+    <path d="M 15.4,-50 L 19.6,-51 L 18,-54 L 23,-56.4" stroke="#B98CFF" stroke-width="3" opacity=".5" fill="none" filter="url(#stWglow)"/>
+    <path d="M 15.4,-50 L 19.6,-51 L 18,-54 L 23,-56.4" stroke="#F4ECFF" stroke-width="1" fill="none" stroke-linejoin="round"/>
+    <path d="M 9.4,-51 L 5.6,-52.4 L 7,-55" stroke="#F4ECFF" stroke-width=".7" fill="none"/>
+    <path d="M -14,-40 L -12,-45 L -10.6,-40.6 Z" fill="#B48CFF"/><path d="M -17,-24 L -15.4,-27.6 L -14.4,-24.4 Z" fill="#DCC6FF"/><path d="M 19,-30 L 20.4,-34 L 21.6,-30.4 Z" fill="#8A5CF0"/>
+  </g>
+
+  <!-- 10 군견 지뢰밭: 합친 무기 (지뢰밭 + 군견 한 몸 · 두 색 고리) -->
+  <g id="stW10">
+    <path d="M 0,-8.2 A 23,6.4 0 0 0 -23,-1.8" fill="none" stroke="#E8A93A" stroke-width="2.2"/>
+    <path d="M 0,-8.2 A 23,6.4 0 0 1 23,-1.8" fill="none" stroke="#64A8F0" stroke-width="2.2"/>
+    <ellipse cx="-15" cy="-1.4" rx="6" ry="1.9" fill="#6E5828"/>
+    <ellipse cx="-15" cy="-2.4" rx="6" ry="1.9" fill="url(#stWg10)"/>
+    <circle cx="-15" cy="-2.4" r=".8" fill="#3A2E14"/>
+    <ellipse cx="15" cy="-.6" rx="5.6" ry="1.8" fill="#6E5828"/>
+    <ellipse cx="15" cy="-1.6" rx="5.6" ry="1.8" fill="url(#stWg10)"/>
+    <circle cx="15" cy="-1.6" r=".8" fill="#3A2E14"/>
+    <path d="M -11,-4 L -11,-1.6 A 11,3.2 0 0 0 11,-1.6 L 11,-4 Z" fill="#6E5828"/>
+    <ellipse cx="0" cy="-4" rx="11" ry="3.2" fill="url(#stWg10)" stroke="#5A4720" stroke-width=".4"/>
+    <ellipse cx="0" cy="-4.2" rx="5" ry="1.4" fill="#A98A44" stroke="#5A4720" stroke-width=".4"/>
+    <path d="M -6,-5.4 V -7 M 6,-5.4 V -7" stroke="#3A2E14" stroke-width=".7"/>
+    <path d="M -17,-27 L -12,-29 L -9,-31 L -8,-37 L -6,-31.4 L -4,-36 L -3,-30 C -1,-27 2,-25.4 6,-25 L 12,-24.4 C 14,-24 15.6,-23 16.4,-21.6 C 18.6,-23 20,-26 21,-29 C 21.6,-26 20.6,-22 17.6,-19.6 L 16.6,-14 L 17.4,-7 L 15,-7 L 14,-13 L 12.4,-16 C 9,-15 4,-15 0,-15.4 L -3.4,-15.6 L -4,-7 L -6.4,-7 L -6.6,-15.4 C -8.6,-17 -10,-20 -11,-23 L -14,-24.6 L -17,-25.2 Z" fill="#B47C45"/>
+    <path d="M -3,-30 C -1,-27 2,-25.4 6,-25 L 12,-24.4 C 14,-24 15.6,-23 16.4,-21.6 L 15,-19 C 10,-21 3,-21 -2,-22 C -4,-24 -4,-27 -3,-30 Z" fill="#26201B"/>
+    <path d="M -17,-27 L -12,-29 L -12.4,-25.6 L -17,-25.2 Z" fill="#3A2C22"/>
+    <path d="M 12.4,-16 L 14,-13 L 15,-7 L 17.4,-7 L 16.6,-14 L 17.6,-19.6" stroke="#7C5430" stroke-width=".6" fill="none"/>
+    <circle cx="-9.4" cy="-28.6" r=".75" fill="#0F0C0A"/>
+    <path d="M -6,-25.6 L 8,-23.6 L 8.4,-16.6 L -5.4,-16.6 Z" fill="#55553A"/>
+    <ellipse cx="1.6" cy="-20.4" rx="3.8" ry="2.6" fill="url(#stWg10)" stroke="#3A2E14" stroke-width=".5"/>
+    <circle cx="1.6" cy="-20.4" r=".9" fill="#E8A93A"/>
+    <path d="M -7.6,-30.2 L -4.6,-26.4" stroke="#64A8F0" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M -23,-1.8 A 23,6.4 0 0 0 0,4.6" fill="none" stroke="#E8A93A" stroke-width="2.2"/>
+    <path d="M 23,-1.8 A 23,6.4 0 0 1 0,4.6" fill="none" stroke="#64A8F0" stroke-width="2.2"/>
+  </g>
+  <!-- W:END -->
+</defs>
+
+<!-- 끊김 없는 회색 배경지 + 키 라이트 -->
+<rect width="390" height="844" fill="url(#stBack)"/>
+<rect width="390" height="844" fill="url(#stKey)"/>
+<path d="M 10,96 L 60,140 L 420,560 L 120,640 Z" fill="url(#stBeam)"/>
+<ellipse cx="205" cy="560" rx="240" ry="86" fill="url(#stPool)"/>
+<!-- 바닥 표시 테이프 -->
+
+<!-- 소프트박스 (왼쪽 위 키 라이트) -->
+<path d="M -6,70 L 26,70 L 14,98" stroke="#26282B" stroke-width="2.6" fill="none"/>
+<g transform="translate(0 114) rotate(32) scale(.68)">
+  <path d="M -30,-22 L 66,-22 L 52,-48 L -16,-48 Z" fill="#2A2C2F"/>
+  <path d="M -16,-48 L 52,-48 L 40,-56 L -4,-56 Z" fill="#1C1E21"/>
+  <rect x="-32" y="-24" width="100" height="6" fill="#1C1E21"/>
+  <rect x="-30" y="-18" width="96" height="30" fill="url(#stSoft)"/>
+  <rect x="-30" y="-18" width="96" height="30" fill="none" stroke="#C9CCD0" stroke-width="1"/>
+</g>
+<ellipse cx="34" cy="130" rx="60" ry="30" fill="#FFFFFF" opacity=".22" filter="url(#stB8)"/>
+
+<!-- 위쪽 큰 놈 (일부) -->
+<g>
+  <path d="M 196,196 C 206,160 236,138 276,128 L 360,126 C 384,132 398,146 404,160 L 404,200 Z" fill="url(#stBossFade)"/>
+  <ellipse cx="318" cy="68" rx="52" ry="60" fill="url(#stEg)"/>
+  <path d="M 272,46 C 280,22 302,10 326,9" stroke="#A3A6AB" stroke-width="1.6" fill="none" opacity=".9"/>
+  <path d="M 214,170 C 226,150 248,136 272,130" stroke="#8A8D92" stroke-width="1.4" fill="none" opacity=".8"/>
+  <rect x="270" y="66" width="96" height="16" rx="8" fill="#FF3B2F" opacity=".5" filter="url(#stB3)"/>
+  <rect x="276" y="71" width="84" height="5.4" rx="2.7" fill="#FF4A3A"/>
+  <rect x="286" y="72.4" width="40" height="1.6" rx=".8" fill="#FFD2CC"/>
+</g>
+
+<!-- 적 (위 → 아래) -->
+<use href="#stEN" transform="translate(98 150) scale(.86)"/>
+<use href="#stEN" transform="translate(140 96) scale(.84)"/>
+<use href="#stEA" transform="translate(178 170) scale(.9)"/>
+<use href="#stEC" transform="translate(66 214) rotate(-8) scale(.9)"/>
+<use href="#stEN" transform="translate(246 206) scale(.9)"/>
+<use href="#stEN" transform="translate(354 238) scale(.92)"/>
+<use href="#stEA" transform="translate(150 256) scale(.92)"/>
+<use href="#stEC" transform="translate(330 312) rotate(10) scale(.94)"/>
+<use href="#stEN" transform="translate(32 334) scale(.94)"/>
+<use href="#stEA" transform="translate(360 408) scale(.96)"/>
+<use href="#stEN" transform="translate(190 482) scale(.96)"/>
+<use href="#stEN" transform="translate(58 604) scale(1.02)"/>
+<use href="#stEA" transform="translate(160 614) scale(1.02)"/>
+<use href="#stEC" transform="translate(254 600) rotate(-5) scale(1.02)"/>
+<use href="#stEN" transform="translate(338 606) scale(1.02)"/>
+
+<!-- 연쇄 폭발: 섬광 여섯 + 궤적 -->
+<g>
+  <path d="M 110,316 Q 128,346 160,352 Q 196,358 226,334 Q 270,338 288,372 Q 296,406 246,424 Q 268,456 302,458" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="5 4" opacity=".85"/>
+  <path d="M 192,352 l 6,4 l -6,4 M 268,350 l 4,6 l -6,2 M 274,430 l 6,4 l -6,4" stroke="#FFFFFF" stroke-width="1.4" fill="none"/>
+  <!-- 렌즈 잔상 (키 라이트 → 주 섬광) -->
+  <g fill="#FFFFFF" stroke="#FFFFFF" stroke-width=".5">
+    <use href="#stHex" transform="translate(178 268) scale(.9)" fill-opacity=".14"/>
+    <use href="#stHex" transform="translate(268 394) scale(1.3)" fill-opacity=".12"/>
+    <use href="#stHex" transform="translate(300 438) scale(.7)" fill-opacity=".18"/>
+  </g>
+  <rect x="96" y="333" width="270" height="2.4" fill="url(#stStreak)"/>
+  <rect x="120" y="330" width="220" height="8" fill="url(#stStreak)" opacity=".35" filter="url(#stB3)"/>
+  <use href="#stFlash" transform="translate(110 316) scale(.55)"/>
+  <use href="#stFlash" transform="translate(160 352) scale(.74)"/>
+  <use href="#stFlash" transform="translate(288 372) scale(.8)"/>
+  <use href="#stFlash" transform="translate(246 424) scale(.68)"/>
+  <use href="#stFlash" transform="translate(302 458) scale(.5)"/>
+  <use href="#stFlash" transform="translate(226 334) scale(1.2)"/>
+  <circle cx="226" cy="334" r="38" fill="none" stroke="#E8402F" stroke-width="1" opacity=".6"/>
+  <!-- 적 파편 -->
+  <use href="#stShard" transform="translate(188 302) rotate(20) scale(1.3)"/>
+  <use href="#stShard" transform="translate(262 300) rotate(-30) scale(1.1)"/>
+  <use href="#stShard" transform="translate(196 390) rotate(60) scale(1.2)"/>
+  <use href="#stShard" transform="translate(132 376) rotate(10)"/>
+  <use href="#stShard" transform="translate(320 396) rotate(-50)"/>
+  <use href="#stShard" transform="translate(222 452) rotate(80)"/>
+  <use href="#stShard" transform="translate(90 300) rotate(-20) scale(.9)"/>
+  <use href="#stShard" transform="translate(326 480) rotate(30) scale(.9)"/>
+  <g stroke="#FF4A3A" stroke-width="1.5" stroke-linecap="round">
+    <path d="M 252,306 l 6,-3"/><path d="M 196,316 l -5,-2"/><path d="M 300,396 l 4,4"/><path d="M 148,330 l -4,-4"/>
+  </g>
+</g>
+
+<!-- 방어선: 바닥에 붙은 흰 테이프 + 낮은 단 -->
+<rect y="662" width="390" height="152" fill="url(#stRiser)"/>
+<rect y="662" width="390" height="5" fill="#6F7276"/>
+<rect y="659" width="390" height="6" fill="#FFFFFF" opacity=".35" filter="url(#stB3)"/>
+<rect y="660.6" width="390" height="2.8" fill="#FFFFFF"/>
+<g fill="#FFFFFF">
+  <rect x="38" y="655" width="1.6" height="5"/><rect x="77" y="655" width="1.6" height="5"/><rect x="116" y="655" width="1.6" height="5"/><rect x="155" y="655" width="1.6" height="5"/><rect x="194" y="655" width="1.6" height="5"/><rect x="233" y="655" width="1.6" height="5"/><rect x="272" y="655" width="1.6" height="5"/><rect x="311" y="655" width="1.6" height="5"/><rect x="350" y="655" width="1.6" height="5"/>
+</g>
+<!-- 위에서 떨어지는 핀 조명 -->
+<g fill="url(#stCone)">
+  <path d="M 29,668 L 43,668 L 64,726 L 8,726 Z"/>
+  <path d="M 100,668 L 114,668 L 135,726 L 79,726 Z"/>
+  <path d="M 170,668 L 184,668 L 205,726 L 149,726 Z"/>
+  <path d="M 241,668 L 255,668 L 276,726 L 220,726 Z"/>
+  <path d="M 311,668 L 325,668 L 346,726 L 290,726 Z"/>
+  <path d="M 64,668 L 78,668 L 102,792 L 40,792 Z"/>
+  <path d="M 135,668 L 149,668 L 173,792 L 111,792 Z"/>
+  <path d="M 206,668 L 220,668 L 244,792 L 182,792 Z"/>
+  <path d="M 276,668 L 290,668 L 314,792 L 252,792 Z"/>
+  <path d="M 347,668 L 361,668 L 385,792 L 323,792 Z"/>
+</g>
+<g>
+  <ellipse cx="36" cy="722" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="107" cy="722" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="177" cy="722" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="248" cy="722" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="318" cy="722" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="71" cy="788" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="142" cy="788" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="213" cy="788" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="283" cy="788" rx="34" ry="9" fill="url(#stPool)"/>
+  <ellipse cx="354" cy="788" rx="34" ry="9" fill="url(#stPool)"/>
+</g>
+
+<!-- 뒷줄: 받침 + 무기 -->
+<g font-family="'Noto Sans KR', sans-serif" font-weight="700" font-size="8.2" fill="#F2F3F4" text-anchor="middle" letter-spacing="-.2">
+  <use href="#stPl" transform="translate(36 726)"/>
+  <use href="#stPl" transform="translate(107 726)"/>
+  <use href="#stPl" transform="translate(177 726)"/>
+  <use href="#stPl" transform="translate(248 726)"/>
+  <use href="#stPl" transform="translate(318 726)"/>
+  <text x="36" y="737.6">카빈</text>
+  <text x="107" y="737.6">레이저 소총</text>
+  <text x="177" y="737.6">기사단</text>
+  <text x="248" y="737.6">확성기</text>
+  <text x="318" y="737.6">뇌전 술사</text>
+</g>
+<g filter="url(#stLit)">
+  <use href="#stW1" transform="translate(36 724)"/>
+  <use href="#stW3" transform="translate(107 724)"/>
+  <use href="#stW5" transform="translate(177 724)"/>
+  <use href="#stW7" transform="translate(248 724)"/>
+  <use href="#stW9" transform="translate(318 724)"/>
+</g>
+
+<!-- 앞줄: 받침 + 무기 -->
+<g font-family="'Noto Sans KR', sans-serif" font-weight="700" font-size="8.2" fill="#F2F3F4" text-anchor="middle" letter-spacing="-.2">
+  <use href="#stPl" transform="translate(71 792)"/>
+  <use href="#stPl" transform="translate(142 792)"/>
+  <use href="#stPl" transform="translate(213 792)"/>
+  <use href="#stPl" transform="translate(283 792)"/>
+  <use href="#stPl" transform="translate(354 792)"/>
+  <text x="71" y="803.6">대포</text>
+  <text x="142" y="803.6">불여우</text>
+  <text x="213" y="803.6">전투 로봇</text>
+  <text x="283" y="803.6">모기 떼</text>
+  <text x="354" y="803.6">군견 지뢰밭</text>
+</g>
+<g filter="url(#stLit)">
+  <use href="#stW2" transform="translate(71 790)"/>
+  <use href="#stW4" transform="translate(142 790)"/>
+  <use href="#stW6" transform="translate(213 790)"/>
+  <use href="#stW8" transform="translate(283 790)"/>
+  <use href="#stW10" transform="translate(354 790)"/>
+</g>
+
+<rect y="813" width="390" height="31" fill="#25272A"/>
+<rect y="813" width="390" height="1" fill="#55585C"/>
+<rect width="390" height="844" fill="url(#stVig)"/>
+</svg>
+
+<!-- ======== 위 HUD: 방송 그래픽 ======== -->
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 60px; background: linear-gradient(180deg, rgba(22,24,27,.96), rgba(30,32,36,.93)); border-bottom: 2px solid #FFFFFF; box-shadow: 0 4px 14px rgba(10,12,14,.35)"></div>
+<div style="position: absolute; left: 12px; top: 8px; height: 32px; display: flex; align-items: stretch; transform: skewX(-8deg)">
+  <div style="width: 6px; background: #D3301E"></div>
+  <div style="display: flex; align-items: center; gap: 6px; padding: 0 10px 0 8px; background: #FFFFFF; color: #16181B">
+    <span style="font-size: 10px; font-weight: 700; letter-spacing: .04em">웨이브</span>
+    <span style="font-size: 25px; font-weight: 900; line-height: 1">12</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 5px; padding: 0 10px; background: #34373B; color: #FFFFFF">
+    <span style="font-size: 10px; font-weight: 700; color: #D6D8DB">LV</span>
+    <span style="font-size: 25px; font-weight: 900; line-height: 1">9</span>
+  </div>
+</div>
+<div class="st-tally" style="position: absolute; left: 160px; top: 19px; width: 8px; height: 8px; border-radius: 4px; background: #FF4A3A; box-shadow: 0 0 8px #FF4A3A"></div>
+<div style="position: absolute; left: 172px; top: 15px; font-size: 10px; font-weight: 700; color: #E6E8EA; letter-spacing: .06em">실황</div>
+<div style="position: absolute; right: 12px; top: 13px; display: flex; align-items: center; gap: 4px">
+  <svg width="94" height="14" viewBox="0 0 94 14" aria-hidden="true">
+    <defs><path id="stHeart" d="M 7,12.6 C 2.6,9.2 0,6.6 0,3.8 C 0,1.6 1.7,0 3.8,0 C 5.1,0 6.3,.7 7,1.8 C 7.7,.7 8.9,0 10.2,0 C 12.3,0 14,1.6 14,3.8 C 14,6.6 11.4,9.2 7,12.6 Z"/></defs>
+    <use href="#stHeart" x="0" y=".6" fill="#FFFFFF"/>
+    <use href="#stHeart" x="19" y=".6" fill="#FFFFFF"/>
+    <use href="#stHeart" x="38" y=".6" fill="#FFFFFF"/>
+    <use href="#stHeart" x="57" y=".6" fill="#FFFFFF"/>
+    <use href="#stHeart" x="76.6" y="1.2" fill="none" stroke="#8C9095" stroke-width="1.2" transform="translate(.6 0)"/>
+  </svg>
+  <span style="font-size: 13px; font-weight: 900; color: #FFFFFF; margin-left: 4px">4<span style="color: #B5B8BC; font-weight: 700">/5</span></span>
+</div>
+<div style="position: absolute; left: 12px; top: 45px; width: 366px; height: 8px; display: flex; align-items: center; gap: 8px">
+  <span style="font-size: 9.5px; font-weight: 700; color: #D6D8DB; line-height: 8px">경험치</span>
+  <div style="flex: 1; height: 5px; background: rgba(255,255,255,.18); position: relative">
+    <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 60%; background: #FFFFFF"></div>
+    <div style="position: absolute; left: 60%; top: -2px; width: 2px; height: 9px; background: #FF4A3A"></div>
+  </div>
+  <span style="font-size: 9.5px; font-weight: 900; color: #FFFFFF; line-height: 8px">60%</span>
+</div>
+
+<!-- 큰 놈 표찰 -->
+<div style="position: absolute; left: 196px; top: 98px; display: flex; align-items: stretch; height: 18px; transform: skewX(-8deg); box-shadow: 2px 3px 8px rgba(10,12,14,.35)">
+  <div style="width: 4px; background: #D3301E"></div>
+  <div style="padding: 0 7px; background: #1C1E21; color: #FFFFFF; font-size: 10px; font-weight: 700; line-height: 18px">큰 놈 접근</div>
+</div>
+
+<!-- 피해 숫자 -->
+<div class="st-num" style="position: absolute; left: 62px; top: 280px; font-size: 21px">36</div>
+<div style="position: absolute; left: 250px; top: 262px; display: flex; align-items: flex-end; gap: 4px">
+  <div class="st-num" style="font-size: 42px; letter-spacing: -.02em">119</div>
+</div>
+<div style="position: absolute; left: 252px; top: 306px; width: 68px; height: 4px; background: #E8402F; transform: skewX(-20deg)"></div>
+<div class="st-num" style="position: absolute; left: 322px; top: 470px; font-size: 24px">52</div>
+
+<!-- 연쇄 23: 점수판 -->
+<div style="position: absolute; left: 14px; top: 382px; transform: skewX(-8deg); box-shadow: 4px 6px 16px rgba(10,12,14,.4)">
+  <div style="display: flex; align-items: stretch">
+    <div style="padding: 3px 10px; background: #D3301E; color: #FFFFFF; font-size: 14px; font-weight: 900; letter-spacing: .08em">연쇄</div>
+    <div style="padding: 3px 8px; background: #FFFFFF; color: #16181B; font-size: 10px; font-weight: 700; line-height: 18px">최고 기록</div>
+  </div>
+  <div style="padding: 0 14px 4px 10px; background: rgba(24,26,29,.94); border-left: 4px solid #FFFFFF; color: #FFFFFF; font-size: 84px; font-weight: 900; line-height: 88px; letter-spacing: -.03em">23</div>
+</div>
+
+<!-- 반응 이름: 하단 자막 -->
+<div style="position: absolute; left: -6px; top: 512px; width: 384px; transform: skewX(-8deg); box-shadow: 0 8px 22px rgba(10,12,14,.45)">
+  <div style="display: flex; align-items: stretch; height: 46px; overflow: hidden; position: relative">
+    <div style="width: 78px; background: #D3301E; display: flex; flex-direction: column; justify-content: center; padding-left: 18px">
+      <span style="font-size: 10px; font-weight: 700; color: #FFFFFF; line-height: 12px">합성</span>
+      <span style="font-size: 17px; font-weight: 900; color: #FFFFFF; line-height: 19px">반응</span>
+    </div>
+    <div style="flex: 1; background: #FFFFFF; display: flex; align-items: center; padding-left: 12px; color: #121417; font-size: 31px; font-weight: 900; letter-spacing: -.03em; white-space: nowrap">전향 무리<span style="color: #8A8E93; margin: 0 7px; font-weight: 700">·</span>강타<span style="color: #D3301E">!</span></div>
+    <div class="st-glint" style="position: absolute; left: 0; top: 0; width: 46px; height: 46px; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.75), rgba(255,255,255,0))"></div>
+  </div>
+  <div style="height: 20px; background: #1C1E21; display: flex; align-items: center; padding-left: 18px; color: #E6E8EA; font-size: 10.5px; font-weight: 500; white-space: nowrap">군견 지뢰밭 <span style="color: #9A9EA3; margin: 0 6px">|</span> 묶인 적이 돌아서 제 무리를 들이받는다</div>
+</div>
+
+<!-- 방어선 표찰 · 갈래 칩 -->
+<div style="position: absolute; left: 10px; top: 640px; padding: 0 6px; height: 15px; background: #1C1E21; color: #FFFFFF; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: .04em">방어선</div>
+<div style="position: absolute; right: 10px; top: 634px; display: flex; align-items: center; gap: 6px; height: 21px; padding: 0 9px; background: #1C1E21; border: 1px solid rgba(255,255,255,.35); color: #FFFFFF; font-size: 11px; font-weight: 700">
+  <span style="width: 6px; height: 6px; border-radius: 3px; background: #FF4A3A"></span>갈래 6/7 · 칸 1
+</div>
+
+<!-- 아래 가장자리 -->
+<button class="st-btn" style="left: 10px">실험</button>
+<div style="position: absolute; left: 76px; right: 64px; bottom: 11px; text-align: center; color: #C9CCD0; font-size: 10px; font-weight: 500; white-space: nowrap">남은 적 31 · 합성 칸 1 · 받침 10</div>
+<button class="st-btn" style="right: 10px">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
