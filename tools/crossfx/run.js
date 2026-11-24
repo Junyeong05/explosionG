@@ -781,17 +781,20 @@
     CX.start();
   }
   void LINE_Y;
-  const fams = new Set(['Noto Sans KR', 'Cinzel', 'Orbit']);
-  for (const k of Object.keys(CX.worlds)) for (const f of CX.worlds[k].fonts || []) fams.add(f);
-  const loads = [...fams].map((f) => (document.fonts && document.fonts.load ? document.fonts.load(`700 20px "${f}"`).catch(() => null) : null));
+  // 테마 파일(run.js 뒤에 오는 <script>)까지 다 읽힌 뒤, 세계·테마 글꼴을 불러오고 시작
   let started = false;
   const go = () => {
     if (started) return;
     started = true;
     boot();
   };
-  // 테마 파일(run.js 뒤에 오는 <script>)까지 다 읽힌 뒤에 시작
   const ready = new Promise((r) => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r) : r()));
-  Promise.all([...loads, ready]).then(go);
+  ready.then(() => {
+    const fams = new Set(['Noto Sans KR', 'Cinzel', 'Orbit']);
+    for (const k of Object.keys(CX.worlds)) for (const f of CX.worlds[k].fonts || []) fams.add(f);
+    for (const k of Object.keys(CX.themes)) for (const f of CX.themes[k].fonts || []) fams.add(f);
+    const loads = [...fams].map((f) => (document.fonts && document.fonts.load ? document.fonts.load(`700 20px "${f}"`).catch(() => null) : null));
+    Promise.all(loads).then(go);
+  });
   setTimeout(() => ready.then(go), 2500);
 })();

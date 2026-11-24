@@ -376,21 +376,42 @@
         this.bgKey = T.key;
       }
       c.drawImage(this.bg, 0, 0, W, H);
-      T.sky(c, this.t);
+      c.save();
+      T.sky(c, this.t, this);
+      c.restore();
       const sx = this.shakeA ? rnd(-this.shakeA, this.shakeA) : 0;
       const sy = this.shakeA ? rnd(-this.shakeA, this.shakeA) : 0;
       c.save();
       c.translate(sx, sy);
       this.drawFx(-1);
-      for (const e of this.enemies) if (e.alive || e.flash > 0) T.enemy(c, e, this.t);
+      for (const e of this.enemies)
+        if (e.alive || e.flash > 0) {
+          c.save();
+          T.enemy(c, e, this.t);
+          c.restore();
+        }
       this.drawFx(0);
-      for (const s of this.seams) T.seam(c, s);
-      for (const b of this.booms) T.boom(c, b);
+      for (const s of this.seams) {
+        c.save();
+        T.seam(c, s);
+        c.restore();
+      }
+      for (const b of this.booms) {
+        c.save();
+        T.boom(c, b);
+        c.restore();
+      }
       this.drawFx(1);
       c.restore();
-      T.line(c, this.t);
+      c.save();
+      T.line(c, this.t, this);
+      c.restore();
       this.drawMounts();
-      for (const n of this.nums) T.num(c, n);
+      for (const n of this.nums) {
+        c.save();
+        T.num(c, n);
+        c.restore();
+      }
       this.drawChain();
       for (const l of this.labels) {
         c.save();
@@ -441,7 +462,9 @@
     drawChain() {
       const since = this.t - this.chainT;
       if (this.chainN < 3 || since > 1.1) return;
+      this.ctx.save();
       CX.th().chain(this.ctx, this.chainN, since);
+      this.ctx.restore();
     }
 
     drawCaption() {

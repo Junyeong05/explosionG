@@ -53,7 +53,7 @@ const path = require('path');
   await cv.screenshot({ path: path.join(out, 'over.png') });
   await p.evaluate(() => { const s = window.__run; s.over = 0; CX.speed = 1; });
   const m = await b.newPage({ viewport: { width: 390, height: 844 } });
-  await m.goto('file://' + path.resolve(file));
+  await m.goto('file://' + path.resolve(file) + (process.env.THEME ? '#theme-' + process.env.THEME : ''));
   await m.waitForTimeout(2500);
   const ov = await m.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   await m.screenshot({ path: path.join(out, 'phone.png') });
