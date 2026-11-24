@@ -628,11 +628,11 @@
         const bw = e.boss ? r * 2.3 : r * 1.7;
         const by = r * (e.boss ? 1.5 : 1.35);
         const k = clamp(e.hp / e.max, 0, 1);
-        c.fillStyle = 'rgba(20,16,48,0.75)';
-        roundRect(c, -bw / 2 - 1, by - 1, bw + 2, e.boss ? 6 : 4.5, 2.5);
+        c.fillStyle = e.boss ? 'rgba(20,16,48,0.75)' : 'rgba(20,16,48,0.4)';
+        roundRect(c, -bw / 2 - 1, by - 1, bw + 2, e.boss ? 6 : 4, 2.5);
         c.fill();
-        c.fillStyle = e.boss ? '#FF4F8E' : '#FF7AA8';
-        roundRect(c, -bw / 2, by, Math.max(2, bw * k), e.boss ? 4 : 2.5, 2);
+        c.fillStyle = e.boss ? '#FF4F8E' : 'rgba(255,150,190,0.85)';
+        roundRect(c, -bw / 2, by, Math.max(2, bw * k), e.boss ? 4 : 2, 1.5);
         c.fill();
       }
       c.restore();
