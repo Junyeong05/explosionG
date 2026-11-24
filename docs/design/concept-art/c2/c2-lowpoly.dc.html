@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>저폴리 아이소 판</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300;500;700&amp;family=Manrope:wght@300;800&amp;display=swap">
+<style>
+body{margin:0}
+.lp-lab{position:absolute;width:56px;text-align:center;font:500 10px/12px 'Sunflower',sans-serif;color:#F5E6C8;letter-spacing:-.01em;white-space:nowrap}
+.lp-cap{font:500 10px/1 'Sunflower',sans-serif;letter-spacing:.26em;color:#BCD6D0}
+.lp-btn{position:absolute;bottom:5px;height:20px;padding:0 11px;border:0;border-radius:2px;background:#0E2229;color:#FBF2E3;font:700 11px/20px 'Sunflower',sans-serif;letter-spacing:.08em;box-shadow:inset 0 0 0 1px rgba(245,230,200,.38);cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #24575E; font-family: 'Sunflower', sans-serif; color: #FBF2E3">
+
+<!-- ============ 저폴리 아이소: 해 질 녘 고원 · 각진 짐승 · 조각 폭발 · 돌기둥 경계 · 육각 받침 ============ -->
+<svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute; left:0; top:0" aria-hidden="true">
+<defs>
+  <pattern id="lpIso" patternUnits="userSpaceOnUse" x="0" y="682" width="60" height="30">
+    <path d="M0 15 L30 0 L60 15 L30 30Z" fill="none" stroke="#22525A" stroke-width="1"/>
+  </pattern>
+  <filter id="lpGlow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+  <!-- 긴 그림자 (빛은 왼쪽 낮은 해, 그림자는 오른쪽 아래로 길게) -->
+  <polygon id="lpBugSh" points="-6,6 12,9 46,24 48,18 14,0" fill="#0F2E35" opacity=".5"/>
+  <polygon id="lpTortSh" points="-14,6 14,10 62,30 66,20 16,-6" fill="#0F2E35" opacity=".5"/>
+  <polygon id="lpBirdSh" points="22,8 3,1 14,16 22,24 30,16 41,1" fill="#0F2E35" opacity=".42"/>
+
+  <!-- 적: 다면 갑충 (일반) · currentColor = 해를 받은 면 -->
+  <g id="lpBug">
+    <path d="M-9 -4 L-15 -8 M-10 1 L-16 2 M-8 5 L-13 10 M9 -4 L15 -8 M10 1 L16 2 M8 5 L13 10" stroke="#0E2229" stroke-width="1.6" stroke-linecap="round"/>
+    <polygon points="-11,-2 -7,-10 0,-13 0,-3" fill="currentColor"/>
+    <polygon points="-11,-2 0,-3 0,9 -8,6" fill="currentColor"/><polygon points="-11,-2 0,-3 0,9 -8,6" fill="#0E2229" opacity=".24"/>
+    <polygon points="0,-13 7,-10 11,-2 0,-3" fill="#2E4E57"/>
+    <polygon points="0,-3 11,-2 8,6 0,9" fill="#17313A"/>
+    <polygon points="-5,7 0,7 0,13 -3,13" fill="currentColor"/><polygon points="-5,7 0,7 0,13 -3,13" fill="#0E2229" opacity=".35"/>
+    <polygon points="0,7 5,7 3,13 0,13" fill="#0E2229"/>
+    <path d="M-3 13 L-5 17 M3 13 L5 17" stroke="#0E2229" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="-2.2" cy="10" r=".9" fill="#BFF0E6"/><circle cx="2.2" cy="10" r=".9" fill="#BFF0E6"/>
+  </g>
+  <!-- 적: 바위 거북 (장갑) -->
+  <g id="lpTort">
+    <polygon points="-17,2 -12,4 -13,9 -18,7" fill="#0E2229"/><polygon points="17,2 12,4 13,9 18,7" fill="#0E2229"/>
+    <polygon points="-15,-6 -10,-9 -10,-3" fill="#0E2229"/><polygon points="15,-6 10,-9 10,-3" fill="#0E2229"/>
+    <polygon points="-17,0 -12,5 0,6 0,10 -12,9 -17,4" fill="currentColor"/><polygon points="-17,0 -12,5 0,6 0,10 -12,9 -17,4" fill="#0E2229" opacity=".38"/>
+    <polygon points="0,6 12,5 17,0 17,4 12,9 0,10" fill="#102229"/>
+    <polygon points="0,-6 -17,0 -13,-9" fill="currentColor"/>
+    <polygon points="0,-6 -13,-9 -3,-14" fill="currentColor"/><polygon points="0,-6 -13,-9 -3,-14" fill="#FBF2E3" opacity=".14"/>
+    <polygon points="0,-6 -3,-14 8,-13" fill="#5B7A80"/>
+    <polygon points="0,-6 8,-13 15,-7" fill="#2E4E57"/>
+    <polygon points="0,-6 15,-7 17,0" fill="#17313A"/>
+    <polygon points="0,-6 17,0 12,5" fill="#1B3740"/>
+    <polygon points="0,-6 12,5 0,6" fill="#2E4E57"/>
+    <polygon points="0,-6 0,6 -12,5" fill="currentColor"/><polygon points="0,-6 0,6 -12,5" fill="#0E2229" opacity=".3"/>
+    <polygon points="0,-6 -12,5 -17,0" fill="currentColor"/><polygon points="0,-6 -12,5 -17,0" fill="#0E2229" opacity=".15"/>
+    <polygon points="-4,-6 -2,-9 2,-9 4,-6 2,-3 -2,-3" fill="#6F8D90"/><polygon points="-4,-6 -2,-9 0,-6 -2,-3" fill="#8FA9A8"/>
+    <polygon points="-4,7 0,6 0,14 -3,13" fill="currentColor"/><polygon points="0,6 4,7 3,13 0,14" fill="#17313A"/>
+    <circle cx="-1.8" cy="10" r=".9" fill="#BFF0E6"/><circle cx="1.8" cy="10" r=".9" fill="#BFF0E6"/>
+  </g>
+  <!-- 적: 창부리 새 (돌격, 낮게 날아 그림자가 떨어져 있음) -->
+  <g id="lpBird">
+    <g fill="#F5E6C8"><polygon points="-2,-22 2,-22 0,-31" opacity=".5"/><polygon points="-7,-30 -4,-30 -5.5,-37" opacity=".35"/><polygon points="4,-33 7,-33 5.5,-39" opacity=".3"/></g>
+    <path d="M-10 -20 L-14 -40 M10 -20 L14 -40" stroke="#F5E6C8" stroke-width=".8" opacity=".35"/>
+    <polygon points="0,-8 -19,-15 -8,0" fill="currentColor"/>
+    <polygon points="-19,-15 -14,-4 -8,0" fill="currentColor"/><polygon points="-19,-15 -14,-4 -8,0" fill="#0E2229" opacity=".28"/>
+    <polygon points="0,-8 19,-15 8,0" fill="#2E4E57"/><polygon points="19,-15 14,-4 8,0" fill="#17313A"/>
+    <polygon points="-3,-13 3,-13 0,-20" fill="#2E4E57"/>
+    <polygon points="0,-14 -5,-4 0,8" fill="currentColor"/><polygon points="0,-14 5,-4 0,8" fill="#17313A"/>
+    <polygon points="-2.5,6 0,6 0,19" fill="currentColor"/><polygon points="-2.5,6 0,6 0,19" fill="#0E2229" opacity=".2"/><polygon points="0,6 2.5,6 0,19" fill="#0E2229"/>
+    <circle cx="-1.4" cy="4" r=".9" fill="#BFF0E6"/>
+  </g>
+
+  <!-- 폭발: 각진 섬광 · 조각 · 고리 · 구덩이 -->
+  <g id="lpStar">
+    <polygon points="0,0 -4,-12.4 0,-30" fill="#F8A88E"/><polygon points="0,0 0,-30 4,-12.4" fill="#E06A55"/><polygon points="0,0 4,-12.4 15.2,-20.9" fill="#F8A88E"/><polygon points="0,0 15.2,-20.9 10.5,-7.6" fill="#E06A55"/><polygon points="0,0 10.5,-7.6 30.5,-9.9" fill="#F8A88E"/><polygon points="0,0 30.5,-9.9 13,0" fill="#E06A55"/><polygon points="0,0 13,0 23.7,7.7" fill="#F8A88E"/><polygon points="0,0 23.7,7.7 10.5,7.6" fill="#E06A55"/><polygon points="0,0 10.5,7.6 17.1,23.5" fill="#F8A88E"/><polygon points="0,0 17.1,23.5 4,12.4" fill="#E06A55"/><polygon points="0,0 4,12.4 0,30.9" fill="#F8A88E"/><polygon points="0,0 0,30.9 -4,12.4" fill="#E06A55"/><polygon points="0,0 -4,12.4 -14.1,19.4" fill="#F8A88E"/><polygon points="0,0 -14.1,19.4 -10.5,7.6" fill="#E06A55"/><polygon points="0,0 -10.5,7.6 -28.5,9.3" fill="#F8A88E"/><polygon points="0,0 -28.5,9.3 -13,0" fill="#E06A55"/><polygon points="0,0 -13,0 -25.7,-8.3" fill="#F8A88E"/><polygon points="0,0 -25.7,-8.3 -10.5,-7.6" fill="#E06A55"/><polygon points="0,0 -10.5,-7.6 -16.4,-22.6" fill="#F8A88E"/><polygon points="0,0 -16.4,-22.6 -4,-12.4" fill="#E06A55"/>
+    <polygon points="0,0 -1.7,-8.8 4.4,-16.4" fill="#FBF2E3"/><polygon points="0,0 4.4,-16.4 5.9,-6.8" fill="#F5C9A8"/><polygon points="0,0 5.9,-6.8 14,-6.1" fill="#FBF2E3"/><polygon points="0,0 14,-6.1 9,0.3" fill="#F5C9A8"/><polygon points="0,0 9,0.3 15.8,8.3" fill="#FBF2E3"/><polygon points="0,0 15.8,8.3 5.3,7.2" fill="#F5C9A8"/><polygon points="0,0 5.3,7.2 2.8,14.7" fill="#FBF2E3"/><polygon points="0,0 2.8,14.7 -2.3,8.7" fill="#F5C9A8"/><polygon points="0,0 -2.3,8.7 -11.1,12.9" fill="#FBF2E3"/><polygon points="0,0 -11.1,12.9 -8.2,3.6" fill="#F5C9A8"/><polygon points="0,0 -8.2,3.6 -16.1,-0.6" fill="#FBF2E3"/><polygon points="0,0 -16.1,-0.6 -8,-4.2" fill="#F5C9A8"/><polygon points="0,0 -8,-4.2 -10.9,-14.8" fill="#FBF2E3"/><polygon points="0,0 -10.9,-14.8 -1.7,-8.8" fill="#F5C9A8"/>
+    <polygon points="0,-6 5.2,-3 5.2,3 0,6 -5.2,3 -5.2,-3" fill="#FFFFFF"/><polygon points="0,-6 0,6 -5.2,3 -5.2,-3" fill="#FFF8EE"/>
+  </g>
+  <g id="lpShards">
+    <polygon points="6.1,-28.8 7.9,-20.7 1.6,-21.8" fill="#F07E68"/><polygon points="6.1,-28.8 4.8,-21.3 1.6,-21.8" fill="#0E2229" opacity=".22"/>
+    <polygon points="32.1,-23.2 27.5,-13.9 22.3,-19.9" fill="#F5E6C8"/><polygon points="32.1,-23.2 24.9,-16.9 22.3,-19.9" fill="#0E2229" opacity=".22"/>
+    <polygon points="49.8,-1.4 38.5,3.8 38.2,-5.8" fill="#F8A88E"/><polygon points="49.8,-1.4 38.4,-1 38.2,-5.8" fill="#0E2229" opacity=".22"/>
+    <polygon points="38.5,5.7 24.4,9 26.4,-2.1" fill="#E8CFA2"/><polygon points="38.5,5.7 25.4,3.4 26.4,-2.1" fill="#0E2229" opacity=".22"/>
+    <polygon points="27,25.7 19.6,22 24.5,17.8" fill="#1D4A52"/><polygon points="27,25.7 22,19.9 24.5,17.8" fill="#0E2229" opacity=".22"/>
+    <polygon points="1.7,40.1 -2.6,30.7 5.4,30.4" fill="#F07E68"/><polygon points="1.7,40.1 1.4,30.6 5.4,30.4" fill="#0E2229" opacity=".22"/>
+    <polygon points="-6.6,31.3 -9.3,19.3 0.1,20.9" fill="#FBF2E3"/><polygon points="-6.6,31.3 -4.6,20.1 0.1,20.9" fill="#0E2229" opacity=".22"/>
+    <polygon points="-34,24.9 -27.7,11.9 -20.3,20.4" fill="#C9584A"/><polygon points="-34,24.9 -24,16.1 -20.3,20.4" fill="#0E2229" opacity=".22"/>
+    <polygon points="-47.2,1.4 -39.7,-2.1 -39.5,4.3" fill="#E8CFA2"/><polygon points="-47.2,1.4 -39.6,1.1 -39.5,4.3" fill="#0E2229" opacity=".22"/>
+    <polygon points="-35.9,-5.3 -25.9,-7.6 -27.3,0.3" fill="#2C6A70"/><polygon points="-35.9,-5.3 -26.6,-3.6 -27.3,0.3" fill="#0E2229" opacity=".22"/>
+    <polygon points="-28.7,-27.6 -17.6,-22.2 -24.9,-15.9" fill="#F8A88E"/><polygon points="-28.7,-27.6 -21.3,-19 -24.9,-15.9" fill="#0E2229" opacity=".22"/>
+    <polygon points="-1.8,-42.7 4.3,-29.6 -6.9,-29.2" fill="#F07E68"/><polygon points="-1.8,-42.7 -1.3,-29.4 -6.9,-29.2" fill="#0E2229" opacity=".22"/>
+  </g>
+  <polygon id="lpOct" points="41.6,8.6 17.2,20.8 -17.2,20.8 -41.6,8.6 -41.6,-8.6 -17.2,-20.8 17.2,-20.8 41.6,-8.6" fill="none" stroke="#FBF2E3" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+  <g id="lpCrater">
+    <polygon points="37.5,0 18.8,16.1 -18.8,16.1 -37.5,0 -18.8,-16.1 18.8,-16.1" fill="#173F47"/>
+    <polygon points="26,0 13,11 -13,11 -26,0 -13,-11 13,-11" fill="#0F3038"/>
+    <polygon points="26,0 13,11 -13,11 0,0" fill="#2F6A6E"/>
+  </g>
+
+  <!-- 육각 받침 -->
+  <g id="lpPed">
+    <polygon points="11,20 22,9 66,26 58,36" fill="#0B2229" opacity=".45"/>
+    <polygon points="-22,0 -11,11 -11,20 -22,9" fill="#F0DDB5"/>
+    <polygon points="-11,11 11,11 11,20 -11,20" fill="#C9AE84"/>
+    <polygon points="11,11 22,0 22,9 11,20" fill="#3D5A5A"/>
+    <polygon points="22,0 11,11 -11,11 -22,0 -11,-11 11,-11" fill="#DCC398"/>
+    <polygon points="-22,0 -11,-11 0,0 -11,11" fill="#E8D2A9"/>
+    <polygon points="22,0 11,-11 0,0 11,11" fill="#CDB38A"/>
+  </g>
+  <!-- 경계 돌기둥 -->
+  <g id="lpObel">
+    <polygon points="2,0 6,-1 40,13 35,15" fill="#0B2229" opacity=".4"/>
+    <polygon points="-5,-2 0,0 0,-20 -5,-18" fill="#F0DDB5"/>
+    <polygon points="0,0 5,-2 5,-18 0,-20" fill="#2A5359"/>
+    <polygon points="-5,-18 0,-20 0,-28" fill="#FBF2E3"/>
+    <polygon points="0,-20 5,-18 0,-28" fill="#8FB0AA"/>
+  </g>
+</defs>
+
+<!-- 하늘 (띠로 끊은 해 질 녘) · 해 · 산 -->
+<rect x="0" y="0" width="390" height="38" fill="#133640"/>
+<rect x="0" y="38" width="390" height="26" fill="#17404A"/>
+<rect x="0" y="64" width="390" height="22" fill="#1D4A53"/>
+<rect x="0" y="86" width="390" height="16" fill="#2A5960"/>
+<rect x="0" y="102" width="390" height="16" fill="#C47D6E"/>
+<rect x="0" y="118" width="390" height="40" fill="#EBA187"/>
+<polygon points="86,104 82.2,118 72,128.2 58,132 44,128.2 33.8,118 30,104 33.8,90 44,79.8 58,76 72,79.8 82.2,90" fill="#F5C3A3" opacity=".55"/>
+<polygon points="76,104 73.6,113 67,119.6 58,122 49,119.6 42.4,113 40,104 42.4,95 49,88.4 58,86 67,88.4 73.6,95" fill="#FCE3C6"/>
+<polygon points="58,86 67,88.4 73.6,95 76,104 58,104" fill="#FFF1DE"/>
+<!-- 먼 산 -->
+<polygon points="0,112 40,100 40,150 0,150" fill="#5E8C88"/><polygon points="40,100 78,114 78,150 40,150" fill="#3A686B"/>
+<polygon points="78,114 122,88 122,150 78,150" fill="#5E8C88"/><polygon points="122,88 170,108 170,150 122,150" fill="#3A686B"/>
+<polygon points="170,108 214,92 214,150 170,150" fill="#5E8C88"/><polygon points="214,92 262,110 262,150 214,150" fill="#3A686B"/>
+<polygon points="262,110 300,88 300,150 262,150" fill="#5E8C88"/><polygon points="300,88 346,106 346,150 300,150" fill="#3A686B"/>
+<polygon points="346,106 390,96 390,150 346,150" fill="#5E8C88"/>
+<polygon points="122,88 150,150 100,150" fill="#6E9A94" opacity=".55"/><polygon points="300,88 322,150 280,150" fill="#6E9A94" opacity=".5"/>
+<!-- 가까운 능선 -->
+<polygon points="0,132 34,122 34,162 0,162" fill="#3F7476"/><polygon points="34,122 70,136 70,162 34,162" fill="#24545A"/>
+<polygon points="70,136 112,118 112,162 70,162" fill="#3F7476"/><polygon points="112,118 150,134 150,162 112,162" fill="#24545A"/>
+<polygon points="150,134 196,124 196,162 150,162" fill="#3F7476"/><polygon points="196,124 240,138 240,162 196,162" fill="#24545A"/>
+<polygon points="240,138 286,120 286,162 240,162" fill="#3F7476"/><polygon points="286,120 330,136 330,162 286,162" fill="#24545A"/>
+<polygon points="330,136 366,124 366,162 330,162" fill="#3F7476"/><polygon points="366,124 390,132 390,162 366,162" fill="#24545A"/>
+
+<!-- 고원 땅 (다면) -->
+<g>
+<polygon points="-30,150 27,147 -7,187" fill="#387073"/>
+<polygon points="27,147 29,182 -7,187" fill="#346a6d"/>
+<polygon points="27,147 54,143 90,185" fill="#366c70"/>
+<polygon points="27,147 90,185 29,182" fill="#356b6e"/>
+<polygon points="54,143 109,147 90,185" fill="#32666a"/>
+<polygon points="109,147 142,191 90,185" fill="#34696c"/>
+<polygon points="109,147 161,143 173,188" fill="#366d70"/>
+<polygon points="109,147 173,188 142,191" fill="#366c6f"/>
+<polygon points="161,143 201,144 173,188" fill="#34686c"/>
+<polygon points="201,144 214,178 173,188" fill="#33686c"/>
+<polygon points="201,144 250,143 264,190" fill="#346a6e"/>
+<polygon points="201,144 264,190 214,178" fill="#34686c"/>
+<polygon points="250,143 285,147 264,190" fill="#316469"/>
+<polygon points="285,147 321,191 264,190" fill="#33686c"/>
+<polygon points="285,147 343,144 355,183" fill="#366c70"/>
+<polygon points="285,147 355,183 321,191" fill="#366c6f"/>
+<polygon points="343,144 372,144 355,183" fill="#346a6d"/>
+<polygon points="372,144 405,176 355,183" fill="#346a6e"/>
+<polygon points="372,144 430,146 453,176" fill="#34686c"/>
+<polygon points="372,144 453,176 405,176" fill="#33686c"/>
+<polygon points="-7,187 29,182 27,221" fill="#2e6166"/>
+<polygon points="-7,187 27,221 -30,215" fill="#2e6065"/>
+<polygon points="29,182 90,185 27,221" fill="#306569"/>
+<polygon points="90,185 60,217 27,221" fill="#32666a"/>
+<polygon points="90,185 142,191 106,216" fill="#32666a"/>
+<polygon points="90,185 106,216 60,217" fill="#346a6d"/>
+<polygon points="142,191 173,188 106,216" fill="#366e71"/>
+<polygon points="173,188 157,212 106,216" fill="#366e70"/>
+<polygon points="173,188 214,178 199,225" fill="#346a6e"/>
+<polygon points="173,188 199,225 157,212" fill="#31666a"/>
+<polygon points="214,178 264,190 199,225" fill="#32686c"/>
+<polygon points="264,190 249,220 199,225" fill="#2f6268"/>
+<polygon points="264,190 321,191 297,229" fill="#306569"/>
+<polygon points="264,190 297,229 249,220" fill="#30656a"/>
+<polygon points="321,191 355,183 297,229" fill="#387073"/>
+<polygon points="355,183 343,215 297,229" fill="#32666a"/>
+<polygon points="355,183 405,176 380,216" fill="#33686c"/>
+<polygon points="355,183 380,216 343,215" fill="#33696d"/>
+<polygon points="405,176 453,176 380,216" fill="#2f6266"/>
+<polygon points="453,176 430,221 380,216" fill="#366e71"/>
+<polygon points="-30,215 27,221 -7,247" fill="#2f6468"/>
+<polygon points="27,221 28,256 -7,247" fill="#2b5d62"/>
+<polygon points="27,221 60,217 74,266" fill="#31666a"/>
+<polygon points="27,221 74,266 28,256" fill="#30656a"/>
+<polygon points="60,217 106,216 74,266" fill="#32686c"/>
+<polygon points="106,216 134,249 74,266" fill="#32686c"/>
+<polygon points="106,216 157,212 179,247" fill="#32686c"/>
+<polygon points="106,216 179,247 134,249" fill="#32686c"/>
+<polygon points="157,212 199,225 179,247" fill="#306469"/>
+<polygon points="199,225 233,262 179,247" fill="#2e6267"/>
+<polygon points="199,225 249,220 280,263" fill="#2e6266"/>
+<polygon points="199,225 280,263 233,262" fill="#2c6065"/>
+<polygon points="249,220 297,229 280,263" fill="#2e6368"/>
+<polygon points="297,229 302,254 280,263" fill="#2e6267"/>
+<polygon points="297,229 343,215 348,260" fill="#30666a"/>
+<polygon points="297,229 348,260 302,254" fill="#306469"/>
+<polygon points="343,215 380,216 348,260" fill="#32686c"/>
+<polygon points="380,216 413,255 348,260" fill="#32686c"/>
+<polygon points="380,216 430,221 453,248" fill="#32696d"/>
+<polygon points="380,216 453,248 413,255" fill="#32686c"/>
+<polygon points="-7,247 28,256 26,286" fill="#295b61"/>
+<polygon points="-7,247 26,286 -30,290" fill="#2c6065"/>
+<polygon points="28,256 74,266 26,286" fill="#2f6469"/>
+<polygon points="74,266 49,300 26,286" fill="#30666a"/>
+<polygon points="74,266 134,249 119,284" fill="#32686d"/>
+<polygon points="74,266 119,284 49,300" fill="#30686c"/>
+<polygon points="134,249 179,247 119,284" fill="#32686c"/>
+<polygon points="179,247 146,301 119,284" fill="#2c6066"/>
+<polygon points="179,247 233,262 205,290" fill="#2c5e64"/>
+<polygon points="179,247 205,290 146,301" fill="#295b61"/>
+<polygon points="233,262 280,263 205,290" fill="#285a60"/>
+<polygon points="280,263 238,296 205,290" fill="#2c6065"/>
+<polygon points="280,263 302,254 299,297" fill="#31676c"/>
+<polygon points="280,263 299,297 238,296" fill="#30676c"/>
+<polygon points="302,254 348,260 299,297" fill="#30666a"/>
+<polygon points="348,260 338,286 299,297" fill="#2e6368"/>
+<polygon points="348,260 413,255 395,287" fill="#31686c"/>
+<polygon points="348,260 395,287 338,286" fill="#30666a"/>
+<polygon points="413,255 453,248 395,287" fill="#32696d"/>
+<polygon points="453,248 430,305 395,287" fill="#285a60"/>
+<polygon points="-30,290 26,286 -7,334" fill="#30676c"/>
+<polygon points="26,286 52,337 -7,334" fill="#2a5e63"/>
+<polygon points="26,286 49,300 83,325" fill="#285c61"/>
+<polygon points="26,286 83,325 52,337" fill="#2c6166"/>
+<polygon points="49,300 119,284 83,325" fill="#2c6066"/>
+<polygon points="119,284 141,329 83,325" fill="#295c62"/>
+<polygon points="119,284 146,301 175,336" fill="#285a60"/>
+<polygon points="119,284 175,336 141,329" fill="#2d6268"/>
+<polygon points="146,301 205,290 175,336" fill="#2c6065"/>
+<polygon points="205,290 219,332 175,336" fill="#2c6266"/>
+<polygon points="205,290 238,296 265,334" fill="#2c6065"/>
+<polygon points="205,290 265,334 219,332" fill="#2c6066"/>
+<polygon points="238,296 299,297 265,334" fill="#2f656a"/>
+<polygon points="299,297 307,325 265,334" fill="#30686c"/>
+<polygon points="299,297 338,286 374,331" fill="#2e6468"/>
+<polygon points="299,297 374,331 307,325" fill="#2d6268"/>
+<polygon points="338,286 395,287 374,331" fill="#2e646a"/>
+<polygon points="395,287 418,324 374,331" fill="#2c6065"/>
+<polygon points="395,287 430,305 453,324" fill="#26585e"/>
+<polygon points="395,287 453,324 418,324" fill="#2a5f64"/>
+<polygon points="-7,334 52,337 28,368" fill="#24565c"/>
+<polygon points="-7,334 28,368 -30,366" fill="#24565c"/>
+<polygon points="52,337 83,325 28,368" fill="#24565c"/>
+<polygon points="83,325 61,362 28,368" fill="#2c6166"/>
+<polygon points="83,325 141,329 109,368" fill="#2a5d62"/>
+<polygon points="83,325 109,368 61,362" fill="#2c6066"/>
+<polygon points="141,329 175,336 109,368" fill="#2e656a"/>
+<polygon points="175,336 161,364 109,368" fill="#2a5e64"/>
+<polygon points="175,336 219,332 188,364" fill="#285c62"/>
+<polygon points="175,336 188,364 161,364" fill="#275a60"/>
+<polygon points="219,332 265,334 188,364" fill="#285c62"/>
+<polygon points="265,334 238,372 188,364" fill="#2a5d63"/>
+<polygon points="265,334 307,325 285,370" fill="#2e6468"/>
+<polygon points="265,334 285,370 238,372" fill="#2c6268"/>
+<polygon points="307,325 374,331 285,370" fill="#2a5e64"/>
+<polygon points="374,331 327,371 285,370" fill="#2d6268"/>
+<polygon points="374,331 418,324 395,375" fill="#275a60"/>
+<polygon points="374,331 395,375 327,371" fill="#285a60"/>
+<polygon points="418,324 453,324 395,375" fill="#26595f"/>
+<polygon points="453,324 430,380 395,375" fill="#24565c"/>
+<polygon points="-30,366 28,368 -7,408" fill="#26585e"/>
+<polygon points="28,368 45,414 -7,408" fill="#25565c"/>
+<polygon points="28,368 61,362 76,398" fill="#2a5f64"/>
+<polygon points="28,368 76,398 45,414" fill="#2a5f64"/>
+<polygon points="61,362 109,368 76,398" fill="#2a5f64"/>
+<polygon points="109,368 120,397 76,398" fill="#295d62"/>
+<polygon points="109,368 161,364 189,401" fill="#285a60"/>
+<polygon points="109,368 189,401 120,397" fill="#285a60"/>
+<polygon points="161,364 188,364 189,401" fill="#26585e"/>
+<polygon points="188,364 215,410 189,401" fill="#2c6066"/>
+<polygon points="188,364 238,372 268,414" fill="#2a5f64"/>
+<polygon points="188,364 268,414 215,410" fill="#2c6066"/>
+<polygon points="238,372 285,370 268,414" fill="#2c6268"/>
+<polygon points="285,370 320,410 268,414" fill="#2a5f64"/>
+<polygon points="285,370 327,371 359,397" fill="#285a60"/>
+<polygon points="285,370 359,397 320,410" fill="#2a5e63"/>
+<polygon points="327,371 395,375 359,397" fill="#275a60"/>
+<polygon points="395,375 415,414 359,397" fill="#2a5e64"/>
+<polygon points="395,375 430,380 453,412" fill="#26585e"/>
+<polygon points="395,375 453,412 415,414" fill="#2c6166"/>
+<polygon points="-7,408 45,414 19,437" fill="#24565c"/>
+<polygon points="-7,408 19,437 -30,437" fill="#285a60"/>
+<polygon points="45,414 76,398 19,437" fill="#346e72"/>
+<polygon points="76,398 56,444 19,437" fill="#2e656a"/>
+<polygon points="76,398 120,397 107,452" fill="#2c6066"/>
+<polygon points="76,398 107,452 56,444" fill="#2a5d62"/>
+<polygon points="120,397 189,401 107,452" fill="#295c62"/>
+<polygon points="189,401 152,442 107,452" fill="#24565c"/>
+<polygon points="189,401 215,410 187,441" fill="#2c6266"/>
+<polygon points="189,401 187,441 152,442" fill="#30686c"/>
+<polygon points="215,410 268,414 187,441" fill="#2e6469"/>
+<polygon points="268,414 239,448 187,441" fill="#30686c"/>
+<polygon points="268,414 320,410 299,438" fill="#2e6469"/>
+<polygon points="268,414 299,438 239,448" fill="#2e656a"/>
+<polygon points="320,410 359,397 299,438" fill="#2e6468"/>
+<polygon points="359,397 350,446 299,438" fill="#2a5e64"/>
+<polygon points="359,397 415,414 386,439" fill="#2a5f64"/>
+<polygon points="359,397 386,439 350,446" fill="#2a5e64"/>
+<polygon points="415,414 453,412 386,439" fill="#30686c"/>
+<polygon points="453,412 430,441 386,439" fill="#2c6066"/>
+<polygon points="-30,437 19,437 -7,478" fill="#2f666a"/>
+<polygon points="19,437 43,479 -7,478" fill="#2c6166"/>
+<polygon points="19,437 56,444 95,482" fill="#2e656a"/>
+<polygon points="19,437 95,482 43,479" fill="#2e6469"/>
+<polygon points="56,444 107,452 95,482" fill="#2a5f64"/>
+<polygon points="107,452 129,477 95,482" fill="#2d6368"/>
+<polygon points="107,452 152,442 189,477" fill="#2c6266"/>
+<polygon points="107,452 189,477 129,477" fill="#2c6166"/>
+<polygon points="152,442 187,441 189,477" fill="#30676c"/>
+<polygon points="187,441 219,484 189,477" fill="#30686c"/>
+<polygon points="187,441 239,448 275,485" fill="#2e6468"/>
+<polygon points="187,441 275,485 219,484" fill="#2d6368"/>
+<polygon points="239,448 299,438 275,485" fill="#2c6066"/>
+<polygon points="299,438 307,471 275,485" fill="#2e6468"/>
+<polygon points="299,438 350,446 351,484" fill="#2a5e64"/>
+<polygon points="299,438 351,484 307,471" fill="#2a5f64"/>
+<polygon points="350,446 386,439 351,484" fill="#2a5e63"/>
+<polygon points="386,439 411,482 351,484" fill="#2a5e63"/>
+<polygon points="386,439 430,441 453,474" fill="#2e6468"/>
+<polygon points="386,439 453,474 411,482" fill="#2f666a"/>
+<polygon points="-7,478 43,479 10,518" fill="#295c62"/>
+<polygon points="-7,478 10,518 -30,513" fill="#24565c"/>
+<polygon points="43,479 95,482 10,518" fill="#2c6267"/>
+<polygon points="95,482 59,508 10,518" fill="#2b6064"/>
+<polygon points="95,482 129,477 101,520" fill="#285c62"/>
+<polygon points="95,482 101,520 59,508" fill="#2c6268"/>
+<polygon points="129,477 189,477 101,520" fill="#285b61"/>
+<polygon points="189,477 150,517 101,520" fill="#2b6065"/>
+<polygon points="189,477 219,484 190,511" fill="#30686c"/>
+<polygon points="189,477 190,511 150,517" fill="#2c6268"/>
+<polygon points="219,484 275,485 190,511" fill="#2c6066"/>
+<polygon points="275,485 233,508 190,511" fill="#24565c"/>
+<polygon points="275,485 307,471 280,516" fill="#2f666a"/>
+<polygon points="275,485 280,516 233,508" fill="#30666b"/>
+<polygon points="307,471 351,484 280,516" fill="#2a5e64"/>
+<polygon points="351,484 329,509 280,516" fill="#24565c"/>
+<polygon points="351,484 411,482 389,511" fill="#24565c"/>
+<polygon points="351,484 389,511 329,509" fill="#24565c"/>
+<polygon points="411,482 453,474 389,511" fill="#30676c"/>
+<polygon points="453,474 430,522 389,511" fill="#24565c"/>
+<polygon points="-30,513 10,518 -7,557" fill="#24565c"/>
+<polygon points="10,518 46,546 -7,557" fill="#295d62"/>
+<polygon points="10,518 59,508 91,560" fill="#2c6066"/>
+<polygon points="10,518 91,560 46,546" fill="#2b6064"/>
+<polygon points="59,508 101,520 91,560" fill="#2c6267"/>
+<polygon points="101,520 133,557 91,560" fill="#285a60"/>
+<polygon points="101,520 150,517 183,556" fill="#26585e"/>
+<polygon points="101,520 183,556 133,557" fill="#26595f"/>
+<polygon points="150,517 190,511 183,556" fill="#26585e"/>
+<polygon points="190,511 211,557 183,556" fill="#285a60"/>
+<polygon points="190,511 233,508 271,548" fill="#2a5e64"/>
+<polygon points="190,511 271,548 211,557" fill="#2a5d62"/>
+<polygon points="233,508 280,516 271,548" fill="#2d6368"/>
+<polygon points="280,516 318,554 271,548" fill="#295c62"/>
+<polygon points="280,516 329,509 354,560" fill="#275a60"/>
+<polygon points="280,516 354,560 318,554" fill="#285a60"/>
+<polygon points="329,509 389,511 354,560" fill="#285a60"/>
+<polygon points="389,511 412,550 354,560" fill="#2e656a"/>
+<polygon points="389,511 430,522 453,553" fill="#26575e"/>
+<polygon points="389,511 453,553 412,550" fill="#2f666a"/>
+<polygon points="-7,557 46,546 16,595" fill="#2a5e63"/>
+<polygon points="-7,557 16,595 -30,579" fill="#26585e"/>
+<polygon points="46,546 91,560 16,595" fill="#2e6468"/>
+<polygon points="91,560 72,594 16,595" fill="#2a5e64"/>
+<polygon points="91,560 133,557 119,597" fill="#285a60"/>
+<polygon points="91,560 119,597 72,594" fill="#27595f"/>
+<polygon points="133,557 183,556 119,597" fill="#26575e"/>
+<polygon points="183,556 160,585 119,597" fill="#2a5f64"/>
+<polygon points="183,556 211,557 212,598" fill="#2c6066"/>
+<polygon points="183,556 212,598 160,585" fill="#2c6267"/>
+<polygon points="211,557 271,548 212,598" fill="#2e666a"/>
+<polygon points="271,548 235,584 212,598" fill="#346e72"/>
+<polygon points="271,548 318,554 302,598" fill="#2c6066"/>
+<polygon points="271,548 302,598 235,584" fill="#295d62"/>
+<polygon points="318,554 354,560 302,598" fill="#285a60"/>
+<polygon points="354,560 330,582 302,598" fill="#24565c"/>
+<polygon points="354,560 412,550 386,584" fill="#2a5f64"/>
+<polygon points="354,560 386,584 330,582" fill="#2a5e64"/>
+<polygon points="412,550 453,553 386,584" fill="#2e6469"/>
+<polygon points="453,553 430,592 386,584" fill="#24565c"/>
+<polygon points="-30,579 16,595 -7,623" fill="#24565c"/>
+<polygon points="16,595 28,630 -7,623" fill="#2e646a"/>
+<polygon points="16,595 72,594 93,630" fill="#2b6065"/>
+<polygon points="16,595 93,630 28,630" fill="#2a5f64"/>
+<polygon points="72,594 119,597 93,630" fill="#285c62"/>
+<polygon points="119,597 136,624 93,630" fill="#2c6267"/>
+<polygon points="119,597 160,585 189,630" fill="#2e6468"/>
+<polygon points="119,597 189,630 136,624" fill="#2e6468"/>
+<polygon points="160,585 212,598 189,630" fill="#2c6268"/>
+<polygon points="212,598 228,626 189,630" fill="#2f666a"/>
+<polygon points="212,598 235,584 260,618" fill="#2c6267"/>
+<polygon points="212,598 260,618 228,626" fill="#2c6267"/>
+<polygon points="235,584 302,598 260,618" fill="#295c62"/>
+<polygon points="302,598 319,626 260,618" fill="#295c62"/>
+<polygon points="302,598 330,582 358,628" fill="#295c62"/>
+<polygon points="302,598 358,628 319,626" fill="#295c62"/>
+<polygon points="330,582 386,584 358,628" fill="#2a5e64"/>
+<polygon points="386,584 396,621 358,628" fill="#2a5e64"/>
+<polygon points="386,584 430,592 453,626" fill="#295c62"/>
+<polygon points="386,584 453,626 396,621" fill="#2a5d63"/>
+<polygon points="-7,623 28,630 6,680" fill="#30686c"/>
+<polygon points="-7,623 6,680 -30,674" fill="#24565c"/>
+<polygon points="28,630 93,630 6,680" fill="#2c6066"/>
+<polygon points="93,630 49,672 6,680" fill="#346e72"/>
+<polygon points="93,630 136,624 118,680" fill="#26585e"/>
+<polygon points="93,630 118,680 49,672" fill="#24565c"/>
+<polygon points="136,624 189,630 118,680" fill="#2a5e64"/>
+<polygon points="189,630 161,677 118,680" fill="#2e6469"/>
+<polygon points="189,630 228,626 197,672" fill="#2e6469"/>
+<polygon points="189,630 197,672 161,677" fill="#346e72"/>
+<polygon points="228,626 260,618 197,672" fill="#285b60"/>
+<polygon points="260,618 254,680 197,672" fill="#24565c"/>
+<polygon points="260,618 319,626 305,678" fill="#285b60"/>
+<polygon points="260,618 305,678 254,680" fill="#2a5e64"/>
+<polygon points="319,626 358,628 305,678" fill="#285a60"/>
+<polygon points="358,628 342,676 305,678" fill="#30686c"/>
+<polygon points="358,628 396,621 372,678" fill="#2a5e63"/>
+<polygon points="358,628 372,678 342,676" fill="#24565c"/>
+<polygon points="396,621 453,626 372,678" fill="#295c62"/>
+<polygon points="453,626 430,673 372,678" fill="#346e72"/>
+</g>
+<rect x="0" y="140" width="390" height="34" fill="#6B9E99" opacity=".16"/>
+<rect x="0" y="174" width="390" height="30" fill="#6B9E99" opacity=".08"/>
+
+<!-- 나무 · 바위 (각진 원뿔, 긴 그림자) -->
+<g>
+  <polygon points="376,476 384,476 424,494 418,498" fill="#0F2E35" opacity=".45"/>
+  <polygon points="372,476 380,446 380,478" fill="#4E8C7E"/><polygon points="380,446 388,476 380,478" fill="#1F4D4A"/>
+  <polygon points="364,506 372,506 410,522 404,526" fill="#0F2E35" opacity=".45"/>
+  <polygon points="361,506 368,480 368,508" fill="#4E8C7E"/><polygon points="368,480 375,506 368,508" fill="#1F4D4A"/>
+  <polygon points="10,640 20,640 60,656 52,660" fill="#0F2E35" opacity=".45"/>
+  <polygon points="7,640 15,610 15,642" fill="#4E8C7E"/><polygon points="15,610 23,640 15,642" fill="#1F4D4A"/>
+  <polygon points="300,470 306,464 314,466 316,472 308,476" fill="#8FB0AA"/><polygon points="306,464 314,466 316,472 310,470" fill="#3D6468"/><polygon points="314,472 316,472 334,480 330,482" fill="#0F2E35" opacity=".4"/>
+</g>
+
+<!-- 보스: 산맥 사슴 (머리 · 뿔만 보임) -->
+<polygon points="222,150 232,160 216,192 196,216 292,252 362,236 332,168" fill="#0F2E35" opacity=".38"/>
+<polygon points="226,128 318,64 346,96 236,140" fill="#0F2E35" opacity=".18"/>
+<polygon points="170,150 196,150 196,108 160,108" fill="#4B6A72"/><polygon points="196,150 222,150 232,108 196,108" fill="#17313A"/>
+<polygon points="168,124 139,97 108,77 78,63 74,64 79,66 110,80 142,100 170,128" fill="#F1E6D0"/>
+<polygon points="74,64 79,66 110,80 142,100 170,128 173,131 145,104 112,83 80,68" fill="#BBA88B"/>
+<polygon points="138,99 132,64 142,100" fill="#F1E6D0"/><polygon points="142,100 132,64 146,101" fill="#BBA88B"/>
+<polygon points="106,78 102,60 110,80" fill="#F1E6D0"/><polygon points="110,80 102,60 114,81" fill="#BBA88B"/>
+<polygon points="121,88 120,70 124.5,89.5" fill="#F1E6D0"/><polygon points="124.5,89.5 120,70 128,91" fill="#BBA88B"/>
+<polygon points="158,114 128,118 160,117" fill="#F1E6D0"/><polygon points="160,117 128,118 162,120" fill="#BBA88B"/>
+<polygon points="224,124 253,97 284,77 314,63 318,64 313,66 282,80 250,100 222,128" fill="#E0D3BA"/>
+<polygon points="318,64 313,66 282,80 250,100 222,128 219,131 247,104 280,83 312,68" fill="#9E8C72"/>
+<polygon points="246,101 260,64 250,100" fill="#E0D3BA"/><polygon points="250,100 260,64 254,99" fill="#9E8C72"/>
+<polygon points="278,81 290,60 282,80" fill="#E0D3BA"/><polygon points="282,80 290,60 286,78" fill="#9E8C72"/>
+<polygon points="264,91 272,70 267.5,89.5" fill="#E0D3BA"/><polygon points="267.5,89.5 272,70 271,88" fill="#9E8C72"/>
+<polygon points="234,114 264,118 232,117" fill="#E0D3BA"/><polygon points="232,117 264,118 230,120" fill="#9E8C72"/>
+<polygon points="166,132 140,124 156,140" fill="#C9B79C"/><polygon points="226,132 252,124 236,140" fill="#17313A"/>
+<polygon points="166,128 196,124 196,150 178,150" fill="#C9B79C"/>
+<polygon points="196,124 226,128 214,150 196,150" fill="#4B6A72"/>
+<polygon points="166,128 178,150 176,192 160,160" fill="#A49786"/>
+<polygon points="226,128 232,160 216,192 214,150" fill="#17313A"/>
+<polygon points="178,150 196,150 196,216 176,192" fill="#B8A78D"/>
+<polygon points="196,150 214,150 216,192 196,216" fill="#24434C"/>
+<polygon points="190,206 202,206 196,215" fill="#0E2229"/>
+<polygon points="172,155 175.5,158 172,161 168.5,158" fill="#BFF0E6"/><polygon points="220,155 223.5,158 220,161 216.5,158" fill="#BFF0E6"/>
+
+<!-- 연쇄: 아이소 축을 따라 꺾이며 번진다 -->
+<polyline points="36,268 100,300 140,280 204,312 244,292 308,324" fill="none" stroke="#F07E68" stroke-width="5" opacity=".35" stroke-linejoin="miter"/>
+<polyline points="36,268 100,300 140,280 204,312 244,292 308,324" fill="none" stroke="#FBF2E3" stroke-width="1.4" stroke-linejoin="miter"/>
+<g transform="translate(36 268)"><use href="#lpCrater" transform="scale(.6)"/><use href="#lpShards" transform="scale(.5)" opacity=".85"/><use href="#lpStar" transform="scale(.34)" opacity=".9"/></g>
+<g transform="translate(100 300)"><use href="#lpCrater" transform="scale(.66)"/><use href="#lpOct" transform="scale(.6)" opacity=".5"/><use href="#lpShards" transform="scale(.6)"/><use href="#lpStar" transform="scale(.45)"/></g>
+<g transform="translate(140 280)"><use href="#lpCrater" transform="scale(.6)" opacity=".7"/><use href="#lpOct" transform="scale(.66)" opacity=".7"/><use href="#lpShards" transform="scale(.68) rotate(30)"/><use href="#lpStar" transform="scale(.6) rotate(12)"/></g>
+<g transform="translate(204 312)"><use href="#lpOct" transform="scale(.76)"/><use href="#lpShards" transform="scale(.78) rotate(-20)"/><use href="#lpStar" transform="scale(.72) rotate(-8)"/></g>
+<g transform="translate(244 292)"><use href="#lpOct" transform="scale(.88)"/><use href="#lpShards" transform="scale(.88) rotate(60)"/><use href="#lpStar" transform="scale(.82) rotate(20)"/></g>
+<g transform="translate(308 324)">
+  <use href="#lpOct" transform="scale(1.45)" opacity=".45"/>
+  <use href="#lpOct" transform="scale(1.12)"/>
+  <use href="#lpShards" transform="scale(1.18) rotate(15)"/>
+  <use href="#lpStar" transform="scale(1.1)"/>
+  <path d="M-46 -30 L-38 -24 M44 -34 L36 -27 M50 18 L41 14 M-50 16 L-41 12" stroke="#FBF2E3" stroke-width="1.2" opacity=".8"/>
+</g>
+
+<!-- 적 그림자 -->
+<use href="#lpBugSh" transform="translate(52 214)"/><use href="#lpTortSh" transform="translate(114 232)"/><use href="#lpBirdSh" transform="translate(262 222)"/><use href="#lpTortSh" transform="translate(330 240)"/><use href="#lpBugSh" transform="translate(370 280)"/>
+<use href="#lpBirdSh" transform="translate(318 400)"/><use href="#lpBugSh" transform="translate(360 440)"/><use href="#lpTortSh" transform="translate(246 424)"/>
+<use href="#lpBirdSh" transform="translate(40 580)"/><use href="#lpBugSh" transform="translate(120 600)"/><use href="#lpBirdSh" transform="translate(194 624)"/><use href="#lpTortSh" transform="translate(338 556)"/>
+<use href="#lpBugSh" transform="translate(296 584)"/><use href="#lpBugSh" transform="translate(266 618)"/>
+<!-- 적 -->
+<g style="color:#C9B79C">
+  <use href="#lpBug" transform="translate(52 214) rotate(-8)"/>
+  <use href="#lpTort" transform="translate(114 232)"/>
+  <use href="#lpBird" transform="translate(262 222) rotate(14)"/>
+  <use href="#lpTort" transform="translate(330 240) scale(.95)"/>
+  <use href="#lpBug" transform="translate(370 280) rotate(10)"/>
+  <use href="#lpBird" transform="translate(318 400) rotate(-10)"/>
+  <use href="#lpBug" transform="translate(360 440)"/>
+  <use href="#lpTort" transform="translate(246 424)"/>
+  <use href="#lpBird" transform="translate(40 580) rotate(8)"/>
+  <use href="#lpBug" transform="translate(120 600) rotate(-6)"/>
+  <use href="#lpBird" transform="translate(194 624)"/>
+  <use href="#lpTort" transform="translate(338 556) scale(1.06)"/>
+</g>
+<!-- 반응: 돌아선 갑충(산호색)이 제 무리를 들이받음 -->
+<g stroke="#F07E68" stroke-width="1.4" opacity=".75"><path d="M282 594 L256 608"/><path d="M286 600 L268 610"/><path d="M252 628 L228 640"/><path d="M256 634 L238 644"/></g>
+<g style="color:#F07E68">
+  <use href="#lpBug" transform="translate(296 584) rotate(-124)"/>
+  <use href="#lpBug" transform="translate(266 618) rotate(-120)"/>
+</g>
+<g transform="translate(322 564)"><use href="#lpStar" transform="scale(.42) rotate(10)"/><use href="#lpShards" transform="scale(.42)"/></g>
+
+<!-- 사격: 카빈 예광 · 레이저 · 로봇 탄 -->
+<path d="M88 660 L92.5 651.5 M99 639 L103.5 630.5" stroke="#FBF2E3" stroke-width="1.6" stroke-linecap="square"/>
+<line x1="156" y1="675" x2="194" y2="624" stroke="#FBF2E3" stroke-width="2.2"/>
+<line x1="157.4" y1="675.8" x2="195.4" y2="624.8" stroke="#F07E68" stroke-width="1.1"/>
+<g transform="translate(194 624)"><use href="#lpStar" transform="scale(.3)"/></g>
+<line x1="279.5" y1="734" x2="278" y2="704" stroke="#BFF5EC" stroke-width="1.6" filter="url(#lpGlow)"/>
+
+<!-- 방어선: 해를 받는 돌기둥 열셋 + 실 한 줄 -->
+<rect x="0" y="664" width="390" height="12" fill="#8ED1C6" opacity=".07"/>
+<rect x="0" y="675.2" width="390" height="1.6" fill="#FBF2E3"/>
+<!-- 단 (무기 자리) -->
+<rect x="0" y="682" width="390" height="140" fill="#1B454D"/>
+<rect x="0" y="682" width="390" height="140" fill="url(#lpIso)"/>
+<rect x="0" y="682" width="390" height="1" fill="#3E7579"/>
+<rect x="0" y="822" width="390" height="10" fill="#10303A"/><rect x="0" y="822" width="390" height="1" fill="#3E7579"/>
+<rect x="0" y="832" width="390" height="12" fill="#0A1E25"/>
+<use href="#lpObel" transform="translate(15 682)"/><use href="#lpObel" transform="translate(45 682)"/><use href="#lpObel" transform="translate(75 682)"/><use href="#lpObel" transform="translate(105 682)"/><use href="#lpObel" transform="translate(135 682)"/><use href="#lpObel" transform="translate(165 682)"/><use href="#lpObel" transform="translate(195 682)"/><use href="#lpObel" transform="translate(225 682)"/><use href="#lpObel" transform="translate(255 682)"/><use href="#lpObel" transform="translate(285 682)"/><use href="#lpObel" transform="translate(315 682)"/><use href="#lpObel" transform="translate(345 682)"/><use href="#lpObel" transform="translate(375 682)"/>
+<g fill="#F07E68"><polygon points="15,673 17.5,676 15,679 12.5,676"/><polygon points="195,673 197.5,676 195,679 192.5,676"/><polygon points="375,673 377.5,676 375,679 372.5,676"/></g>
+
+<!-- 받침 아홉 (뒤 넷 · 앞 다섯) -->
+<use href="#lpPed" transform="translate(78 720)"/><use href="#lpPed" transform="translate(156 720)"/><use href="#lpPed" transform="translate(234 720)"/><use href="#lpPed" transform="translate(312 720)"/>
+
+<!-- 카빈 -->
+<g transform="translate(78 720)">
+  <polygon points="-3,2 3,-1 52,19 48,23" fill="#0B2229" opacity=".4"/>
+  <path d="M0 -12 L-10 -1 M0 -12 L9 0 M0 -12 L1 2" stroke="#0E2229" stroke-width="1.8" stroke-linecap="round"/>
+  <g transform="rotate(8 0 -12)">
+    <polygon points="-1.3,-44 0,-44 0,-27 -1.3,-27" fill="#DDE5E0"/><polygon points="0,-44 1.3,-44 1.3,-27 0,-27" fill="#4E6468"/>
+    <polygon points="-1.8,-46 1.8,-46 1.8,-43 -1.8,-43" fill="#0E2229"/>
+    <polygon points="-2.8,-29 0,-29 0,-17 -2.8,-17" fill="#F0DDB5"/><polygon points="0,-29 2.8,-29 2.8,-17 0,-17" fill="#B9986C"/>
+    <polygon points="-6,-24 -3.2,-24 -3.2,-16 -6,-16" fill="#0E2229"/>
+    <polygon points="-3.2,-18 0,-18 0,-9 -3.2,-9" fill="#CFD8D3"/><polygon points="0,-18 3.2,-18 3.2,-9 0,-9" fill="#2A3E45"/>
+    <polygon points="2.4,-15 7.5,-12 6.5,-5 2.4,-8" fill="#F07E68"/><polygon points="5,-13.5 7.5,-12 6.5,-5 4.5,-6.5" fill="#C9584A"/>
+    <polygon points="-2.6,-9 0,-9 0,-1 -4,-1" fill="#F0DDB5"/><polygon points="0,-9 2.6,-9 4,-1 0,-1" fill="#B9986C"/>
+  </g>
+  <polygon points="5.2,-55 6.6,-50.4 11.2,-49 6.6,-47.6 5.2,-43 3.8,-47.6 -0.8,-49 3.8,-50.4" fill="#FBF2E3"/>
+</g>
+<!-- 레이저 소총 -->
+<g transform="translate(156 720)">
+  <polygon points="-3,2 3,-1 56,21 52,25" fill="#0B2229" opacity=".4"/>
+  <polygon points="-7,-2 -5,-12 -2.5,-12 -3.5,-5 0,-5 0,-2" fill="#4E6468"/><polygon points="0,-2 0,-5 3.5,-5 2.5,-12 5,-12 7,-2" fill="#2A3E45"/>
+  <polygon points="-2.5,-42 0,-42 0,-10 -5,-10 -5,-28" fill="#EEF2EF"/><polygon points="0,-42 2.5,-42 5,-28 5,-10 0,-10" fill="#3C555B"/>
+  <polygon points="-5,-27 5,-27 5,-25.4 -5,-25.4" fill="#F07E68"/><polygon points="-5,-13 5,-13 5,-11.4 -5,-11.4" fill="#F07E68"/>
+  <polygon points="0,-23 2.8,-19 0,-15" fill="#F8A88E"/><polygon points="0,-23 -2.8,-19 0,-15" fill="#FBF2E3"/>
+  <polygon points="-1.8,-45 1.8,-45 1.8,-42 -1.8,-42" fill="#0E2229"/>
+</g>
+<!-- 대포 -->
+<g transform="translate(234 720)">
+  <polygon points="-6,4 8,-2 66,23 58,31" fill="#0B2229" opacity=".4"/>
+  <polygon points="-11,-6 0,-11.5 11,-6 0,-.5" fill="#CDB38A"/><polygon points="-11,-6 0,-.5 0,5 -11,-.5" fill="#F0DDB5"/><polygon points="0,-.5 11,-6 11,-.5 0,5" fill="#3D5A5A"/>
+  <g transform="rotate(12 0 -8)">
+    <polygon points="-5,-40 -1.5,-41 -1.5,-8 -5,-8" fill="#F0DDB5"/><polygon points="-1.5,-41 1.5,-41 1.5,-8 -1.5,-8" fill="#C9AE84"/><polygon points="1.5,-41 5,-40 5,-8 1.5,-8" fill="#2A3E45"/>
+    <polygon points="-5.6,-42 0,-42 0,-38 -5.6,-38" fill="#F07E68"/><polygon points="0,-42 5.6,-42 5.6,-38 0,-38" fill="#C9584A"/>
+    <polygon points="-6,-14 6,-14 6,-10 -6,-10" fill="#0E2229"/>
+  </g>
+  <polygon points="16,-52 19.5,-50 19.5,-46 16,-44 12.5,-46 12.5,-50" fill="#F5E6C8" opacity=".55"/><polygon points="22,-58 24.6,-56.5 24.6,-53.5 22,-52 19.4,-53.5 19.4,-56.5" fill="#F5E6C8" opacity=".35"/>
+</g>
+<!-- 원반 -->
+<g transform="translate(312 720)">
+  <polygon points="-6,4 18,-4 62,15 42,25" fill="#0B2229" opacity=".35"/>
+  <polygon points="-2,-2 0,-1 0,-14 -2,-15" fill="#F0DDB5"/><polygon points="0,-1 2,-2 2,-15 0,-14" fill="#2A3E45"/>
+  <g transform="translate(0 -26) rotate(-10)">
+    <polygon points="0,6.7 -5.3,6.7 -13.8,4.1 -17,0 -17,3 -13.8,7.1 -5.3,9.7 0,9.7" fill="#F0DDB5"/>
+    <polygon points="0,6.7 5.3,6.7 13.8,4.1 17,0 17,3 13.8,7.1 5.3,9.7 0,9.7" fill="#2A3E45"/>
+    <polygon points="17,0 13.8,4.1 5.3,6.7 -5.3,6.7 -13.8,4.1 -17,0 -13.8,-4.1 -5.3,-6.7 5.3,-6.7 13.8,-4.1" fill="#DCC398"/>
+    <polygon points="0,0 -17,0 -13.8,-4.1" fill="#EBD6AE"/><polygon points="0,0 -13.8,-4.1 -5.3,-6.7" fill="#F0DDB5"/><polygon points="0,0 -13.8,4.1 -17,0" fill="#E3CBA0"/>
+    <polygon points="0,0 13.8,-4.1 17,0" fill="#C9AE84"/><polygon points="0,0 17,0 13.8,4.1" fill="#B99C72"/>
+    <polygon points="10.2,0 8.3,2.5 3.2,4 -3.2,4 -8.3,2.5 -10.2,0 -8.3,-2.5 -3.2,-4 3.2,-4 8.3,-2.5" fill="#F07E68"/>
+    <polygon points="-10.2,0 -8.3,-2.5 -3.2,-4 0,0 -3.2,4 -8.3,2.5" fill="#F8A88E"/>
+    <polygon points="3,0 1.5,1.3 -1.5,1.3 -3,0 -1.5,-1.3 1.5,-1.3" fill="#0E2229"/>
+  </g>
+  <path d="M-23 -27 L-20 -33 L-12 -37 M23 -25 L20 -19 L12 -15" fill="none" stroke="#FBF2E3" stroke-width="1.2" opacity=".6"/>
+</g>
+
+<use href="#lpPed" transform="translate(39 784)"/><use href="#lpPed" transform="translate(117 784)"/><use href="#lpPed" transform="translate(195 784)"/><use href="#lpPed" transform="translate(273 784)"/><use href="#lpPed" transform="translate(351 784)"/>
+
+<!-- 불여우: 붓맛 (붓획 꼬리 · 먹 덧칠) -->
+<g transform="translate(39 784)">
+  <polygon points="-6,3 6,-1 60,23 52,29" fill="#0B2229" opacity=".4"/>
+  <path d="M3 -12 C10 -17 13 -26 11 -40 C10 -31 6 -24 1 -20Z" fill="#E06A55"/>
+  <path d="M3 -12 C8 -16 11 -24 11 -40 C9 -30 6 -23 2 -17Z" fill="#F07E68"/>
+  <path d="M-3 -12 C-10 -18 -12.5 -27 -11 -40 C-9 -31 -6 -24 -1 -20Z" fill="#F07E68"/>
+  <path d="M-3 -12 C-9 -17 -11.5 -26 -11 -40 C-10 -32 -8 -26 -4 -21Z" fill="#F8A88E"/>
+  <path d="M1 -16 C5 -27 2 -36 6 -44 C-1 -38 -4 -27 -3 -18Z" fill="#F8A88E"/>
+  <path d="M1 -16 C5 -27 2 -36 6 -44 C3 -36 3 -27 -.5 -17Z" fill="#E06A55"/>
+  <path d="M11 -40 C10 -31 6 -24 1 -20 M-11 -40 C-9 -31 -6 -24 -1 -20 M6 -44 C-1 -38 -4 -27 -3 -18" fill="none" stroke="#0E2229" stroke-width=".9" stroke-linecap="round"/>
+  <path d="M-7 -5 C-9.5 -12 -6.5 -20 0 -22 L0 -5Z" fill="#FBF2E3"/><path d="M0 -22 C6.5 -20 9.5 -12 7 -5 L0 -5Z" fill="#D9CBB5"/>
+  <path d="M-2 -18 C-3 -13 -1 -9 0 -7 C1 -9 3 -13 2 -18" fill="#D9553F"/>
+  <path d="M-6 -21 C-6.5 -27 -3 -32 0 -34 L0 -20Z" fill="#FBF2E3"/><path d="M0 -34 C3 -32 6.5 -27 6 -21 L0 -20Z" fill="#D9CBB5"/>
+  <polygon points="-5.5,-28 -7.5,-38 -2.5,-31" fill="#FBF2E3"/><polygon points="5.5,-28 7.5,-38 2.5,-31" fill="#D9CBB5"/>
+  <polygon points="-5.4,-30 -6.6,-35.6 -3.8,-31.4" fill="#D9553F"/><polygon points="5.4,-30 6.6,-35.6 3.8,-31.4" fill="#B9503F"/>
+  <path d="M-4 -26 C-2.8 -25 -1.8 -24.5 -1 -23 M4 -26 C2.8 -25 1.8 -24.5 1 -23 M0 -31 C-1 -29 1 -28 0 -26" fill="none" stroke="#D9553F" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M-3.6 -26.6 L-1.6 -26 M3.6 -26.6 L1.6 -26" stroke="#0E2229" stroke-width="1" stroke-linecap="round"/>
+  <path d="M-7 -5 C-9.5 -12 -6.5 -20 -1 -22" fill="none" stroke="#0E2229" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M-6 -5 C-6 -7 -3 -7 -3 -5 M3 -5 C3 -7 6 -7 6 -5" fill="none" stroke="#0E2229" stroke-width="1.1"/>
+  <polygon points="-10,-30 -8.6,-27 -10,-24 -11.4,-27" fill="#F8A88E"/><polygon points="9.5,-34 10.6,-31.8 9.5,-29.6 8.4,-31.8" fill="#F5E6C8"/>
+</g>
+<!-- 기사단: 서양 갑옷 · 문장 방패 -->
+<g transform="translate(117 784)">
+  <polygon points="-14,3 14,-1 70,24 58,32" fill="#0B2229" opacity=".4"/>
+  <polygon points="-15,-6 -11.5,-6 -11.5,-21 -15,-20" fill="#4E6468"/><polygon points="-11.5,-6 -8,-6 -8,-20 -11.5,-21" fill="#1B3138"/>
+  <polygon points="-14.5,-27 -11.5,-28 -11.5,-21 -14.5,-21" fill="#4E6468"/><polygon points="-11.5,-28 -8.5,-27 -8.5,-21 -11.5,-21" fill="#1B3138"/>
+  <polygon points="8,-6 11.5,-6 11.5,-21 8,-20" fill="#4E6468"/><polygon points="11.5,-6 15,-6 15,-20 11.5,-21" fill="#1B3138"/>
+  <polygon points="8.5,-27 11.5,-28 11.5,-21 8.5,-21" fill="#4E6468"/><polygon points="11.5,-28 14.5,-27 14.5,-21 11.5,-21" fill="#1B3138"/>
+  <path d="M-11 -28 V-40 M11 -28 V-40" stroke="#0E2229" stroke-width="1.1"/>
+  <polygon points="-11,-44 -9.8,-40 -12.2,-40" fill="#CFD8D3"/><polygon points="11,-44 12.2,-40 9.8,-40" fill="#CFD8D3"/>
+  <polygon points="-4.5,-13 -1,-13 -1,-4 -4.5,-4" fill="#CFD8D3"/><polygon points="1,-13 4.5,-13 4.5,-4 1,-4" fill="#4E6468"/>
+  <polygon points="-6,-25 0,-25 0,-11 -7,-11" fill="#24575E"/><polygon points="0,-25 6,-25 7,-11 0,-11" fill="#163B44"/>
+  <path d="M0 -24 V-12 M-4.6 -19 H4.6" stroke="#E8CFA2" stroke-width="1.5"/>
+  <polygon points="-10,-27 -5,-28 -4,-23 -9,-22" fill="#EEF2EF"/><polygon points="5,-28 10,-27 9,-22 4,-23" fill="#7F9497"/>
+  <polygon points="-4.2,-37 0,-38 0,-27 -4.6,-27" fill="#EEF2EF"/><polygon points="0,-38 4.2,-37 4.6,-27 0,-27" fill="#7F9497"/>
+  <polygon points="-3.4,-33 3.4,-33 3.4,-31.8 -3.4,-31.8" fill="#0E2229"/>
+  <polygon points="-1,-38 1,-38 0,-42" fill="#F07E68"/>
+  <path d="M5 -8 V-56" stroke="#B9986C" stroke-width="1.5"/>
+  <polygon points="5,-60 6.4,-56 3.6,-56" fill="#EEF2EF"/>
+  <polygon points="5.6,-55 12,-53.5 9.5,-52 12,-50.5 5.6,-49" fill="#F07E68"/><polygon points="5.6,-52.6 10.6,-52 5.6,-51.4" fill="#F5E6C8"/>
+  <path d="M-13 -24 L-3 -24 L-3 -15 C-3 -10 -6 -6 -8 -4 C-10 -6 -13 -10 -13 -15Z" fill="#163B44"/>
+  <path d="M-13 -24 L-8 -24 L-8 -4 C-10 -6 -13 -10 -13 -15Z" fill="#1D4A53"/>
+  <path d="M-12 -13 L-8 -18 L-4 -13" fill="none" stroke="#E8CFA2" stroke-width="1.8"/>
+  <circle cx="-8" cy="-21" r="1.2" fill="#F07E68"/>
+  <path d="M-13 -15 V-24 H-3" fill="none" stroke="#EEF2EF" stroke-width=".9"/>
+</g>
+<!-- 군견 지뢰밭 (합성: 두 색 육각 고리 + 지뢰 위 군견) -->
+<g transform="translate(195 784)">
+  <polygon points="-16,3 16,-1 74,25 62,33" fill="#0B2229" opacity=".4"/>
+  <polygon points="22,.5 13.5,9 -3.5,9 -12,.5 -3.5,-8 13.5,-8" fill="none" stroke="#8ED1C6" stroke-width="2"/>
+  <polygon points="13,0 4.5,8.5 -12.5,8.5 -21,0 -12.5,-8.5 4.5,-8.5" fill="none" stroke="#F07E68" stroke-width="2"/>
+  <path d="M13.5 -8 L22 .5 L13.5 9" fill="none" stroke="#8ED1C6" stroke-width="2"/>
+  <g transform="translate(-12 -1)"><polygon points="-4.5,0 -2.2,1.6 2.2,1.6 4.5,0 4.5,1.8 2.2,3.4 -2.2,3.4 -4.5,1.8" fill="#0E2229"/><polygon points="4.5,0 2.2,1.6 -2.2,1.6 -4.5,0 -2.2,-1.6 2.2,-1.6" fill="#4E6468"/><circle cx="0" cy="0" r=".9" fill="#F07E68"/></g>
+  <g transform="translate(12 -1)"><polygon points="-4.5,0 -2.2,1.6 2.2,1.6 4.5,0 4.5,1.8 2.2,3.4 -2.2,3.4 -4.5,1.8" fill="#0E2229"/><polygon points="4.5,0 2.2,1.6 -2.2,1.6 -4.5,0 -2.2,-1.6 2.2,-1.6" fill="#4E6468"/><circle cx="0" cy="0" r=".9" fill="#F07E68"/></g>
+  <g transform="translate(0 4)"><polygon points="-4.5,0 -2.2,1.6 2.2,1.6 4.5,0 4.5,1.8 2.2,3.4 -2.2,3.4 -4.5,1.8" fill="#0E2229"/><polygon points="4.5,0 2.2,1.6 -2.2,1.6 -4.5,0 -2.2,-1.6 2.2,-1.6" fill="#4E6468"/><circle cx="0" cy="0" r=".9" fill="#F07E68"/></g>
+  <g transform="scale(-1.25 1.25)">
+    <path d="M-6 -10 L-7 -3 M-3 -10 L-2.5 -3.5 M5 -10 L6 -3 M8 -10 L9 -3.5" stroke="#0E2229" stroke-width="2.2" stroke-linecap="round"/>
+    <polygon points="-9,-15 -2,-19 9,-18.5 12,-15 -7,-13" fill="#F0DDB5"/>
+    <polygon points="-9,-15 -7,-13 12,-15 10,-10 -7,-10" fill="#B9986C"/>
+    <polygon points="-3,-19 9,-18.5 11,-16 -2,-16.4" fill="#102229"/>
+    <polygon points="-9,-15 -12,-23 -9.6,-24.5 -6,-16.5" fill="#F0DDB5"/><polygon points="-6,-16.5 -9.6,-24.5 -7,-25.5 -3.5,-18" fill="#B9986C"/>
+    <polygon points="-17,-25.5 -15.8,-28 -10,-29.5 -9,-26.5" fill="#F0DDB5"/><polygon points="-17,-25.5 -9,-26.5 -7,-25.5 -11.5,-22.5" fill="#B9986C"/>
+    <polygon points="-17,-25.5 -15.8,-28 -14.2,-27.8 -14.8,-25.8" fill="#0E2229"/>
+    <polygon points="-10.6,-29.2 -9.6,-34 -8.2,-28.8" fill="#0E2229"/><polygon points="-9,-28.8 -7.4,-33.2 -6.4,-28.4" fill="#102229"/>
+    <circle cx="-12" cy="-27.4" r=".7" fill="#0E2229"/>
+    <path d="M12 -15 L15 -17.5 L16 -21" fill="none" stroke="#B9986C" stroke-width="2.2" stroke-linejoin="bevel"/>
+    <polygon points="-5.2,-18.6 -3.2,-18.9 -1.6,-10.4 -3.6,-10.4" fill="#8ED1C6"/>
+    <polygon points="-7,-14.2 5,-14.6 5,-13.2 -7,-12.8" fill="#8ED1C6"/>
+    <circle cx="-2.4" cy="-13.8" r=".9" fill="#F07E68"/>
+  </g>
+</g>
+<!-- 전투 로봇: SF 기계 (빛나는 선) -->
+<g transform="translate(273 784)">
+  <polygon points="-10,3 10,-1 66,24 56,30" fill="#0B2229" opacity=".4"/>
+  <polygon points="-8,-3 -6,-15 -2,-15 -3,-3" fill="#CFD8D3"/><polygon points="8,-3 6,-15 2,-15 3,-3" fill="#4E6468"/>
+  <polygon points="-10.5,-4 -3,-4 -3,-1.4 -10.5,-1.4" fill="#0E2229"/><polygon points="3,-4 10.5,-4 10.5,-1.4 3,-1.4" fill="#0E2229"/>
+  <polygon points="-6,-18.5 6,-18.5 6,-14.5 -6,-14.5" fill="#0E2229"/>
+  <polygon points="-9,-33 0,-34 0,-18 -6,-18 -10,-25" fill="#EEF2EF"/><polygon points="0,-34 9,-33 10,-25 6,-18 0,-18" fill="#7F9497"/>
+  <path d="M-9 -29 H9 M0 -34 V-29 M-6 -18 L-4 -23 H4 L6 -18" fill="none" stroke="#2A3E45" stroke-width=".7"/>
+  <polygon points="0,-27.6 2.2,-26.3 2.2,-23.7 0,-22.4 -2.2,-23.7 -2.2,-26.3" fill="#BFF5EC" filter="url(#lpGlow)"/>
+  <polygon points="-10,-31 -14,-29 -14,-19 -11,-19 -11,-27" fill="#CFD8D3"/><polygon points="-14.5,-19 -10.5,-19 -10.5,-16 -14.5,-16" fill="#0E2229"/>
+  <polygon points="-3.6,-38 0,-39 0,-34 -4.2,-34" fill="#EEF2EF"/><polygon points="0,-39 3.6,-38 4.2,-34 0,-34" fill="#7F9497"/>
+  <polygon points="-3,-37 3,-37 3,-35.5 -3,-35.5" fill="#BFF5EC" filter="url(#lpGlow)"/>
+  <polygon points="4,-36.5 8,-36.5 8,-31.5 4,-31.5" fill="#EEF2EF"/><polygon points="8,-36.5 12,-36.5 12,-31.5 8,-31.5" fill="#4E6468"/>
+  <polygon points="5,-48 7.4,-48 7.4,-36 5,-36" fill="#0E2229"/><polygon points="8.4,-46 10.8,-46 10.8,-36 8.4,-36" fill="#0E2229"/>
+  <polygon points="5,-49.2 7.4,-49.2 7.4,-48 5,-48" fill="#BFF5EC" filter="url(#lpGlow)"/>
+</g>
+<!-- 모기 떼: 각진 벌집 + 삼각 떼 -->
+<g transform="translate(351 784)">
+  <polygon points="-6,3 6,-1 56,22 48,28" fill="#0B2229" opacity=".4"/>
+  <polygon points="0,-30 -8,-16 0,-14" fill="#F0DDB5"/><polygon points="0,-30 8,-16 0,-14" fill="#B9986C"/>
+  <polygon points="-8,-16 0,-14 0,-3" fill="#C9AE84"/><polygon points="8,-16 0,-14 0,-3" fill="#2A3E45"/>
+  <polygon points="-8,-16 0,-14 8,-16 8,-14.4 0,-12.4 -8,-14.4" fill="#F07E68"/>
+  <polygon points="-1.6,-27.4 1.6,-27.4 0,-25" fill="#0E2229"/>
+  <path d="M0 -31 L7 -38 L-6 -46 L6 -54 L-5 -62 L3 -70" fill="none" stroke="#F5E6C8" stroke-width=".7" opacity=".3"/>
+  <g fill="#0E2229"><polygon points="-2,-36.2 -.9,-34.2 -3.1,-34.2"/><polygon points="3,-39.2 4.1,-37.2 1.9,-37.2"/><polygon points="-4,-42.2 -2.9,-40.2 -5.1,-40.2"/><polygon points="5,-45.2 6.1,-43.2 3.9,-43.2"/><polygon points="-1,-48.2 .1,-46.2 -2.1,-46.2"/><polygon points="-6,-50.2 -4.9,-48.2 -7.1,-48.2"/><polygon points="4,-52.2 5.1,-50.2 2.9,-50.2"/><polygon points="-3,-55.2 -1.9,-53.2 -4.1,-53.2"/><polygon points="7,-57.2 8.1,-55.2 5.9,-55.2"/><polygon points="0,-59.2 1.1,-57.2 -1.1,-57.2"/><polygon points="-8,-60.2 -6.9,-58.2 -9.1,-58.2"/><polygon points="3,-63.2 4.1,-61.2 1.9,-61.2"/><polygon points="-4,-66.2 -2.9,-64.2 -5.1,-64.2"/><polygon points="8,-64.2 9.1,-62.2 6.9,-62.2"/><polygon points="1,-69.2 2.1,-67.2 -.1,-67.2"/><polygon points="-6,-71.2 -4.9,-69.2 -7.1,-69.2"/></g>
+  <g fill="#F07E68"><polygon points="3,-39.2 4.1,-37.2 1.9,-37.2"/><polygon points="-6,-50.2 -4.9,-48.2 -7.1,-48.2"/><polygon points="7,-57.2 8.1,-55.2 5.9,-55.2"/><polygon points="-4,-66.2 -2.9,-64.2 -5.1,-64.2"/></g>
+</g>
+<rect x="175" y="818" width="20" height="2" fill="#F07E68"/><rect x="195" y="818" width="20" height="2" fill="#8ED1C6"/>
+</svg>
+
+<!-- 피해 숫자 (같은 방향으로 긴 그림자) -->
+<svg width="390" height="844" viewBox="0 0 390 844" style="position:absolute; left:0; top:0" aria-hidden="true">
+  <g font-family="'Manrope', sans-serif" font-weight="800" text-anchor="middle">
+    <text x="152" y="257" font-size="18" fill="#0E2229" opacity=".55">36</text><text x="150" y="256" font-size="18" fill="#FBF2E3">36</text>
+    <text x="272" y="260" font-size="20" fill="#0E2229" opacity=".55">52</text><text x="270" y="259" font-size="20" fill="#FBF2E3">52</text>
+    <text x="345" y="531" font-size="30" fill="#0E2229" opacity=".55">119</text><text x="342" y="529" font-size="30" fill="#FBF2E3">119</text>
+  </g>
+  <polygon points="320,534 366,534 362,537 316,537" fill="#F07E68"/>
+</svg>
+
+<!-- 연쇄 수 -->
+<div style="position:absolute; left:20px; top:384px">
+  <div style="font:500 13px/1 'Sunflower', sans-serif; letter-spacing:.42em; color:#FBF2E3">연쇄</div>
+  <div style="margin-top:2px; font:300 118px/.9 'Manrope', sans-serif; letter-spacing:-.04em; color:#FBF2E3; text-shadow:1px .45px 0 #163F47, 2px .9px 0 #163F47, 3px 1.35px 0 #163F47, 4px 1.8px 0 #163F47, 5px 2.25px 0 #163F47, 6px 2.7px 0 #163F47, 7px 3.15px 0 #163F47, 8px 3.6px 0 #163F47, 9px 4.05px 0 #163F47, 10px 4.5px 0 #163F47">23</div>
+</div>
+
+<!-- 반응 이름: 접힌 띠 -->
+<div style="position:absolute; left:0; top:552px; width:262px; height:6px; background:#B9503F; clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%)"></div>
+<div style="position:absolute; left:0; top:512px; width:288px; height:40px; box-sizing:border-box; padding-left:20px; background:#F07E68; clip-path:polygon(0 0,100% 0,calc(100% - 22px) 100%,0 100%); display:flex; align-items:center; gap:10px">
+  <span style="font:700 10px/1 'Sunflower', sans-serif; letter-spacing:.22em; color:#0E2229">반응</span>
+  <span style="font:700 22px/1 'Sunflower', sans-serif; color:#0E2229; letter-spacing:-.01em; white-space:nowrap">전향 무리 · 강타!</span>
+</div>
+
+<!-- HUD -->
+<div style="position:absolute; left:18px; top:12px; display:flex; align-items:baseline; gap:7px">
+  <span class="lp-cap">웨이브</span>
+  <span style="font:300 30px/1 'Manrope', sans-serif; color:#FBF2E3; letter-spacing:-.02em">12</span>
+</div>
+<div style="position:absolute; left:0; top:17px; width:390px; display:flex; flex-direction:column; align-items:center; gap:7px">
+  <svg width="114" height="16" viewBox="0 0 114 16" role="img" aria-label="목숨 5칸 중 4칸">
+    <defs>
+      <g id="lpHeart">
+        <polygon points="1,3.5 3.5,1 6.5,1 9,3.5 9,7 1,7" fill="#F8A88E"/>
+        <polygon points="9,3.5 11.5,1 14.5,1 17,3.5 17,7 9,7" fill="#F07E68"/>
+        <polygon points="1,7 9,7 9,15" fill="#E06A55"/>
+        <polygon points="9,7 17,7 9,15" fill="#B9503F"/>
+      </g>
+    </defs>
+    <use href="#lpHeart" x="0"/><use href="#lpHeart" x="24"/><use href="#lpHeart" x="48"/><use href="#lpHeart" x="72"/>
+    <polygon points="97,3.5 99.5,1 102.5,1 105,3.5 107.5,1 110.5,1 113,3.5 113,7 105,15 97,7" fill="none" stroke="#BCD6D0" stroke-width="1" opacity=".75"/>
+    <path d="M97 7 H113 M105 3.5 V15" stroke="#BCD6D0" stroke-width=".6" opacity=".4"/>
+  </svg>
+  <span class="lp-cap" style="letter-spacing:.2em">목숨 4/5</span>
+</div>
+<div style="position:absolute; right:18px; top:12px; text-align:right">
+  <div style="display:flex; justify-content:flex-end; align-items:baseline; gap:7px">
+    <span class="lp-cap">LV</span>
+    <span style="font:300 30px/1 'Manrope', sans-serif; color:#FBF2E3">9</span>
+  </div>
+  <div class="lp-cap" style="margin-top:5px; letter-spacing:.12em; color:#F5E6C8">경험치 60%</div>
+</div>
+<svg width="354" height="4" viewBox="0 0 354 4" style="position:absolute; left:18px; top:61px" role="img" aria-label="경험치 60%">
+  <g fill="#F07E68"><polygon points="3,0 32,0 29,4 0,4"/><polygon points="38.4,0 67.4,0 64.4,4 35.4,4"/><polygon points="73.8,0 102.8,0 99.8,4 70.8,4"/><polygon points="109.2,0 138.2,0 135.2,4 106.2,4"/><polygon points="144.6,0 173.6,0 170.6,4 141.6,4"/><polygon points="180,0 209,0 206,4 177,4"/></g>
+  <g fill="#BCD6D0" opacity=".28"><polygon points="215.4,0 244.4,0 241.4,4 212.4,4"/><polygon points="250.8,0 279.8,0 276.8,4 247.8,4"/><polygon points="286.2,0 315.2,0 312.2,4 283.2,4"/><polygon points="321.6,0 350.6,0 347.6,4 318.6,4"/></g>
+</svg>
+<div style="position:absolute; left:50%; top:72px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; padding:4px 9px; background:rgba(14,34,41,.78); white-space:nowrap">
+  <span style="font:500 10px/1 'Sunflower', sans-serif; color:#FBF2E3; letter-spacing:.08em">보스 · 산맥 사슴</span>
+  <div style="width:70px; height:3px; background:rgba(188,214,208,.25)"><div style="width:78%; height:100%; background:#FBF2E3"></div></div>
+</div>
+
+<!-- 갈래 칩 -->
+<div style="position:absolute; right:12px; top:640px; padding:5px 9px; background:rgba(14,34,41,.82); box-shadow:inset 0 0 0 1px rgba(245,230,200,.4); font:500 11px/1 'Sunflower', sans-serif; color:#FBF2E3; letter-spacing:.04em">갈래 6/7 · 칸 1</div>
+
+<!-- 무기 이름 -->
+<div class="lp-lab" style="left:50px; top:742px">카빈</div>
+<div class="lp-lab" style="left:128px; top:742px">레이저 소총</div>
+<div class="lp-lab" style="left:206px; top:742px">대포</div>
+<div class="lp-lab" style="left:284px; top:742px">원반</div>
+<div class="lp-lab" style="left:11px; top:806px">불여우</div>
+<div class="lp-lab" style="left:89px; top:806px">기사단</div>
+<div class="lp-lab" style="left:167px; top:806px; color:#FBF2E3; font-weight:700">군견 지뢰밭</div>
+<div class="lp-lab" style="left:245px; top:806px">전투 로봇</div>
+<div class="lp-lab" style="left:323px; top:806px">모기 떼</div>
+
+<!-- 버튼 -->
+<button type="button" class="lp-btn" style="left:10px">실험</button>
+<button type="button" class="lp-btn" style="right:10px">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

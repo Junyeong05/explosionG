@@ -136,6 +136,102 @@
       "w": 1280,
       "h": 1180,
       "title": "크로스오버 · 틀 하나, 세계 여섯"
+    },
+    "c2-brutal.dc.html": {
+      "x": 0,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "7 · 브루탈리즘 초자연",
+      "page": "page-c12"
+    },
+    "c2-wash.dc.html": {
+      "x": 450,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "8 · 수채 화첩",
+      "page": "page-c12"
+    },
+    "c2-dune.dc.html": {
+      "x": 900,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "9 · 사막 SF",
+      "page": "page-c12"
+    },
+    "c2-abyss.dc.html": {
+      "x": 1350,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "10 · 심해",
+      "page": "page-c12"
+    },
+    "c2-glass.dc.html": {
+      "x": 1800,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · 스테인드글라스",
+      "page": "page-c12"
+    },
+    "c2-graffiti.dc.html": {
+      "x": 2250,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "6 · 그래피티 스트리트",
+      "page": "page-c12"
+    },
+    "c2-mini.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · 미니어처 디오라마",
+      "page": "page-c12"
+    },
+    "c2-chrome.dc.html": {
+      "x": 450,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · 크롬 Y2K",
+      "page": "page-c12"
+    },
+    "c2-puppet.dc.html": {
+      "x": 900,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · 그림자극",
+      "page": "page-c12"
+    },
+    "c2-mecha.dc.html": {
+      "x": 1350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · 메카 격납고",
+      "page": "page-c12"
+    },
+    "c2-ruins.dc.html": {
+      "x": 1800,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "11 · 정글 유적",
+      "page": "page-c12"
+    },
+    "c2-lowpoly.dc.html": {
+      "x": 2250,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "12 · 저폴리 아이소",
+      "page": "page-c12"
     }
   },
   "createdOnFiles": {
@@ -232,7 +328,19 @@
     "cross-card.dc.html",
     "cross-fuse.dc.html",
     "cross-split.dc.html",
-    "Artboard-cs1o.dc.html"
+    "Artboard-cs1o.dc.html",
+    "c2-mini.dc.html",
+    "c2-chrome.dc.html",
+    "c2-puppet.dc.html",
+    "c2-mecha.dc.html",
+    "c2-glass.dc.html",
+    "c2-graffiti.dc.html",
+    "c2-brutal.dc.html",
+    "c2-wash.dc.html",
+    "c2-dune.dc.html",
+    "c2-abyss.dc.html",
+    "c2-ruins.dc.html",
+    "c2-lowpoly.dc.html"
   ],
   "pages": [
     {
@@ -242,6 +350,10 @@
     {
       "id": "page-2h96mb",
       "name": "Page 2"
+    },
+    {
+      "id": "page-c12",
+      "name": "컨셉 12 (11-25)"
     }
   ],
   "title": "연쇄 폭발 컨셉 시안"

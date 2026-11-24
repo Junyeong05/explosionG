@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>크롬 Y2K 판 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gasoek+One&amp;family=Orbit&amp;family=Unbounded:wght@500;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+.cr-lbl{position:absolute;top:781px;width:46px;margin-left:-23px;text-align:center;font:400 9.5px/11px 'Orbit',sans-serif;color:#1B1726;letter-spacing:-.02em}
+.cr-u{font-family:'Unbounded',sans-serif}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: linear-gradient(180deg, #F1EEF9 0%, #E4DEF3 30%, #D9D2EE 62%, #CEC8E4 79.6%, #D4CFE6 80.4%, #C9C3DD 100%); font-family: 'Orbit', sans-serif; color: #1B1726">
+
+<!-- 홀로 포일 빛 띠 (배경) -->
+<div aria-hidden="true" style="position: absolute; left: -120px; top: 150px; width: 640px; height: 300px; transform: rotate(-24deg); background: linear-gradient(90deg, rgba(255,194,232,0) 0%, rgba(255,194,232,.55) 22%, rgba(210,190,255,.5) 40%, rgba(169,238,255,.55) 58%, rgba(214,255,138,.4) 74%, rgba(255,214,168,0) 100%); filter: blur(26px); opacity: .75"></div>
+<div aria-hidden="true" style="position: absolute; left: -60px; top: 560px; width: 520px; height: 90px; transform: rotate(-8deg); background: linear-gradient(90deg, rgba(169,238,255,0), rgba(169,238,255,.45), rgba(255,194,232,.45), rgba(255,194,232,0)); filter: blur(20px)"></div>
+
+<svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+<defs>
+  <!-- ===== 크롬 · 홀로 재질 ===== -->
+  <linearGradient id="crX" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5C5679"/>
+    <stop offset=".2" stop-color="#F4F2FB"/>
+    <stop offset=".3" stop-color="#FFFFFF"/>
+    <stop offset=".46" stop-color="#ADA8C6"/>
+    <stop offset=".56" stop-color="#2B2640"/>
+    <stop offset=".68" stop-color="#77719A"/>
+    <stop offset=".86" stop-color="#EEEBF8"/>
+    <stop offset="1" stop-color="#9590B0"/>
+  </linearGradient>
+  <linearGradient id="crY" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".22" stop-color="#E4E0F2"/>
+    <stop offset=".45" stop-color="#9F99BA"/>
+    <stop offset=".54" stop-color="#29243D"/>
+    <stop offset=".63" stop-color="#6A6488"/>
+    <stop offset=".82" stop-color="#DCD8EC"/>
+    <stop offset=".92" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#ABA5C4"/>
+  </linearGradient>
+  <linearGradient id="crBossG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#F9F8FF"/>
+    <stop offset=".3" stop-color="#D2CCE8"/>
+    <stop offset=".52" stop-color="#8A84A8"/>
+    <stop offset=".6" stop-color="#231E36"/>
+    <stop offset=".68" stop-color="#5E5880"/>
+    <stop offset=".84" stop-color="#E4E0F4"/>
+    <stop offset=".93" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#A39DBE"/>
+  </linearGradient>
+  <radialGradient id="crRound" cx=".38" cy=".36" r=".72">
+    <stop offset=".55" stop-color="#2B2640" stop-opacity="0"/>
+    <stop offset="1" stop-color="#2B2640" stop-opacity=".55"/>
+  </radialGradient>
+  <radialGradient id="crBall" cx=".35" cy=".3" r=".75">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".35" stop-color="#DAD5EC"/>
+    <stop offset=".62" stop-color="#4A4462"/>
+    <stop offset=".8" stop-color="#8F89AD"/>
+    <stop offset="1" stop-color="#E8E4F5"/>
+  </radialGradient>
+  <linearGradient id="crHolo" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FFC2E8"/>
+    <stop offset=".25" stop-color="#D2BEFF"/>
+    <stop offset=".5" stop-color="#A9EEFF"/>
+    <stop offset=".74" stop-color="#D6FF8A"/>
+    <stop offset="1" stop-color="#FFD6A8"/>
+  </linearGradient>
+  <linearGradient id="crHolo2" x1="1" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#A9EEFF"/>
+    <stop offset=".3" stop-color="#FFC2E8"/>
+    <stop offset=".6" stop-color="#E4FF9A"/>
+    <stop offset="1" stop-color="#C6B4FF"/>
+  </linearGradient>
+  <linearGradient id="crHoloH" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#FFC2E8"/>
+    <stop offset=".3" stop-color="#C9B6FF"/>
+    <stop offset=".62" stop-color="#9EEBFF"/>
+    <stop offset="1" stop-color="#D6FF8A"/>
+  </linearGradient>
+  <linearGradient id="crDark" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#16121F"/>
+    <stop offset=".35" stop-color="#6E6890"/>
+    <stop offset=".55" stop-color="#2E2944"/>
+    <stop offset="1" stop-color="#14101C"/>
+  </linearGradient>
+  <linearGradient id="crTrail" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/>
+    <stop offset=".5" stop-color="#C9B6FF" stop-opacity=".35"/>
+    <stop offset="1" stop-color="#C9B6FF" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="crGlowW" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/>
+    <stop offset=".45" stop-color="#F4EEFF" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#E9E0FF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="crGlowL" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#E6FF8E" stop-opacity=".95"/>
+    <stop offset="1" stop-color="#C8FF2E" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="crGlowP" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFD0F0" stop-opacity=".8"/>
+    <stop offset=".6" stop-color="#C9B6FF" stop-opacity=".28"/>
+    <stop offset="1" stop-color="#C9B6FF" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="crPodBody" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#A196C8"/>
+    <stop offset=".3" stop-color="#E6E1F6"/>
+    <stop offset=".44" stop-color="#F7F5FD"/>
+    <stop offset=".74" stop-color="#CDC4E7"/>
+    <stop offset="1" stop-color="#958ABD"/>
+  </linearGradient>
+  <linearGradient id="crPodBody2" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ABAFBF"/>
+    <stop offset=".3" stop-color="#ECEEF4"/>
+    <stop offset=".44" stop-color="#FFFFFF"/>
+    <stop offset=".74" stop-color="#D2D5E0"/>
+    <stop offset="1" stop-color="#9EA2B4"/>
+  </linearGradient>
+  <linearGradient id="crTube" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".25" stop-color="#D4CFE6"/>
+    <stop offset=".5" stop-color="#2F2A45"/>
+    <stop offset=".64" stop-color="#7E78A0"/>
+    <stop offset=".86" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#9E98B8"/>
+  </linearGradient>
+  <linearGradient id="crNum" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".3" stop-color="#E6E2F5"/>
+    <stop offset=".5" stop-color="#9A94B8"/>
+    <stop offset=".55" stop-color="#211C33"/>
+    <stop offset=".64" stop-color="#5C5680"/>
+    <stop offset=".86" stop-color="#F2EFFA"/>
+    <stop offset="1" stop-color="#FFFFFF"/>
+  </linearGradient>
+  <linearGradient id="crFloorFade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity=".42"/>
+    <stop offset=".7" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <mask id="crReflMask" maskUnits="userSpaceOnUse" x="0" y="776" width="390" height="68">
+    <rect x="0" y="776" width="390" height="40" fill="url(#crFloorFade)"/>
+  </mask>
+  <filter id="crB1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1"/></filter>
+  <filter id="crB3" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="crB6" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="6"/></filter>
+  <filter id="crInk" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="6" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="1.1" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+
+  <!-- ✦ 반짝이 -->
+  <path id="crStar" d="M0,-10 C.7,-2.4 2.4,-.7 10,0 C2.4,.7 .7,2.4 0,10 C-.7,2.4 -2.4,.7 -10,0 C-2.4,-.7 -.7,-2.4 0,-10Z"/>
+
+  <!-- ===== 적: 크롬 물방울 ===== -->
+  <g id="crDrop">
+    <ellipse cx="7" cy="24" rx="12" ry="3.2" fill="#6E6690" opacity=".3" filter="url(#crB3)"/>
+    <path d="M0,-17 C3,-9 11,-3 11,4.5 C11,11 6,15 0,15 C-6,15 -11,11 -11,4.5 C-11,-3 -3,-9 0,-17Z" fill="url(#crY)"/>
+    <path d="M0,-17 C3,-9 11,-3 11,4.5 C11,11 6,15 0,15 C-6,15 -11,11 -11,4.5 C-11,-3 -3,-9 0,-17Z" fill="url(#crRound)"/>
+    <path d="M0,-17 C3,-9 11,-3 11,4.5 C11,11 6,15 0,15 C-6,15 -11,11 -11,4.5 C-11,-3 -3,-9 0,-17Z" fill="none" stroke="url(#crHolo)" stroke-width=".9"/>
+    <path d="M-7.8,1.4 C-7.8,-3 -4.4,-7.4 -1.4,-11" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <ellipse cx="-5" cy="8.6" rx="1.6" ry="2.6" fill="#FFFFFF" opacity=".85"/>
+    <path d="M10.2,3 C10.6,8 8,12.4 3.6,14.2" stroke="#C8FF2E" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M-5,5.6 Q0,2.8 5,5.6 Q0,7.8 -5,5.6Z" fill="#14101F"/>
+    <path d="M-2.6,5.5 H2.6" stroke="#C8FF2E" stroke-width=".9" stroke-linecap="round"/>
+  </g>
+
+  <!-- ===== 적: 홀로 파편 (장갑) ===== -->
+  <g id="crShard">
+    <ellipse cx="8" cy="34" rx="14" ry="3.4" fill="#6E6690" opacity=".3" filter="url(#crB3)"/>
+    <path d="M0,-22 L-13,-5 L-1,-1Z" fill="url(#crHolo)"/>
+    <path d="M0,-22 L-1,-1 L13,-7Z" fill="url(#crY)"/>
+    <path d="M-13,-5 L-8,9 L-1,-1Z" fill="url(#crDark)"/>
+    <path d="M-1,-1 L-8,9 L1,26Z" fill="url(#crHolo2)"/>
+    <path d="M-1,-1 L1,26 L10,8Z" fill="url(#crX)"/>
+    <path d="M-1,-1 L10,8 L13,-7Z" fill="#3A3452"/>
+    <path d="M0,-22 L-13,-5 L-8,9 L1,26 L10,8 L13,-7Z" fill="none" stroke="#FFFFFF" stroke-width=".9" stroke-linejoin="round"/>
+    <path d="M0,-22 L-1,-1 L1,26 M-13,-5 L-1,-1 L13,-7 M-8,9 L-1,-1 L10,8" fill="none" stroke="#FFFFFF" stroke-opacity=".75" stroke-width=".6"/>
+    <path d="M12.4,-6 L9.6,7.6" stroke="#C8FF2E" stroke-width="1.2" stroke-linecap="round"/>
+    <use href="#crStar" transform="translate(-1,-1) scale(.45)" fill="#FFFFFF"/>
+  </g>
+
+  <!-- ===== 적: 크롬 바늘 (돌격) ===== -->
+  <g id="crSpike">
+    <path d="M-4,-44 L4,-44 L5,-6 L-5,-6Z" fill="url(#crTrail)"/>
+    <path d="M-8,-30 V-10 M8,-36 V-12" stroke="url(#crTrail)" stroke-width="1.2"/>
+    <ellipse cx="8" cy="34" rx="7" ry="2.4" fill="#6E6690" opacity=".3" filter="url(#crB3)"/>
+    <path d="M0,28 L5.4,-3 Q5.6,-12 0,-13 Q-5.6,-12 -5.4,-3Z" fill="url(#crX)"/>
+    <path d="M0,28 L5.4,-3 Q5.6,-12 0,-13 Q-5.6,-12 -5.4,-3Z" fill="none" stroke="url(#crHolo)" stroke-width=".7"/>
+    <path d="M-3,-8 L-.8,20" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+    <path d="M4.6,-4 L1.4,18" stroke="#C8FF2E" stroke-width="1" stroke-linecap="round"/>
+    <use href="#crStar" transform="translate(0,27) scale(.5)" fill="#C8FF2E"/>
+  </g>
+
+  <!-- ===== 액체 금속 튀김 + 홀로 플레어 ===== -->
+  <g id="crSplash">
+    <ellipse cx="0" cy="-12" rx="48" ry="30" fill="url(#crGlowW)"/>
+    <ellipse cx="0" cy="-14" rx="30" ry="20" fill="url(#crGlowP)"/>
+    <ellipse cx="0" cy="2" rx="40" ry="9.6" fill="none" stroke="url(#crHoloH)" stroke-width="1.4" opacity=".9"/>
+    <ellipse cx="0" cy="1" rx="33" ry="8" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <ellipse cx="0" cy="0" rx="26" ry="6.5" fill="url(#crY)"/>
+    <path d="M-22,0 C-22,-6 -24,-14 -26,-22 C-22,-16 -18,-8 -15,-4 C-15,-10 -15,-22 -13,-30 C-11,-22 -9,-10 -7,-5 C-6,-14 -4,-26 -1,-34 C1,-26 2,-14 3,-5 C5,-12 8,-22 11,-29 C11,-20 11,-10 13,-4 C15,-10 19,-17 24,-22 C21,-14 20,-6 22,0 Q0,5 -22,0Z" fill="url(#crY)"/>
+    <path d="M-22,0 C-22,-6 -24,-14 -26,-22 C-22,-16 -18,-8 -15,-4 C-15,-10 -15,-22 -13,-30 C-11,-22 -9,-10 -7,-5 C-6,-14 -4,-26 -1,-34 C1,-26 2,-14 3,-5 C5,-12 8,-22 11,-29 C11,-20 11,-10 13,-4 C15,-10 19,-17 24,-22 C21,-14 20,-6 22,0" fill="none" stroke="url(#crHolo)" stroke-width=".8"/>
+    <path d="M-14,-6 C-14,-12 -14,-20 -13,-26 M-1,-8 C-1,-16 -1,-24 -1,-30" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round"/>
+    <circle cx="-26" cy="-25.5" r="2.4" fill="url(#crBall)"/>
+    <circle cx="-13" cy="-33.6" r="2.8" fill="url(#crBall)"/>
+    <circle cx="-1" cy="-38.4" r="3.2" fill="url(#crBall)"/>
+    <circle cx="11" cy="-32.4" r="2.6" fill="url(#crBall)"/>
+    <circle cx="24.4" cy="-25" r="2.2" fill="url(#crBall)"/>
+    <circle cx="-31" cy="-44" r="2" fill="url(#crBall)"/>
+    <circle cx="19" cy="-51" r="2.5" fill="url(#crBall)"/>
+    <circle cx="35" cy="-36" r="1.6" fill="url(#crBall)"/>
+    <circle cx="-9" cy="-55" r="1.8" fill="url(#crBall)"/>
+    <circle cx="0" cy="-17" r="19" fill="none" stroke="url(#crHolo)" stroke-width="2.6" opacity=".9" filter="url(#crB1)"/>
+    <circle cx="0" cy="-17" r="28" fill="none" stroke="url(#crHolo2)" stroke-width="1" opacity=".75"/>
+    <path d="M-26,-17 H-38 M26,-17 H38 M-19,-36 L-27,-45 M19,-36 L27,-45 M-19,2 L-27,11 M19,2 L27,11 M0,-46 V-54" stroke="#FFFFFF" stroke-width=".9" stroke-linecap="round" opacity=".85"/>
+    <circle cx="0" cy="-17" r="9" fill="url(#crGlowW)"/>
+    <path d="M-62,-17 Q0,-19.8 62,-17 Q0,-14.2 -62,-17Z" fill="#FFFFFF"/>
+    <path d="M0,-50 Q1.6,-17 0,14 Q-1.6,-17 0,-50Z" fill="#FFFFFF"/>
+    <path d="M-16,-33 Q0,-17 16,-1 Q0,-17 -16,-33Z M16,-33 Q0,-17 -16,-1" stroke="#FFFFFF" stroke-width=".6" opacity=".8"/>
+    <circle cx="-20" cy="-46" r="1.8" fill="#C8FF2E"/>
+    <circle cx="28" cy="-42" r="1.6" fill="#FFB6E6"/>
+    <circle cx="-34" cy="-30" r="1.4" fill="#9EEBFF"/>
+    <use href="#crStar" transform="translate(0,-17) scale(.9) rotate(45)" fill="#FFFFFF" opacity=".9"/>
+    <circle cx="0" cy="-17" r="3.4" fill="#FFFFFF"/>
+    <use href="#crStar" transform="translate(16,-30) scale(.45)" fill="#C8FF2E"/>
+  </g>
+
+  <!-- ===== 받침: 무광 파스텔 원기둥 + 크롬 테 ===== -->
+  <g id="crPodT">
+    <ellipse cx="2" cy="30.4" rx="23" ry="4.6" fill="#4A4270" opacity=".35" filter="url(#crB3)"/>
+    <path d="M-17,0 V30 A17,4.4 0 0 0 17,30 V0Z" fill="url(#crPodBody)"/>
+    <path d="M-17,24 V30 A17,4.4 0 0 0 17,30 V24 A17,4.4 0 0 1 -17,24Z" fill="#8C82B6" opacity=".35"/>
+    <ellipse cx="0" cy="0" rx="17" ry="4.4" fill="#F6F3FD"/>
+    <ellipse cx="0" cy="0" rx="17" ry="4.4" fill="none" stroke="url(#crX)" stroke-width="1.4"/>
+    <path d="M-13,1.6 V28" stroke="#FFFFFF" stroke-width="1" stroke-opacity=".8"/>
+  </g>
+  <g id="crPodS">
+    <ellipse cx="2" cy="18.4" rx="23" ry="4.6" fill="#4A4270" opacity=".35" filter="url(#crB3)"/>
+    <path d="M-17,0 V18 A17,4.4 0 0 0 17,18 V0Z" fill="url(#crPodBody2)"/>
+    <ellipse cx="0" cy="0" rx="17" ry="4.4" fill="#FFFFFF"/>
+    <ellipse cx="0" cy="0" rx="17" ry="4.4" fill="none" stroke="url(#crX)" stroke-width="1.4"/>
+    <path d="M-13,1.6 V16" stroke="#FFFFFF" stroke-width="1" stroke-opacity=".9"/>
+  </g>
+
+  <!-- ===== 무기 (받침 윗면 가운데가 원점) ===== -->
+  <g id="crCarbine">
+    <ellipse cx="0" cy="0" rx="9" ry="2" fill="#4A4366" opacity=".35"/>
+    <g transform="rotate(-14 0 -4)">
+      <path d="M-4,-1 H4 L3,-13 H-3Z" fill="url(#crX)"/>
+      <path d="M-4,-1 H4" stroke="#2B2640" stroke-width="1.4"/>
+      <rect x="-3.4" y="-28" width="6.8" height="15.4" rx="1.6" fill="url(#crX)"/>
+      <path d="M3,-16 L7.4,-11.6 L5.8,-10.2 L2.6,-13.2Z" fill="url(#crDark)"/>
+      <path d="M3.2,-22.4 Q9.8,-19.4 10.6,-13.6 L8,-12.6 Q7.2,-17.2 3,-18.6Z" fill="url(#crDark)"/>
+      <rect x="-6.6" y="-27.6" width="3.4" height="11" rx="1.7" fill="url(#crY)"/>
+      <ellipse cx="-4.9" cy="-27.6" rx="1.7" ry=".8" fill="#C8FF2E"/>
+      <rect x="-2.6" y="-40" width="5.2" height="12" rx="1.2" fill="url(#crX)"/>
+      <path d="M-1.2,-38 V-30.4 M.6,-38 V-30.4" stroke="url(#crHolo)" stroke-width="1"/>
+      <rect x="-1.1" y="-52" width="2.2" height="12" fill="url(#crX)"/>
+      <rect x="-1.9" y="-54.4" width="3.8" height="3.6" rx=".8" fill="#2B2640"/>
+      <circle cx="-4.9" cy="-28" r="4.4" fill="url(#crGlowL)"/>
+      <path d="M-2.8,-27 V-14" stroke="#FFFFFF" stroke-width=".8"/>
+      <path d="M3.5,-27 V-14" stroke="#C8FF2E" stroke-width=".7"/>
+    </g>
+  </g>
+
+  <g id="crCannon">
+    <ellipse cx="0" cy="0" rx="12" ry="2.6" fill="#4A4366" opacity=".35"/>
+    <path d="M-11,-1 Q-11,-12 0,-12 Q11,-12 11,-1 Q0,2 -11,-1Z" fill="url(#crY)"/>
+    <path d="M-8.4,-6 Q-6,-10.6 -1,-11" stroke="#FFFFFF" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <g transform="rotate(-8 0 -10)">
+      <path d="M-6.4,-8 H6.4 L5.8,-42 H-5.8Z" fill="url(#crX)"/>
+      <rect x="-6.3" y="-27" width="12.6" height="4.4" fill="url(#crHoloH)"/>
+      <path d="M-6.3,-27 H6.3 M-6.3,-22.6 H6.3" stroke="#FFFFFF" stroke-width=".5"/>
+      <ellipse cx="0" cy="-42" rx="6.4" ry="2.2" fill="url(#crY)"/>
+      <ellipse cx="0" cy="-42.2" rx="4.4" ry="1.3" fill="#120E1C"/>
+      <path d="M-4,-40 V-10" stroke="#FFFFFF" stroke-width=".9"/>
+      <path d="M5.6,-38 V-11" stroke="#C8FF2E" stroke-width=".7"/>
+    </g>
+  </g>
+
+  <g id="crLaser">
+    <ellipse cx="0" cy="0" rx="7" ry="1.8" fill="#4A4366" opacity=".35"/>
+    <rect x="-2.4" y="-7" width="4.8" height="6" rx="1" fill="url(#crDark)"/>
+    <path d="M-4.4,-5 H4.4 L3.6,-32 Q0,-38 -3.6,-32Z" fill="url(#crX)"/>
+    <rect x="1.2" y="-29" width="1.8" height="20" rx=".9" fill="#C8FF2E"/>
+    <rect x="-.2" y="-29" width="5" height="20" fill="url(#crGlowL)" opacity=".6"/>
+    <path d="M-3,-31 V-7" stroke="#FFFFFF" stroke-width=".8"/>
+    <rect x="-1" y="-46" width="2" height="12" fill="url(#crX)"/>
+    <circle cx="0" cy="-48" r="9" fill="url(#crGlowL)"/>
+    <use href="#crStar" transform="translate(0,-48) scale(.9)" fill="#FFFFFF"/>
+    <circle cx="0" cy="-48" r="1.8" fill="#FFFFFF"/>
+  </g>
+
+  <!-- 불여우: 붓질 획을 크롬으로 -->
+  <g id="crFox">
+    <ellipse cx="2" cy="0" rx="14" ry="2.6" fill="#4A4366" opacity=".35"/>
+    <path d="M5,-4 C14,-7 19,-20 12,-37 C22,-26 22,-10 6,-8Z" fill="url(#crY)"/>
+    <path d="M5,-4 C14,-7 19,-20 12,-37 C22,-26 22,-10 6,-8Z" fill="url(#crHolo)" opacity=".45"/>
+    <path d="M6,-3 C18,-2 25,-13 23,-29 C29,-16 24,-4 7,-6Z" fill="url(#crX)"/>
+    <path d="M7,-2 C18,3 26,-1 28,-12 C29,-1 20,4 7,-4Z" fill="url(#crY)"/>
+    <path d="M7,-2 C18,3 26,-1 28,-12 C29,-1 20,4 7,-4Z" fill="url(#crHolo2)" opacity=".45"/>
+    <path d="M5,-4 C14,-7 19,-20 12,-37 M6,-3 C18,-2 25,-13 23,-29 M7,-2 C18,3 26,-1 28,-12" fill="none" stroke="url(#crHolo)" stroke-width=".7"/>
+    <g filter="url(#crInk)">
+      <path d="M12,-37 C16.4,-31 18.4,-25 17.4,-19" stroke="#1E1930" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M14,-33 C16,-29.6 16.8,-26 16.4,-23 M10.6,-33.6 C12.4,-30 13,-27 12.8,-24.6" stroke="#1E1930" stroke-width=".6" fill="none"/>
+      <path d="M23,-29 C25.4,-24 25.4,-19 23.8,-15" stroke="#1E1930" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M24.4,-25 C25.2,-22 25,-19.6 24.2,-17.6" stroke="#1E1930" stroke-width=".6" fill="none"/>
+      <path d="M28,-12 C27.6,-8 26,-5 23.4,-3" stroke="#1E1930" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M4,-27 C6,-21 7,-10 10,-1" stroke="#1E1930" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </g>
+    <path d="M-9,-1 C-11,-12 -10,-21 -6,-27 C-3,-31 2,-31 4,-27 C6,-21 7,-10 10,-1Z" fill="url(#crX)"/>
+    <path d="M4,-27 C6,-21 7,-10 10,-1" stroke="#1E1930" stroke-width="1.6" fill="none" stroke-linecap="round" filter="url(#crInk)"/>
+    <path d="M-6.4,-23 C-8.4,-16 -7.6,-8 -5.6,-3" stroke="#FFFFFF" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M-1.6,-27 C-2.6,-33 -6.6,-36 -10.6,-36.4 L-20,-33.4 L-12,-30.2 C-9,-29.4 -7,-27 -6.6,-24.4Z" fill="url(#crY)"/>
+    <path d="M-1.6,-27 C-2.6,-33 -6.6,-36 -10.6,-36.4 L-20,-33.4" fill="none" stroke="url(#crHolo)" stroke-width=".7"/>
+    <path d="M-5.6,-34.4 L-3.8,-45 L-1,-32.4Z" fill="url(#crX)"/>
+    <path d="M-9.4,-35.8 L-10.8,-44 L-5.8,-36Z" fill="url(#crY)"/>
+    <path d="M-3.8,-45 L-3.2,-37" stroke="#1E1930" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="-20" cy="-33.4" r="1.1" fill="#1E1930"/>
+    <path d="M-12.6,-33 Q-10.6,-34.4 -8.6,-32.8" stroke="#1E1930" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M-9.4,-31.2 Q-7.8,-29.4 -8.2,-27.2" stroke="#C8FF2E" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <path d="M-17,-50 Q-13,-45 -14.6,-40.6 Q-17,-38 -19.4,-40.6 Q-21,-45 -17,-50Z" fill="url(#crHolo)"/>
+    <circle cx="-17" cy="-43" r="7" fill="url(#crGlowP)"/>
+    <path d="M24,-44 Q27,-40 25.8,-36.4 Q24,-34.6 22.2,-36.4 Q21,-40 24,-44Z" fill="url(#crHolo2)"/>
+    <circle cx="24" cy="-38" r="6" fill="url(#crGlowP)"/>
+  </g>
+
+  <!-- 군견 지뢰밭: 두 색 고리 + 지뢰 위 크롬 개 -->
+  <g id="crDogMine">
+    <ellipse cx="0" cy="1" rx="25" ry="6.6" fill="none" stroke="#C8FF2E" stroke-width="2"/>
+    <ellipse cx="0" cy="-1" rx="21.5" ry="5.6" fill="none" stroke="#9B7BFF" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="13" ry="2.6" fill="#4A4366" opacity=".35"/>
+    <g id="crMine">
+      <ellipse cx="0" cy="0" rx="6.2" ry="2.2" fill="url(#crY)"/>
+      <ellipse cx="0" cy="-.6" rx="3" ry="1" fill="#2B2640"/>
+      <ellipse cx="0" cy="-.8" rx="1.4" ry=".5" fill="#C8FF2E"/>
+    </g>
+    <use href="#crMine" transform="translate(-10,-1)"/>
+    <use href="#crMine" transform="translate(10,-1.4)"/>
+    <use href="#crMine" transform="translate(0,1.6)"/>
+    <path d="M-12,-15 C-8,-19 6,-19 10,-16 C13.4,-14 13.4,-10 10.4,-8.6 L9.6,-1 H7.4 L7,-8.4 C2,-9.4 -4,-9.4 -7.6,-9.2 L-8.8,-1 H-11 L-11.4,-9.6 C-13.4,-11 -13.4,-13 -12,-15Z" fill="url(#crY)"/>
+    <path d="M-12,-15 C-8,-19 6,-19 10,-16" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <path d="M-6,-17.6 C-2,-18.6 3,-18.6 6,-17.4 L6.6,-10 C2,-10.6 -3,-10.6 -6.4,-10.2Z" fill="url(#crHoloH)"/>
+    <path d="M-6.2,-13.6 H6.4" stroke="#C8FF2E" stroke-width="1.3"/>
+    <path d="M-10.6,-14.6 C-12.6,-20 -12.4,-24 -9.6,-27 L-8.4,-33 L-6.2,-27.4 C-4,-27.6 -2.4,-26.6 -1.4,-24.6 C-5,-23.6 -8,-22 -8.8,-18Z" fill="url(#crX)"/>
+    <path d="M-9.6,-27 C-12,-27.4 -15,-26.2 -17,-24.2 C-14,-23.4 -11,-23.4 -9.4,-24Z" fill="url(#crY)"/>
+    <circle cx="-10.4" cy="-25.6" r=".8" fill="#C8FF2E"/>
+    <path d="M10,-15 C14,-19 16,-23 15,-27" fill="none" stroke="url(#crX)" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M-10.8,-17.8 C-10,-19 -8.6,-19.6 -7.4,-19.4" stroke="#C8FF2E" stroke-width="1.2" fill="none"/>
+    <path d="M10.6,-12 L9.8,-2" stroke="#C8FF2E" stroke-width=".6"/>
+  </g>
+
+  <!-- 원반: 홀로 디스크 -->
+  <g id="crDisc">
+    <ellipse cx="0" cy="0" rx="6" ry="1.6" fill="#4A4366" opacity=".35"/>
+    <rect x="-1.4" y="-16" width="2.8" height="16" fill="url(#crX)"/>
+    <ellipse cx="0" cy="-23" rx="21" ry="8.6" fill="none" stroke="#FFFFFF" stroke-opacity=".7" stroke-width=".8" stroke-dasharray="14 6 3 6"/>
+    <ellipse cx="0" cy="-23" rx="17.5" ry="7" fill="url(#crHolo)"/>
+    <ellipse cx="0" cy="-23" rx="17.5" ry="7" fill="url(#crHolo2)" opacity=".55"/>
+    <path d="M-17.5,-23 A17.5,7 0 0 1 17.5,-23 L0,-23Z" fill="#FFFFFF" opacity=".25"/>
+    <ellipse cx="0" cy="-23" rx="12" ry="4.8" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width=".5"/>
+    <ellipse cx="0" cy="-23" rx="8" ry="3.2" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width=".5"/>
+    <ellipse cx="0" cy="-23" rx="17.5" ry="7" fill="none" stroke="url(#crX)" stroke-width="1.2"/>
+    <ellipse cx="0" cy="-23" rx="3.6" ry="1.5" fill="#E4E0F2" stroke="url(#crX)" stroke-width="1"/>
+    <path d="M-15,-25.4 Q-4,-30.6 10,-28.6" stroke="#FFFFFF" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <use href="#crStar" transform="translate(14,-27) scale(.55)" fill="#FFFFFF"/>
+  </g>
+
+  <!-- 기사단: 크롬 투구 + 문장 방패 -->
+  <g id="crKnight">
+    <ellipse cx="0" cy="0" rx="12" ry="2.4" fill="#4A4366" opacity=".35"/>
+    <path d="M12,0 V-54" stroke="url(#crX)" stroke-width="1.6"/>
+    <path d="M12.6,-53 H24 L20.4,-49 L24,-45 H12.6Z" fill="#9B7BFF"/>
+    <path d="M12.6,-49 H21.6" stroke="#C8FF2E" stroke-width="1.2"/>
+    <path d="M12,-57 L13.2,-54 H10.8Z" fill="#FFFFFF"/>
+    <path d="M-1,-46 Q-3,-52 2,-53 Q1,-49 4,-46" fill="url(#crHolo)"/>
+    <path d="M-6,-24 V-42 Q2,-46 10,-42 V-24 Q2,-21.6 -6,-24Z" fill="url(#crX)"/>
+    <path d="M-6,-34.6 H10 M2,-34.6 V-27" stroke="#14101F" stroke-width="1.5"/>
+    <path d="M-4.6,-41 V-26" stroke="#FFFFFF" stroke-width=".8"/>
+    <path d="M9.4,-41 V-26" stroke="#C8FF2E" stroke-width=".7"/>
+    <circle cx="5.6" cy="-30" r=".5" fill="#14101F"/><circle cx="7.4" cy="-30" r=".5" fill="#14101F"/>
+    <path d="M-15,-30 H3 V-18 Q2.4,-7 -6,-2 Q-14.4,-7 -15,-18Z" fill="url(#crY)"/>
+    <path d="M-15,-30 H-6 V-2 Q-14.4,-7 -15,-18Z" fill="url(#crHolo)"/>
+    <path d="M-14,-24 L-6,-15 L2,-24" fill="none" stroke="#C8FF2E" stroke-width="2.2" stroke-linejoin="miter"/>
+    <path d="M-15,-30 H3 V-18 Q2.4,-7 -6,-2 Q-14.4,-7 -15,-18Z" fill="none" stroke="url(#crX)" stroke-width="1.3"/>
+    <path d="M-13.6,-28.6 V-18" stroke="#FFFFFF" stroke-width=".8"/>
+  </g>
+
+  <!-- 모기 떼 -->
+  <g id="crMq">
+    <path d="M-1,2 L-4,6 M1,2 L4,6 M-.6,3.4 L-2.6,8 M.6,3.4 L2.6,8" stroke="#2B2640" stroke-width=".35"/>
+    <ellipse cx="-3.6" cy="-1" rx="4.2" ry="1.6" fill="url(#crHolo)" opacity=".85" transform="rotate(-24 -3.6 -1)"/>
+    <ellipse cx="3.6" cy="-1" rx="4.2" ry="1.6" fill="url(#crHolo2)" opacity=".85" transform="rotate(24 3.6 -1)"/>
+    <ellipse cx="0" cy="4" rx="1.2" ry="3.8" fill="url(#crX)"/>
+    <circle cx="0" cy="-.2" r="1.6" fill="url(#crBall)"/>
+    <circle cx="0" cy="-2.2" r="1" fill="#2B2640"/>
+    <path d="M0,-3 V-8.6" stroke="#2B2640" stroke-width=".45"/>
+  </g>
+  <g id="crMosq">
+    <ellipse cx="0" cy="0" rx="10" ry="2" fill="#4A4366" opacity=".25"/>
+    <use href="#crMq" transform="translate(-10,-16) scale(1.45) rotate(-10)"/>
+    <use href="#crMq" transform="translate(4,-30) scale(1.6)"/>
+    <use href="#crMq" transform="translate(12,-14) scale(1.3) rotate(12)"/>
+    <use href="#crMq" transform="translate(-9,-38) scale(1.25) rotate(-6)"/>
+    <use href="#crMq" transform="translate(13,-44) scale(1.15) rotate(16)"/>
+  </g>
+
+  <!-- 전투 로봇: SF 기계 -->
+  <g id="crRobot">
+    <ellipse cx="0" cy="0" rx="13" ry="2.6" fill="#4A4366" opacity=".35"/>
+    <path d="M-7,-10 L-9,-1 H-4 L-3,-10 M7,-10 L9,-1 H4 L3,-10" fill="url(#crDark)"/>
+    <path d="M-11,-31 H11 L13,-16 L8,-10 H-8 L-13,-16Z" fill="url(#crY)"/>
+    <path d="M-11,-31 H11 L13,-16 L8,-10 H-8 L-13,-16Z" fill="none" stroke="#2B2640" stroke-width=".7"/>
+    <path d="M-12,-21 H12 M0,-31 V-10" stroke="#2B2640" stroke-width=".6"/>
+    <rect x="-7" y="-28" width="5" height="4" rx=".6" fill="#C8FF2E"/>
+    <path d="M-11,-30 L-12.6,-17" stroke="#FFFFFF" stroke-width=".8"/>
+    <rect x="-5" y="-38" width="10" height="6.6" rx="1.4" fill="url(#crX)"/>
+    <rect x="-3.6" y="-36" width="7.2" height="2" rx="1" fill="#C8FF2E"/>
+    <path d="M-3.4,-38 L-5,-44" stroke="#2B2640" stroke-width=".7"/>
+    <circle cx="-5" cy="-44.4" r="1.1" fill="#C8FF2E"/>
+    <rect x="9" y="-35" width="7" height="6" rx="1" fill="url(#crDark)"/>
+    <rect x="10" y="-52" width="2" height="18" fill="url(#crX)"/>
+    <rect x="13.2" y="-50" width="2" height="16" fill="url(#crX)"/>
+    <rect x="-17" y="-34" width="6" height="8" rx="1" fill="url(#crX)"/>
+    <circle cx="-15.4" cy="-31.6" r=".7" fill="#2B2640"/><circle cx="-12.6" cy="-31.6" r=".7" fill="#2B2640"/><circle cx="-15.4" cy="-28.4" r=".7" fill="#2B2640"/><circle cx="-12.6" cy="-28.4" r=".7" fill="#2B2640"/>
+  </g>
+
+  <!-- 받침 + 무기 한 줄 (반사에 다시 씀) -->
+  <g id="crRow">
+    <use href="#crPodT" transform="translate(24,746)"/><use href="#crCarbine" transform="translate(24,746) scale(1.24)"/>
+    <use href="#crPodT" transform="translate(108,746)"/><use href="#crCannon" transform="translate(108,746) scale(1.24)"/>
+    <use href="#crPodT" transform="translate(195,746)"/><use href="#crDogMine" transform="translate(195,746) scale(1.3)"/>
+    <use href="#crPodT" transform="translate(282,746)"/><use href="#crKnight" transform="translate(282,746) scale(1.22)"/>
+    <use href="#crPodT" transform="translate(366,746)"/><use href="#crRobot" transform="translate(366,746) scale(1.2)"/>
+    <use href="#crPodS" transform="translate(66,758)"/><use href="#crFox" transform="translate(64,758) scale(1.2)"/>
+    <use href="#crPodS" transform="translate(150,758)"/><use href="#crLaser" transform="translate(150,758) scale(1.22)"/>
+    <use href="#crPodS" transform="translate(240,758)"/><use href="#crDisc" transform="translate(240,758) scale(1.2)"/>
+    <use href="#crPodS" transform="translate(324,758)"/><use href="#crMosq" transform="translate(324,758) scale(1.2)"/>
+  </g>
+</defs>
+
+<!-- ======== 보스: 위에서 흘러내리는 액체 크롬 덩어리 ======== -->
+<g>
+  <ellipse cx="200" cy="214" rx="70" ry="10" fill="#5E5680" opacity=".25" filter="url(#crB6)"/>
+  <ellipse cx="193" cy="104" rx="98" ry="26" fill="none" stroke="url(#crHoloH)" stroke-width="2.2" opacity=".7" transform="rotate(-6 193 104)"/>
+  <path d="M120,-10 C124,24 112,40 120,62 C128,82 104,92 96,110 C112,108 122,114 126,128 C132,154 150,176 176,184 C182,196 186,206 188,218 C192,204 196,194 204,184 C230,178 252,160 258,134 C262,118 276,110 294,110 C276,100 262,92 262,74 C262,52 274,30 266,-10Z" fill="url(#crBossG)"/>
+  <path d="M120,-10 C124,24 112,40 120,62 C128,82 104,92 96,110 C112,108 122,114 126,128 C132,154 150,176 176,184 C182,196 186,206 188,218 C192,204 196,194 204,184 C230,178 252,160 258,134 C262,118 276,110 294,110 C276,100 262,92 262,74 C262,52 274,30 266,-10Z" fill="url(#crRound)"/>
+  <path d="M120,-10 C124,24 112,40 120,62 C128,82 104,92 96,110 C112,108 122,114 126,128 C132,154 150,176 176,184 C182,196 186,206 188,218 C192,204 196,194 204,184 C230,178 252,160 258,134 C262,118 276,110 294,110 C276,100 262,92 262,74 C262,52 274,30 266,-10Z" fill="none" stroke="url(#crHolo)" stroke-width="1.6"/>
+  <path d="M134,0 C138,26 128,44 134,62 M136,132 C142,152 156,168 172,176" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M146,8 C148,26 142,40 146,56 M114,104 C120,102 126,104 128,108" stroke="#FFFFFF" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M252,124 C248,148 232,168 210,178" stroke="#C8FF2E" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M160,128 Q193,114 226,128 Q193,140 160,128Z" fill="#100C1A"/>
+  <path d="M170,128 Q193,121 216,128 Q193,134 170,128Z" fill="#C8FF2E"/>
+  <ellipse cx="193" cy="128" rx="30" ry="9" fill="url(#crGlowL)" opacity=".7"/>
+  <path d="M178,128 H208" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M234,176 C236,192 238,204 236,214 C234,221 227,221 226,214 C225,204 230,190 234,176Z" fill="url(#crY)"/>
+  <circle cx="231" cy="236" r="3.6" fill="url(#crBall)"/>
+  <path d="M152,170 C152,182 155,190 153,198 C151,203 146,202 146,197 C146,190 149,180 152,170Z" fill="url(#crY)"/>
+  <circle cx="150" cy="214" r="2.2" fill="url(#crBall)"/>
+  <path d="M100,110 C92,112 86,116 82,122 C88,120 94,118 100,116Z M290,110 C298,112 304,116 308,122 C302,120 296,118 290,116Z" fill="url(#crX)"/>
+</g>
+
+<!-- ======== 적 12 ======== -->
+<use href="#crDrop" transform="translate(36,150) scale(.92)"/>
+<use href="#crShard" transform="translate(84,196) scale(.84)"/>
+<use href="#crDrop" transform="translate(310,152) scale(.9)"/>
+<use href="#crSpike" transform="translate(358,196) scale(.86)"/>
+<use href="#crDrop" transform="translate(258,236) scale(.78)"/>
+<use href="#crShard" transform="translate(364,326) scale(.78)"/>
+<use href="#crDrop" transform="translate(372,444) scale(.82)"/>
+<use href="#crSpike" transform="translate(36,604)"/>
+<use href="#crDrop" transform="translate(104,622)"/>
+<use href="#crShard" transform="translate(176,618) scale(.92)"/>
+<use href="#crDrop" transform="translate(250,626) scale(.96)"/>
+<use href="#crSpike" transform="translate(372,566) scale(.9)"/>
+
+<!-- ======== 연쇄: 플레어 선 + 튀김 6 ======== -->
+<path d="M332,222 Q306,250 288,272 Q252,310 214,322 Q170,338 136,354 Q98,374 66,398 M214,322 Q258,346 296,382" fill="none" stroke="url(#crHoloH)" stroke-width="7" stroke-linecap="round" opacity=".7" filter="url(#crB3)"/>
+<path d="M332,222 Q306,250 288,272 Q252,310 214,322 Q170,338 136,354 Q98,374 66,398 M214,322 Q258,346 296,382" fill="none" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+<ellipse cx="214" cy="344" rx="78" ry="19" fill="none" stroke="url(#crHoloH)" stroke-width="3" opacity=".8" filter="url(#crB1)"/>
+<ellipse cx="214" cy="344" rx="64" ry="15" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+<use href="#crSplash" transform="translate(332,240) scale(.66)"/>
+<use href="#crSplash" transform="translate(288,290) scale(.92)"/>
+<use href="#crSplash" transform="translate(214,342) scale(1.42)"/>
+<use href="#crSplash" transform="translate(132,374) scale(.98)"/>
+<use href="#crSplash" transform="translate(64,416) scale(.8)"/>
+<use href="#crSplash" transform="translate(296,402) scale(.86)"/>
+
+<!-- ======== 방어선: 크롬 관 + 라임 빛줄 ======== -->
+<rect x="0" y="676" width="390" height="8" fill="#C8FF2E" opacity=".35" filter="url(#crB3)"/>
+<rect x="0" y="667" width="390" height="11" fill="url(#crTube)"/>
+<path d="M0,668.4 H390" stroke="#FFFFFF" stroke-width="1"/>
+<rect x="0" y="679" width="390" height="1.6" fill="#C8FF2E"/>
+<rect x="96" y="664.6" width="10" height="15.8" rx="2.4" fill="url(#crX)"/>
+<rect x="284" y="664.6" width="10" height="15.8" rx="2.4" fill="url(#crX)"/>
+<rect x="0" y="681" width="390" height="10" fill="url(#crTube)" opacity=".16" transform="translate(0,1362) scale(1,-1)"/>
+
+<!-- ======== 무기 줄 + 바닥 반사 ======== -->
+<use href="#crRow"/>
+<g mask="url(#crReflMask)"><use href="#crRow" transform="translate(0,1552) scale(1,-1)" opacity=".55"/></g>
+
+<!-- 반짝이 -->
+<use href="#crStar" transform="translate(200,206) scale(.7)" fill="#FFFFFF"/>
+<use href="#crStar" transform="translate(28,250) scale(.5)" fill="#C8FF2E"/>
+<use href="#crStar" transform="translate(350,520) scale(.55)" fill="#FFFFFF"/>
+<use href="#crStar" transform="translate(120,458) scale(.42)" fill="#C8FF2E"/>
+</svg>
+
+<!-- ===================== HUD: 잡지 표지 머리 ===================== -->
+<div style="position: absolute; left: 18px; top: 14px; font: 400 10.5px/12px 'Orbit', sans-serif; letter-spacing: .3em; color: #1B1726">웨이브</div>
+<svg width="130" height="74" viewBox="0 0 130 74" aria-hidden="true" style="position: absolute; left: 12px; top: 24px; overflow: visible">
+  <defs>
+    <linearGradient id="crNumW" x1="0" y1="8" x2="0" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".3" stop-color="#E2DEF2"/>
+      <stop offset=".5" stop-color="#948EB2"/>
+      <stop offset=".56" stop-color="#1E1930"/>
+      <stop offset=".66" stop-color="#5C5680"/>
+      <stop offset=".88" stop-color="#F2EFFA"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <text x="4" y="66" font-family="Unbounded" font-weight="900" font-size="62" letter-spacing="-3" fill="#1B1726" stroke="#1B1726" stroke-width="5" stroke-linejoin="round">12</text>
+  <text x="4" y="66" font-family="Unbounded" font-weight="900" font-size="62" letter-spacing="-3" fill="url(#crNumW)">12</text>
+</svg>
+<div class="cr-u" style="position: absolute; left: 18px; top: 98px; height: 20px; padding: 0 9px; border-radius: 10px; background: #C8FF2E; color: #1B1726; font-size: 11px; font-weight: 800; line-height: 20px; letter-spacing: .04em; box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 2px 6px rgba(120,160,0,.35)">LV 9</div>
+
+<div style="position: absolute; left: 272px; top: 14px; width: 102px; display: flex; justify-content: space-between; font: 400 10.5px/12px 'Orbit', sans-serif; letter-spacing: .1em; color: #1B1726"><span>목숨</span><span class="cr-u" style="font-weight: 700; letter-spacing: 0">4<span style="color: #4E4868">/5</span></span></div>
+<svg width="112" height="22" viewBox="0 0 112 22" aria-hidden="true" style="position: absolute; left: 270px; top: 30px; overflow: visible">
+  <defs>
+    <g id="crHeart">
+      <path d="M10,18 C4,13.4 1,10.2 1,6.4 C1,3.4 3.3,1.2 6.1,1.2 C7.8,1.2 9.2,2.1 10,3.4 C10.8,2.1 12.2,1.2 13.9,1.2 C16.7,1.2 19,3.4 19,6.4 C19,10.2 16,13.4 10,18Z" fill="url(#crY)"/>
+      <path d="M10,18 C4,13.4 1,10.2 1,6.4 C1,3.4 3.3,1.2 6.1,1.2 C7.8,1.2 9.2,2.1 10,3.4 C10.8,2.1 12.2,1.2 13.9,1.2 C16.7,1.2 19,3.4 19,6.4 C19,10.2 16,13.4 10,18Z" fill="url(#crRound)"/>
+      <path d="M10,18 C4,13.4 1,10.2 1,6.4 C1,3.4 3.3,1.2 6.1,1.2 C7.8,1.2 9.2,2.1 10,3.4 C10.8,2.1 12.2,1.2 13.9,1.2 C16.7,1.2 19,3.4 19,6.4 C19,10.2 16,13.4 10,18Z" fill="none" stroke="url(#crHolo)" stroke-width="1"/>
+      <path d="M3.6,7.4 C3.4,5 4.6,3.6 6.4,3.4" stroke="#FFFFFF" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M17.6,7.6 C17,10.6 14.6,13 11.6,15.4" stroke="#C8FF2E" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    </g>
+  </defs>
+  <use href="#crHeart" x="0"/>
+  <use href="#crHeart" x="21"/>
+  <use href="#crHeart" x="42"/>
+  <use href="#crHeart" x="63"/>
+  <path d="M94,18 C88,13.4 85,10.2 85,6.4 C85,3.4 87.3,1.2 90.1,1.2 C91.8,1.2 93.2,2.1 94,3.4 C94.8,2.1 96.2,1.2 97.9,1.2 C100.7,1.2 103,3.4 103,6.4 C103,10.2 100,13.4 94,18Z" fill="#FFFFFF" fill-opacity=".35" stroke="#6E6890" stroke-width="1" stroke-dasharray="2 1.6"/>
+</svg>
+<div style="position: absolute; left: 272px; top: 60px; width: 102px; display: flex; justify-content: space-between; font: 400 10.5px/12px 'Orbit', sans-serif; letter-spacing: .1em; color: #1B1726"><span>경험치</span><span class="cr-u" style="font-weight: 700; letter-spacing: 0">60%</span></div>
+<div aria-hidden="true" style="position: absolute; left: 272px; top: 78px; width: 102px; height: 4px; border-radius: 2px; background: rgba(27,23,38,.14); box-shadow: inset 0 1px 1px rgba(27,23,38,.2)">
+  <div style="width: 60%; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #FFC2E8, #C9B6FF 40%, #9EEBFF 75%, #D6FF8A)"></div>
+  <div style="position: absolute; left: calc(60% - 5px); top: -3px; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFFFF, #C8FF2E 55%, #8DBA00); box-shadow: 0 0 6px rgba(200,255,46,.9)"></div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 16px; right: 16px; top: 126px; height: 1px; background: rgba(27,23,38,.28)"></div>
+
+<!-- ===================== 연쇄 23: 크롬 3D 글자 ===================== -->
+<div style="position: absolute; left: 20px; top: 214px; font: 400 22px/24px 'Gasoek One', sans-serif; color: #1B1726; letter-spacing: .02em">연쇄<span style="display: inline-block; vertical-align: middle; margin-left: 8px; width: 46px; height: 5px; background: #C8FF2E; border-radius: 3px"></span></div>
+<svg width="230" height="110" viewBox="0 0 230 110" aria-hidden="true" style="position: absolute; left: 10px; top: 234px; overflow: visible">
+  <defs>
+    <linearGradient id="crNum23" x1="0" y1="10" x2="0" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".28" stop-color="#E4E0F4"/>
+      <stop offset=".5" stop-color="#958FB4"/>
+      <stop offset=".555" stop-color="#1A152B"/>
+      <stop offset=".66" stop-color="#5A5480"/>
+      <stop offset=".86" stop-color="#F1EEFA"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="crExtr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9C8FD0"/>
+      <stop offset="1" stop-color="#4A3F78"/>
+    </linearGradient>
+  </defs>
+  <g font-family="Unbounded" font-weight="900" font-size="98" letter-spacing="-5">
+    <text x="16" y="102" fill="url(#crExtr)">23</text>
+    <text x="14.5" y="100.5" fill="url(#crExtr)">23</text>
+    <text x="13" y="99" fill="url(#crExtr)">23</text>
+    <text x="11.5" y="97.5" fill="url(#crExtr)">23</text>
+    <text x="10" y="96" fill="url(#crExtr)">23</text>
+    <text x="8" y="94" fill="#1B1726" stroke="#1B1726" stroke-width="3.2" stroke-linejoin="round">23</text>
+    <text x="8" y="94" fill="url(#crNum23)">23</text>
+  </g>
+  <use href="#crStar" transform="translate(190,22) scale(1.3)" fill="#FFFFFF"/>
+  <use href="#crStar" transform="translate(60,24) scale(.6)" fill="#FFFFFF"/>
+  <use href="#crStar" transform="translate(214,70) scale(.6)" fill="#C8FF2E"/>
+</svg>
+
+<!-- 피해 숫자 -->
+<svg width="80" height="40" viewBox="0 0 80 40" aria-hidden="true" style="position: absolute; left: 192px; top: 380px; overflow: visible">
+  <text x="2" y="30" font-family="Unbounded" font-weight="900" font-size="27" letter-spacing="-1" fill="#1B1726" stroke="#1B1726" stroke-width="4" stroke-linejoin="round">119</text>
+  <text x="2" y="30" font-family="Unbounded" font-weight="900" font-size="27" letter-spacing="-1" fill="url(#crY)">119</text>
+</svg>
+<div class="cr-u" style="position: absolute; left: 24px; top: 372px; padding: 1px 5px; background: #C8FF2E; color: #1B1726; font-size: 15px; font-weight: 800; line-height: 17px; transform: rotate(-6deg)">36</div>
+<div class="cr-u" style="position: absolute; left: 328px; top: 366px; padding: 1px 5px; background: #1B1726; color: #FFFFFF; font-size: 15px; font-weight: 800; line-height: 17px; transform: rotate(5deg)">52</div>
+
+<!-- ===================== 반응 이름: 화보 헤드라인 ===================== -->
+<div style="position: absolute; left: 18px; top: 470px; display: flex; align-items: center; gap: 8px; font: 400 10px/12px 'Orbit', sans-serif; letter-spacing: .16em; color: #1B1726">
+  <span>반응</span><span aria-hidden="true" style="display: block; width: 34px; height: 1px; background: #1B1726"></span><span>군견 지뢰밭 × 합성</span>
+</div>
+<div style="position: absolute; left: 16px; top: 488px; font: 400 36px/40px 'Gasoek One', sans-serif; color: #1B1726; letter-spacing: -.01em; white-space: nowrap">전향 무리<span style="color: #5A5280"> ·</span></div>
+<svg width="240" height="84" viewBox="0 0 240 84" aria-hidden="true" style="position: absolute; left: 132px; top: 512px; overflow: visible">
+  <defs>
+    <linearGradient id="crHit" x1="0" y1="10" x2="0" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset=".3" stop-color="#E4E0F4"/>
+      <stop offset=".5" stop-color="#958FB4"/>
+      <stop offset=".56" stop-color="#1A152B"/>
+      <stop offset=".66" stop-color="#5A5480"/>
+      <stop offset=".86" stop-color="#F1EEFA"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="34" width="214" height="34" rx="2" fill="url(#crHoloH)" opacity=".9" transform="skewX(-12)"/>
+  <g font-family="Gasoek One" font-size="62">
+    <text x="14" y="72" fill="#7E70BE">강타!</text>
+    <text x="12" y="70" fill="#1B1726" stroke="#1B1726" stroke-width="4" stroke-linejoin="round">강타!</text>
+    <text x="12" y="70" fill="url(#crHit)">강타!</text>
+  </g>
+  <use href="#crStar" transform="translate(214,14) scale(1.1)" fill="#C8FF2E"/>
+  <use href="#crStar" transform="translate(6,20) scale(.6)" fill="#FFFFFF"/>
+</svg>
+
+<!-- 갈래 칩 -->
+<div style="position: absolute; right: 16px; top: 638px; height: 20px; padding: 0 10px; border-radius: 10px; background: #1B1726; color: #FFFFFF; font: 400 10px/20px 'Orbit', sans-serif; letter-spacing: .04em; white-space: nowrap; box-shadow: 0 3px 10px rgba(60,40,120,.3)">갈래 <span class="cr-u" style="font-weight: 700">6/7</span> · 칸 <span class="cr-u" style="font-weight: 700; color: #C8FF2E">1</span></div>
+
+<!-- 무기 이름 -->
+<div class="cr-lbl" style="left: 24px">카빈</div>
+<div class="cr-lbl" style="left: 66px">불여우</div>
+<div class="cr-lbl" style="left: 108px">대포</div>
+<div class="cr-lbl" style="left: 150px">레이저<br>소총</div>
+<div class="cr-lbl" style="left: 195px; width: 56px; margin-left: -28px">군견<br>지뢰밭</div>
+<div class="cr-lbl" style="left: 240px">원반</div>
+<div class="cr-lbl" style="left: 282px">기사단</div>
+<div class="cr-lbl" style="left: 324px">모기 떼</div>
+<div class="cr-lbl" style="left: 366px">전투<br>로봇</div>
+<div class="cr-u" style="position: absolute; left: 195px; top: 805px; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; background: linear-gradient(90deg, #9B7BFF 0 50%, #C8FF2E 50% 100%); color: #1B1726; font: 700 8px/12px 'Orbit', sans-serif">합성</div>
+
+<!-- 버튼 -->
+<button type="button" style="position: absolute; left: 16px; top: 812px; height: 24px; padding: 0 12px 0 10px; border: 1px solid rgba(27,23,38,.35); border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(225,219,242,.75)); box-shadow: inset 0 1px 0 #FFFFFF, 0 2px 8px rgba(60,40,120,.18); color: #1B1726; font: 400 11px/22px 'Orbit', sans-serif; display: flex; align-items: center; gap: 5px; cursor: pointer">
+  <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" style="display: block"><path d="M4.4,1 H7.6 M5,1 V4.6 L2,10 Q1.6,11 2.8,11 H9.2 Q10.4,11 10,10 L7,4.6 V1" fill="none" stroke="#1B1726" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.3,8 H8.7 L9.6,10 Q9.8,10.5 9.1,10.5 H2.9 Q2.2,10.5 2.4,10Z" fill="#9B7BFF"/></svg>
+  실험
+</button>
+<button type="button" class="cr-u" style="position: absolute; right: 16px; top: 812px; width: 44px; height: 24px; padding: 0; border: 0; border-radius: 12px; background: #C8FF2E; box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 2px 8px rgba(120,160,0,.35); color: #1B1726; font-size: 12px; font-weight: 800; cursor: pointer">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>심해 판 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&amp;family=Gowun+Dodum&amp;family=Red+Hat+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+.ab-lab{position:absolute;width:50px;margin-left:-25px;text-align:center;font:400 10px/12px 'Gowun Dodum',sans-serif;color:#E2F7F5;letter-spacing:-.03em;white-space:nowrap;text-shadow:0 0 4px #020A10,0 0 2px #020A10}
+.ab-lab span{display:block;font:400 8.5px/11px 'Gowun Dodum',sans-serif;color:#7FE3DC;letter-spacing:.04em}
+.ab-dmg{position:absolute;font:700 15px/1 'Red Hat Mono',monospace;color:#FFC870;text-shadow:0 0 3px #1A0C00,0 0 8px rgba(255,176,74,.7)}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #030A14; font-family: 'Gowun Dodum', sans-serif; color: #E2F7F5">
+
+<!-- ================= 바다 · 보스 · 적 · 연쇄 · 선체 · 포탑 ================= -->
+<svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+<defs>
+  <linearGradient id="abSea" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#01040A"/>
+    <stop offset=".35" stop-color="#03101C"/>
+    <stop offset=".7" stop-color="#061A2A"/>
+    <stop offset="1" stop-color="#0A2638"/>
+  </linearGradient>
+  <radialGradient id="abVignette" cx=".5" cy=".55" r=".75">
+    <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity=".7"/>
+  </radialGradient>
+  <linearGradient id="abBeam" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#BFF8F4" stop-opacity=".34"/>
+    <stop offset=".45" stop-color="#46E8E0" stop-opacity=".1"/>
+    <stop offset="1" stop-color="#46E8E0" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="abBeamMask" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <mask id="abInBeam" maskUnits="userSpaceOnUse" x="0" y="0" width="390" height="844">
+    <polygon points="64,680 78,680 150,230 -60,230" fill="url(#abBeamMask)"/>
+    <polygon points="312,680 326,680 450,230 240,230" fill="url(#abBeamMask)"/>
+  </mask>
+  <pattern id="abSnowA" width="64" height="58" patternUnits="userSpaceOnUse">
+    <circle cx="6" cy="9" r=".9" fill="#D8EEF5"/><circle cx="31" cy="4" r=".6" fill="#D8EEF5"/><circle cx="52" cy="17" r="1.1" fill="#D8EEF5"/>
+    <circle cx="20" cy="30" r=".7" fill="#D8EEF5"/><circle cx="44" cy="38" r=".8" fill="#D8EEF5"/><circle cx="9" cy="49" r="1" fill="#D8EEF5"/>
+    <circle cx="60" cy="52" r=".6" fill="#D8EEF5"/><circle cx="35" cy="54" r=".5" fill="#D8EEF5"/>
+    <path d="M27 21 l1.4 1.8" stroke="#D8EEF5" stroke-width=".6"/>
+  </pattern>
+  <pattern id="abSnowB" width="97" height="83" patternUnits="userSpaceOnUse" x="13" y="29">
+    <circle cx="14" cy="12" r=".5" fill="#BFD9E6"/><circle cx="70" cy="7" r=".7" fill="#BFD9E6"/><circle cx="45" cy="33" r=".5" fill="#BFD9E6"/>
+    <circle cx="88" cy="44" r=".6" fill="#BFD9E6"/><circle cx="24" cy="61" r=".7" fill="#BFD9E6"/><circle cx="62" cy="74" r=".5" fill="#BFD9E6"/>
+  </pattern>
+  <filter id="abB1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <filter id="abB3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="abB6" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+  <filter id="abB12" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12"/></filter>
+  <filter id="abMottle" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="21"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .08  0 0 0 0 .13  0 0 0 0 .19  0 0 0 2.6 -1.2"/>
+  </filter>
+  <radialGradient id="abVioGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#A77BFF" stop-opacity=".5"/>
+    <stop offset=".5" stop-color="#7A55D8" stop-opacity=".18"/>
+    <stop offset="1" stop-color="#7A55D8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="abCyanGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#BFFBF6" stop-opacity=".9"/>
+    <stop offset=".35" stop-color="#46E8E0" stop-opacity=".45"/>
+    <stop offset="1" stop-color="#46E8E0" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="abAmberGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFE3AE" stop-opacity=".85"/>
+    <stop offset=".3" stop-color="#FFB04A" stop-opacity=".38"/>
+    <stop offset="1" stop-color="#FF9A2A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="abCloud" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#F2FFFE" stop-opacity=".95"/>
+    <stop offset=".18" stop-color="#9AF7F0" stop-opacity=".7"/>
+    <stop offset=".45" stop-color="#46E8E0" stop-opacity=".3"/>
+    <stop offset=".72" stop-color="#A77BFF" stop-opacity=".16"/>
+    <stop offset="1" stop-color="#A77BFF" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="abBubble" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#BFF8F4" stop-opacity=".04"/>
+    <stop offset=".68" stop-color="#BFF8F4" stop-opacity=".12"/>
+    <stop offset=".9" stop-color="#D9FFFC" stop-opacity=".75"/>
+    <stop offset="1" stop-color="#F2FFFE" stop-opacity=".95"/>
+  </radialGradient>
+  <linearGradient id="abBell" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3B2A70" stop-opacity=".5"/>
+    <stop offset=".6" stop-color="#8E6EE6" stop-opacity=".7"/>
+    <stop offset="1" stop-color="#E3D6FF" stop-opacity=".95"/>
+  </linearGradient>
+  <linearGradient id="abPlate" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0A1118"/>
+    <stop offset=".6" stop-color="#1A2735"/>
+    <stop offset="1" stop-color="#34475E"/>
+  </linearGradient>
+  <linearGradient id="abEel" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#070C12"/>
+    <stop offset="1" stop-color="#2A3E54"/>
+  </linearGradient>
+  <radialGradient id="abSkin" cx=".62" cy=".3" r=".8">
+    <stop offset="0" stop-color="#0F1C2A"/>
+    <stop offset=".7" stop-color="#08111B"/>
+    <stop offset="1" stop-color="#050A11"/>
+  </radialGradient>
+  <linearGradient id="abTooth" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#E9F6FA" stop-opacity=".35"/>
+    <stop offset="1" stop-color="#F4FBFD" stop-opacity=".95"/>
+  </linearGradient>
+  <linearGradient id="abToothUp" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#E9F6FA" stop-opacity=".3"/>
+    <stop offset="1" stop-color="#F4FBFD" stop-opacity=".95"/>
+  </linearGradient>
+  <radialGradient id="abEye" cx=".4" cy=".4" r=".6">
+    <stop offset="0" stop-color="#E4EEF4"/>
+    <stop offset=".6" stop-color="#8DA3B4"/>
+    <stop offset="1" stop-color="#2A3B4A"/>
+  </radialGradient>
+  <radialGradient id="abEsca" cx=".42" cy=".38" r=".6">
+    <stop offset="0" stop-color="#FFFBEE"/>
+    <stop offset=".45" stop-color="#FFC870"/>
+    <stop offset="1" stop-color="#C2650F"/>
+  </radialGradient>
+  <linearGradient id="abHull" x1="0" y1="664" x2="0" y2="844" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#1B3442"/>
+    <stop offset=".12" stop-color="#11222D"/>
+    <stop offset=".6" stop-color="#0A161E"/>
+    <stop offset="1" stop-color="#060E14"/>
+  </linearGradient>
+  <linearGradient id="abCurtain" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#46E8E0" stop-opacity=".28"/>
+    <stop offset="1" stop-color="#46E8E0" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="abMetal" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#6FB9C6"/>
+    <stop offset=".22" stop-color="#2F5866"/>
+    <stop offset=".6" stop-color="#1C303C"/>
+    <stop offset="1" stop-color="#14232D"/>
+  </linearGradient>
+  <linearGradient id="abSteel" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#C5E4EA"/>
+    <stop offset=".35" stop-color="#6E97A4"/>
+    <stop offset="1" stop-color="#223843"/>
+  </linearGradient>
+  <linearGradient id="abFox" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFF4D8"/>
+    <stop offset=".45" stop-color="#FFBE5C"/>
+    <stop offset="1" stop-color="#E06A12"/>
+  </linearGradient>
+  <radialGradient id="abMine" cx=".5" cy=".78" r=".7">
+    <stop offset="0" stop-color="#8FD4DF"/>
+    <stop offset=".45" stop-color="#2C4E5D"/>
+    <stop offset="1" stop-color="#0E1A22"/>
+  </radialGradient>
+  <radialGradient id="abPort" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFE9BF"/>
+    <stop offset=".5" stop-color="#FFB04A"/>
+    <stop offset="1" stop-color="#8A4A0E"/>
+  </radialGradient>
+  <radialGradient id="abWellLight" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#E8FFFD"/>
+    <stop offset=".45" stop-color="#46E8E0" stop-opacity=".8"/>
+    <stop offset="1" stop-color="#46E8E0" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="abHeart" cx=".42" cy=".36" r=".7">
+    <stop offset="0" stop-color="#FFF1D2"/>
+    <stop offset=".45" stop-color="#FFB04A"/>
+    <stop offset="1" stop-color="#B95F10"/>
+  </radialGradient>
+
+  <!-- 적: 관해파리 (일반) — 종이 앞, 구슬 사슬이 뒤로 -->
+  <g id="abJelly">
+    <circle cx="0" cy="-6" r="24" fill="url(#abVioGlow)"/>
+    <g fill="none" stroke="#C9B4FF" stroke-width=".5" opacity=".55">
+      <path d="M-2 -16 C-10 -18 -14 -14 -18 -16"/><path d="M3 -27 C10 -28 13 -24 18 -27"/><path d="M2 -38 C-5 -40 -8 -36 -12 -39"/>
+      <path d="M-5 10 C-7 18 -4 24 -6 32"/><path d="M5 10 C7 17 4 23 7 30"/>
+    </g>
+    <g fill="#B89CFF" opacity=".7"><circle cx="-18" cy="-16" r=".9"/><circle cx="18" cy="-27" r=".9"/><circle cx="-12" cy="-39" r=".8"/></g>
+    <g fill="#E3D6FF">
+      <circle cx="0" cy="-10" r="2.6"/><circle cx="1" cy="-15.6" r="2.4"/><circle cx="2.2" cy="-21" r="2.2"/><circle cx="3" cy="-26.4" r="2"/>
+      <circle cx="3.2" cy="-31.6" r="1.8"/><circle cx="2.6" cy="-36.6" r="1.5"/><circle cx="1.6" cy="-41.2" r="1.2"/><circle cx=".6" cy="-45.4" r="1"/><circle cx="-.4" cy="-49.2" r=".8"/>
+    </g>
+    <g fill="#A77BFF" filter="url(#abB1)" opacity=".8">
+      <circle cx="0" cy="-10" r="3.4"/><circle cx="2.2" cy="-21" r="3"/><circle cx="3.2" cy="-31.6" r="2.6"/>
+    </g>
+    <path d="M-9 -3 C-9 7 -4.5 12 0 12 C4.5 12 9 7 9 -3 C5 -5.5 -5 -5.5 -9 -3 Z" fill="url(#abBell)"/>
+    <path d="M-8 4 C-6 10.5 6 10.5 8 4" fill="none" stroke="#F4EEFF" stroke-width="1.2" opacity=".9"/>
+    <ellipse cx="0" cy="2" rx="2.6" ry="4" fill="#FFF0FF" opacity=".8"/>
+    <g fill="#FFFFFF"><circle cx="-6" cy="8" r=".7"/><circle cx="-2.5" cy="10.6" r=".7"/><circle cx="2.5" cy="10.6" r=".7"/><circle cx="6" cy="8" r=".7"/></g>
+  </g>
+
+  <!-- 적: 갑주 심해어 (장갑) — 겹친 비늘판, 발광점은 currentColor -->
+  <g id="abArmor">
+    <ellipse cx="0" cy="0" rx="22" ry="32" fill="url(#abVioGlow)" opacity=".55"/>
+    <path d="M0 -26 L-9 -43 L0 -37 L9 -43 Z" fill="#141E2A"/>
+    <path d="M-9 -43 L0 -37 L9 -43 L0 -35 Z" fill="#3C5068"/>
+    <path d="M-11 2 C-22 -3 -27 7 -25 15 C-19 10 -15 8 -10 9 Z" fill="#6E58B8" opacity=".38"/>
+    <path d="M11 2 C22 -3 27 7 25 15 C19 10 15 8 10 9 Z" fill="#6E58B8" opacity=".38"/>
+    <path d="M0 24 C9 22 13 12 13 1 C13 -12 8 -22 0 -28 C-8 -22 -13 -12 -13 1 C-13 12 -9 22 0 24 Z" fill="url(#abPlate)"/>
+    <g fill="none" stroke-width="1.3">
+      <path d="M-10 -15 C-5 -12 5 -12 10 -15" stroke="#4B6280"/>
+      <path d="M-12.6 -5 C-6 -1.5 6 -1.5 12.6 -5" stroke="#556E8E"/>
+      <path d="M-12.8 5 C-6 8.5 6 8.5 12.8 5" stroke="#647FA2"/>
+      <path d="M-10.5 -16.4 C-5 -13.6 5 -13.6 10.5 -16.4 M-12.8 -6.4 C-6 -3 6 -3 12.8 -6.4 M-12.8 3.6 C-6 7 6 7 12.8 3.6" stroke="#05090E" stroke-width="1"/>
+    </g>
+    <path d="M0 -24 L-1.4 -20 L0 -21 L1.4 -20 Z M0 -14 L-1.6 -9.5 L0 -10.6 L1.6 -9.5 Z M0 -4 L-1.6 .5 L0 -.6 L1.6 .5 Z" fill="#7F96B4"/>
+    <path d="M-10 10 C-6 22 6 22 10 10 C6 14 -6 14 -10 10 Z" fill="#3E5470"/>
+    <path d="M-5 22 L-4 26.5 L-3 22.6 Z M-1 23.4 L0 28 L1 23.4 Z M3 22.6 L4 26.5 L5 22 Z" fill="#E4F2F7"/>
+    <g fill="currentColor">
+      <circle cx="-6" cy="15" r="2.2"/><circle cx="6" cy="15" r="2.2"/>
+      <circle cx="-11.2" cy="-10" r="1"/><circle cx="-12.4" cy="-2" r="1"/><circle cx="-12.2" cy="6" r="1"/><circle cx="-10" cy="13" r="1"/>
+      <circle cx="11.2" cy="-10" r="1"/><circle cx="12.4" cy="-2" r="1"/><circle cx="12.2" cy="6" r="1"/><circle cx="10" cy="13" r="1"/>
+    </g>
+    <g fill="currentColor" filter="url(#abB1)" opacity=".9"><circle cx="-6" cy="15" r="3.6"/><circle cx="6" cy="15" r="3.6"/></g>
+    <g fill="#FFFFFF"><circle cx="-6.6" cy="14.4" r=".7"/><circle cx="5.4" cy="14.4" r=".7"/></g>
+  </g>
+
+  <!-- 적: 독니고기 (돌격) — 긴 몸이 S자로 내리꽂힘, 뒤로 거품 -->
+  <g id="abViper">
+    <path d="M2 -20 C5 -30 6 -40 9 -48" fill="none" stroke="#A77BFF" stroke-width="7" opacity=".22" filter="url(#abB3)"/>
+    <g fill="url(#abBubble)">
+      <circle cx="10" cy="-54" r="2.2"/><circle cx="7" cy="-61" r="1.6"/><circle cx="12" cy="-66" r="1.3"/><circle cx="8" cy="-72" r="1"/><circle cx="13" cy="-78" r=".8"/>
+    </g>
+    <path d="M-5 12 C-6 0 -2 -12 2 -22 C5 -30 6 -38 9 -46 L10.5 -45 C9.5 -37 9 -29 7 -21 C4 -11 4.5 1 5.5 12 Z" fill="url(#abEel)"/>
+    <path d="M9 -46 L4 -52 L10 -49 L15 -53 L10.5 -45 Z" fill="#2A3E54"/>
+    <path d="M-6 9 C-7 18 -3 24 0 26.5 C3 24 7 18 6 9 Z" fill="#22344A"/>
+    <path d="M-6 9 C-7 18 -3 24 0 26.5" fill="none" stroke="#6F8FB4" stroke-width=".9"/>
+    <path d="M-3.2 23.5 L-4.6 34 L-1.8 25 Z M3.2 23.5 L5 35 L1.8 25 Z M-.6 25.6 L-.8 30 L.4 26 Z" fill="#EEF8FB"/>
+    <circle cx="-2.6" cy="15" r="3.4" fill="#A77BFF" filter="url(#abB1)" opacity=".8"/>
+    <circle cx="-2.6" cy="15" r="1.7" fill="#F0E8FF"/>
+    <g fill="#B89CFF"><circle cx="-4.6" cy="6" r=".9"/><circle cx="-4.4" cy="0" r=".9"/><circle cx="-3.4" cy="-6" r=".9"/><circle cx="-1.8" cy="-12" r=".9"/><circle cx="0" cy="-18" r=".8"/><circle cx="2" cy="-24" r=".8"/><circle cx="3.8" cy="-30" r=".7"/><circle cx="5.4" cy="-36" r=".6"/></g>
+    <path d="M1 10 C4 4 8 4 10 0" fill="none" stroke="#2A3E54" stroke-width="1"/>
+    <circle cx="10.4" cy="-.4" r="1.4" fill="#C9B4FF"/>
+  </g>
+
+  <!-- 연쇄 폭발: 거품 터짐 + 빛나는 플랑크톤 구름 (원점 = 가운데) -->
+  <g id="abBurst">
+    <g filter="url(#abB6)">
+      <ellipse cx="-6" cy="-4" rx="44" ry="30" fill="#46E8E0" opacity=".2" transform="rotate(-24)"/>
+      <ellipse cx="12" cy="-16" rx="28" ry="40" fill="#A77BFF" opacity=".22" transform="rotate(18)"/>
+      <ellipse cx="-2" cy="10" rx="36" ry="18" fill="#46E8E0" opacity=".16"/>
+      <ellipse cx="-20" cy="-26" rx="16" ry="12" fill="#A77BFF" opacity=".18"/>
+    </g>
+    <circle cx="0" cy="-2" r="34" fill="url(#abCloud)"/>
+    <path d="M-36 -6 A36 36 0 0 1 24 -27" fill="none" stroke="#C9FBF7" stroke-width="2.4" opacity=".4" filter="url(#abB1)"/>
+    <path d="M30 14 A33 33 0 0 1 4 32" fill="none" stroke="#B89CFF" stroke-width="1.6" opacity=".35" filter="url(#abB1)"/>
+    <g fill="#F2FFFE">
+      <circle cx="-30" cy="-12" r="1"/><circle cx="-22" cy="20" r=".8"/><circle cx="26" cy="-22" r="1.1"/><circle cx="33" cy="9" r=".8"/><circle cx="-8" cy="-34" r=".9"/>
+      <circle cx="12" cy="30" r="1"/><circle cx="-40" cy="2" r=".7"/><circle cx="42" cy="-6" r=".7"/><circle cx="2" cy="40" r=".6"/><circle cx="-18" cy="-30" r=".7"/><circle cx="20" cy="-40" r=".6"/>
+      <circle cx="-46" cy="-18" r=".6"/><circle cx="48" cy="-24" r=".5"/><circle cx="-34" cy="30" r=".6"/><circle cx="36" cy="32" r=".5"/><circle cx="-4" cy="-52" r=".6"/><circle cx="30" cy="-48" r=".5"/>
+    </g>
+    <g fill="#B89CFF"><circle cx="-26" cy="-26" r=".9"/><circle cx="30" cy="22" r=".9"/><circle cx="-34" cy="18" r=".8"/><circle cx="40" cy="-16" r=".7"/><circle cx="-44" cy="-8" r=".6"/><circle cx="18" cy="42" r=".6"/></g>
+    <g stroke="#C9FBF7" stroke-width=".7" stroke-linecap="round" opacity=".6">
+      <path d="M-38 -20 L-46 -25 M40 -28 L47 -34 M-36 22 L-43 27 M38 18 L45 22 M-6 -46 L-7 -54"/>
+    </g>
+    <g fill="url(#abBubble)">
+      <circle cx="-12" cy="-16" r="7"/><circle cx="9" cy="-22" r="5.6"/><circle cx="19" cy="-6" r="5"/><circle cx="-21" cy="1" r="4.4"/>
+      <circle cx="-3" cy="-34" r="4.4"/><circle cx="14" cy="-38" r="3.2"/><circle cx="-20" cy="-30" r="3.2"/><circle cx="27" cy="-24" r="2.6"/>
+      <circle cx="5" cy="-50" r="3"/><circle cx="-11" cy="-49" r="2.2"/><circle cx="22" cy="10" r="2.6"/><circle cx="-11" cy="14" r="2.8"/>
+      <circle cx="7" cy="15" r="2"/><circle cx="-31" cy="-13" r="2.2"/><circle cx="-1" cy="-64" r="2"/><circle cx="12" cy="-60" r="1.5"/>
+      <circle cx="-8" cy="-74" r="1.3"/><circle cx="6" cy="-80" r="1"/><circle cx="-38" cy="-30" r="1.5"/><circle cx="36" cy="-40" r="1.4"/>
+    </g>
+    <g fill="#FFFFFF" opacity=".9">
+      <circle cx="-14.4" cy="-18.4" r="1.6"/><circle cx="7.2" cy="-23.8" r="1.2"/><circle cx="17.2" cy="-7.8" r="1.1"/><circle cx="-22.6" cy="-.6" r="1"/><circle cx="-4.4" cy="-35.6" r="1"/><circle cx="3.8" cy="-51.4" r=".7"/>
+    </g>
+    <circle cx="0" cy="-4" r="12" fill="#FFFFFF" opacity=".55" filter="url(#abB3)"/>
+    <circle cx="0" cy="-4" r="4.6" fill="#FFFFFF"/>
+  </g>
+
+  <!-- 포탑 우물 (선체에 파인 원형 받침) -->
+  <g id="abWell">
+    <ellipse cx="0" cy="-6" rx="30" ry="26" fill="url(#abCyanGlow)" opacity=".35"/>
+    <ellipse cx="0" cy="1.4" rx="17.5" ry="6" fill="#0A161E"/>
+    <ellipse cx="0" cy="0" rx="17.5" ry="5.6" fill="#2E5162"/>
+    <ellipse cx="0" cy=".5" rx="13.5" ry="4" fill="#020609"/>
+    <ellipse cx="0" cy=".2" rx="11" ry="3" fill="url(#abWellLight)"/>
+  </g>
+  <path id="abLip" d="M-17.5 0 A17.5 5.6 0 0 0 17.5 0 L13.5 .5 A13.5 4 0 0 1 -13.5 .5 Z" fill="#2E5162"/>
+
+  <!-- 모기 (작은 발광 갑각 드론) -->
+  <g id="abMoz">
+    <ellipse cx="-2.6" cy="-1" rx="2.6" ry=".9" fill="#E8FFFD" opacity=".6" transform="rotate(-25)"/>
+    <ellipse cx="2.6" cy="-1" rx="2.6" ry=".9" fill="#E8FFFD" opacity=".6" transform="rotate(25)"/>
+    <circle cx="0" cy="0" r="3.2" fill="#46E8E0" opacity=".35"/>
+    <circle cx="0" cy="0" r="1.2" fill="#E8FFFD"/>
+  </g>
+</defs>
+
+<!-- 바다 바탕 · 깊이 -->
+<rect x="0" y="0" width="390" height="844" fill="url(#abSea)"/>
+<rect x="0" y="0" width="390" height="700" fill="#000" filter="url(#abMottle)" opacity=".35"/>
+
+<!-- 선체 조명이 위로 뻗음 -->
+<g filter="url(#abB6)">
+  <polygon points="64,680 78,680 150,230 -60,230" fill="url(#abBeam)"/>
+  <polygon points="312,680 326,680 450,230 240,230" fill="url(#abBeam)"/>
+  <polygon points="190,668 200,668 236,420 154,420" fill="url(#abBeam)" opacity=".5"/>
+</g>
+
+<!-- 바다눈 (조명 속에서 더 밝게) -->
+<rect x="0" y="0" width="390" height="844" fill="url(#abSnowA)" opacity=".22"/>
+<rect x="0" y="0" width="390" height="844" fill="url(#abSnowB)" opacity=".35"/>
+<g mask="url(#abInBeam)">
+  <rect x="0" y="0" width="390" height="844" fill="url(#abSnowA)" opacity=".95"/>
+  <rect x="0" y="0" width="390" height="844" fill="url(#abSnowB)" opacity=".9"/>
+</g>
+
+<!-- ============ 보스: 거대 아귀 (오른쪽 위, 일부만) ============ -->
+<g>
+  <circle cx="196" cy="128" r="70" fill="url(#abAmberGlow)"/>
+  <path d="M214 -4 C204 38 212 80 236 108 C262 138 316 156 392 162 L392 -4 Z" fill="url(#abSkin)"/>
+  <path d="M214 -4 C204 38 212 80 236 108 C262 138 316 156 392 162" fill="none" stroke="#5A4A8E" stroke-width="1.4" opacity=".55"/>
+  <g fill="#03070C" opacity=".55"><ellipse cx="290" cy="40" rx="18" ry="9"/><ellipse cx="350" cy="76" rx="14" ry="7"/><ellipse cx="252" cy="70" rx="9" ry="5"/></g>
+  <path d="M226 116 C256 146 310 162 392 168 L392 204 C292 192 242 160 220 126 Z" fill="#010205"/>
+  <g fill="url(#abTooth)">
+    <path d="M232 122 L236 142 L238 124 Z"/><path d="M244 132 L246 158 L250 134 Z"/><path d="M258 141 L259 162 L263 142 Z"/>
+    <path d="M272 147 L274 176 L278 149 Z"/><path d="M288 153 L289 170 L292 154 Z"/><path d="M303 157 L305 186 L309 158 Z"/>
+    <path d="M320 160 L321 176 L324 161 Z"/><path d="M336 162 L338 188 L342 163 Z"/><path d="M354 164 L355 178 L358 165 Z"/><path d="M370 166 L372 190 L376 166 Z"/>
+  </g>
+  <path d="M220 126 C242 160 292 192 392 204 L392 236 C296 230 240 196 212 138 Z" fill="#0A131D"/>
+  <path d="M212 138 C240 196 296 230 392 236" fill="none" stroke="#8C72E0" stroke-width="1.6" opacity=".6"/>
+  <path d="M214 142 C242 194 296 226 392 232" fill="none" stroke="#FFB04A" stroke-width="1" opacity=".35"/>
+  <g fill="url(#abToothUp)">
+    <path d="M226 146 L230 128 L232 148 Z"/><path d="M240 162 L245 140 L246 164 Z"/><path d="M256 174 L260 158 L262 176 Z"/>
+    <path d="M272 183 L277 156 L279 186 Z"/><path d="M292 192 L295 174 L298 193 Z"/><path d="M312 197 L316 170 L319 198 Z"/>
+    <path d="M334 200 L337 184 L340 201 Z"/><path d="M356 202 L359 176 L362 203 Z"/><path d="M378 204 L380 188 L383 205 Z"/>
+  </g>
+  <circle cx="318" cy="92" r="11" fill="#46E8E0" opacity=".12" filter="url(#abB3)"/>
+  <circle cx="318" cy="92" r="8" fill="url(#abEye)"/>
+  <circle cx="320" cy="93" r="3" fill="#0A121A"/>
+  <circle cx="315" cy="89" r="1.6" fill="#FFFFFF"/>
+  <g fill="#A77BFF"><circle cx="226" cy="58" r="1.4"/><circle cx="232" cy="76" r="1.4"/><circle cx="242" cy="92" r="1.3"/><circle cx="256" cy="106" r="1.2"/><circle cx="272" cy="118" r="1.1"/></g>
+  <path d="M248 46 C232 10 196 10 186 42 C182 62 188 96 196 118" fill="none" stroke="#1E2E3C" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M188 52 C186 70 190 96 196 116" fill="none" stroke="#FFB04A" stroke-width=".8" opacity=".55"/>
+  <circle cx="196" cy="126" r="22" fill="url(#abAmberGlow)"/>
+  <circle cx="196" cy="126" r="7" fill="url(#abEsca)"/>
+  <circle cx="194" cy="124" r="2" fill="#FFFFFF"/>
+  <path d="M192 132 C190 140 192 146 188 152 M199 132 C202 140 200 148 204 154" fill="none" stroke="#FFC870" stroke-width=".6" opacity=".7"/>
+</g>
+
+<!-- ============ 적 (아래에서 오는 조명이 아랫면만 비춤) ============ -->
+<use href="#abJelly" transform="translate(40 150) scale(.85)"/>
+<use href="#abArmor" transform="translate(100 236) scale(.8)" style="color: #B89CFF"/>
+<use href="#abViper" transform="translate(150 214) scale(.85)"/>
+<use href="#abJelly" transform="translate(328 266) scale(.85)"/>
+<use href="#abViper" transform="translate(28 332) scale(.9)"/>
+<use href="#abArmor" transform="translate(356 336) scale(.85)" style="color: #B89CFF"/>
+<use href="#abJelly" transform="translate(360 482) scale(.9)"/>
+<use href="#abArmor" transform="translate(34 478) scale(.85)" style="color: #B89CFF"/>
+<use href="#abViper" transform="translate(346 580) scale(.95)"/>
+<use href="#abJelly" transform="translate(58 604)"/>
+<use href="#abArmor" transform="translate(206 626) scale(.9)" style="color: #B89CFF"/>
+<use href="#abJelly" transform="translate(128 640) scale(.9)"/>
+<use href="#abViper" transform="translate(262 606) scale(.9)"/>
+
+<!-- 전향된 적: 몸을 돌려 제 무리를 들이받음 (발광점이 청록으로) -->
+<g transform="translate(280 300)">
+  <g fill="url(#abBubble)"><circle cx="-4" cy="40" r="2.4"/><circle cx="4" cy="48" r="1.8"/><circle cx="-2" cy="56" r="1.3"/><circle cx="3" cy="62" r="1"/></g>
+  <use href="#abArmor" transform="rotate(180) scale(.85)" style="color: #46E8E0"/>
+  <circle cx="0" cy="0" r="30" fill="none" stroke="#46E8E0" stroke-width="1" opacity=".55" stroke-dasharray="2 4"/>
+  <circle cx="0" cy="0" r="36" fill="none" stroke="#46E8E0" stroke-width=".7" opacity=".3"/>
+</g>
+
+<!-- ============ 연쇄: 고리처럼 번진 거품 폭발 여섯 + 가운데 음파 핑 ============ -->
+<g fill="none" stroke="#46E8E0">
+  <circle cx="195" cy="432" r="58" stroke-width="1" opacity=".4"/>
+  <circle cx="195" cy="432" r="62" stroke-width="3" opacity=".35" stroke-dasharray=".8 8.9"/>
+  <circle cx="195" cy="432" r="150" stroke-width=".8" opacity=".16"/>
+  <circle cx="195" cy="432" r="190" stroke-width=".7" opacity=".09"/>
+</g>
+<path d="M112 480 A96 96 0 1 1 288 457" fill="none" stroke="#46E8E0" stroke-width="12" opacity=".16" filter="url(#abB6)"/>
+<path d="M112 480 A96 96 0 1 1 288 457" fill="none" stroke="#C9FBF7" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0 5.5" opacity=".85"/>
+<path d="M112 480 A96 96 0 1 1 288 457" fill="none" stroke="#B89CFF" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="0 9" stroke-dashoffset="3" opacity=".7"/>
+<use href="#abBurst" transform="translate(112 480) scale(.66)" opacity=".5"/>
+<use href="#abBurst" transform="translate(102 407) scale(.82)" opacity=".78"/>
+<use href="#abBurst" transform="translate(147 349) scale(.98)"/>
+<use href="#abBurst" transform="translate(220 339) scale(1.18)"/>
+<use href="#abBurst" transform="translate(278 384) scale(.92)"/>
+<!-- 막 터진 여섯째: 하얀 섬광 + 충격 고리 -->
+<g transform="translate(288 457)">
+  <circle cx="0" cy="0" r="40" fill="url(#abCloud)"/>
+  <path d="M-21 -7 A22 22 0 0 1 18 -13" fill="none" stroke="#FFFFFF" stroke-width="3" opacity=".7" filter="url(#abB1)"/>
+  <path d="M20 9 A22 22 0 0 1 -12 19" fill="none" stroke="#C9FBF7" stroke-width="2" opacity=".5" filter="url(#abB1)"/>
+  <circle cx="0" cy="0" r="14" fill="#FFFFFF" opacity=".7" filter="url(#abB3)"/>
+  <circle cx="0" cy="0" r="6" fill="#FFFFFF"/>
+  <g fill="url(#abBubble)"><circle cx="-10" cy="-14" r="4"/><circle cx="12" cy="-10" r="3.2"/><circle cx="2" cy="-24" r="2.4"/><circle cx="-16" cy="4" r="2.6"/></g>
+</g>
+<!-- 위로 떠오르는 거품 줄기 -->
+<g fill="url(#abBubble)">
+  <circle cx="214" cy="270" r="2.6"/><circle cx="218" cy="256" r="2"/><circle cx="212" cy="243" r="1.5"/><circle cx="217" cy="232" r="1.1"/>
+  <circle cx="144" cy="292" r="2.2"/><circle cx="140" cy="280" r="1.6"/><circle cx="145" cy="269" r="1.2"/>
+  <circle cx="276" cy="330" r="2"/><circle cx="280" cy="318" r="1.5"/><circle cx="276" cy="308" r="1.1"/>
+</g>
+
+<!-- ============ 선체 (방어선) ============ -->
+<path d="M-10 690 Q195 640 400 690" fill="none" stroke="#46E8E0" stroke-width="16" opacity=".22" filter="url(#abB6)"/>
+<path d="M-10 676 Q195 626 400 676 L400 690 Q195 640 -10 690 Z" fill="url(#abCurtain)"/>
+<path d="M-10 690 Q195 640 400 690 L400 844 L-10 844 Z" fill="url(#abHull)"/>
+<path d="M-10 690 Q195 640 400 690" fill="none" stroke="#7FF2EA" stroke-width="1.6" opacity=".9"/>
+<path d="M-10 693 Q195 643 400 693" fill="none" stroke="#2E5162" stroke-width="2"/>
+<g fill="#E8FFFD">
+  <circle cx="30" cy="681" r="1.6"/><circle cx="82" cy="673.5" r="1.6"/><circle cx="134" cy="668" r="1.6"/><circle cx="195" cy="665.6" r="1.8"/>
+  <circle cx="256" cy="668" r="1.6"/><circle cx="308" cy="673.5" r="1.6"/><circle cx="360" cy="681" r="1.6"/>
+</g>
+<g fill="#46E8E0" opacity=".6" filter="url(#abB3)">
+  <circle cx="30" cy="681" r="5"/><circle cx="82" cy="673.5" r="5"/><circle cx="134" cy="668" r="5"/><circle cx="195" cy="665.6" r="6"/>
+  <circle cx="256" cy="668" r="5"/><circle cx="308" cy="673.5" r="5"/><circle cx="360" cy="681" r="5"/>
+</g>
+<!-- 선체 판 이음새 · 리벳 -->
+<g fill="none">
+  <path d="M-10 752 Q195 716 400 752" stroke="#04090D" stroke-width="1.4"/>
+  <path d="M-10 754 Q195 718 400 754" stroke="#1E3846" stroke-width=".8"/>
+  <path d="M-10 794 Q195 770 400 794" stroke="#04090D" stroke-width="1.4"/>
+  <path d="M-10 796 Q195 772 400 796" stroke="#1A303C" stroke-width=".8"/>
+  <path d="M-10 700 Q195 652 400 700" stroke="#3E6A7C" stroke-width="1.4" stroke-linecap="round" stroke-dasharray=".1 7" opacity=".9"/>
+  <path d="M-10 760 Q195 724 400 760" stroke="#2C4A5A" stroke-width="1.6" stroke-linecap="round" stroke-dasharray=".1 6"/>
+  <path d="M-10 802 Q195 778 400 802" stroke="#24404E" stroke-width="1.6" stroke-linecap="round" stroke-dasharray=".1 6"/>
+  <path d="M44 760 L44 790 M152 742 L152 772 M238 742 L238 772 M346 760 L346 790 M98 802 L98 844 M292 802 L292 844" stroke="#04090D" stroke-width="1.2"/>
+</g>
+<!-- 따개비 · 관벌레 -->
+<g>
+  <g fill="#2A4452"><circle cx="8" cy="688" r="2.4"/><circle cx="13" cy="690" r="1.8"/><circle cx="380" cy="687" r="2.2"/><circle cx="374" cy="690" r="1.6"/><circle cx="170" cy="668" r="1.6"/></g>
+  <path d="M10 687 L9 676 M14 689 L15 680 M378 686 L379 674 M383 688 L385 679" stroke="#3A5666" stroke-width="1.2"/>
+  <g fill="#B89CFF"><circle cx="9" cy="675.4" r="1.2"/><circle cx="15" cy="679.4" r="1"/><circle cx="379" cy="673.4" r="1.2"/><circle cx="385" cy="678.4" r="1"/></g>
+</g>
+<!-- 둥근 창 (사람이 있는 따뜻한 빛) -->
+<g>
+  <circle cx="120" cy="808" r="13" fill="#FFB04A" opacity=".18" filter="url(#abB6)"/>
+  <circle cx="120" cy="808" r="9" fill="#1E3644"/><circle cx="120" cy="808" r="6.4" fill="url(#abPort)"/>
+  <circle cx="195" cy="812" r="15" fill="#FFB04A" opacity=".2" filter="url(#abB6)"/>
+  <circle cx="195" cy="812" r="10.5" fill="#1E3644"/><circle cx="195" cy="812" r="7.6" fill="url(#abPort)"/>
+  <circle cx="270" cy="808" r="13" fill="#FFB04A" opacity=".18" filter="url(#abB6)"/>
+  <circle cx="270" cy="808" r="9" fill="#1E3644"/><circle cx="270" cy="808" r="6.4" fill="url(#abPort)"/>
+  <g fill="#FFFFFF" opacity=".75"><circle cx="117.6" cy="805.4" r="1.4"/><circle cx="192.2" cy="809" r="1.6"/><circle cx="267.6" cy="805.4" r="1.4"/></g>
+  <g fill="#FFB04A"><circle cx="80" cy="826" r="1.2"/><circle cx="158" cy="830" r="1.2"/><circle cx="232" cy="830" r="1.2"/><circle cx="310" cy="826" r="1.2"/></g>
+</g>
+
+<!-- ============ 포탑 아홉 (선체 곡선을 따라 판 우물에 박혀 위를 겨눔) ============ -->
+<use href="#abWell" transform="translate(22 727) scale(1.1)"/>
+<use href="#abWell" transform="translate(65 719) scale(1.1)"/>
+<use href="#abWell" transform="translate(108 714) scale(1.1)"/>
+<use href="#abWell" transform="translate(151 710) scale(1.1)"/>
+<g transform="translate(195 709) scale(1.1)">
+  <ellipse cx="0" cy="-6" rx="36" ry="28" fill="url(#abCyanGlow)" opacity=".4"/>
+  <ellipse cx="0" cy="1.6" rx="22" ry="7" fill="#0A161E"/>
+  <ellipse cx="0" cy="0" rx="22" ry="6.6" fill="#2E5162"/>
+  <ellipse cx="0" cy=".5" rx="17.5" ry="4.8" fill="#020609"/>
+  <ellipse cx="0" cy=".2" rx="14" ry="3.6" fill="url(#abWellLight)"/>
+</g>
+<use href="#abWell" transform="translate(239 710) scale(1.1)"/>
+<use href="#abWell" transform="translate(282 714) scale(1.1)"/>
+<use href="#abWell" transform="translate(325 719) scale(1.1)"/>
+<use href="#abWell" transform="translate(368 727) scale(1.1)"/>
+
+<!-- 1 카빈 -->
+<g transform="translate(22 727) scale(1.1)">
+  <rect x="-2" y="-12" width="4" height="12" fill="url(#abMetal)"/>
+  <g transform="rotate(-4)">
+    <path d="M-3 -11 L3 -11 L3.6 -22 L-3.6 -22 Z" fill="url(#abMetal)"/>
+    <rect x="-4.6" y="-36" width="9.2" height="15" rx="2" fill="url(#abMetal)"/>
+    <path d="M-4.6 -30 L-10 -26 L-9 -21 L-4.6 -24 Z" fill="#1A2C36"/>
+    <path d="M-10 -26 L-9 -21 L-4.6 -24" fill="none" stroke="#6FB9C6" stroke-width=".8"/>
+    <rect x="-3.4" y="-46" width="6.8" height="10.4" rx="1.5" fill="url(#abMetal)"/>
+    <rect x="-1.3" y="-54" width="2.6" height="8.4" fill="#0C151C"/>
+    <circle cx="3.6" cy="-33" r="1.3" fill="#FFB04A"/>
+    <circle cx="3.6" cy="-33" r="3.4" fill="#FFB04A" opacity=".3"/>
+  </g>
+  <g fill="url(#abBubble)"><circle cx="-3" cy="-59" r="1.7"/><circle cx="-1" cy="-65" r="1.2"/><circle cx="-4" cy="-70" r=".9"/></g>
+</g>
+<!-- 2 대포 (어뢰 포) -->
+<g transform="translate(65 719) scale(1.1)">
+  <path d="M-12 -1 C-12 -12 12 -12 12 -1 Z" fill="url(#abMetal)"/>
+  <g transform="rotate(-6 0 -8)">
+    <rect x="-6.8" y="-46" width="13.6" height="38" rx="3" fill="url(#abMetal)"/>
+    <rect x="-8" y="-20" width="16" height="3.4" rx="1" fill="#3E7180"/>
+    <rect x="-7.6" y="-33" width="15.2" height="3" rx="1" fill="#335F6E"/>
+    <rect x="-8" y="-51" width="16" height="6.4" rx="2" fill="#0C151C"/>
+    <ellipse cx="0" cy="-51" rx="6" ry="2" fill="#03070A"/>
+    <ellipse cx="0" cy="-52.6" rx="3.6" ry="3.4" fill="#223843"/>
+    <rect x="-3.6" y="-53" width="7.2" height="1.6" fill="#FFB04A"/>
+  </g>
+  <g fill="url(#abBubble)"><circle cx="-6" cy="-60" r="2"/><circle cx="-3" cy="-67" r="1.4"/><circle cx="-7" cy="-72" r="1"/></g>
+</g>
+<!-- 3 레이저 소총 -->
+<g transform="translate(108 714) scale(1.1)">
+  <rect x="-1.6" y="-10" width="3.2" height="10" fill="url(#abMetal)"/>
+  <rect x="-3.2" y="-30" width="6.4" height="21" rx="1.6" fill="url(#abMetal)"/>
+  <rect x="-1.7" y="-56" width="3.4" height="27" fill="url(#abMetal)"/>
+  <g fill="#46E8E0">
+    <ellipse cx="0" cy="-34" rx="3.6" ry="1.2"/><ellipse cx="0" cy="-39" rx="3.6" ry="1.2"/><ellipse cx="0" cy="-44" rx="3.6" ry="1.2"/><ellipse cx="0" cy="-49" rx="3.6" ry="1.2"/>
+  </g>
+  <rect x="-6" y="-52" width="12" height="22" fill="url(#abCyanGlow)" opacity=".5"/>
+  <circle cx="0" cy="-58" r="9" fill="url(#abCyanGlow)"/>
+  <circle cx="0" cy="-58" r="2.2" fill="#FFFFFF"/>
+</g>
+<!-- 4 불여우 (동양 · 빛으로 그은 붓질, 여우불) -->
+<g transform="translate(151 710) scale(1.1)">
+  <g filter="url(#abB3)" opacity=".75" fill="#FF9A2A">
+    <path d="M-4 -2 C-10 -10 -10 -24 -4 -32 C-1 -36 3 -35 4 -30 C2 -26 0 -20 1 -12 C2 -7 3 -4 2 -1 Z"/>
+    <path d="M2 -6 C12 -6 18 -16 16 -30 C15 -38 20 -42 22 -44 C20 -36 24 -24 18 -12 C14 -5 8 -2 2 -2 Z"/>
+    <path d="M-4 -32 C-7 -36 -8 -41 -6 -44 L-9 -51 L-3 -46 C-1 -47 1 -47 2 -46 L5 -52 L5 -43 C5 -38 2 -34 -1 -32 Z"/>
+  </g>
+  <path d="M2 -10 C10 -18 12 -30 8 -42 C14 -36 16 -24 12 -14 C9 -10 5 -8 2 -7 Z" fill="url(#abFox)" opacity=".75"/>
+  <path d="M1 -3 C8 2 18 2 24 -6 C20 2 10 5 1 1 Z" fill="url(#abFox)" opacity=".85"/>
+  <path d="M2 -6 C12 -6 18 -16 16 -30 C15 -38 20 -42 22 -44 C20 -36 24 -24 18 -12 C14 -5 8 -2 2 -2 Z" fill="url(#abFox)"/>
+  <path d="M-4 -2 C-10 -10 -10 -24 -4 -32 C-1 -36 3 -35 4 -30 C2 -26 0 -20 1 -12 C2 -7 3 -4 2 -1 Z" fill="url(#abFox)"/>
+  <path d="M-4 -32 C-7 -36 -8 -41 -6 -44 L-9 -51 L-3 -46 C-1 -47 1 -47 2 -46 L5 -52 L5 -43 C5 -38 2 -34 -1 -32 Z" fill="url(#abFox)"/>
+  <g fill="none" stroke="#5A2A06" stroke-width=".7" opacity=".55">
+    <path d="M-6 -8 C-8 -16 -7 -24 -3 -30" stroke-dasharray="5 1.5 3 1"/>
+    <path d="M8 -6 C14 -12 16 -22 15 -30" stroke-dasharray="4 1.2 2 1.4"/>
+  </g>
+  <path d="M-4 -41 L-1.4 -40.4" stroke="#3A1A02" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="-14" cy="-50" r="7" fill="url(#abAmberGlow)"/>
+  <path d="M-14 -46 C-17 -49 -16 -54 -13 -57 C-14 -53 -11 -52 -12 -48 Z" fill="#FFF1CF"/>
+  <circle cx="13" cy="-56" r="6" fill="url(#abAmberGlow)"/>
+  <path d="M13 -53 C11 -55 11.6 -59 14 -61 C13.4 -58 15.6 -57 14.6 -54 Z" fill="#FFF1CF"/>
+</g>
+<!-- 5 군견 지뢰밭 (합성: 기뢰 무리 + 잠수모 쓴 군견, 호박 고리 + 청록 고리) -->
+<g transform="translate(195 709) scale(1.1)">
+  <ellipse cx="0" cy="-3" rx="27" ry="8.4" fill="none" stroke="#FFB04A" stroke-width="2" transform="rotate(-6 0 -3)" opacity=".95"/>
+  <ellipse cx="0" cy="-3" rx="27" ry="8.4" fill="none" stroke="#FFB04A" stroke-width="6" transform="rotate(-6 0 -3)" opacity=".2" filter="url(#abB1)"/>
+  <path d="M-13 -2 L-13 -6 M13 -2 L13 -6 M0 0 L0 -4" stroke="#2C4A5A" stroke-width="1"/>
+  <path d="M-8 -6 C-10 -15 -6 -25 0 -27 C6 -25 10 -16 8 -6 Z" fill="url(#abMetal)"/>
+  <path d="M-3.6 -24 C-2 -18 -2 -12 -3 -7 L3 -7 C2 -12 2 -18 3.6 -24 Z" fill="#2F5866"/>
+  <rect x="-4.4" y="-12" width="2.6" height="7" rx="1" fill="#6FB9C6"/>
+  <rect x="1.8" y="-12" width="2.6" height="7" rx="1" fill="#6FB9C6"/>
+  <path d="M7 -10 C12 -12 14 -16 13 -21" fill="none" stroke="#2F5866" stroke-width="2" stroke-linecap="round"/>
+  <path d="M-5 -26 L5 -26 L4.2 -24 L-4.2 -24 Z" fill="#46E8E0"/>
+  <circle cx="0" cy="-34" r="9" fill="#46E8E0" opacity=".16"/>
+  <path d="M-4 -30 L-5.4 -40 L-2 -36.4 L2 -36.4 L5.4 -40 L4 -30 C2 -28 -2 -28 -4 -30 Z" fill="#16262F"/>
+  <g fill="#46E8E0"><circle cx="-2" cy="-33" r="1"/><circle cx="2" cy="-33" r="1"/></g>
+  <path d="M-8.4 -36 A9 9 0 0 1 4 -42.4" fill="none" stroke="#D9FFFC" stroke-width="1.2" opacity=".75"/>
+  <path d="M-9 -34 A9 9 0 0 0 9 -34" fill="none" stroke="#46E8E0" stroke-width=".8" opacity=".6"/>
+  <g>
+    <g transform="translate(-20 -12) scale(1)">
+      <path d="M0 7 L0 13" stroke="#2C4A5A" stroke-width="1"/>
+      <g stroke="#8FC9D4" stroke-width="1.8" stroke-linecap="round"><path d="M0 -7 L0 -10.4 M-6 -3.6 L-9 -5.4 M6 -3.6 L9 -5.4 M-6.4 2.8 L-9.4 4 M6.4 2.8 L9.4 4"/></g>
+      <circle cx="0" cy="0" r="7" fill="url(#abMine)"/>
+      <path d="M-5 -3 A6 6 0 0 1 2 -6" fill="none" stroke="#C5E4EA" stroke-width=".8" opacity=".6"/>
+      <circle cx="0" cy="-10.6" r="5" fill="url(#abAmberGlow)"/>
+      <g fill="#FFC870"><circle cx="0" cy="-10.8" r="1.4"/><circle cx="-9.3" cy="-5.6" r="1.3"/><circle cx="9.3" cy="-5.6" r="1.3"/><circle cx="-9.7" cy="4.1" r="1.1"/><circle cx="9.7" cy="4.1" r="1.1"/></g>
+    </g>
+    <g transform="translate(20 -11) scale(0.92)">
+      <path d="M0 7 L0 13" stroke="#2C4A5A" stroke-width="1"/>
+      <g stroke="#8FC9D4" stroke-width="1.8" stroke-linecap="round"><path d="M0 -7 L0 -10.4 M-6 -3.6 L-9 -5.4 M6 -3.6 L9 -5.4 M-6.4 2.8 L-9.4 4 M6.4 2.8 L9.4 4"/></g>
+      <circle cx="0" cy="0" r="7" fill="url(#abMine)"/>
+      <path d="M-5 -3 A6 6 0 0 1 2 -6" fill="none" stroke="#C5E4EA" stroke-width=".8" opacity=".6"/>
+      <circle cx="0" cy="-10.6" r="5" fill="url(#abAmberGlow)"/>
+      <g fill="#FFC870"><circle cx="0" cy="-10.8" r="1.4"/><circle cx="-9.3" cy="-5.6" r="1.3"/><circle cx="9.3" cy="-5.6" r="1.3"/><circle cx="-9.7" cy="4.1" r="1.1"/><circle cx="9.7" cy="4.1" r="1.1"/></g>
+    </g>
+  </g>
+  <ellipse cx="0" cy="-4" rx="22" ry="11" fill="none" stroke="#46E8E0" stroke-width="2" transform="rotate(8 0 -4)" opacity=".95"/>
+  <ellipse cx="0" cy="-4" rx="22" ry="11" fill="none" stroke="#46E8E0" stroke-width="6" transform="rotate(8 0 -4)" opacity=".2" filter="url(#abB1)"/>
+  <path d="M-22 0 A22 6.6 0 0 0 22 0 L17.5 .5 A17.5 4.8 0 0 1 -17.5 .5 Z" fill="#2E5162"/>
+</g>
+<!-- 6 기사단 (서양 · 판금 갑옷과 문장 방패) -->
+<g transform="translate(239 710) scale(1.1)">
+  <path d="M-4.6 -1 L-4 -13 L-1 -13 L-1.2 -1 Z M4.6 -1 L4 -13 L1 -13 L1.2 -1 Z" fill="url(#abSteel)"/>
+  <path d="M-7 -29 L7 -29 L6 -12 L-6 -12 Z" fill="url(#abSteel)"/>
+  <path d="M-4.4 -24 L4.4 -24 L4 -12 L-4 -12 Z" fill="#103446"/>
+  <path d="M0 -23 L0 -14 M-3 -19.6 L3 -19.6" stroke="#FFB04A" stroke-width="1.3"/>
+  <path d="M-9 -29 C-9 -33 -5 -33 -4 -29 Z M9 -29 C9 -33 5 -33 4 -29 Z" fill="url(#abSteel)"/>
+  <g stroke="#E6F3F6" stroke-width=".4" opacity=".45"><path d="M-6 -27 L-5.4 -15 M-4.6 -27 L-4 -25 M6 -27 L5.4 -15"/></g>
+  <path d="M-5 -42 L5 -42 L5 -31 L-5 -31 Z" fill="url(#abSteel)"/>
+  <path d="M-4 -38 L4 -38 L4 -36.6 L.7 -36.6 L.7 -32.4 L-.7 -32.4 L-.7 -36.6 L-4 -36.6 Z" fill="#46E8E0"/>
+  <path d="M-1.6 -42 C-2 -50 5 -53 8 -49 C4 -49 2 -47 1.4 -42 Z" fill="#FFC870"/>
+  <path d="M6.4 -22 L10 -57" stroke="#E6F3F6" stroke-width="1.9" stroke-linecap="round"/>
+  <path d="M10 -57 L9.6 -50" stroke="#46E8E0" stroke-width=".8"/>
+  <path d="M3.6 -25.6 L9.6 -24.6" stroke="#6E97A4" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M-17 -30 L-4 -30 L-4 -19 C-4 -13 -8 -9 -10.5 -6.5 C-13 -9 -17 -13 -17 -19 Z" fill="#0E2A3A"/>
+  <path d="M-17 -30 L-10.5 -30 L-10.5 -6.5 C-13 -9 -17 -13 -17 -19 Z" fill="#163E52"/>
+  <path d="M-16 -15 L-10.5 -22 L-5 -15" fill="none" stroke="#FFB04A" stroke-width="1.8"/>
+  <g fill="#FFC870"><circle cx="-13.6" cy="-26.4" r="1"/><circle cx="-7.4" cy="-26.4" r="1"/><circle cx="-10.5" cy="-11.6" r="1"/></g>
+  <path d="M-17 -19 C-17 -13 -13 -9 -10.5 -6.5 C-8 -9 -4 -13 -4 -19" fill="none" stroke="#A7D6DF" stroke-width="1"/>
+</g>
+<!-- 7 전투 로봇 (SF · 매끈한 잠수 기체) -->
+<g transform="translate(282 714) scale(1.1)">
+  <path d="M-6 -1 L-5 -11 L-2 -11 L-2.4 -1 Z M6 -1 L5 -11 L2 -11 L2.4 -1 Z" fill="url(#abMetal)"/>
+  <ellipse cx="0" cy="-23" rx="9.6" ry="12.4" fill="url(#abMetal)"/>
+  <path d="M-7.6 -29 C-4 -32 4 -32 7.6 -29 L7 -26.4 C4 -28.6 -4 -28.6 -7 -26.4 Z" fill="#46E8E0"/>
+  <path d="M-9 -28 C-4 -33 4 -33 9 -28" fill="none" stroke="#46E8E0" stroke-width="5" opacity=".25" filter="url(#abB1)"/>
+  <circle cx="0" cy="-17" r="1.6" fill="#FFB04A"/>
+  <g>
+    <rect x="-15.4" y="-27" width="6" height="11" rx="3" fill="url(#abMetal)"/>
+    <ellipse cx="-12.4" cy="-16.4" rx="3.6" ry="1.4" fill="#46E8E0" opacity=".8"/>
+  </g>
+  <rect x="8.6" y="-46" width="3.6" height="22" rx="1.4" fill="url(#abMetal)"/>
+  <rect x="8" y="-49" width="4.8" height="4" rx="1" fill="#0C151C"/>
+  <circle cx="10.4" cy="-49.6" r="4.4" fill="url(#abCyanGlow)"/>
+  <path d="M-2 -35 L-3 -42" stroke="#2F5866" stroke-width="1"/>
+  <circle cx="-3" cy="-42.6" r="1.1" fill="#FFB04A"/>
+</g>
+<!-- 8 모기 떼 (발광 갑각 드론 통) -->
+<g transform="translate(325 719) scale(1.1)">
+  <path d="M-7 -1 L-7 -21 C-7 -27 7 -27 7 -21 L7 -1 Z" fill="url(#abMetal)"/>
+  <path d="M-7 -12 L7 -12" stroke="#0C151C" stroke-width="1.2"/>
+  <ellipse cx="0" cy="-24.6" rx="5" ry="1.8" fill="#E8FFFD"/>
+  <ellipse cx="0" cy="-30" rx="12" ry="10" fill="url(#abCyanGlow)" opacity=".55"/>
+  <use href="#abMoz" transform="translate(-9 -38)"/>
+  <use href="#abMoz" transform="translate(6 -42) scale(.9)"/>
+  <use href="#abMoz" transform="translate(13 -33) scale(.8)"/>
+  <use href="#abMoz" transform="translate(-3 -50) scale(.85)"/>
+  <use href="#abMoz" transform="translate(10 -54) scale(.75)"/>
+  <use href="#abMoz" transform="translate(-13 -49) scale(.7)"/>
+  <use href="#abMoz" transform="translate(1 -33) scale(.75)"/>
+  <use href="#abMoz" transform="translate(-7 -60) scale(.6)"/>
+</g>
+<!-- 9 원반 (톱날 원반 + 공동 거품 고리) -->
+<g transform="translate(368 727) scale(1.1)">
+  <path d="M-3 -1 L-2 -18 L2 -18 L3 -1 Z" fill="url(#abMetal)"/>
+  <g fill="url(#abBubble)">
+    <circle cx="-17" cy="-30" r="2.2"/><circle cx="-12" cy="-43" r="1.8"/><circle cx="0" cy="-48" r="2"/><circle cx="12" cy="-43" r="1.6"/>
+    <circle cx="17" cy="-30" r="2"/><circle cx="12" cy="-18" r="1.5"/><circle cx="-12" cy="-18" r="1.6"/>
+  </g>
+  <circle cx="0" cy="-30" r="13" fill="none" stroke="#A7D6DF" stroke-width="3" stroke-dasharray="2.2 1.9"/>
+  <circle cx="0" cy="-30" r="11.4" fill="url(#abMetal)"/>
+  <path d="M-8 -36 A10 10 0 0 1 6 -38.4" fill="none" stroke="#6FB9C6" stroke-width="1.2"/>
+  <circle cx="0" cy="-30" r="6" fill="none" stroke="#2F5866" stroke-width="1.6"/>
+  <circle cx="0" cy="-30" r="6" fill="url(#abCyanGlow)"/>
+  <circle cx="0" cy="-30" r="2" fill="#E8FFFD"/>
+</g>
+
+<!-- 포탑 앞 테두리 (우물에 박힌 느낌) -->
+<use href="#abLip" transform="translate(22 727) scale(1.1)"/>
+<use href="#abLip" transform="translate(65 719) scale(1.1)"/>
+<use href="#abLip" transform="translate(108 714) scale(1.1)"/>
+<use href="#abLip" transform="translate(151 710) scale(1.1)"/>
+<use href="#abLip" transform="translate(239 710) scale(1.1)"/>
+<use href="#abLip" transform="translate(282 714) scale(1.1)"/>
+<use href="#abLip" transform="translate(325 719) scale(1.1)"/>
+<use href="#abLip" transform="translate(368 727) scale(1.1)"/>
+
+<!-- 앞쪽 바다눈 · 물 안개 (모두를 한 겹으로 묶음) -->
+<rect x="0" y="0" width="390" height="844" fill="url(#abSnowB)" opacity=".25" transform="translate(31 17)"/>
+<rect x="0" y="0" width="390" height="844" fill="url(#abVignette)"/>
+</svg>
+
+<!-- ============ 위 HUD: 음파 탐지기 ============ -->
+<svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true" style="position: absolute; left: 4px; top: 4px; display: block">
+  <defs>
+    <linearGradient id="abSweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#46E8E0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#46E8E0" stop-opacity=".38"/>
+    </linearGradient>
+  </defs>
+  <circle cx="52" cy="52" r="40" fill="#03101A" opacity=".85"/>
+  <path d="M52 52 L52 12 A40 40 0 0 1 86.6 32 Z" fill="url(#abSweep)"/>
+  <g fill="none" stroke="#46E8E0">
+    <circle cx="52" cy="52" r="38" stroke-width=".7" opacity=".35"/>
+    <circle cx="52" cy="52" r="27" stroke-width=".6" opacity=".28"/>
+    <circle cx="52" cy="52" r="16" stroke-width=".6" opacity=".22"/>
+    <path d="M52 14 L52 90 M14 52 L90 52" stroke-width=".5" opacity=".18"/>
+    <circle cx="52" cy="52" r="46" stroke-width="3" opacity=".16"/>
+    <circle cx="52" cy="52" r="46" stroke-width="3" stroke-linecap="round" stroke-dasharray="173.4 289" transform="rotate(-90 52 52)"/>
+  </g>
+  <g fill="#B89CFF"><circle cx="70" cy="28" r="1.6"/><circle cx="34" cy="24" r="1.3"/><circle cx="80" cy="44" r="1.2"/></g>
+  <circle cx="70" cy="28" r="4" fill="none" stroke="#B89CFF" stroke-width=".6" opacity=".6"/>
+</svg>
+<div style="position: absolute; left: 4px; top: 36px; width: 104px; text-align: center">
+  <div style="font: 400 9.5px/1 'Gowun Dodum', sans-serif; letter-spacing: .2em; color: #9FEDE8">웨이브</div>
+  <div style="font: 700 24px/1 'Red Hat Mono', monospace; color: #EFFFFE; margin-top: 3px; text-shadow: 0 0 8px rgba(70, 232, 224, .6)">12</div>
+</div>
+<div style="position: absolute; left: 112px; top: 16px">
+  <div style="display: flex; align-items: baseline; gap: 5px">
+    <span style="font: 400 11px/1 'Red Hat Mono', monospace; color: #9FEDE8">LV</span>
+    <span style="font: 700 22px/1 'Red Hat Mono', monospace; color: #EFFFFE">9</span>
+  </div>
+  <div style="font: 400 10.5px/1 'Gowun Dodum', sans-serif; color: #7FE3DC; margin-top: 7px">경험치 <span style="font: 700 10.5px/1 'Red Hat Mono', monospace">60%</span></div>
+  <div style="font: 400 10px/1 'Red Hat Mono', monospace; color: #8FB7C6; margin-top: 6px; letter-spacing: .02em"><span style="font-family: 'Gowun Dodum', sans-serif">수심</span> 4,120 m</div>
+</div>
+<!-- 목숨: 발광 심장 -->
+<div style="position: absolute; right: 12px; top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px">
+  <svg width="112" height="20" viewBox="0 0 112 20" aria-hidden="true" style="display: block">
+    <defs>
+      <filter id="abHB" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+      <path id="abHeartP" d="M9 17 C3 12 .5 9 .5 5.6 C.5 2.8 2.6 1 5 1 C6.8 1 8.2 2 9 3.4 C9.8 2 11.2 1 13 1 C15.4 1 17.5 2.8 17.5 5.6 C17.5 9 15 12 9 17 Z"/>
+    </defs>
+    <g transform="translate(1 1)"><use href="#abHeartP" fill="#FFB04A" opacity=".55" filter="url(#abHB)"/><use href="#abHeartP" fill="url(#abHeart)"/></g>
+    <g transform="translate(23 1)"><use href="#abHeartP" fill="#FFB04A" opacity=".55" filter="url(#abHB)"/><use href="#abHeartP" fill="url(#abHeart)"/></g>
+    <g transform="translate(45 1)"><use href="#abHeartP" fill="#FFB04A" opacity=".55" filter="url(#abHB)"/><use href="#abHeartP" fill="url(#abHeart)"/></g>
+    <g transform="translate(67 1)"><use href="#abHeartP" fill="#FFB04A" opacity=".55" filter="url(#abHB)"/><use href="#abHeartP" fill="url(#abHeart)"/></g>
+    <g transform="translate(89 1)"><use href="#abHeartP" fill="#0E1B25"/><use href="#abHeartP" fill="none" stroke="#7A5A34" stroke-width="1"/></g>
+  </svg>
+  <div style="font: 400 10px/1 'Gowun Dodum', sans-serif; color: #FFD9A0">목숨 <span style="font: 700 10px/1 'Red Hat Mono', monospace">4/5</span></div>
+</div>
+
+<!-- 보스 이름 -->
+<div style="position: absolute; left: 236px; top: 236px; font: 400 10px/1 'Gowun Dodum', sans-serif; letter-spacing: .14em; color: #D8C8FF; text-shadow: 0 0 4px #000">거대 아귀</div>
+
+<!-- 피해 숫자 -->
+<div class="ab-dmg" style="left: 172px; top: 274px; font-size: 22px">119</div>
+<div class="ab-dmg" style="left: 44px; top: 392px">36</div>
+<div class="ab-dmg" style="left: 320px; top: 398px; font-size: 16px">52</div>
+
+<!-- 연쇄 23: 음파 고리 한가운데 -->
+<div style="position: absolute; left: 135px; top: 396px; width: 120px; text-align: center">
+  <div style="font: 400 12px/1 'Gowun Dodum', sans-serif; letter-spacing: .5em; text-indent: .5em; color: #BFF7F3">연쇄</div>
+  <div style="font: 400 84px/.86 'Do Hyeon', sans-serif; color: #F2FFFE; margin-top: 4px; text-shadow: 0 0 12px rgba(70, 232, 224, .9), 0 0 30px rgba(70, 232, 224, .5), 0 0 60px rgba(167, 123, 255, .45)">23</div>
+</div>
+
+<!-- 반응 이름 -->
+<div style="position: absolute; left: 0; top: 530px; width: 390px; text-align: center">
+  <div style="font: 400 10.5px/1 'Gowun Dodum', sans-serif; letter-spacing: .24em; text-indent: .24em; color: #7FE3DC">반응 감지 · 군견 지뢰밭</div>
+  <div style="font: 400 36px/1 'Do Hyeon', sans-serif; color: #F2FFFE; margin-top: 7px; text-shadow: 0 0 10px rgba(70, 232, 224, .85), 0 0 26px rgba(167, 123, 255, .6)">전향 무리 · 강타!</div>
+</div>
+
+<!-- 갈래 칩 -->
+<div style="position: absolute; right: 12px; top: 636px; height: 22px; padding: 0 10px 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 11px; background: rgba(3, 16, 26, .86); box-shadow: 0 0 0 1px rgba(70, 232, 224, .45), 0 0 12px rgba(70, 232, 224, .25); font: 400 10.5px/1 'Gowun Dodum', sans-serif; color: #CFF8F5">
+  <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" style="display: block"><circle cx="5" cy="5" r="1.6" fill="#46E8E0"/><circle cx="5" cy="5" r="4" fill="none" stroke="#46E8E0" stroke-width=".8" opacity=".6"/></svg>
+  갈래 6/7 · 칸 1
+</div>
+
+<!-- 무기 이름 (선체에 붙은 작은 꼬리표) -->
+<div class="ab-lab" style="left: 22px; top: 736px; width: 40px; margin-left: -20px">카빈<span>총</span></div>
+<div class="ab-lab" style="left: 65px; top: 728px">대포<span>포격</span></div>
+<div class="ab-lab" style="left: 108px; top: 723px; letter-spacing: -.07em">레이저 소총<span>광선</span></div>
+<div class="ab-lab" style="left: 151px; top: 719px">불여우<span>소환</span></div>
+<div class="ab-lab" style="left: 195px; top: 720px; width: 60px; margin-left: -30px; letter-spacing: -.05em; color: #FFFFFF">군견 지뢰밭<span style="color: #FFC870">합성</span></div>
+<div class="ab-lab" style="left: 239px; top: 719px">기사단<span>소환</span></div>
+<div class="ab-lab" style="left: 282px; top: 723px; letter-spacing: -.06em">전투 로봇<span>소환</span></div>
+<div class="ab-lab" style="left: 325px; top: 728px">모기 떼<span>떼</span></div>
+<div class="ab-lab" style="left: 368px; top: 736px; width: 40px; margin-left: -20px">원반<span>회전체</span></div>
+
+<!-- 아래 버튼 -->
+<button type="button" style="position: absolute; left: 12px; top: 806px; width: 64px; height: 30px; padding: 0; border: 0; border-radius: 15px; background: rgba(3, 16, 26, .9); box-shadow: 0 0 0 1px rgba(70, 232, 224, .5); color: #CFF8F5; font: 400 12px/1 'Gowun Dodum', sans-serif; letter-spacing: .2em; text-indent: .2em; cursor: pointer">실험</button>
+<button type="button" style="position: absolute; right: 12px; top: 800px; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #0B2230 0%, #03101A 70%); box-shadow: 0 0 0 2px #1E3644, 0 0 0 3px rgba(70, 232, 224, .5), 0 0 14px rgba(70, 232, 224, .3); color: #EFFFFE; font: 700 13px/1 'Red Hat Mono', monospace; cursor: pointer">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

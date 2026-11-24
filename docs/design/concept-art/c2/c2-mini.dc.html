@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>미니어처 디오라마 판 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Noto+Sans+KR:wght@500;700;900&amp;display=swap">
+<style>
+body{margin:0}
+.mn-tok{position:absolute;box-sizing:border-box;background:linear-gradient(170deg,#30343A 0%,#24272C 60%,#1F2226 100%);color:#F4EFE6;border-radius:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,255,255,.05),0 2px 0 #C7B08A,0 3.5px 0 #8F7A58,4px 9px 10px rgba(30,14,2,.55)}
+.mn-tag{position:absolute;box-sizing:border-box;height:14px;padding:0 5px 0 7px;border-radius:2px;background:#22252A;color:#F4EFE6;font:700 9px/14px 'Noto Sans KR',sans-serif;letter-spacing:-.02em;white-space:nowrap;transform:translateX(-50%);box-shadow:inset 3px 0 0 #FF5A1F,0 1.5px 0 #B9A27E,2px 4px 5px rgba(30,14,2,.5)}
+.mn-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:-.01em}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #24453C; font-family: 'Noto Sans KR', sans-serif; color: #F4EFE6">
+
+<svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+<defs>
+  <!-- ===== 질감 필터 ===== -->
+  <filter id="mnSpeckL" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="1.15" numOctaves="1" seed="3"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .68  0 0 0 0 .70  0 0 0 0 .36  6 0 0 0 -3.75"/>
+  </filter>
+  <filter id="mnSpeckD" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency="1.05" numOctaves="1" seed="11"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .2  0 0 0 0 .23  0 0 0 0 .1  -6 0 0 0 2.55"/>
+  </filter>
+  <filter id="mnPatch" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency=".011 .017" numOctaves="3" seed="5"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .58  0 0 0 0 .55  0 0 0 0 .3  4.2 0 0 0 -2.25"/>
+  </filter>
+  <filter id="mnPatchD" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency=".014 .02" numOctaves="3" seed="21"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .2  0 0 0 0 .24  0 0 0 0 .12  -4 0 0 0 1.75"/>
+  </filter>
+  <filter id="mnGrit" x="0" y="0" width="1" height="1">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="8"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .82  0 0 0 0 .74  0 0 0 0 .6  5 0 0 0 -2.95"/>
+  </filter>
+  <filter id="mnFluff" x="-40%" y="-40%" width="180%" height="180%">
+    <feTurbulence type="fractalNoise" baseFrequency=".11" numOctaves="3" seed="7" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".5 .9" numOctaves="2" seed="2" result="f"/>
+    <feColorMatrix in="f" type="matrix" values="0 0 0 0 1  0 0 0 0 .9  0 0 0 0 .72  1.7 0 0 0 -1.02" result="fib"/>
+    <feComposite in="fib" in2="d" operator="in" result="fib2"/>
+    <feGaussianBlur in="d" stdDeviation=".5" result="ds"/>
+    <feMerge><feMergeNode in="ds"/><feMergeNode in="fib2"/></feMerge>
+  </filter>
+  <filter id="mnBrush" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".09 1.3" numOctaves="2" seed="4" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 .97  0 0 0 0 .9  1.5 0 0 0 -1.02" result="s"/>
+    <feComposite in="s" in2="SourceGraphic" operator="in" result="s2"/>
+    <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+  </filter>
+  <filter id="mnInk" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="9" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="mnSh" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  <filter id="mnGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+  <filter id="mnB06" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter>
+  <filter id="mnB12" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <filter id="mnB22" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.3"/></filter>
+  <filter id="mnTS" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="3.2"/></filter>
+
+  <!-- ===== 색 ===== -->
+  <linearGradient id="mnBoardG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#6D7339"/>
+    <stop offset=".45" stop-color="#67703A"/>
+    <stop offset="1" stop-color="#565D2F"/>
+  </linearGradient>
+  <radialGradient id="mnKey" cx=".32" cy=".4" r=".7">
+    <stop offset="0" stop-color="#FFE1AE" stop-opacity=".3"/>
+    <stop offset=".5" stop-color="#FFC27A" stop-opacity=".08"/>
+    <stop offset="1" stop-color="#FFC27A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnVig" cx=".5" cy=".46" r=".72">
+    <stop offset=".42" stop-color="#140A02" stop-opacity="0"/>
+    <stop offset="1" stop-color="#140A02" stop-opacity=".68"/>
+  </radialGradient>
+  <linearGradient id="mnTSMaskG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff"/>
+    <stop offset=".13" stop-color="#fff"/>
+    <stop offset=".3" stop-color="#000"/>
+    <stop offset=".93" stop-color="#000"/>
+    <stop offset="1" stop-color="#fff" stop-opacity=".6"/>
+  </linearGradient>
+  <mask id="mnTSMask" maskUnits="userSpaceOnUse" x="0" y="0" width="390" height="844">
+    <rect width="390" height="844" fill="url(#mnTSMaskG)"/>
+  </mask>
+  <radialGradient id="mnBaseE" cx=".42" cy=".32" r=".8">
+    <stop offset="0" stop-color="#85824A"/>
+    <stop offset="1" stop-color="#4C4A2A"/>
+  </radialGradient>
+  <radialGradient id="mnBaseP" cx=".4" cy=".3" r=".8">
+    <stop offset="0" stop-color="#A39C8E"/>
+    <stop offset="1" stop-color="#5E5A52"/>
+  </radialGradient>
+  <pattern id="mnGravel" width="9" height="7" patternUnits="userSpaceOnUse">
+    <circle cx="1.6" cy="1.8" r=".9" fill="#CFC8B8"/>
+    <circle cx="5.8" cy="3.6" r="1.1" fill="#4A463F"/>
+    <circle cx="3.4" cy="5.6" r=".7" fill="#E3DCCB"/>
+    <circle cx="7.6" cy="0.8" r=".6" fill="#7E786C"/>
+  </pattern>
+  <linearGradient id="mnIron" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#8E8983"/>
+    <stop offset=".5" stop-color="#4E4A46"/>
+    <stop offset="1" stop-color="#2E2B29"/>
+  </linearGradient>
+  <linearGradient id="mnVerd" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#78D7BC"/>
+    <stop offset=".42" stop-color="#3B9E87"/>
+    <stop offset="1" stop-color="#1F5F52"/>
+  </linearGradient>
+  <linearGradient id="mnBone" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#F3E8C9"/>
+    <stop offset=".55" stop-color="#D8CAA5"/>
+    <stop offset="1" stop-color="#A8966C"/>
+  </linearGradient>
+  <linearGradient id="mnCrim" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#C2463A"/>
+    <stop offset=".5" stop-color="#8E241C"/>
+    <stop offset="1" stop-color="#5A140F"/>
+  </linearGradient>
+  <linearGradient id="mnBronze" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#4A2E10"/>
+    <stop offset=".22" stop-color="#B7782F"/>
+    <stop offset=".38" stop-color="#FFE2A6"/>
+    <stop offset=".56" stop-color="#C08036"/>
+    <stop offset="1" stop-color="#4A2E10"/>
+  </linearGradient>
+  <linearGradient id="mnWood" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#4E2E16"/>
+    <stop offset=".38" stop-color="#A56A3A"/>
+    <stop offset="1" stop-color="#5E3818"/>
+  </linearGradient>
+  <linearGradient id="mnGun" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#202327"/>
+    <stop offset=".32" stop-color="#78818B"/>
+    <stop offset=".5" stop-color="#3A3F46"/>
+    <stop offset="1" stop-color="#1E2124"/>
+  </linearGradient>
+  <linearGradient id="mnWhite" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#9C9992"/>
+    <stop offset=".34" stop-color="#F6F4EE"/>
+    <stop offset=".7" stop-color="#D6D3CB"/>
+    <stop offset="1" stop-color="#8A8780"/>
+  </linearGradient>
+  <linearGradient id="mnSilver" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#363C46"/>
+    <stop offset=".28" stop-color="#E2E8EE"/>
+    <stop offset=".46" stop-color="#7A8391"/>
+    <stop offset=".66" stop-color="#D4DBE3"/>
+    <stop offset="1" stop-color="#3E4550"/>
+  </linearGradient>
+  <linearGradient id="mnMech" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#8A929C"/>
+    <stop offset=".5" stop-color="#5A626C"/>
+    <stop offset="1" stop-color="#363C44"/>
+  </linearGradient>
+  <linearGradient id="mnStone" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#A39E92"/>
+    <stop offset=".35" stop-color="#858075"/>
+    <stop offset="1" stop-color="#625E56"/>
+  </linearGradient>
+  <linearGradient id="mnFoxBody" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#FFFDF6"/>
+    <stop offset=".55" stop-color="#E9E3D6"/>
+    <stop offset="1" stop-color="#6E6C70"/>
+  </linearGradient>
+  <linearGradient id="mnTail" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#FFF8EC"/>
+    <stop offset=".45" stop-color="#FFB45A"/>
+    <stop offset=".8" stop-color="#F05A24"/>
+    <stop offset="1" stop-color="#B4231C"/>
+  </linearGradient>
+  <radialGradient id="mnFoxfire" cx=".5" cy=".62" r=".6">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".4" stop-color="#A9E2FF"/>
+    <stop offset="1" stop-color="#3C8EE8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnCyanGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#8FF0FF" stop-opacity=".9"/>
+    <stop offset="1" stop-color="#3CC8F0" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnAmberGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFD27A" stop-opacity=".95"/>
+    <stop offset="1" stop-color="#FF8A2A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnRedGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FF7048" stop-opacity=".95"/>
+    <stop offset="1" stop-color="#FF2A10" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnGlowO" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFC27A" stop-opacity=".85"/>
+    <stop offset=".55" stop-color="#FF8A3A" stop-opacity=".32"/>
+    <stop offset="1" stop-color="#FF6A1A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="mnCoreGlow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFF6D0" stop-opacity=".9"/>
+    <stop offset=".5" stop-color="#FFB040" stop-opacity=".35"/>
+    <stop offset="1" stop-color="#FF7A20" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="mnBlocks" width="64" height="26" patternUnits="userSpaceOnUse" x="0" y="648">
+    <rect width="64" height="26" fill="#34312C"/>
+    <rect x=".8" y=".8" width="26.6" height="11.4" rx="1.6" fill="url(#mnStone)"/>
+    <rect x="28.6" y=".8" width="34.6" height="11.4" rx="1.6" fill="url(#mnStone)"/>
+    <rect x="-.6" y="13.6" width="12.4" height="11.6" rx="1.6" fill="url(#mnStone)"/>
+    <rect x="13" y="13.6" width="29.4" height="11.6" rx="1.6" fill="url(#mnStone)"/>
+    <rect x="43.6" y="13.6" width="20" height="11.6" rx="1.6" fill="url(#mnStone)"/>
+    <path d="M2,1.4 H25.6 M30,1.4 H61.4 M14.4,14.2 H40.8 M45,14.2 H62.2 M.6,14.2 H10.6" stroke="#D9D2C2" stroke-width=".9" stroke-opacity=".75"/>
+    <path d="M27.4,2 V12 M63.2,2 V12 M11.8,14.6 V25 M42.4,14.6 V25" stroke="#24211D" stroke-width=".8"/>
+  </pattern>
+  <pattern id="mnMat" width="13" height="13" patternUnits="userSpaceOnUse" x="2" y="814">
+    <rect width="13" height="13" fill="#24453C"/>
+    <path d="M0,.5 H13 M.5,0 V13" stroke="#3E6A5C" stroke-width=".8"/>
+  </pattern>
+
+  <!-- ===== 판 (지형) ===== -->
+  <g id="mnBoard">
+    <rect x="0" y="0" width="390" height="806" fill="url(#mnBoardG)"/>
+    <rect x="0" y="0" width="390" height="806" filter="url(#mnPatch)"/>
+    <rect x="0" y="0" width="390" height="806" filter="url(#mnPatchD)"/>
+    <!-- 흙길 -->
+    <path d="M206,-10 C186,90 232,150 214,230 S150,330 176,420 S250,520 198,600 S150,660 150,720" fill="none" stroke="#56432E" stroke-width="62" stroke-linecap="round"/>
+    <path d="M206,-10 C186,90 232,150 214,230 S150,330 176,420 S250,520 198,600 S150,660 150,720" fill="none" stroke="#7A5C3C" stroke-width="50" stroke-linecap="round"/>
+    <path d="M206,-10 C186,90 232,150 214,230 S150,330 176,420 S250,520 198,600 S150,660 150,720" fill="none" stroke="#977650" stroke-width="26" stroke-linecap="round" stroke-opacity=".75"/>
+    <rect x="0" y="0" width="390" height="806" filter="url(#mnSpeckL)" opacity=".5"/>
+    <rect x="0" y="0" width="390" height="806" filter="url(#mnSpeckD)" opacity=".45"/>
+    <rect x="0" y="0" width="390" height="806" filter="url(#mnGrit)" opacity=".22"/>
+    <!-- 그을린 구덩이 -->
+    <ellipse cx="190" cy="386" rx="40" ry="15" fill="#2A1C12" opacity=".7"/>
+    <ellipse cx="190" cy="384" rx="30" ry="10.5" fill="#1A120C"/>
+    <path d="M160,382 A30,10.5 0 0 1 214,376" fill="none" stroke="#B7926A" stroke-width="1.4" stroke-opacity=".7"/>
+    <!-- 부서진 기둥 -->
+    <g transform="translate(22,300)">
+      <ellipse cx="8" cy="4" rx="17" ry="5.5" fill="#1C1006" opacity=".5" filter="url(#mnSh)"/>
+      <path d="M-11,2 V-22 L-7,-26 L-2,-22 L3,-28 L7,-23 L11,-25 V2 Q0,6 -11,2Z" fill="url(#mnStone)"/>
+      <path d="M-6,-24 V3 M0,-23 V4.4 M6,-24 V3.6" stroke="#5A564E" stroke-width="1.2"/>
+      <path d="M-11,-22 L-7,-26 L-2,-22 L3,-28 L7,-23 L11,-25" fill="none" stroke="#E6DFCF" stroke-width=".9"/>
+      <ellipse cx="0" cy="2.6" rx="11" ry="3.2" fill="none" stroke="#4C5A28" stroke-width="2"/>
+    </g>
+    <!-- 바위 · 풀 -->
+    <g transform="translate(96,178) scale(.75)"><use href="#mnRock"/></g>
+    <g transform="translate(16,524) scale(.9)"><use href="#mnRock"/></g>
+    <g transform="translate(370,470) scale(.7) scale(-1,1)"><use href="#mnRock"/></g>
+    <g transform="translate(244,628) scale(.62)"><use href="#mnRock"/></g>
+    <g transform="translate(160,452) scale(.6) scale(-1,1)"><use href="#mnRock"/></g>
+    <use href="#mnTuft" x="58" y="196"/><use href="#mnTuft" x="300" y="120"/><use href="#mnTuft" x="150" y="276"/>
+    <use href="#mnTuft" x="372" y="252"/><use href="#mnTuft" x="34" y="360"/><use href="#mnTuft" x="236" y="430"/>
+    <use href="#mnTuft" x="120" y="452"/><use href="#mnTuft" x="330" y="560"/><use href="#mnTuft" x="78" y="566"/>
+    <use href="#mnTuft" x="262" y="608"/><use href="#mnTuft" x="12" y="440"/><use href="#mnTuft" x="364" y="352"/>
+    <use href="#mnTuft" x="130" y="630"/><use href="#mnTuft" x="20" y="250"/>
+  </g>
+
+  <g id="mnTuft">
+    <ellipse cx="0" cy="0" rx="3.8" ry="1.3" fill="#3E4620"/>
+    <path d="M0,0 L-5,-6.6 M0,0 L-2.6,-9 M0,0 L.2,-10.2 M0,0 L2.6,-8.4 M0,0 L5.2,-6 M0,0 L-4,-3.8 M0,0 L4,-3.6" stroke="#C4B862" stroke-width=".8" stroke-linecap="round"/>
+    <path d="M0,0 L-1.4,-6.2 M0,0 L1.4,-6.6 M0,0 L-3.2,-5" stroke="#7F8A36" stroke-width=".8" stroke-linecap="round"/>
+  </g>
+  <g id="mnRock">
+    <ellipse cx="5" cy="2.4" rx="15" ry="4.6" fill="#1C1006" opacity=".45" filter="url(#mnSh)"/>
+    <path d="M-12,1 L-10,-6 L-4,-10.5 L4,-9.5 L10.5,-5 L12,1 Q0,4.4 -12,1Z" fill="#69655D"/>
+    <path d="M-10,-6 L-4,-10.5 L4,-9.5 L1,-4 L-6,-3 Z" fill="#ABA595"/>
+    <path d="M4,-9.5 L10.5,-5 L12,1 L5,0 L1,-4Z" fill="#524E47"/>
+    <path d="M-10,-6 L-4,-10.5 L4,-9.5 L10.5,-5" fill="none" stroke="#E2DACA" stroke-width=".8"/>
+    <ellipse cx="-3" cy="-7.4" rx="3" ry="1.2" fill="#6F7B35" opacity=".85"/>
+  </g>
+
+  <!-- ===== 적 미니어처 (해골 군단, 붉은 테 받침) ===== -->
+  <g id="mnSkel">
+    <ellipse cx="6" cy="3.6" rx="15" ry="5.4" fill="#1C1006" opacity=".5" filter="url(#mnSh)"/>
+    <ellipse cx="0" cy="1.8" rx="12.5" ry="4.8" fill="#3E140F"/>
+    <ellipse cx="0" cy="0" rx="12.5" ry="4.8" fill="url(#mnBaseE)"/>
+    <path d="M-12.4,.6 A12.5,4.8 0 0 0 12.4,.6" fill="none" stroke="#B8463A" stroke-width=".7"/>
+    <path d="M-8,-1 l-1,-3 M7,-2 l1.2,-2.6 M-2,2.6 l-.4,-2.4" stroke="#C4B862" stroke-width=".6"/>
+    <path d="M-8.6,2 V-40" stroke="#3F2818" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M-9.1,0 V-38" stroke="#A67A4C" stroke-width=".5"/>
+    <path d="M-8.6,-48 Q-6.4,-43.6 -7.2,-39.6 H-10 Q-10.8,-43.6 -8.6,-48 Z" fill="#878D94"/>
+    <path d="M-8.6,-47.2 Q-10,-43.6 -9.6,-40" fill="none" stroke="#F0F3F5" stroke-width=".6"/>
+    <path d="M-3.4,-.6 L-2.6,-8.4 M3.4,-.6 L2.6,-8.4" stroke="#CDBF9B" stroke-width="2.1" stroke-linecap="round"/>
+    <path d="M-3.9,-1.6 L-3.2,-7.8" stroke="#FBF1D2" stroke-width=".55"/>
+    <ellipse cx="-3.7" cy="-.4" rx="1.9" ry=".9" fill="#B5A580"/><ellipse cx="3.7" cy="-.4" rx="1.9" ry=".9" fill="#A08F69"/>
+    <path d="M-5.6,-12.4 H5.6 L4.6,-4.4 L2.3,-6.2 L.2,-3.4 L-2,-6 L-4.6,-4.2 Z" fill="url(#mnCrim)"/>
+    <path d="M-5.6,-12.2 L-4.6,-4.4" stroke="#DD5A4A" stroke-width=".6"/>
+    <path d="M-5.8,-12.4 H5.8" stroke="#3A2016" stroke-width="1.1"/>
+    <path d="M-5,-21 Q0,-23 5,-21 L4.3,-13.2 Q0,-11.8 -4.3,-13.2 Z" fill="url(#mnBone)"/>
+    <path d="M-3.8,-18.6 Q0,-19.6 3.8,-18.6 M-3.6,-16.1 Q0,-17.1 3.6,-16.1 M0,-21.6 V-12.6" stroke="#6A5838" stroke-width=".75" fill="none"/>
+    <path d="M-5,-21 L-4.3,-13.4" stroke="#FFF7DA" stroke-width=".6"/>
+    <path d="M-4.6,-20 L-7.6,-15.4 L-8.6,-18.4" stroke="#D6C9A6" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="7.8" cy="-13.4" rx="5.5" ry="6.3" fill="#4E3018"/>
+    <ellipse cx="7.5" cy="-13.8" rx="4.5" ry="5.3" fill="url(#mnCrim)"/>
+    <path d="M7.5,-18.6 V-9" stroke="#E6D9B6" stroke-width="1.1"/>
+    <path d="M3.9,-15.4 Q4.4,-19.2 7.5,-19.2" stroke="#E86A58" stroke-width=".7" fill="none"/>
+    <circle cx="7.5" cy="-13.8" r="1.3" fill="#9EA3A8"/><circle cx="7.1" cy="-14.2" r=".5" fill="#F4F6F7"/>
+    <path d="M-4,-27 Q-4,-33.4 0,-33.6 Q4,-33.4 4,-27 Q3.6,-24.2 2.4,-23.6 L2.2,-21.8 H-2.2 L-2.4,-23.6 Q-3.6,-24.2 -4,-27 Z" fill="url(#mnBone)"/>
+    <ellipse cx="-1.55" cy="-27" rx="1.25" ry="1.45" fill="#1E120A"/><ellipse cx="1.55" cy="-27" rx="1.25" ry="1.45" fill="#1E120A"/>
+    <circle cx="-1.5" cy="-26.8" r=".55" fill="#FF5A30"/><circle cx="1.6" cy="-26.8" r=".55" fill="#FF5A30"/>
+    <path d="M-1.6,-22.8 H1.6 M-.6,-23.4 V-22.2 M.6,-23.4 V-22.2" stroke="#6E5A3C" stroke-width=".45"/>
+    <path d="M-4.8,-29.6 Q-4.4,-35.6 0,-35.8 Q4.4,-35.6 4.8,-29.6 L6.6,-28.6 Q0,-27.2 -6.6,-28.6 Z" fill="url(#mnIron)"/>
+    <path d="M-4.4,-30.6 Q-3.8,-34.6 0,-35" stroke="#D2CCC0" stroke-width=".6" fill="none"/>
+    <circle cx="2.6" cy="-31.6" r=".75" fill="#A24E24"/><circle cx="4.1" cy="-29.4" r=".55" fill="#8A3E1C"/><circle cx="-2" cy="-33.4" r=".45" fill="#B05A2A"/>
+  </g>
+
+  <g id="mnArm">
+    <ellipse cx="7" cy="4.4" rx="18" ry="6.4" fill="#1C1006" opacity=".52" filter="url(#mnSh)"/>
+    <ellipse cx="0" cy="2" rx="15" ry="5.8" fill="#3E140F"/>
+    <ellipse cx="0" cy="0" rx="15" ry="5.8" fill="url(#mnBaseE)"/>
+    <path d="M-14.9,.7 A15,5.8 0 0 0 14.9,.7" fill="none" stroke="#B8463A" stroke-width=".7"/>
+    <path d="M11.5,3 L13,-46" stroke="#3B2717" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M13,-50 Q21,-46 19,-37 Q15,-40 12.8,-40 Z" fill="#8F959C"/>
+    <path d="M13.2,-49 Q19.6,-45.6 18.6,-38.4" fill="none" stroke="#F0F3F5" stroke-width=".6"/>
+    <path d="M13,-52.5 L13.6,-46" stroke="#9EA3A8" stroke-width="1.2"/>
+    <ellipse cx="-4.4" cy="-1" rx="3.2" ry="1.6" fill="#2A6458"/><ellipse cx="4.4" cy="-1" rx="3.2" ry="1.6" fill="#1E4E44"/>
+    <ellipse cx="-10.6" cy="-33" rx="5" ry="3.6" fill="url(#mnVerd)"/><ellipse cx="10.6" cy="-33" rx="5" ry="3.6" fill="#246A5C"/>
+    <path d="M-6,-46 Q-12,-50 -13,-56 Q-9,-52 -5,-50.6" fill="url(#mnBone)"/>
+    <path d="M6,-46 Q12,-50 13,-56 Q9,-52 5,-50.6" fill="#BFAE86"/>
+    <path d="M-6.4,-36.4 Q-6.6,-48.2 0,-48.4 Q6.6,-48.2 6.4,-36.4 Q0,-34.6 -6.4,-36.4Z" fill="url(#mnVerd)"/>
+    <path d="M-6,-38 Q-6,-46.6 0,-47.4" fill="none" stroke="#B8F0DE" stroke-width=".7"/>
+    <path d="M-3.6,-42.6 H3.6 M0,-42.6 V-37.6" stroke="#0E1A16" stroke-width="1.6"/>
+    <circle cx="-1.9" cy="-42.4" r=".6" fill="#FF6A3A"/><circle cx="1.9" cy="-42.4" r=".6" fill="#FF6A3A"/>
+    <path d="M-11,-33 Q0,-37.6 11,-33 L10.2,-6 Q0,-3.2 -10.2,-6 Z" fill="url(#mnVerd)" stroke="#8E5A24" stroke-width="1.5"/>
+    <path d="M-10.4,-31.6 Q-3,-35.8 6,-34.6" fill="none" stroke="#EEB96E" stroke-width=".8"/>
+    <path d="M-7.4,-27 V-12 M7,-28 V-14 M-2.6,-29 V-21" stroke="#9FE6CF" stroke-width=".7" stroke-opacity=".7" stroke-linecap="round"/>
+    <path d="M-3.8,-25.4 Q0,-28.6 3.8,-25.4 Q3.6,-20.4 0,-16.6 Q-3.6,-20.4 -3.8,-25.4Z" fill="url(#mnCrim)"/>
+    <circle cx="0" cy="-23" r="1.3" fill="#F1E6C6"/>
+    <circle cx="-8" cy="-30.2" r=".8" fill="#D9A35E"/><circle cx="8" cy="-30.2" r=".8" fill="#C08A4A"/><circle cx="-7.6" cy="-8.4" r=".8" fill="#C08A4A"/><circle cx="7.6" cy="-8.4" r=".8" fill="#A87440"/>
+  </g>
+
+  <g id="mnHound">
+    <ellipse cx="7" cy="4" rx="21" ry="6.4" fill="#1C1006" opacity=".5" filter="url(#mnSh)"/>
+    <ellipse cx="0" cy="2" rx="18" ry="5.6" fill="#3E140F"/>
+    <ellipse cx="0" cy="0" rx="18" ry="5.6" fill="url(#mnBaseE)"/>
+    <path d="M-17.9,.7 A18,5.6 0 0 0 17.9,.7" fill="none" stroke="#B8463A" stroke-width=".7"/>
+    <g filter="url(#mnFluff)" opacity=".92">
+      <circle cx="12" cy="-6" r="5.4" fill="#A79C8C"/><circle cx="17" cy="-10" r="4.2" fill="#C9BFAE"/><circle cx="7" cy="-3.4" r="4" fill="#8C8273"/>
+    </g>
+    <path d="M14,-21 Q19,-25 20,-31" fill="none" stroke="#CDBF9B" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M10,-17 L13.4,-9 L11,-1.4 M7,-16 L6.6,-8 L9.6,-1.2" fill="none" stroke="#BFAF88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-6,-20 Q4,-25 14,-20 Q15,-14 9,-12 Q0,-10 -7,-14 Z" fill="url(#mnBone)"/>
+    <path d="M-2,-21.4 Q-3,-16 -1,-11.6 M2.4,-22.4 Q1.6,-17 3.4,-11.6 M6.6,-22.4 Q6,-17.6 7.6,-12" stroke="#5E4E32" stroke-width=".8" fill="none"/>
+    <path d="M-2,-22.2 Q4,-26.8 12,-22.6 L10,-19.6 Q4,-22.4 -1,-19.2Z" fill="url(#mnCrim)"/>
+    <path d="M-4,-14 L-10,-7 L-13,-1 M-1,-13 L-3,-6 L-1.4,-.6" fill="none" stroke="#D8CBA6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-4.6,-14.4 L-10.4,-7.6" stroke="#FFF7DA" stroke-width=".55"/>
+    <path d="M-5,-23.4 Q-11,-25 -15.6,-20 L-19,-15.4 L-14.6,-15.6 L-17.4,-12 Q-11,-12.6 -7,-15.6 Q-3.4,-18.6 -5,-23.4Z" fill="url(#mnBone)"/>
+    <path d="M-7,-25 L-6,-29 L-9.4,-25.6" fill="#D8CBA6"/>
+    <path d="M-17.6,-14.6 L-12.8,-14 M-16,-13 L-15.4,-14.2 M-14,-12.8 L-13.6,-14" stroke="#4A3A24" stroke-width=".5"/>
+    <circle cx="-10.6" cy="-20.4" r="3.6" fill="url(#mnRedGlow)"/>
+    <circle cx="-10.6" cy="-20.4" r=".9" fill="#FFE2C8"/>
+  </g>
+
+  <!-- ===== 내 쪽 받침 (검정 테 + 주황 줄) ===== -->
+  <g id="mnPBase">
+    <ellipse cx="7" cy="4.2" rx="22" ry="7.6" fill="#1C1006" opacity=".55" filter="url(#mnSh)"/>
+    <ellipse cx="0" cy="2.6" rx="19" ry="7" fill="#15171A"/>
+    <path d="M-18.9,1.4 A19,7 0 0 0 18.9,1.4" fill="none" stroke="#FF5A1F" stroke-width="1.2"/>
+    <ellipse cx="0" cy="0" rx="19" ry="7" fill="url(#mnBaseP)"/>
+    <ellipse cx="0" cy="0" rx="19" ry="7" fill="url(#mnGravel)" opacity=".85"/>
+    <path d="M-18.4,-1.6 A19,7 0 0 1 8,-6.8" fill="none" stroke="#EDE6D6" stroke-width=".7" stroke-opacity=".6"/>
+  </g>
+
+  <!-- 카빈 -->
+  <g id="mnCarbine">
+    <use href="#mnPBase"/>
+    <path d="M0,-14 L-10,-1.4 M0,-14 L10,-.6 M0,-14 L1,3.4" stroke="#24272B" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M-.4,-14.4 L-10,-2.2" stroke="#8A939C" stroke-width=".5"/>
+    <g transform="rotate(5 0 -24)">
+      <path d="M-3.2,-7 H3.2 L2.6,-18.6 H-2.6 Z" fill="url(#mnWood)"/>
+      <path d="M-1.6,-8 L-1.2,-17.6 M1,-8.6 L.8,-17" stroke="#D49A62" stroke-width=".45" stroke-opacity=".8"/>
+      <rect x="-3.3" y="-8.4" width="6.6" height="1.8" rx=".6" fill="#1B1D20"/>
+      <rect x="-2.8" y="-31" width="5.6" height="13.2" rx="1" fill="url(#mnGun)"/>
+      <path d="M2.6,-25 Q6.6,-22 7.4,-18.6 L5.4,-17.4 Q4.6,-20.2 2.4,-21.6Z" fill="#26292D"/>
+      <path d="M2.8,-24.4 Q6,-22 6.8,-19" fill="none" stroke="#7A838C" stroke-width=".5"/>
+      <rect x="-1.7" y="-36" width="3.4" height="7.4" rx="1.2" fill="#15171A"/>
+      <circle cx="0" cy="-36" r="1.5" fill="#1B1D20" stroke="#8A939C" stroke-width=".4"/>
+      <rect x="-2.2" y="-42" width="4.4" height="11" rx=".8" fill="url(#mnWood)"/>
+      <rect x="-.85" y="-53" width="1.7" height="12" fill="url(#mnGun)"/>
+      <rect x="-1.4" y="-54.6" width="2.8" height="3" rx=".5" fill="#2A2D31"/>
+      <path d="M-2.6,-30.4 V-18.4 M-2,-41.4 V-31.4" stroke="#C9D0D6" stroke-width=".5"/>
+    </g>
+  </g>
+
+  <!-- 대포 -->
+  <g id="mnCannon">
+    <use href="#mnPBase"/>
+    <path d="M-3,-12 H3 L2.6,5 H-2.6 Z" fill="url(#mnWood)"/>
+    <rect x="-13.4" y="-14.4" width="26.8" height="2.8" rx="1" fill="#2E2217"/>
+    <ellipse cx="-12.6" cy="-12" rx="3.4" ry="10.4" fill="none" stroke="#3A2516" stroke-width="2.4"/>
+    <ellipse cx="-12.6" cy="-12" rx="3.4" ry="10.4" fill="none" stroke="#6B6F74" stroke-width=".7"/>
+    <path d="M-12.6,-22 V-2 M-15.6,-15 L-9.6,-9 M-9.6,-15 L-15.6,-9" stroke="#6E4524" stroke-width=".9"/>
+    <ellipse cx="12.6" cy="-12" rx="3.4" ry="10.4" fill="none" stroke="#2E1D11" stroke-width="2.4"/>
+    <path d="M12.6,-22 V-2 M9.6,-15 L15.6,-9 M15.6,-15 L9.6,-9" stroke="#5A381C" stroke-width=".9"/>
+    <path d="M-14.2,-21 Q-15.6,-15 -14.6,-6" fill="none" stroke="#C9A06E" stroke-width=".6"/>
+    <circle cx="0" cy="-9.6" r="2.2" fill="url(#mnBronze)"/>
+    <path d="M-5.4,-11 Q-5.8,-16 -4.6,-18.4 L-3.2,-41 H3.2 L4.6,-18.4 Q5.8,-16 5.4,-11 Z" fill="url(#mnBronze)"/>
+    <rect x="-5" y="-21" width="10" height="2.4" rx="1" fill="#8A5A22"/>
+    <rect x="-4.2" y="-31" width="8.4" height="2" rx="1" fill="#8A5A22"/>
+    <path d="M-5,-20.6 H5 M-4.2,-30.6 H4.2" stroke="#FFE2A6" stroke-width=".5"/>
+    <ellipse cx="0" cy="-41.4" rx="4.4" ry="1.9" fill="#8A5A22"/>
+    <ellipse cx="0" cy="-41.6" rx="2.6" ry="1.1" fill="#110A04"/>
+    <path d="M-2.4,-19 L-1.6,-40" stroke="#FFF1CC" stroke-width=".55" stroke-opacity=".85"/>
+  </g>
+
+  <!-- 레이저 소총 -->
+  <g id="mnLaser">
+    <use href="#mnPBase"/>
+    <ellipse cx="0" cy="-1" rx="13" ry="4.6" fill="url(#mnCyanGlow)" opacity=".8"/>
+    <rect x="-1.6" y="-15" width="3.2" height="15" fill="#2A2E34"/>
+    <path d="M-6,-12 V-20 H-3 M6,-12 V-20 H3" fill="none" stroke="#3A3F46" stroke-width="1.6"/>
+    <path d="M-3.8,-12 H3.8 L3.4,-41 Q0,-44 -3.4,-41 Z" fill="url(#mnWhite)"/>
+    <path d="M-3.6,-20 H3.6 M-3.4,-34 H3.4" stroke="#8C8982" stroke-width=".5"/>
+    <rect x="-3.9" y="-17" width="7.8" height="3" rx="1" fill="#25282D"/>
+    <rect x="-1.5" y="-31.4" width="3" height="9.4" rx="1.3" fill="#7DEBFF"/>
+    <rect x="-1.5" y="-31.4" width="3" height="9.4" rx="1.3" fill="url(#mnCyanGlow)"/>
+    <ellipse cx="0" cy="-26.6" rx="6" ry="8" fill="url(#mnCyanGlow)" opacity=".55"/>
+    <rect x="-1.3" y="-52" width="2.6" height="11" fill="#24282D"/>
+    <ellipse cx="0" cy="-52.4" rx="2.8" ry="1.2" fill="#B5F5FF"/>
+    <circle cx="0" cy="-52.4" r="5" fill="url(#mnCyanGlow)"/>
+    <path d="M-3.2,-40 V-13" stroke="#FFFFFF" stroke-width=".55" stroke-opacity=".85"/>
+  </g>
+
+  <!-- 불여우 (붓맛 채색) -->
+  <g id="mnFox">
+    <use href="#mnPBase"/>
+    <rect x="-16.4" y="-34" width=".9" height="31" fill="#E8F2FF" fill-opacity=".4"/>
+    <rect x="15.6" y="-26" width=".9" height="24" fill="#E8F2FF" fill-opacity=".4"/>
+    <path d="M-16,-41 Q-13,-37 -14.6,-33.4 Q-16,-31.6 -17.6,-33.2 Q-19.4,-36.4 -16,-41Z" fill="#CFEFFF"/>
+    <circle cx="-16" cy="-35" r="6" fill="url(#mnFoxfire)"/>
+    <path d="M16,-33 Q18.6,-29.6 17.4,-26.4 Q16,-24.8 14.6,-26.2 Q13,-29 16,-33Z" fill="#CFEFFF"/>
+    <circle cx="16" cy="-27.6" r="5.4" fill="url(#mnFoxfire)"/>
+    <path d="M-7,-3 Q-9.4,-18 -4,-26 Q0,-29.4 4,-26 Q9.4,-18 7,-3 Z" fill="url(#mnFoxBody)"/>
+    <path d="M4,-26 Q9,-18 7,-4" fill="none" stroke="#2A2A30" stroke-width="1.1" stroke-opacity=".55" filter="url(#mnInk)"/>
+    <g filter="url(#mnInk)">
+      <path d="M-2,-5 Q-16,-8 -19,-18 Q-20,-25 -15.6,-29 Q-14.6,-21 -9,-15 Q-5,-11 -1,-9 Z" fill="url(#mnTail)"/>
+      <path d="M2,-5 Q16,-8 19,-18 Q20,-25 15.6,-29 Q14.6,-21 9,-15 Q5,-11 1,-9 Z" fill="url(#mnTail)"/>
+      <path d="M-3,-3 Q-6,4 0,7.4 Q6,4 3,-3 Q0,-6 -3,-3Z" fill="url(#mnTail)"/>
+      <path d="M-15.6,-29 Q-19.4,-24 -18.4,-17.4 M-14,-26.8 Q-16.2,-22 -15.2,-17" fill="none" stroke="#1A1716" stroke-width=".8" stroke-linecap="round"/>
+      <path d="M15.6,-29 Q19.4,-24 18.4,-17.4 M14,-26.8 Q16.2,-22 15.2,-17" fill="none" stroke="#1A1716" stroke-width=".8" stroke-linecap="round"/>
+      <path d="M-.8,6.6 Q0,4 .8,6.6" fill="none" stroke="#1A1716" stroke-width="1"/>
+    </g>
+    <path d="M-5,-28 Q-6.4,-34.6 -3.4,-37 L-4.6,-44.6 L-.8,-39.4 Q1.4,-40 3,-38.6 L5,-44.6 L5.4,-37 Q6.6,-32 3,-28.6 Q-1,-27 -5,-28Z" fill="url(#mnFoxBody)"/>
+    <path d="M-3.4,-37 Q-8,-37.4 -10.4,-34.2 Q-6.4,-33 -4.4,-32" fill="#F7F2E8"/>
+    <path d="M-10.4,-34.2 L-11.4,-34" stroke="#1A1716" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M-4.4,-35.6 Q-2.6,-36.6 -1,-35.6" fill="none" stroke="#D3271F" stroke-width="1"/>
+    <path d="M-1.6,-36.4 L-.4,-37" stroke="#1A1716" stroke-width=".8"/>
+    <path d="M-4.6,-44.6 L-3.4,-40 M5,-44.6 L4,-40" stroke="#1A1716" stroke-width="1" stroke-linecap="round"/>
+    <path d="M1.6,-31 Q3,-33.4 4.4,-31.6" fill="none" stroke="#D3271F" stroke-width=".8"/>
+  </g>
+
+  <!-- 기사단 (판금 · 문장) -->
+  <g id="mnKnight">
+    <use href="#mnPBase"/>
+    <path d="M9,3 V-60" stroke="#3B2717" stroke-width="1.5"/>
+    <path d="M8.6,1 V-58" stroke="#B88A54" stroke-width=".45"/>
+    <path d="M9,-63.6 L10.4,-60.4 L9,-59 L7.6,-60.4Z" fill="#F0C460"/>
+    <path d="M9.4,-58 H27 L23.4,-51.4 L27,-44.8 H9.4 Z" fill="#2F4F9A"/>
+    <path d="M9.4,-58 H18 V-51.4 H9.4Z" fill="#F2EFE6"/>
+    <path d="M18,-51.4 H24.8 L27,-44.8 H18Z" fill="#F2EFE6"/>
+    <path d="M13.7,-56.4 l1,2.2 2.4,.2 -1.8,1.6 .6,2.4 -2.2,-1.2 -2.2,1.2 .6,-2.4 -1.8,-1.6 2.4,-.2Z" fill="#D9A93A"/>
+    <path d="M9.4,-58 H27" stroke="#FFFFFF" stroke-opacity=".6" stroke-width=".5"/>
+    <path d="M-3.6,-1 L-3,-12 M3.6,-1 L3,-12" stroke="url(#mnSilver)" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M-6.4,-13 H6.4 L5.6,-27 Q0,-29.4 -5.6,-27 Z" fill="#2F4F9A"/>
+    <path d="M-1.1,-27.6 H1.1 V-13 H-1.1Z M-5.8,-21.6 H5.8 V-19.6 H-5.8Z" fill="#F2EFE6"/>
+    <path d="M-6.4,-13 L-5.6,-27" stroke="#6F8AD0" stroke-width=".6"/>
+    <ellipse cx="-6.6" cy="-26.4" rx="3.6" ry="2.8" fill="url(#mnSilver)"/><ellipse cx="6.6" cy="-26.4" rx="3.6" ry="2.8" fill="url(#mnSilver)"/>
+    <path d="M7.6,-24 L9,-17" stroke="url(#mnSilver)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M-3.6,-28 V-35.4 Q0,-37.6 3.6,-35.4 V-28 Q0,-26.6 -3.6,-28Z" fill="url(#mnSilver)"/>
+    <path d="M-3.6,-32 H3.6" stroke="#20242A" stroke-width=".9"/>
+    <path d="M-1,-37 Q-4,-43 1.6,-45.6 Q.4,-41 3,-37.6" fill="#F2EFE6"/>
+    <path d="M-1,-37.6 Q-2.6,-42 1,-44.6" fill="none" stroke="#9FB0D8" stroke-width=".6"/>
+    <path d="M-15.6,-24 H-6 V-15 Q-6.4,-8 -10.8,-4.8 Q-15.2,-8 -15.6,-15 Z" fill="#2F4F9A" stroke="#D9A93A" stroke-width="1.1"/>
+    <path d="M-10.8,-23.4 V-5.6 M-15,-16.4 H-6.6" stroke="#F2EFE6" stroke-width="1.6"/>
+    <path d="M-15.4,-23.2 H-8" stroke="#FFE9A6" stroke-width=".5"/>
+  </g>
+
+  <!-- 전투 로봇 (SF 기계) -->
+  <g id="mnRobot">
+    <use href="#mnPBase"/>
+    <ellipse cx="0" cy="-2" rx="10" ry="3.6" fill="url(#mnAmberGlow)" opacity=".7"/>
+    <path d="M-5,-15 L-10,-9 L-8,-1.6 M5,-15 L10,-9 L8,-1.6" fill="none" stroke="#3E454E" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-10.6,-9.6 L-8.4,-4 M10.6,-9.6 L8.4,-4" stroke="#FF5A1F" stroke-width="1.8" stroke-dasharray="1.2 1"/>
+    <path d="M-11,-1 H-5 M5,-1 H11" stroke="#2A2F35" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M-9,-32 H9 L10,-18 L7,-14 H-7 L-10,-18 Z" fill="url(#mnMech)"/>
+    <path d="M-9,-32 L-10,-18" stroke="#C9D0D8" stroke-width=".6"/>
+    <rect x="-5.4" y="-29" width="10.8" height="10.6" rx="1" fill="#2C3138"/>
+    <path d="M-3.6,-27.6 V-20 M-1.2,-27.6 V-20 M1.2,-27.6 V-20 M3.6,-27.6 V-20" stroke="#FFB43A" stroke-width="1"/>
+    <rect x="-5.4" y="-29" width="10.8" height="10.6" rx="1" fill="url(#mnAmberGlow)" opacity=".45"/>
+    <path d="M-9.6,-16.4 L-6.4,-16.4" stroke="#FF5A1F" stroke-width="1.6"/>
+    <rect x="-16" y="-34" width="7" height="9.6" rx="1" fill="url(#mnMech)"/>
+    <circle cx="-14.2" cy="-31.6" r=".8" fill="#15181C"/><circle cx="-11" cy="-31.6" r=".8" fill="#15181C"/><circle cx="-14.2" cy="-28.4" r=".8" fill="#15181C"/><circle cx="-11" cy="-28.4" r=".8" fill="#15181C"/>
+    <rect x="9" y="-33" width="6.4" height="6" rx="1" fill="#4A515A"/>
+    <rect x="10.2" y="-50" width="1.7" height="18" fill="url(#mnGun)"/>
+    <rect x="12.8" y="-48" width="1.7" height="16" fill="url(#mnGun)"/>
+    <path d="M9,-33 H15.4" stroke="#C9D0D8" stroke-width=".5"/>
+    <rect x="-3" y="-36" width="6" height="4.4" rx="1" fill="#4A515A"/>
+    <path d="M-2.4,-34.6 H2.4" stroke="#7DEBFF" stroke-width=".9"/>
+    <path d="M2,-36 L3.4,-41.6" stroke="#2A2F35" stroke-width=".7"/>
+    <circle cx="-7.6" cy="-30.4" r=".5" fill="#D8DDE2"/><circle cx="8.6" cy="-19" r=".45" fill="#D8DDE2"/><circle cx="-15.4" cy="-25.6" r=".45" fill="#D8DDE2"/>
+  </g>
+
+  <!-- 원반 -->
+  <g id="mnDisc">
+    <use href="#mnPBase"/>
+    <rect x="-1.8" y="-24" width="3.6" height="24" fill="url(#mnGun)"/>
+    <ellipse cx="0" cy="-27" rx="21.5" ry="10.4" fill="none" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="4"/>
+    <path d="M-19,-31.6 A21.5,10.4 0 0 1 8,-37" fill="none" stroke="#FFFFFF" stroke-opacity=".6" stroke-width=".8"/>
+    <path d="M18,-21 A21.5,10.4 0 0 1 -6,-16.8" fill="none" stroke="#FFFFFF" stroke-opacity=".4" stroke-width=".8"/>
+    <ellipse cx="0" cy="-27" rx="17" ry="8.2" fill="url(#mnSilver)"/>
+    <ellipse cx="0" cy="-27" rx="17" ry="8.2" fill="none" stroke="#2A2D31" stroke-width="2.2" stroke-dasharray="1.6 1.3"/>
+    <ellipse cx="0" cy="-27" rx="11" ry="5.2" fill="none" stroke="#5A626C" stroke-width=".7"/>
+    <path d="M-12,-29.4 Q-2,-33.6 10,-31" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-opacity=".9"/>
+    <ellipse cx="0" cy="-27" rx="3.6" ry="1.8" fill="#FF5A1F"/>
+    <ellipse cx="-.6" cy="-27.4" rx="1.4" ry=".6" fill="#FFC8A8"/>
+  </g>
+
+  <!-- 모기 떼 -->
+  <g id="mnMosq1">
+    <path d="M0,0 L-3,4.6 M0,.6 L0,5.4 M0,0 L3,4.6" stroke="#2A1D16" stroke-width=".4"/>
+    <ellipse cx="-3.6" cy="-1" rx="3.8" ry="1.5" fill="#E8F2FF" fill-opacity=".55" stroke="#FFFFFF" stroke-opacity=".7" stroke-width=".3" transform="rotate(-24 -3.6 -1)"/>
+    <ellipse cx="3.6" cy="-1" rx="3.8" ry="1.5" fill="#E8F2FF" fill-opacity=".55" stroke="#FFFFFF" stroke-opacity=".7" stroke-width=".3" transform="rotate(24 3.6 -1)"/>
+    <path d="M0,1 Q-1.3,4 0,6.6 Q1.3,4 0,1Z" fill="#3A2A20"/>
+    <path d="M-.9,3 H.9 M-1,4.4 H1" stroke="#D8C08E" stroke-width=".5"/>
+    <ellipse cx="0" cy="-.2" rx="1.3" ry="1.4" fill="#2A1D16"/>
+    <circle cx="0" cy="-1.8" r=".8" fill="#1A120C"/>
+    <path d="M0,-2.4 V-6" stroke="#C0392B" stroke-width=".45"/>
+  </g>
+  <g id="mnMosq">
+    <use href="#mnPBase"/>
+    <path d="M-9,-1 L-12,-34 M-3,1.6 L-4,-46 M4,-2 L6,-38 M10,0 L13,-25 M1,-4 L0,-22" stroke="#EAF4FF" stroke-opacity=".5" stroke-width=".9"/>
+    <path d="M-9.4,-2 L-12.3,-33" stroke="#FFFFFF" stroke-opacity=".7" stroke-width=".35"/>
+    <use href="#mnMosq1" transform="translate(-12,-36) scale(1.5) rotate(-8)"/>
+    <use href="#mnMosq1" transform="translate(-4,-48) scale(1.65)"/>
+    <use href="#mnMosq1" transform="translate(6,-40) scale(1.45) rotate(10)"/>
+    <use href="#mnMosq1" transform="translate(13,-27) scale(1.35) rotate(16)"/>
+    <use href="#mnMosq1" transform="translate(0,-24) scale(1.4) rotate(-4)"/>
+  </g>
+
+  <!-- 군견 지뢰밭 (합성: 두 색 테) -->
+  <g id="mnDogMine">
+    <ellipse cx="8" cy="5" rx="29" ry="10" fill="#1C1006" opacity=".55" filter="url(#mnSh)"/>
+    <ellipse cx="0" cy="3.4" rx="26" ry="9.4" fill="#15171A"/>
+    <path d="M-25.9,1.2 A26,9.4 0 0 0 25.9,1.2" fill="none" stroke="#FF5A1F" stroke-width="1.3"/>
+    <path d="M-25.4,3.4 A26,9.4 0 0 0 25.4,3.4" fill="none" stroke="#3BB2EE" stroke-width="1.3"/>
+    <ellipse cx="0" cy="0" rx="26" ry="9.4" fill="#6E5436"/>
+    <ellipse cx="0" cy="0" rx="26" ry="9.4" fill="url(#mnGravel)" opacity=".55"/>
+    <path d="M-25.4,-2 A26,9.4 0 0 1 10,-9.2" fill="none" stroke="#EDE6D6" stroke-width=".7" stroke-opacity=".55"/>
+    <g id="mnMine">
+      <ellipse cx="0" cy=".8" rx="5.6" ry="2.4" fill="#3A2A1A"/>
+      <ellipse cx="0" cy="0" rx="5" ry="2.1" fill="#5E6440"/>
+      <path d="M-4.4,.8 A5,2.1 0 0 0 4.4,.8" fill="none" stroke="#F2C230" stroke-width=".8"/>
+      <ellipse cx="0" cy="-.5" rx="2.4" ry="1" fill="#8C9160"/>
+      <path d="M-4.6,-.6 A5,2.1 0 0 1 1,-2.1" fill="none" stroke="#C9CDA0" stroke-width=".5"/>
+    </g>
+    <use href="#mnMine" transform="translate(-16,1)"/>
+    <use href="#mnMine" transform="translate(16.5,-1.4)"/>
+    <use href="#mnMine" transform="translate(9,4.4) scale(.9)"/>
+    <use href="#mnMine" transform="translate(-6,4.6) scale(.85)"/>
+    <path d="M-19,-.6 V-7 M19.6,-2.4 V-8.4" stroke="#C9CDD2" stroke-width=".5"/>
+    <path d="M-19,-7 L-15.6,-6 L-19,-5Z M19.6,-8.4 L23,-7.4 L19.6,-6.4Z" fill="#E23A2A"/>
+    <path d="M3,-6 L5,-1.4 M-3,-6 L-4.6,-1.4" stroke="#2A1D14" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M3.4,-5.4 L5.2,-1.6" stroke="#C08A4E" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M0,-7 Q2,-2 1,2" fill="none" stroke="#2A1D14" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M-6,-8 Q-7.4,-20 -4,-27 Q0,-30 4,-27 Q7.4,-20 6,-8 Q0,-5 -6,-8Z" fill="#B47C40"/>
+    <path d="M-5,-12 Q-6,-21 -3,-26 Q0,-28 3,-26 Q6,-21 5,-12 Q0,-10 -5,-12Z" fill="#22252A"/>
+    <path d="M-5,-15.4 H5" stroke="#FF5A1F" stroke-width="1.5"/>
+    <path d="M-4.6,-19.6 H4.6" stroke="#3BB2EE" stroke-width="1.5"/>
+    <path d="M-3,-26 Q-5,-21 -5,-13" fill="none" stroke="#6A707A" stroke-width=".5"/>
+    <path d="M-3,-27 Q-4,-33 -1,-35.4 L-2.6,-41 L1,-37 Q3,-37.4 4,-36 L5.6,-41 L5.4,-34 Q5,-30 3,-27.6Z" fill="#B47C40"/>
+    <path d="M-1,-35.4 Q-5,-36 -8.4,-33.6 Q-5,-32.2 -2.6,-31.6" fill="#8A5A2A"/>
+    <path d="M-8.4,-33.6 L-9.2,-33.4" stroke="#15110D" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M-1.4,-36.4 L1,-34 L3.4,-36" fill="none" stroke="#2A1D14" stroke-width="1"/>
+    <circle cx="-2.4" cy="-34.4" r=".55" fill="#15110D"/>
+    <path d="M-5.8,-10 Q-6.8,-20 -3.4,-26" fill="none" stroke="#E6B47C" stroke-width=".55"/>
+  </g>
+
+  <!-- ===== 폭발 표시물 (솜 · 반투명 폭발 판 · 투명 지지대) ===== -->
+  <g id="mnBoom">
+    <ellipse cx="0" cy="0" rx="54" ry="23" fill="url(#mnGlowO)" style="mix-blend-mode: screen"/>
+    <ellipse cx="0" cy="0" rx="30" ry="12" fill="#FF6A1C" fill-opacity=".24" stroke="#FF8A3A" stroke-width="1.2"/>
+    <ellipse cx="0" cy="0" rx="18" ry="7.2" fill="none" stroke="#FFC09A" stroke-opacity=".85" stroke-width=".8" stroke-dasharray="2.4 2"/>
+    <path d="M-5,0 H5 M0,-2.2 V2.2" stroke="#FFE0C6" stroke-width=".7"/>
+    <path d="M-27.6,-4.6 A30,12 0 0 1 6,-11.8" fill="none" stroke="#FFFFFF" stroke-opacity=".6" stroke-width=".9"/>
+    <rect x="-1" y="-24" width="2" height="24" fill="#EAF4FF" fill-opacity=".42"/>
+    <path d="M-.5,-23 V-1" stroke="#FFFFFF" stroke-opacity=".75" stroke-width=".5"/>
+    <g filter="url(#mnFluff)">
+      <circle cx="-9" cy="-51" r="10" fill="#4C3D34"/><circle cx="8" cy="-54" r="11" fill="#3A2F2A"/><circle cx="0" cy="-61" r="8" fill="#62544A"/>
+      <circle cx="-15" cy="-35" r="11" fill="#C8361A"/><circle cx="15" cy="-36" r="11" fill="#C23A1C"/><circle cx="0" cy="-24" r="11" fill="#D9481C"/>
+      <circle cx="-8" cy="-37" r="11" fill="#F27420"/><circle cx="8" cy="-39" r="11" fill="#F58A24"/><circle cx="0" cy="-30" r="12" fill="#FF9A2C"/>
+      <circle cx="-2" cy="-35" r="8" fill="#FFD04A"/>
+      <circle cx="-3" cy="-36" r="4.6" fill="#FFF3C6"/>
+    </g>
+    <circle cx="-2" cy="-35" r="26" fill="url(#mnCoreGlow)" style="mix-blend-mode: screen"/>
+  </g>
+  <g id="mnBoomS">
+    <ellipse cx="0" cy="0" rx="36" ry="15" fill="url(#mnGlowO)" opacity=".55"/>
+    <ellipse cx="0" cy="0" rx="30" ry="12" fill="#FF6A1C" fill-opacity=".16" stroke="#FF8A3A" stroke-opacity=".8" stroke-width="1.1"/>
+    <path d="M-27.6,-4.6 A30,12 0 0 1 6,-11.8" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width=".9"/>
+    <rect x="-1" y="-22" width="2" height="22" fill="#EAF4FF" fill-opacity=".42"/>
+    <g filter="url(#mnFluff)">
+      <circle cx="-7" cy="-38" r="12" fill="#5E534C"/><circle cx="9" cy="-42" r="12" fill="#7A6E64"/><circle cx="0" cy="-52" r="10" fill="#8E837A"/>
+      <circle cx="0" cy="-26" r="9" fill="#4A3B34"/>
+      <circle cx="-2" cy="-29" r="6" fill="#E0541C"/><circle cx="-2" cy="-29" r="3" fill="#FFB040"/>
+    </g>
+  </g>
+</defs>
+
+<!-- ======== 판 + 틸트시프트 ======== -->
+<use href="#mnBoard"/>
+<use href="#mnBoard" filter="url(#mnTS)" mask="url(#mnTSMask)"/>
+<rect x="0" y="0" width="390" height="230" fill="#FFF1D8" opacity=".1"/>
+
+<!-- ======== 보스 (뼈 거인, 먼 쪽이라 흐림) ======== -->
+<g filter="url(#mnB22)">
+  <ellipse cx="214" cy="196" rx="94" ry="24" fill="#1C1006" opacity=".5"/>
+  <ellipse cx="195" cy="188" rx="82" ry="21" fill="#3E140F"/>
+  <ellipse cx="195" cy="182" rx="82" ry="21" fill="url(#mnBaseE)"/>
+  <path d="M113,183 A82,21 0 0 0 277,183" fill="none" stroke="#B8463A" stroke-width="2"/>
+  <path d="M150,34 Q112,70 104,120 Q98,150 108,180 L124,170 L136,182 L150,172 L166,182 L226,182 L242,172 L256,182 L270,170 L284,180 Q292,150 286,120 Q278,70 240,34 Z" fill="#6E1A14"/>
+  <path d="M130,60 Q120,120 128,176 M262,60 Q272,120 264,176 M196,80 V178" stroke="#4A0F0B" stroke-width="5" fill="none"/>
+  <path d="M168,118 L160,180 M222,118 L230,180" stroke="#C8BA94" stroke-width="15" stroke-linecap="round"/>
+  <path d="M156,138 L180,136 L177,176 L157,176Z M210,136 L234,138 L233,176 L213,176Z" fill="#2F7E6C"/><path d="M158,140 L156,174 M212,138 L214,174" stroke="#8FE0C6" stroke-width="2"/>
+  <path d="M150,36 Q195,22 240,36 L232,112 Q195,126 158,112 Z" fill="url(#mnBone)"/>
+  <path d="M160,58 Q195,48 230,58 M162,76 Q195,66 228,76 M164,94 Q195,86 226,94 M195,30 V116" stroke="#6A5838" stroke-width="3" fill="none"/>
+  <ellipse cx="138" cy="44" rx="32" ry="22" fill="url(#mnVerd)"/>
+  <ellipse cx="252" cy="44" rx="32" ry="22" fill="#2A7C6A"/>
+  <path d="M110,52 Q102,96 112,132" stroke="#C8BA94" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M280,52 Q296,84 296,116" stroke="#B8AA84" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M286,22 L330,30 L322,150 L296,140 Z" fill="url(#mnIron)"/>
+  <path d="M290,28 L326,34" stroke="#D2CCC0" stroke-width="2"/>
+  <path d="M300,60 l8,4 M306,96 l10,2" stroke="#A24E24" stroke-width="5" stroke-linecap="round"/>
+  <path d="M162,-6 Q162,-54 195,-56 Q228,-54 228,-6 Q226,16 214,22 L212,34 H178 L176,22 Q164,16 162,-6Z" fill="url(#mnBone)"/>
+  <path d="M182,26 V34 M190,26 V34 M200,26 V34 M208,26 V34" stroke="#6A5838" stroke-width="2"/>
+  <ellipse cx="181" cy="0" rx="9" ry="10" fill="#1A0E08"/><ellipse cx="209" cy="0" rx="9" ry="10" fill="#1A0E08"/>
+  <circle cx="181" cy="1" r="16" fill="url(#mnRedGlow)"/><circle cx="209" cy="1" r="16" fill="url(#mnRedGlow)"/>
+  <circle cx="181" cy="1" r="3.4" fill="#FFE2C8"/><circle cx="209" cy="1" r="3.4" fill="#FFE2C8"/>
+  <path d="M195,8 L190,18 H200Z" fill="#3A2A18"/>
+</g>
+
+<!-- ======== 먼 쪽 적 (조금 흐림) ======== -->
+<g filter="url(#mnB12)">
+  <use href="#mnSkel" transform="translate(38,146) scale(.8)"/>
+  <use href="#mnSkel" transform="translate(350,128) scale(.78)"/>
+  <use href="#mnSkel" transform="translate(316,190) scale(.8)"/>
+</g>
+<g filter="url(#mnB06)">
+  <use href="#mnHound" transform="translate(64,236) scale(.86)"/>
+  <use href="#mnSkel" transform="translate(132,226) scale(.84)"/>
+  <use href="#mnArm" transform="translate(222,240) scale(.86)"/>
+</g>
+
+<!-- ======== 쓰러진 해골 (연쇄에 맞은 쪽) ======== -->
+<use href="#mnSkel" transform="translate(122,358) rotate(-76) scale(.82)"/>
+<use href="#mnSkel" transform="translate(196,386) rotate(70) scale(.9)"/>
+<use href="#mnArm" transform="translate(262,364) rotate(-84) scale(.78)"/>
+
+<!-- ======== 연쇄 폭발 6 ======== -->
+<path d="M58,296 Q86,316 118,326 Q152,344 188,340 Q222,326 258,328 Q290,344 312,368 Q332,394 350,420" fill="none" stroke="#FF8A2A" stroke-width="3.4" stroke-opacity=".85" stroke-linecap="round" filter="url(#mnFluff)"/>
+<path d="M58,296 Q86,316 118,326 Q152,344 188,340 Q222,326 258,328 Q290,344 312,368 Q332,394 350,420" fill="none" stroke="#FFD27A" stroke-width="1.1" stroke-linecap="round"/>
+<use href="#mnBoomS" transform="translate(58,326) scale(.8)"/>
+<use href="#mnBoom" transform="translate(118,360) scale(.98)"/>
+<use href="#mnBoom" transform="translate(190,390) scale(1.34)"/>
+<use href="#mnBoom" transform="translate(258,366) scale(1.04)"/>
+<use href="#mnBoom" transform="translate(314,404) scale(.94)"/>
+<use href="#mnBoom" transform="translate(354,444) scale(.7)"/>
+<!-- 날아가는 뼛조각 (투명 철사 위) -->
+<path d="M148,316 L156,330 M226,312 L232,330 M286,352 L280,366" stroke="#EAF4FF" stroke-opacity=".45" stroke-width=".7"/>
+<path d="M144,312 l7,-2 1,2 -7,2Z M222,308 l6,3 -1,2 -6,-3Z M288,348 l5,-4 1.4,1.4 -5,4Z" fill="#E6DAB8"/>
+
+<!-- ======== 가까운 적 ======== -->
+<use href="#mnSkel" transform="translate(24,432) scale(.92)"/>
+<use href="#mnSkel" transform="translate(36,604)"/>
+<use href="#mnHound" transform="translate(116,604)"/>
+<use href="#mnArm" transform="translate(200,612)"/>
+<use href="#mnHound" transform="translate(296,598) scale(-1,1)"/>
+<use href="#mnSkel" transform="translate(356,578)"/>
+
+<!-- ======== 방어선: 돌담 지형 조각 ======== -->
+<g>
+  <path d="M0,686 L390,686 L390,697 L0,697 Z" fill="#2E241A"/>
+  <path d="M0,686 L390,686" stroke="#8B7656" stroke-width="1"/>
+  <path d="M0,672 L390,672 L390,687 L0,687 Z" fill="#5F6433"/>
+  <rect x="0" y="672" width="390" height="15" filter="url(#mnSpeckL)"/>
+  <rect x="0" y="648" width="390" height="26" fill="url(#mnBlocks)"/>
+  <rect x="0" y="648" width="390" height="26" filter="url(#mnGrit)" opacity=".5"/>
+  <path d="M0,639 L390,639 L390,649 L0,649 Z" fill="#A49F92"/>
+  <path d="M0,639 H390" stroke="#E8E0CE" stroke-width="1.2"/>
+  <path d="M30,639 V649 M74,639 V649 M118,639 V649 M164,639 V649 M206,639 V649 M252,639 V649 M296,639 V649 M340,639 V649" stroke="#6E6A60" stroke-width="1"/>
+  <path d="M0,649 H390" stroke="#3A362F" stroke-width="1.4"/>
+  <path d="M130.5,640 V686 M260.5,640 V686" stroke="#1E1A15" stroke-width="1" stroke-opacity=".7"/>
+  <path d="M131.6,640 V686 M261.6,640 V686" stroke="#C9C1B0" stroke-width=".5" stroke-opacity=".35"/>
+  <ellipse cx="50" cy="640" rx="14" ry="2.6" fill="#62702E"/><ellipse cx="226" cy="640" rx="10" ry="2.2" fill="#62702E"/><ellipse cx="364" cy="641" rx="12" ry="2.4" fill="#5A6A2A"/>
+  <rect x="0" y="639" width="390" height="10" filter="url(#mnSpeckD)" opacity=".7"/>
+  <!-- 모래주머니 -->
+  <g>
+    <path d="M86,640 Q86,630 98,630 Q110,630 110,640 Q98,644 86,640Z" fill="#A08C62"/>
+    <path d="M104,640 Q104,631 116,631 Q128,631 128,640 Q116,644 104,640Z" fill="#8E7A52"/>
+    <path d="M94,632 Q102,622 112,629 Q104,636 94,632Z" fill="#B8A478"/>
+    <path d="M88,636 Q92,631 100,631 M106,636 Q110,632 118,632" stroke="#E2D2A8" stroke-width=".8" fill="none"/>
+    <path d="M276,640 Q276,630 288,630 Q300,630 300,640 Q288,644 276,640Z" fill="#9A865C"/>
+    <path d="M294,641 Q294,632 306,632 Q318,632 318,641 Q306,645 294,641Z" fill="#A08C62"/>
+    <path d="M278,636 Q282,631 290,631" stroke="#E2D2A8" stroke-width=".8" fill="none"/>
+  </g>
+  <g filter="url(#mnBrush)" opacity=".5"><rect x="0" y="639" width="390" height="35" fill="#9E998C" fill-opacity=".01"/></g>
+</g>
+
+<!-- ======== 무기 9: 뒷줄 5 · 앞줄 4 ======== -->
+<g filter="url(#mnBrush)">
+<use href="#mnCannon" transform="translate(39,724) scale(1.12)"/>
+<use href="#mnKnight" transform="translate(117,724) scale(1.12)"/>
+<use href="#mnDisc" transform="translate(195,724) scale(1.12)"/>
+<use href="#mnRobot" transform="translate(273,724) scale(1.12)"/>
+<use href="#mnLaser" transform="translate(351,724) scale(1.12)"/>
+<use href="#mnCarbine" transform="translate(78,772) scale(1.16)"/>
+<use href="#mnFox" transform="translate(156,772) scale(1.16)"/>
+<use href="#mnDogMine" transform="translate(234,772) scale(1.12)"/>
+<use href="#mnMosq" transform="translate(312,772) scale(1.16)"/>
+</g>
+
+<!-- ======== 판 앞 모서리 + 커팅 매트 ======== -->
+<rect x="0" y="814" width="390" height="30" fill="url(#mnMat)"/>
+<path d="M2,814 V818 M67,814 V820 M132,814 V818 M197,814 V820 M262,814 V818 M327,814 V820" stroke="#9CC4B5" stroke-width="1"/>
+<path d="M0,804 H390 V815 H0Z" fill="#221B15"/>
+<path d="M0,804.5 H390" stroke="#9C8462" stroke-width="1"/>
+<path d="M0,815 H390" stroke="#0E0B08" stroke-width="1.5"/>
+<rect x="0" y="815" width="390" height="10" fill="#0E0B08" opacity=".35" filter="url(#mnB12)"/>
+
+<!-- ======== 조명 ======== -->
+<rect x="0" y="0" width="390" height="844" fill="url(#mnKey)"/>
+<rect x="0" y="0" width="390" height="844" fill="url(#mnVig)"/>
+</svg>
+
+<!-- ===================== HUD: 인쇄 토큰 ===================== -->
+<div class="mn-tok" style="left: 10px; top: 10px; width: 62px; height: 62px; text-align: center">
+  <div style="position: absolute; left: 0; top: 0; width: 6px; height: 100%; background: #FF5A1F; border-radius: 7px 0 0 7px"></div>
+  <div style="padding-top: 7px; font: 700 10px/1 'Noto Sans KR', sans-serif; letter-spacing: .02em; color: #E9E3D8">웨이브</div>
+  <div class="mn-num" style="font-size: 38px; line-height: 38px; color: #FFFFFF">12</div>
+</div>
+<svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true" style="position: absolute; left: 76px; top: 10px; overflow: visible">
+  <polygon points="31,4 55,17.5 55,44.5 31,58 7,44.5 7,17.5" fill="#1C1006" opacity=".5" transform="translate(4,6)" style="filter: blur(4px)"/>
+  <polygon points="31,4 55,17.5 55,44.5 31,58 7,44.5 7,17.5" fill="#8F7A58" transform="translate(0,3.5)"/>
+  <polygon points="31,4 55,17.5 55,44.5 31,58 7,44.5 7,17.5" fill="#C7B08A" transform="translate(0,2)"/>
+  <polygon points="31,4 55,17.5 55,44.5 31,58 7,44.5 7,17.5" fill="#FF5A1F"/>
+  <polygon points="31,8.4 51,19.8 51,42.2 31,53.6 11,42.2 11,19.8" fill="none" stroke="#1F1A17" stroke-width="1.2" stroke-opacity=".55"/>
+  <path d="M7,17.5 L31,4 L55,17.5" fill="none" stroke="#FFC7A8" stroke-width="1"/>
+</svg>
+<div style="position: absolute; left: 76px; top: 10px; width: 62px; height: 62px; text-align: center; color: #1F1A17">
+  <div class="mn-num" style="padding-top: 13px; font-size: 13px; line-height: 13px; font-weight: 700; letter-spacing: .08em">LV</div>
+  <div class="mn-num" style="font-size: 30px; line-height: 28px">9</div>
+</div>
+
+<div class="mn-tok" style="left: 246px; top: 10px; width: 134px; height: 40px">
+  <div style="position: absolute; left: 8px; top: 5px; font: 700 10px/1 'Noto Sans KR', sans-serif; color: #E9E3D8">목숨</div>
+  <div class="mn-num" style="position: absolute; right: 8px; top: 2px; font-size: 15px; line-height: 15px; color: #FFFFFF">4<span style="color: #C9C3B8; font-size: 12px">/5</span></div>
+  <svg width="124" height="20" viewBox="0 0 124 20" aria-hidden="true" style="position: absolute; left: 5px; top: 17px; overflow: visible">
+    <defs>
+      <linearGradient id="mnHeart" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FF6A64"/>
+        <stop offset=".5" stop-color="#E1202C"/>
+        <stop offset="1" stop-color="#9A0A16"/>
+      </linearGradient>
+      <g id="mnHeartTok">
+        <path d="M10,17.6 C4,13 1,10 1,6.2 C1,3.3 3.2,1.2 6,1.2 C7.7,1.2 9.2,2.1 10,3.4 C10.8,2.1 12.3,1.2 14,1.2 C16.8,1.2 19,3.3 19,6.2 C19,10 16,13 10,17.6 Z" fill="#6E0710" transform="translate(0,1.6)"/>
+        <path d="M10,17.6 C4,13 1,10 1,6.2 C1,3.3 3.2,1.2 6,1.2 C7.7,1.2 9.2,2.1 10,3.4 C10.8,2.1 12.3,1.2 14,1.2 C16.8,1.2 19,3.3 19,6.2 C19,10 16,13 10,17.6 Z" fill="url(#mnHeart)"/>
+        <path d="M10,14.6 C6,11.4 4,9.4 4,6.8 C4,5.2 5.2,4.2 6.6,4.2" fill="none" stroke="#FFB3AE" stroke-width=".8" stroke-opacity=".6"/>
+        <ellipse cx="5.6" cy="4.8" rx="2.6" ry="1.4" fill="#FFFFFF" fill-opacity=".85" transform="rotate(-32 5.6 4.8)"/>
+      </g>
+    </defs>
+    <use href="#mnHeartTok" x="2"/>
+    <use href="#mnHeartTok" x="26"/>
+    <use href="#mnHeartTok" x="50"/>
+    <use href="#mnHeartTok" x="74"/>
+    <path d="M108,17.6 C102,13 99,10 99,6.2 C99,3.3 101.2,1.2 104,1.2 C105.7,1.2 107.2,2.1 108,3.4 C108.8,2.1 110.3,1.2 112,1.2 C114.8,1.2 117,3.3 117,6.2 C117,10 114,13 108,17.6 Z" fill="none" stroke="#8C9098" stroke-width="1.2" stroke-dasharray="2 1.6"/>
+  </svg>
+</div>
+
+<div class="mn-tok" style="left: 246px; top: 56px; width: 134px; height: 22px">
+  <div style="position: absolute; left: 7px; top: 5px; font: 700 9.5px/12px 'Noto Sans KR', sans-serif; color: #E9E3D8">경험치</div>
+  <svg width="62" height="12" viewBox="0 0 62 12" aria-hidden="true" style="position: absolute; left: 41px; top: 4px; overflow: visible">
+    <rect x="0" y="3" width="5.2" height="6" fill="#FF5A1F"/><rect x="6.2" y="3" width="5.2" height="6" fill="#FF5A1F"/><rect x="12.4" y="3" width="5.2" height="6" fill="#FF5A1F"/>
+    <rect x="18.6" y="3" width="5.2" height="6" fill="#FF5A1F"/><rect x="24.8" y="3" width="5.2" height="6" fill="#FF5A1F"/><rect x="31" y="3" width="5.2" height="6" fill="#FF5A1F"/>
+    <rect x="37.7" y="3.5" width="4.2" height="5" fill="none" stroke="#7E838B" stroke-width="1"/><rect x="43.9" y="3.5" width="4.2" height="5" fill="none" stroke="#7E838B" stroke-width="1"/>
+    <rect x="50.1" y="3.5" width="4.2" height="5" fill="none" stroke="#7E838B" stroke-width="1"/><rect x="56.3" y="3.5" width="4.2" height="5" fill="none" stroke="#7E838B" stroke-width="1"/>
+    <g transform="translate(33.6,-1.6)">
+      <path d="M-3.4,2 L0,.2 L3.4,2 L3.4,7.6 L0,9.4 L-3.4,7.6Z" fill="#B8521C"/>
+      <path d="M-3.4,2 L0,.2 L3.4,2 L0,3.8Z" fill="#FFB27A"/>
+      <path d="M0,3.8 L3.4,2 L3.4,7.6 L0,9.4Z" fill="#8E3C12"/>
+      <path d="M-3.4,2 L0,3.8 L0,9.4 L-3.4,7.6Z" fill="#E8742A"/>
+    </g>
+  </svg>
+  <div class="mn-num" style="position: absolute; right: 7px; top: 3px; font-size: 14px; line-height: 16px; color: #FFFFFF">60%</div>
+</div>
+
+<!-- ===================== 연쇄 23: 별모양 다이컷 토큰 ===================== -->
+<svg width="150" height="150" viewBox="-75 -75 150 150" aria-hidden="true" style="position: absolute; left: 237px; top: 190px; transform: rotate(-9deg); overflow: visible">
+  <polygon points="6.2,-61.7 14.3,-46.9 29.3,-54.6 31.2,-37.8 48.0,-39.2 43.3,-23.0 59.4,-17.9 48.8,-4.7 61.7,6.2 46.9,14.3 54.6,29.3 37.8,31.2 39.2,48.0 23.0,43.3 17.9,59.4 4.7,48.8 -6.2,61.7 -14.3,46.9 -29.3,54.6 -31.2,37.8 -48.0,39.2 -43.3,23.0 -59.4,17.9 -48.8,4.7 -61.7,-6.2 -46.9,-14.3 -54.6,-29.3 -37.8,-31.2 -39.2,-48.0 -23.0,-43.3 -17.9,-59.4 -4.7,-48.8" fill="#1C1006" opacity=".55" transform="translate(6,10)" style="filter: blur(5px)"/>
+  <polygon points="6.2,-61.7 14.3,-46.9 29.3,-54.6 31.2,-37.8 48.0,-39.2 43.3,-23.0 59.4,-17.9 48.8,-4.7 61.7,6.2 46.9,14.3 54.6,29.3 37.8,31.2 39.2,48.0 23.0,43.3 17.9,59.4 4.7,48.8 -6.2,61.7 -14.3,46.9 -29.3,54.6 -31.2,37.8 -48.0,39.2 -43.3,23.0 -59.4,17.9 -48.8,4.7 -61.7,-6.2 -46.9,-14.3 -54.6,-29.3 -37.8,-31.2 -39.2,-48.0 -23.0,-43.3 -17.9,-59.4 -4.7,-48.8" fill="#8F7A58" transform="translate(0,4.5)"/>
+  <polygon points="6.2,-61.7 14.3,-46.9 29.3,-54.6 31.2,-37.8 48.0,-39.2 43.3,-23.0 59.4,-17.9 48.8,-4.7 61.7,6.2 46.9,14.3 54.6,29.3 37.8,31.2 39.2,48.0 23.0,43.3 17.9,59.4 4.7,48.8 -6.2,61.7 -14.3,46.9 -29.3,54.6 -31.2,37.8 -48.0,39.2 -43.3,23.0 -59.4,17.9 -48.8,4.7 -61.7,-6.2 -46.9,-14.3 -54.6,-29.3 -37.8,-31.2 -39.2,-48.0 -23.0,-43.3 -17.9,-59.4 -4.7,-48.8" fill="#CDB68E" transform="translate(0,2.4)"/>
+  <polygon points="6.2,-61.7 14.3,-46.9 29.3,-54.6 31.2,-37.8 48.0,-39.2 43.3,-23.0 59.4,-17.9 48.8,-4.7 61.7,6.2 46.9,14.3 54.6,29.3 37.8,31.2 39.2,48.0 23.0,43.3 17.9,59.4 4.7,48.8 -6.2,61.7 -14.3,46.9 -29.3,54.6 -31.2,37.8 -48.0,39.2 -43.3,23.0 -59.4,17.9 -48.8,4.7 -61.7,-6.2 -46.9,-14.3 -54.6,-29.3 -37.8,-31.2 -39.2,-48.0 -23.0,-43.3 -17.9,-59.4 -4.7,-48.8" fill="#FF5A1F"/>
+  <circle r="41" fill="none" stroke="#1F1A17" stroke-opacity=".5" stroke-width="1.3"/>
+  <circle r="44.5" fill="none" stroke="#1F1A17" stroke-opacity=".3" stroke-width=".8" stroke-dasharray="2 3"/>
+  <path d="M-48.8,4.7 L-61.7,-6.2 L-46.9,-14.3 L-54.6,-29.3 L-37.8,-31.2 L-39.2,-48 L-23,-43.3 L-17.9,-59.4 L-4.7,-48.8 L6.2,-61.7" fill="none" stroke="#FFC9AE" stroke-width="1.1"/>
+</svg>
+<div style="position: absolute; left: 237px; top: 190px; width: 150px; height: 150px; transform: rotate(-9deg); text-align: center; color: #1F1A17">
+  <div style="padding-top: 37px; font: 900 15px/1 'Noto Sans KR', sans-serif; letter-spacing: .12em; text-indent: .12em">연쇄</div>
+  <div class="mn-num" style="font-size: 66px; line-height: 56px; letter-spacing: -.02em">23</div>
+</div>
+
+<!-- 피해 칩 -->
+<div class="mn-tok mn-num" style="left: 164px; top: 254px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FF7A44, #FF5A1F 60%, #E24A12); color: #1F1A17; font-size: 23px; line-height: 48px; text-align: center; transform: rotate(6deg)">119</div>
+<div class="mn-tok mn-num" style="left: 60px; top: 382px; width: 34px; height: 34px; border-radius: 50%; font-size: 17px; line-height: 34px; text-align: center; transform: rotate(-8deg)">36</div>
+<div class="mn-tok mn-num" style="left: 262px; top: 432px; width: 34px; height: 34px; border-radius: 50%; font-size: 17px; line-height: 34px; text-align: center; transform: rotate(10deg)">52</div>
+
+<!-- ===================== 반응 카드 ===================== -->
+<div style="position: absolute; left: 22px; top: 474px; width: 346px; height: 80px; transform: rotate(-2.6deg); border-radius: 9px; background: #F2EEE6; box-shadow: 0 1.5px 0 #CFC6B6, 6px 12px 16px rgba(30,14,2,.6)">
+  <div style="position: absolute; left: 4px; top: 4px; right: 4px; bottom: 4px; border-radius: 6px; background: linear-gradient(165deg, #2E3238 0%, #22252A 55%, #1C1F23 100%); overflow: hidden">
+    <div style="position: absolute; left: 0; top: 0; right: 0; height: 18px; background: #FF5A1F"></div>
+    <div style="position: absolute; left: 10px; top: 3px; font: 900 10px/12px 'Noto Sans KR', sans-serif; letter-spacing: .04em; color: #1F1A17">반응 카드 · 군견 지뢰밭</div>
+    <div class="mn-num" style="position: absolute; right: 10px; top: 2px; font-size: 12px; line-height: 14px; letter-spacing: .1em; color: #1F1A17">No. 23</div>
+    <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true" style="position: absolute; left: 9px; top: 24px">
+      <rect x=".5" y=".5" width="43" height="43" rx="4" fill="#15171A" stroke="#FF5A1F" stroke-width="1"/>
+      <path d="M8,30 L14,22 L20,27 L25,15 L31,22 L36,18" fill="none" stroke="#3BB2EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M26,31 L23,26 L19,30 L22,22 L16,22 L22,18 L20,12 L26,17 L31,11 L30,19 L36,20 L30,23 L33,30Z" fill="#FF5A1F"/>
+      <ellipse cx="22" cy="36" rx="12" ry="3" fill="#5E6440"/><ellipse cx="22" cy="35.2" rx="5" ry="1.3" fill="#8C9160"/>
+    </svg>
+    <div style="position: absolute; left: 62px; top: 22px; font: 900 27px/30px 'Noto Sans KR', sans-serif; letter-spacing: -.03em; color: #FFFFFF; white-space: nowrap">전향 무리 <span style="color: #8C9098">·</span> <span style="color: #FF6A2B">강타!</span></div>
+    <div style="position: absolute; left: 63px; top: 54px; font: 500 10px/12px 'Noto Sans KR', sans-serif; color: #CFC9BE; white-space: nowrap">묶인 적이 돌아서 제 무리를 들이받는다</div>
+  </div>
+</div>
+
+<!-- 갈래 칩 -->
+<div class="mn-tok" style="left: 266px; top: 612px; width: 114px; height: 22px; border-radius: 4px; font: 700 10px/22px 'Noto Sans KR', sans-serif; text-align: center; color: #F4EFE6">갈래 <span class="mn-num" style="font-size: 13px">6/7</span> <span style="color: #8C9098">·</span> 칸 <span class="mn-num" style="font-size: 13px; color: #FF7A44">1</span></div>
+
+<!-- 무기 이름표 -->
+<div class="mn-tag" style="left: 39px; top: 738px">대포</div>
+<div class="mn-tag" style="left: 117px; top: 738px">기사단</div>
+<div class="mn-tag" style="left: 195px; top: 738px">원반</div>
+<div class="mn-tag" style="left: 273px; top: 738px">전투 로봇</div>
+<div class="mn-tag" style="left: 351px; top: 738px">레이저 소총</div>
+<div class="mn-tag" style="left: 78px; top: 787px">카빈</div>
+<div class="mn-tag" style="left: 156px; top: 787px">불여우</div>
+<div class="mn-tag" style="left: 234px; top: 788px; box-shadow: inset 3px 0 0 #FF5A1F, inset 6px 0 0 #3BB2EE, 0 1.5px 0 #B9A27E, 2px 4px 5px rgba(30,14,2,.5); padding-left: 10px">군견 지뢰밭 <span style="color: #FF7A44">합성</span></div>
+<div class="mn-tag" style="left: 312px; top: 787px">모기 떼</div>
+
+<!-- 버튼: 커팅 매트 위 토큰 -->
+<button type="button" class="mn-tok" style="left: 10px; top: 818px; width: 66px; height: 22px; border: 0; padding: 0; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; font: 700 11px/1 'Noto Sans KR', sans-serif; color: #F4EFE6; cursor: pointer">
+  <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" style="display: block"><path d="M4.4,1 H7.6 M5,1 V4.6 L2,10 Q1.6,11 2.8,11 H9.2 Q10.4,11 10,10 L7,4.6 V1" fill="none" stroke="#F4EFE6" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.3,8 H8.7 L9.6,10 Q9.8,10.5 9.1,10.5 H2.9 Q2.2,10.5 2.4,10Z" fill="#FF5A1F"/></svg>
+  실험
+</button>
+<button type="button" class="mn-tok mn-num" style="right: 10px; top: 818px; width: 40px; height: 22px; border: 0; padding: 0; border-radius: 11px; background: radial-gradient(circle at 40% 35%, #FF7A44, #FF5A1F 60%, #E24A12); color: #1F1A17; font-size: 15px; line-height: 22px; cursor: pointer">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

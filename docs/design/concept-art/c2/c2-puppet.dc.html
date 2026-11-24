@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>그림자극 판 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+@keyframes ppLamp{0%,100%{opacity:.92}38%{opacity:1}55%{opacity:.86}72%{opacity:.97}}
+.pp-lamp{animation:ppLamp 3.2s ease-in-out infinite}
+.pp-back{color:#170905;text-shadow:0 0 1px #FFF6DC,0 0 6px #FFF1C8,0 0 16px #FFD27A,0 0 30px #FF9A3C}
+.pp-cut{color:#FFE9B8;text-shadow:0 0 6px rgba(255,190,90,.75),0 0 14px rgba(255,140,50,.45)}
+.pp-lbl{position:absolute;transform:translateX(-50%);padding:2px 4px 2px;background:#170905;text-align:center;font:700 9px/10px 'Hahmlet',serif;color:#FFE3A8;letter-spacing:-.02em;white-space:nowrap;clip-path:polygon(3px 0,calc(100% - 3px) 0,100% 3px,100% calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,0 calc(100% - 3px),0 3px)}
+.pp-btn{position:absolute;bottom:9px;height:26px;padding:0 12px;border:1px solid #9A4A22;background:#1A0905;color:#FFE3A8;font:700 12px/24px 'Hahmlet',serif;letter-spacing:.04em;clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 50%,calc(100% - 6px) 100%,6px 100%,0 50%);cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #4A1207; font-family: 'Hahmlet', serif; color: #FFE9B8">
+
+<!-- ============ 막 · 적 · 연쇄 · 성벽 · 무기 (한 장의 SVG) ============ -->
+<svg width="390" height="844" viewBox="0 0 390 844" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+<defs>
+  <radialGradient id="ppScreen" gradientUnits="userSpaceOnUse" cx="200" cy="350" r="500">
+    <stop offset="0" stop-color="#FFF3D0"/>
+    <stop offset=".17" stop-color="#FCD083"/>
+    <stop offset=".38" stop-color="#EE9A40"/>
+    <stop offset=".6" stop-color="#CC5621"/>
+    <stop offset=".82" stop-color="#83240E"/>
+    <stop offset="1" stop-color="#4A1207"/>
+  </radialGradient>
+  <radialGradient id="ppHot" gradientUnits="userSpaceOnUse" cx="214" cy="352" r="190">
+    <stop offset="0" stop-color="#FFFBEA" stop-opacity=".95"/>
+    <stop offset=".35" stop-color="#FFE7A8" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#FFC36A" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="ppStage" gradientUnits="userSpaceOnUse" cx="195" cy="812" r="250" gradientTransform="translate(195 812) scale(1 .5) translate(-195 -812)">
+    <stop offset="0" stop-color="#FFE3A2"/>
+    <stop offset=".3" stop-color="#F5AE55"/>
+    <stop offset=".62" stop-color="#D7682A"/>
+    <stop offset="1" stop-color="#7A200C"/>
+  </radialGradient>
+  <radialGradient id="ppBloom">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset=".15" stop-color="#FFF9E4"/>
+    <stop offset=".36" stop-color="#FFDE8E" stop-opacity=".8"/>
+    <stop offset=".62" stop-color="#FFA548" stop-opacity=".36"/>
+    <stop offset="1" stop-color="#FF8032" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="ppEye">
+    <stop offset="0" stop-color="#FFFCEE"/>
+    <stop offset=".55" stop-color="#FFE3A0"/>
+    <stop offset="1" stop-color="#FFB453" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="ppRod" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#170905" stop-opacity=".9"/>
+    <stop offset="1" stop-color="#170905" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="ppRim" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFE7AE" stop-opacity="0"/>
+    <stop offset="1" stop-color="#FFF0C8" stop-opacity=".95"/>
+  </linearGradient>
+  <linearGradient id="ppVal" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0F0503"/>
+    <stop offset="1" stop-color="#1D0A05"/>
+  </linearGradient>
+  <linearGradient id="ppXp" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#E0532A"/>
+    <stop offset=".7" stop-color="#FFC66E"/>
+    <stop offset="1" stop-color="#FFF4D4"/>
+  </linearGradient>
+  <filter id="ppFiber" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".006 .55" numOctaves="2" seed="7"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .22  0 0 0 0 .06  0 0 0 0 .02  0 0 0 -1.6 1.05"/>
+  </filter>
+  <filter id="ppBoss" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.4"/></filter>
+  <filter id="ppFar" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.1"/></filter>
+  <filter id="ppMid" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation=".75"/></filter>
+  <filter id="ppGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.6"/></filter>
+  <filter id="ppSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter>
+
+  <!-- 판 무늬 -->
+  <pattern id="ppMerlon" patternUnits="userSpaceOnUse" x="3" y="667" width="19" height="9">
+    <path d="M0,9 L0,2.4 L2.2,0 L9.8,0 L12,2.4 L12,9 Z" fill="#170905"/>
+  </pattern>
+  <pattern id="ppLattice" patternUnits="userSpaceOnUse" x="0" y="679" width="13" height="14">
+    <path d="M6.5,1.2 L11.6,7 L6.5,12.8 L1.4,7 Z" fill="none" stroke="#F7B85E" stroke-width="1.25"/>
+    <circle cx="6.5" cy="7" r="1.15" fill="#FFD891"/>
+  </pattern>
+  <pattern id="ppFloorCut" patternUnits="userSpaceOnUse" x="0" y="806" width="16" height="8">
+    <path d="M8,1 L11,4 L8,7 L5,4 Z" fill="#B9551F"/>
+  </pattern>
+
+  <!-- 조각: 불꽃 혀 · 종이 불똥 · 말림 -->
+  <g id="ppTongue">
+    <path d="M -4.2,-11 C -7.4,-16 -2.6,-20 -5.4,-27.6 C -2,-24.6 -.6,-22.6 -.4,-20.4 C .6,-25.6 3.2,-29.4 1.8,-35.4 C 6.4,-29.6 7.6,-22.6 5,-17 C 7,-18.8 8.4,-21.2 8.6,-24.4 C 10.6,-19.2 8.4,-14 4.2,-11 C 1.4,-12.4 -1.4,-12.4 -4.2,-11 Z"/>
+  </g>
+  <path id="ppShard" d="M 0,-3.6 L 1.6,1.9 L 0,.9 L -1.6,1.9 Z"/>
+  <path id="ppCurl" d="M 0,0 C 2.2,-1 3.6,-3.2 2.6,-5 C 1.7,-6 0,-5.4 .4,-4.1 C .9,-4.7 1.8,-4.3 1.5,-3.4 C 1.2,-2.1 0,-1.1 -.7,-.6 Z"/>
+  <path id="ppDrop" d="M 0,-2 C 1.2,-.6 1.1,1 0,1.6 C -1.1,1 -1.2,-.6 0,-2 Z"/>
+  <path id="ppSpk" d="M -1.4,-13 L 0,-16.6 L 1.4,-13 Z"/>
+  <path id="ppSpike" d="M -21,-116 L 0,-178 L 21,-116 Z"/>
+  <path id="ppRay" d="M -1.3,-13 L 0,-74 L 1.3,-13 Z"/>
+  <path id="ppTooth" d="M -2.4,-11.4 L 0,-16 L 2.4,-11.4 Z"/>
+
+  <!-- 구멍(빛이 새는 자리) -->
+  <mask id="ppImpM" maskUnits="userSpaceOnUse" x="-40" y="-50" width="80" height="100">
+    <rect x="-40" y="-50" width="80" height="100" fill="#fff"/>
+    <g fill="#000">
+      <ellipse cx="-1.35" cy="-16.3" rx=".95" ry=".6"/><ellipse cx="1.35" cy="-16.3" rx=".95" ry=".6"/>
+      <circle cx="0" cy="-5.4" r="1.7"/>
+      <path d="M -3.1,-3.3 C -3.9,-1.8 -3.5,-.6 -2.6,0 C -2,-.9 -2.2,-2.3 -3.1,-3.3 Z"/>
+      <path d="M 3.1,-3.3 C 3.9,-1.8 3.5,-.6 2.6,0 C 2,-.9 2.2,-2.3 3.1,-3.3 Z"/>
+      <circle cx="-3" cy="5.4" r=".8"/><circle cx="0" cy="4.1" r=".8"/><circle cx="3" cy="5.4" r=".8"/>
+      <circle cx="-6.9" cy="-25.6" r=".75"/><circle cx="6.9" cy="-25.6" r=".75"/>
+      <path d="M -12.4,-35.6 L -11.7,-33.2 L -12.4,-31.6 L -13.1,-33.2 Z"/>
+    </g>
+  </mask>
+  <mask id="ppArmM" maskUnits="userSpaceOnUse" x="-40" y="-50" width="80" height="100">
+    <rect x="-40" y="-50" width="80" height="100" fill="#fff"/>
+    <g fill="#000">
+      <use href="#ppDrop" transform="translate(0 3) rotate(0) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(36) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(72) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(108) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(144) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(180) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(216) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(252) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(288) translate(0 -8.4)"/>
+      <use href="#ppDrop" transform="translate(0 3) rotate(324) translate(0 -8.4)"/>
+      <circle cx="0" cy="3" r="2.5"/>
+      <rect x="-3.4" y="-21.2" width="6.8" height="1.2"/>
+      <circle cx="-12.6" cy="-10.4" r="1.15"/><circle cx="12.6" cy="-10.4" r="1.15"/>
+      <circle cx="0" cy="-27" r=".9"/>
+    </g>
+    <circle cx="0" cy="3" r="11.9" fill="none" stroke="#000" stroke-width=".8"/>
+  </mask>
+  <mask id="ppRushM" maskUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80">
+    <rect x="-40" y="-40" width="80" height="80" fill="#fff"/>
+    <g fill="#000">
+      <circle cx="21.4" cy="-9.6" r="1"/>
+      <circle cx="-6.4" cy="-1.4" r="1.2"/><circle cx="-1.6" cy="-2.1" r="1.2"/><circle cx="3.2" cy="-1.7" r="1.05"/>
+      <path d="M -11,-1.2 C -10,-3.2 -8.4,-4 -6.8,-4.2 C -8.4,-3.4 -9.6,-2.4 -11,-1.2 Z"/>
+    </g>
+  </mask>
+  <mask id="ppRobM" maskUnits="userSpaceOnUse" x="-30" y="-60" width="60" height="70">
+    <rect x="-30" y="-60" width="60" height="70" fill="#fff"/>
+    <g fill="#000">
+      <rect x="-3" y="-37.6" width="6" height="1.3"/>
+      <circle cx="-3.2" cy="-25" r=".9"/><circle cx="0" cy="-25" r=".9"/><circle cx="3.2" cy="-25" r=".9"/>
+      <circle cx="-3.2" cy="-22.2" r=".9"/><circle cx="0" cy="-22.2" r=".9"/><circle cx="3.2" cy="-22.2" r=".9"/>
+      <rect x="-4.2" y="-19.6" width="8.4" height="1"/>
+      <rect x="10.2" y="-47" width="1.3" height="9"/>
+      <circle cx="-11.8" cy="-24" r=".8"/>
+    </g>
+  </mask>
+  <mask id="ppLasM" maskUnits="userSpaceOnUse" x="-20" y="-60" width="40" height="70">
+    <rect x="-20" y="-60" width="40" height="70" fill="#fff"/>
+    <g fill="#000">
+      <circle cx="0" cy="-18" r="1.8"/>
+      <rect x="-.4" y="-46" width=".8" height="18"/>
+      <circle cx="0" cy="-3" r="1.4"/>
+    </g>
+  </mask>
+  <mask id="ppDiscM" maskUnits="userSpaceOnUse" x="-20" y="-50" width="40" height="60">
+    <rect x="-20" y="-50" width="40" height="60" fill="#fff"/>
+    <g fill="#000">
+      <circle cx="0" cy="-27" r="3.6"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(0) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(45) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(90) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(135) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(180) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(225) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(270) translate(0 -7.4) scale(1.1)"/>
+      <use href="#ppDrop" transform="translate(0 -27) rotate(315) translate(0 -7.4) scale(1.1)"/>
+    </g>
+    <circle cx="0" cy="-27" r="10.4" fill="none" stroke="#000" stroke-width=".7"/>
+  </mask>
+
+  <!-- 적: 귀졸(일반) -->
+  <g id="ppImp">
+    <g mask="url(#ppImpM)">
+      <path d="M -2.6,-17 C -5,-19.5 -8.5,-23.5 -9.5,-30 C -6.6,-26.5 -4.2,-24.2 -1.6,-23 L 1.6,-23 C 4.2,-24.2 6.6,-26.5 9.5,-30 C 8.5,-23.5 5,-19.5 2.6,-17 C 3.6,-14.4 2.4,-11.6 0,-11 C -2.4,-11.6 -3.6,-14.4 -2.6,-17 Z"/>
+      <path d="M -6.5,-10 L 6.5,-10 L 4.6,0 L 8.6,11 L 4.2,8.4 L 2.4,14 L 0,9.6 L -2.4,14 L -4.2,8.4 L -8.6,11 L -4.6,0 Z"/>
+      <path d="M -4,-11 C -9,-14 -12,-20 -17.5,-22.4 C -13.4,-17.2 -10.2,-13 -5.5,-8.4 Z"/>
+      <path d="M 4,-11 C 9,-13 11.6,-17 15.4,-17.8 C 12.2,-14 9.6,-11 5.5,-8.4 Z"/>
+      <path d="M -3.4,10 L -4.4,20 L -7.2,23.4 L -2.4,22.6 L -1.4,11.5 Z"/>
+      <path d="M 3.4,10 L 4.4,20 L 7.2,23.4 L 2.4,22.6 L 1.4,11.5 Z"/>
+      <path d="M -6.4,-9.4 L -11.6,-3.2 L -9.6,-1.6 L -4.8,-6.6 Z"/>
+      <path d="M -11.6,-3.2 L -13.4,-13 L -11.4,-13.4 L -9.6,-1.6 Z"/>
+      <path d="M -12.9,-30 L -11.9,-30 L -11.9,15 L -12.9,15 Z"/>
+      <path d="M -12.4,-38.6 C -10.3,-35.4 -10.1,-32.2 -12.4,-29.4 C -14.7,-32.2 -14.5,-35.4 -12.4,-38.6 Z"/>
+      <path d="M -15.2,-29.6 L -9.6,-29.6 L -12.4,-27.6 Z"/>
+      <path d="M 6.4,-9.4 L 10.8,-1.4 L 9,0 L 4.8,-6.4 Z"/>
+      <path d="M 10.8,-1.4 L 10.4,8.6 L 8.4,8.6 L 9,0 Z"/>
+      <path d="M 8.2,8.4 L 11,8.4 L 12.2,11.6 L 9.9,10.4 L 9.6,12.6 L 8.4,10.4 Z"/>
+    </g>
+    <g fill="none" stroke="#FFCB7A" stroke-width=".55" opacity=".85">
+      <circle cx="-6.4" cy="-9.4" r="1.15"/><circle cx="-11.6" cy="-3.2" r="1.15"/><circle cx="6.4" cy="-9.4" r="1.15"/><circle cx="10.8" cy="-1.4" r="1.15"/>
+    </g>
+    <rect x="9.1" y="11.5" width=".9" height="22" fill="url(#ppRod)"/>
+    <rect x="-12.8" y="15" width=".8" height="18" fill="url(#ppRod)"/>
+  </g>
+
+  <!-- 적: 철갑 수문장(장갑) -->
+  <g id="ppArm">
+    <g mask="url(#ppArmM)">
+      <path d="M 13.6,-38 L 14.6,-38 L 14.6,26 L 13.6,26 Z"/>
+      <path d="M 14.6,-37 C 19.6,-35 21.6,-30 20.6,-24.6 C 18.8,-27.6 16.8,-28.6 14.6,-28.8 Z"/>
+      <path d="M 13.6,-37 C 9.4,-35.4 8,-31.6 8.6,-28 C 10,-30.4 11.6,-31.2 13.6,-31.4 Z"/>
+      <path d="M 13.4,-38 L 14.1,-45 L 14.8,-38 Z"/>
+      <path d="M -5.5,-15 L -6,-22 C -6,-27 -3,-30 0,-31 C 3,-30 6,-27 6,-22 L 5.5,-15 L 3,-12.5 L -3,-12.5 Z"/>
+      <path d="M -1.2,-30.5 L 0,-42.5 L 1.2,-30.5 Z"/>
+      <path d="M -5,-26 C -10,-30 -12.4,-36 -11.4,-41.4 C -9.4,-36.4 -6.4,-32.4 -3.4,-29.4 Z"/>
+      <path d="M 5,-26 C 10,-30 12.4,-36 11.4,-41.4 C 9.4,-36.4 6.4,-32.4 3.4,-29.4 Z"/>
+      <path d="M -5,-12 C -9,-15.4 -15,-15.4 -18.4,-11 L -17.2,-4.6 L -13.4,-7.4 L -12.2,-2.8 L -6,-6 Z"/>
+      <path d="M 5,-12 C 9,-15.4 15,-15.4 18.4,-11 L 17.2,-4.6 L 13.4,-7.4 L 12.2,-2.8 L 6,-6 Z"/>
+      <path d="M -9,-8 L 9,-8 L 10,12 L -10,12 Z"/>
+      <path d="M -9,14 L -11,25.6 L -3.6,25.6 L -3.6,14 Z"/>
+      <path d="M 9,14 L 11,25.6 L 3.6,25.6 L 3.6,14 Z"/>
+      <circle cx="0" cy="3" r="13.6"/>
+    </g>
+    <use href="#ppSpk" transform="translate(0 3) rotate(0)"/><use href="#ppSpk" transform="translate(0 3) rotate(30)"/><use href="#ppSpk" transform="translate(0 3) rotate(60)"/><use href="#ppSpk" transform="translate(0 3) rotate(90)"/><use href="#ppSpk" transform="translate(0 3) rotate(120)"/><use href="#ppSpk" transform="translate(0 3) rotate(150)"/><use href="#ppSpk" transform="translate(0 3) rotate(180)"/><use href="#ppSpk" transform="translate(0 3) rotate(210)"/><use href="#ppSpk" transform="translate(0 3) rotate(240)"/><use href="#ppSpk" transform="translate(0 3) rotate(270)"/><use href="#ppSpk" transform="translate(0 3) rotate(300)"/><use href="#ppSpk" transform="translate(0 3) rotate(330)"/>
+    <g fill="none" stroke="#FFCB7A" stroke-width=".55" opacity=".85"><circle cx="-6" cy="-10" r="1.2"/><circle cx="6" cy="-10" r="1.2"/><circle cx="0" cy="3" r="1.1"/></g>
+    <rect x="-.45" y="16.6" width=".9" height="24" fill="url(#ppRod)"/>
+  </g>
+
+  <!-- 적: 돌격 귀마 (오른쪽을 보고 달리는 옆모습, 쓸 때 돌려서 아래로 내리꽂게) -->
+  <g id="ppRush">
+    <g mask="url(#ppRushM)">
+      <path d="M -16,-1 C -12,-6.5 -2,-7.8 7,-6.4 C 10.5,-9.6 14.5,-13 18.4,-13.2 C 21.4,-13 23.6,-11.2 26.8,-9.4 L 28.4,-7.2 L 23.6,-6.6 L 26,-4.8 L 21,-4.4 C 18.8,-3 15.6,-1.2 13.4,1.4 L 17.4,5.6 L 22.6,7 L 20.8,8.8 L 14.8,8 L 8.2,3.6 C 2.6,4.6 -3.8,4.4 -8.6,3.4 L -13.4,8.2 L -20.2,10.4 L -19,8 L -14.2,2.8 C -15.8,1.8 -16.6,.6 -16,-1 Z"/>
+      <path d="M 12,-1 L 24,.6 L 29.6,3.8 L 28.2,5 L 22.4,2.8 L 11,1.8 Z"/>
+      <path d="M -12,1 L -22,1.4 L -28.4,-.8 L -27.2,-2.4 L -21,-1 L -12,-2 Z"/>
+      <path d="M 18.6,-12.8 C 16.4,-17 16.8,-21 19.8,-24.4 C 19.2,-20.2 19.8,-17 21.4,-13.2 Z"/>
+      <path d="M 20.6,-12.4 C 21.4,-16.4 23.8,-19.2 27.2,-20.2 C 25.2,-17.6 24,-15 23.2,-11.6 Z"/>
+      <path d="M 8,-6.6 C 4,-11 0,-12 -5.4,-16.4 C -2,-12 1,-10 3.6,-6.6 Z"/>
+      <path d="M 12,-9 C 8.4,-15 4,-17.2 -1.6,-22 C 3,-16 6,-13.4 9,-8 Z"/>
+      <path d="M -15.4,-1.4 C -20,-4 -24.4,-4.2 -29.6,-8.4 C -25.4,-4.2 -21,-1.6 -15.6,.8 Z"/>
+    </g>
+    <g fill="none" stroke="#FFCB7A" stroke-width=".55" opacity=".85"><circle cx="11.6" cy="-2" r="1.15"/><circle cx="-11.4" cy="0" r="1.15"/></g>
+  </g>
+
+  <!-- 무기 받침: 구름 받침 -->
+  <g id="ppPed">
+    <path d="M -16,0 C -16,-3 -12,-4.6 -9,-3 C -8,-6 -3,-6.6 -1,-4 C 1,-6.6 7,-6 8,-3 C 11,-4.6 16,-3 16,0 L 13,3.4 C 10,2 6,2.2 3.4,4 L 1.6,9 L -1.6,9 L -3.4,4 C -6,2.2 -10,2 -13,3.4 Z"/>
+    <circle cx="-9.4" cy=".2" r="1.1" fill="#F6B35A"/><circle cx="9.4" cy=".2" r="1.1" fill="#F6B35A"/><circle cx="0" cy="-.4" r="1.3" fill="#FFD891"/>
+  </g>
+  <path id="ppMq" d="M 0,-4.4 L .55,-1.2 L 1,1.6 L 0,4 L -1,1.6 L -.55,-1.2 Z M 0,-4.4 L 0,-7.6 L .25,-4.2 Z M .6,-1 L 5.4,-3.6 L 1,.2 Z M -.6,-1 L -5.4,-3.6 L -1,.2 Z M .8,.6 L 3.6,3.4 L 4.2,6 L 3.2,3.8 L .6,1.4 Z M -.8,.6 L -3.6,3.4 L -4.2,6 L -3.2,3.8 L -.6,1.4 Z"/>
+</defs>
+
+<!-- 막(스크린) -->
+<rect x="0" y="0" width="390" height="844" fill="url(#ppScreen)"/>
+<rect class="pp-lamp" x="0" y="100" width="390" height="520" fill="url(#ppHot)"/>
+<rect x="0" y="0" width="390" height="844" filter="url(#ppFiber)" opacity=".4"/>
+<g stroke="#3A0E05" stroke-width="1" opacity=".16"><path d="M130,0 V668"/><path d="M260,0 V668"/></g>
+
+<!-- 보스: 귀면 대왕 (막에서 멀어 크고 흐린 그림자 · 뿔이 화면 양옆까지) -->
+<g transform="translate(195 98) scale(.8)">
+  <g filter="url(#ppBoss)" fill="#3E140A" fill-opacity=".68">
+    <path d="M -96,-60 C -110,-20 -104,30 -78,64 C -60,96 -30,118 0,124 C 30,118 60,96 78,64 C 104,30 110,-20 96,-60 C 60,-96 -60,-96 -96,-60 Z"/>
+    <path d="M -84,-40 C -130,-50 -184,-40 -222,-92 C -206,-22 -150,-8 -94,-10 Z"/>
+    <path d="M 84,-40 C 130,-50 184,-40 222,-92 C 206,-22 150,-8 94,-10 Z"/>
+    <path d="M -96,-26 C -128,-36 -150,-18 -172,-30 C -152,0 -128,12 -98,10 Z"/>
+    <path d="M -92,22 C -128,28 -150,52 -178,48 C -152,72 -120,72 -84,52 Z"/>
+    <path d="M -78,64 C -106,90 -114,118 -138,130 C -106,132 -82,114 -64,86 Z"/>
+    <path d="M 96,-26 C 128,-36 150,-18 172,-30 C 152,0 128,12 98,10 Z"/>
+    <path d="M 92,22 C 128,28 150,52 178,48 C 152,72 120,72 84,52 Z"/>
+    <path d="M 78,64 C 106,90 114,118 138,130 C 106,132 82,114 64,86 Z"/>
+    <path d="M -30,112 L -18,148 L -8,118 Z M -6,120 L 0,156 L 6,120 Z M 8,118 L 18,148 L 30,112 Z"/>
+  </g>
+  <g filter="url(#ppSoft)">
+    <path d="M -74,-20 C -60,-31 -38,-27 -16,-5 C -38,0 -60,-3 -74,-20 Z" fill="url(#ppEye)"/>
+    <path d="M 74,-20 C 60,-31 38,-27 16,-5 C 38,0 60,-3 74,-20 Z" fill="url(#ppEye)"/>
+    <circle cx="-40" cy="-13" r="6" fill="#2A0C06"/>
+    <circle cx="40" cy="-13" r="6" fill="#2A0C06"/>
+    <path d="M -54,40 C -30,34 30,34 54,40 L 42,80 C 20,90 -20,90 -42,80 Z" fill="#FFD486" fill-opacity=".82"/>
+    <path d="M -36,37 L -29,64 L -22,36 Z M 36,37 L 29,64 L 22,36 Z M -12,35 L -9,47 L -6,35 Z M 12,35 L 9,47 L 6,35 Z M -27,86 L -20,64 L -13,88 Z M 27,86 L 20,64 L 13,88 Z" fill="#2A0C06"/>
+    <path d="M 0,-70 L 9,-54 L 0,-38 L -9,-54 Z" fill="#FFD891" fill-opacity=".7"/>
+    <g fill="#FFD891" fill-opacity=".5"><circle cx="-16" cy="-56" r="2.6"/><circle cx="16" cy="-56" r="2.6"/><circle cx="-68" cy="28" r="4"/><circle cx="68" cy="28" r="4"/><circle cx="-60" cy="46" r="2.4"/><circle cx="60" cy="46" r="2.4"/></g>
+    <path d="M -10,14 L -4,22 L -12,22 Z M 10,14 L 4,22 L 12,22 Z" fill="#FFD891" fill-opacity=".55"/>
+  </g>
+</g>
+
+<!-- 먼 적 (막에서 떨어져 흐림) -->
+<g fill="#2E0F07" opacity=".62" filter="url(#ppFar)">
+  <use href="#ppImp" transform="translate(48 196) scale(1.22)"/>
+  <use href="#ppArm" transform="translate(342 194) scale(1.12)"/>
+  <use href="#ppRush" transform="translate(300 252) scale(-1.04 1.04) rotate(68)"/>
+</g>
+
+<!-- 중간 적 -->
+<g fill="#1F0A05" opacity=".9" filter="url(#ppMid)">
+  <use href="#ppImp" transform="translate(30 312) scale(.94)"/>
+  <use href="#ppArm" transform="translate(358 318) scale(.96)"/>
+  <use href="#ppImp" transform="translate(348 236) scale(.8)"/>
+</g>
+
+<!-- 연쇄에 휘말린 적 (빛에 씻김) -->
+<g fill="#170905">
+  <use href="#ppImp" transform="translate(152 420) scale(.8)"/>
+  <use href="#ppArm" transform="translate(270 386) scale(.78)"/>
+</g>
+
+<!-- 연쇄 폭발: 막 전체가 달아오름 -->
+<ellipse cx="206" cy="376" rx="186" ry="78" fill="url(#ppBloom)" style="mix-blend-mode: screen" opacity=".75"/>
+<!-- 연쇄 폭발: 빛의 도화선 -->
+<g fill="none" stroke-linecap="round">
+  <path d="M 70,402 Q 90,368 120,356 Q 152,344 178,392 Q 204,418 238,348 Q 262,312 294,394 Q 316,422 338,352" stroke="#FFB24E" stroke-width="7" opacity=".7" filter="url(#ppGlow)"/>
+  <path d="M 70,402 Q 90,368 120,356 Q 152,344 178,392 Q 204,418 238,348 Q 262,312 294,394 Q 316,422 338,352" stroke="#FFF6DA" stroke-width="1.7"/>
+</g>
+
+<!-- 폭발 6개 (빛이 막을 뚫고 터짐 + 붉은 가죽 불꽃 + 종이 불똥) -->
+<g transform="translate(70 402) scale(.62) rotate(14)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen" opacity=".7"/>
+  <g fill="#E2441F" fill-opacity=".7" stroke="#260904" stroke-width=".9"><use href="#ppTongue" transform="rotate(0) scale(.8)"/><use href="#ppTongue" transform="rotate(45) scale(.7)"/><use href="#ppTongue" transform="rotate(100) scale(.85)"/><use href="#ppTongue" transform="rotate(160) scale(.7)"/><use href="#ppTongue" transform="rotate(220) scale(.8)"/><use href="#ppTongue" transform="rotate(290) scale(.75)"/></g>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(20) translate(0 -46) scale(1.4)"/><use href="#ppShard" transform="rotate(80) translate(0 -54) scale(1.2)"/><use href="#ppShard" transform="rotate(140) translate(0 -42) scale(1.5)"/><use href="#ppShard" transform="rotate(200) translate(0 -50)"/><use href="#ppShard" transform="rotate(255) translate(0 -58) scale(1.3)"/><use href="#ppShard" transform="rotate(320) translate(0 -44) scale(1.2)"/><use href="#ppCurl" transform="rotate(110) translate(0 -36) scale(1.6)"/><use href="#ppCurl" transform="rotate(300) translate(0 -38) scale(1.4)"/></g>
+</g>
+<g transform="translate(120 356) scale(.98) rotate(-8)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <g fill="#E2441F" fill-opacity=".84" stroke="#260904" stroke-width=".8"><use href="#ppTongue" transform="rotate(0)"/><use href="#ppTongue" transform="rotate(34) scale(.78)"/><use href="#ppTongue" transform="rotate(73) scale(1.14)"/><use href="#ppTongue" transform="rotate(110) scale(.74)"/><use href="#ppTongue" transform="rotate(147) scale(1.04)"/><use href="#ppTongue" transform="rotate(181) scale(.84)"/><use href="#ppTongue" transform="rotate(218) scale(1.2)"/><use href="#ppTongue" transform="rotate(252) scale(.76)"/><use href="#ppTongue" transform="rotate(289) scale(1.02)"/><use href="#ppTongue" transform="rotate(326) scale(.88)"/></g>
+  <circle r="8.5" fill="#FFFFFF"/>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(12) translate(0 -42) scale(1.3)"/><use href="#ppShard" transform="rotate(70) translate(0 -48)"/><use href="#ppShard" transform="rotate(128) translate(0 -40) scale(1.2)"/><use href="#ppShard" transform="rotate(190) translate(0 -46) scale(1.4)"/><use href="#ppShard" transform="rotate(246) translate(0 -52)"/><use href="#ppShard" transform="rotate(300) translate(0 -42) scale(1.3)"/><use href="#ppCurl" transform="rotate(40) translate(0 -38) scale(1.3)"/><use href="#ppCurl" transform="rotate(220) translate(0 -40) scale(1.2)"/></g>
+</g>
+<g transform="translate(178 392) scale(1.18) rotate(10)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <g fill="#E2441F" fill-opacity=".84" stroke="#260904" stroke-width=".7"><use href="#ppTongue" transform="rotate(12)"/><use href="#ppTongue" transform="rotate(34) scale(.78)"/><use href="#ppTongue" transform="rotate(73) scale(1.14)"/><use href="#ppTongue" transform="rotate(110) scale(.74)"/><use href="#ppTongue" transform="rotate(147) scale(1.04)"/><use href="#ppTongue" transform="rotate(181) scale(.84)"/><use href="#ppTongue" transform="rotate(218) scale(1.2)"/><use href="#ppTongue" transform="rotate(252) scale(.76)"/><use href="#ppTongue" transform="rotate(289) scale(1.02)"/><use href="#ppTongue" transform="rotate(326) scale(.88)"/></g>
+  <circle r="9" fill="#FFFFFF"/>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(30) translate(0 -44) scale(1.2)"/><use href="#ppShard" transform="rotate(95) translate(0 -40) scale(1.4)"/><use href="#ppShard" transform="rotate(150) translate(0 -50)"/><use href="#ppShard" transform="rotate(210) translate(0 -42) scale(1.3)"/><use href="#ppShard" transform="rotate(275) translate(0 -46)"/><use href="#ppShard" transform="rotate(330) translate(0 -52) scale(1.2)"/><use href="#ppCurl" transform="rotate(180) translate(0 -36) scale(1.3)"/></g>
+</g>
+<g transform="translate(238 348) scale(1.52) rotate(-4)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <circle r="30" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <g fill="#FFF6DA" opacity=".85" style="mix-blend-mode: screen"><use href="#ppRay" transform="rotate(15)"/><use href="#ppRay" transform="rotate(64) scale(.8)"/><use href="#ppRay" transform="rotate(105) scale(1.1)"/><use href="#ppRay" transform="rotate(160) scale(.7)"/><use href="#ppRay" transform="rotate(197)"/><use href="#ppRay" transform="rotate(244) scale(.85)"/><use href="#ppRay" transform="rotate(290) scale(1.15)"/><use href="#ppRay" transform="rotate(336) scale(.75)"/></g>
+  <g fill="#E2441F" fill-opacity=".86" stroke="#260904" stroke-width=".55"><use href="#ppTongue" transform="rotate(0) scale(1.1)"/><use href="#ppTongue" transform="rotate(28) scale(.72)"/><use href="#ppTongue" transform="rotate(58) scale(1.22)"/><use href="#ppTongue" transform="rotate(91) scale(.8)"/><use href="#ppTongue" transform="rotate(119) scale(1.05)"/><use href="#ppTongue" transform="rotate(152) scale(.7)"/><use href="#ppTongue" transform="rotate(178) scale(1.26)"/><use href="#ppTongue" transform="rotate(211) scale(.78)"/><use href="#ppTongue" transform="rotate(239) scale(1.1)"/><use href="#ppTongue" transform="rotate(272) scale(.74)"/><use href="#ppTongue" transform="rotate(301) scale(1.16)"/><use href="#ppTongue" transform="rotate(331) scale(.82)"/></g>
+  <circle r="10" fill="#FFFFFF"/>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(8) translate(0 -40) scale(1.1)"/><use href="#ppShard" transform="rotate(52) translate(0 -46) scale(.9)"/><use href="#ppShard" transform="rotate(98) translate(0 -38) scale(1.2)"/><use href="#ppShard" transform="rotate(140) translate(0 -48) scale(.9)"/><use href="#ppShard" transform="rotate(186) translate(0 -42)"/><use href="#ppShard" transform="rotate(232) translate(0 -50) scale(.9)"/><use href="#ppShard" transform="rotate(278) translate(0 -40) scale(1.1)"/><use href="#ppShard" transform="rotate(322) translate(0 -46)"/><use href="#ppCurl" transform="rotate(70) translate(0 -36)"/><use href="#ppCurl" transform="rotate(250) translate(0 -36)"/></g>
+</g>
+<g transform="translate(294 394) scale(1.1) rotate(18)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <g fill="#E2441F" fill-opacity=".84" stroke="#260904" stroke-width=".75"><use href="#ppTongue" transform="rotate(4) scale(1.08)"/><use href="#ppTongue" transform="rotate(42) scale(.76)"/><use href="#ppTongue" transform="rotate(79) scale(1.16)"/><use href="#ppTongue" transform="rotate(121) scale(.8)"/><use href="#ppTongue" transform="rotate(158) scale(1.02)"/><use href="#ppTongue" transform="rotate(199) scale(.72)"/><use href="#ppTongue" transform="rotate(238) scale(1.14)"/><use href="#ppTongue" transform="rotate(281) scale(.84)"/><use href="#ppTongue" transform="rotate(318) scale(.96)"/></g>
+  <circle r="8.5" fill="#FFFFFF"/>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(24) translate(0 -46)"/><use href="#ppShard" transform="rotate(84) translate(0 -40) scale(1.3)"/><use href="#ppShard" transform="rotate(144) translate(0 -50) scale(1.1)"/><use href="#ppShard" transform="rotate(204) translate(0 -42)"/><use href="#ppShard" transform="rotate(264) translate(0 -48) scale(1.3)"/><use href="#ppShard" transform="rotate(318) translate(0 -40)"/></g>
+</g>
+<g transform="translate(338 352) scale(.7) rotate(-20)">
+  <circle r="62" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+  <circle r="16" fill="#FFFFFF"/>
+  <g fill="#E2441F" fill-opacity=".9" stroke="#260904" stroke-width="1"><use href="#ppTongue" transform="rotate(0) scale(.7)"/><use href="#ppTongue" transform="rotate(60) scale(.6)"/><use href="#ppTongue" transform="rotate(120) scale(.7)"/><use href="#ppTongue" transform="rotate(180) scale(.6)"/><use href="#ppTongue" transform="rotate(240) scale(.7)"/><use href="#ppTongue" transform="rotate(300) scale(.6)"/></g>
+  <g fill="#170905"><use href="#ppShard" transform="rotate(30) translate(0 -30) scale(1.5)"/><use href="#ppShard" transform="rotate(150) translate(0 -32) scale(1.5)"/><use href="#ppShard" transform="rotate(270) translate(0 -30) scale(1.5)"/></g>
+</g>
+
+<!-- 가까운 적 (막에 붙어 또렷함) -->
+<g fill="#170905">
+  <use href="#ppArm" transform="translate(58 526) scale(1)"/>
+  <use href="#ppImp" transform="translate(134 568) scale(.92)"/>
+  <use href="#ppRush" transform="translate(222 604) scale(.95) rotate(80)"/>
+  <use href="#ppImp" transform="translate(276 540) scale(.9)"/>
+  <use href="#ppArm" transform="translate(336 598) scale(1)"/>
+  <use href="#ppRush" transform="translate(98 632) scale(-.9 .9) rotate(66)"/>
+  <use href="#ppImp" transform="translate(248 636) scale(.84)"/>
+</g>
+
+<!-- 전향한 적: 군견에 물려 돌아선 귀마 (비취 고리) -->
+<g transform="translate(186 532)">
+  <ellipse cx="0" cy="0" rx="22" ry="22" fill="#46A386" fill-opacity=".28" stroke="#2F8C6F" stroke-width="2.2"/>
+  <use href="#ppRush" fill="#170905" transform="scale(.86) rotate(-96)"/>
+</g>
+
+<!-- 레이저 소총 빛줄기 -->
+<g stroke-linecap="round">
+  <path d="M 285,700 L 278,548" stroke="#FFD27A" stroke-width="7" opacity=".75" filter="url(#ppGlow)"/>
+  <path d="M 285,700 L 278,548" stroke="#FFFBEA" stroke-width="1.8"/>
+  <circle cx="278" cy="548" r="9" fill="url(#ppBloom)" style="mix-blend-mode: screen"/>
+</g>
+<!-- 카빈 종이 탄 -->
+<g fill="#170905">
+  <path transform="translate(19 646) rotate(-7)" d="M 0,-7 L 1.5,-2.6 L .6,-2.6 L .6,5 L -.6,5 L -.6,-2.6 L -1.5,-2.6 Z"/>
+  <path transform="translate(15 602) rotate(-7)" d="M 0,-7 L 1.5,-2.6 L .6,-2.6 L .6,5 L -.6,5 L -.6,-2.6 L -1.5,-2.6 Z"/>
+  <path transform="translate(11 560) rotate(-7)" d="M 0,-7 L 1.5,-2.6 L .6,-2.6 L .6,5 L -.6,5 L -.6,-2.6 L -1.5,-2.6 Z"/>
+</g>
+<!-- 날아간 원반 -->
+<g transform="translate(360 520) rotate(18)">
+  <path d="M -16,-4 A 17,17 0 0 1 10,-14" fill="none" stroke="#170905" stroke-width="1.3" opacity=".7"/>
+  <path d="M -19,2 A 20,20 0 0 1 4,-19" fill="none" stroke="#170905" stroke-width=".9" opacity=".45"/>
+  <g transform="translate(0 27)"><g mask="url(#ppDiscM)" fill="#170905"><circle cx="0" cy="-27" r="11.4"/></g><g fill="#170905"><use href="#ppTooth" transform="translate(0 -27) rotate(0)"/><use href="#ppTooth" transform="translate(0 -27) rotate(30)"/><use href="#ppTooth" transform="translate(0 -27) rotate(60)"/><use href="#ppTooth" transform="translate(0 -27) rotate(90)"/><use href="#ppTooth" transform="translate(0 -27) rotate(120)"/><use href="#ppTooth" transform="translate(0 -27) rotate(150)"/><use href="#ppTooth" transform="translate(0 -27) rotate(180)"/><use href="#ppTooth" transform="translate(0 -27) rotate(210)"/><use href="#ppTooth" transform="translate(0 -27) rotate(240)"/><use href="#ppTooth" transform="translate(0 -27) rotate(270)"/><use href="#ppTooth" transform="translate(0 -27) rotate(300)"/><use href="#ppTooth" transform="translate(0 -27) rotate(330)"/></g></g>
+</g>
+<!-- 날아오른 모기 -->
+<g fill="#170905">
+  <use href="#ppMq" transform="translate(318 616) rotate(-14) scale(.95)"/>
+  <use href="#ppMq" transform="translate(304 596) rotate(8) scale(.8)"/>
+  <use href="#ppMq" transform="translate(326 584) rotate(-24) scale(.85)"/>
+  <use href="#ppMq" transform="translate(296 570) rotate(4) scale(.7)"/>
+</g>
+
+<!-- ============ 방어선: 꽃살 성벽 ============ -->
+<rect x="0" y="652" width="390" height="18" fill="url(#ppRim)"/>
+<rect x="0" y="667" width="390" height="9" fill="url(#ppMerlon)"/>
+<rect x="0" y="675" width="390" height="23" fill="#170905"/>
+<rect x="0" y="679" width="390" height="14" fill="url(#ppLattice)"/>
+<path d="M 0,675.5 H 390" stroke="#FFE7AE" stroke-width=".8" opacity=".55"/>
+<path d="M 176,698 L 176,686 C 176,676 186,670 195,668 C 204,670 214,676 214,686 L 214,698 Z" fill="#170905"/>
+<path d="M 186,698 L 186,690 C 186,684 190,680 195,679 C 200,680 204,684 204,690 L 204,698 Z" fill="#E7883A"/>
+<path d="M 195,655 C 191.6,660 192.4,664.6 195,668 C 197.6,664.6 198.4,660 195,655 Z" fill="#170905"/>
+
+<!-- ============ 무대 아래: 무기 진지 ============ -->
+<rect x="0" y="698" width="390" height="108" fill="url(#ppStage)"/>
+<rect x="0" y="698" width="390" height="108" filter="url(#ppFiber)" opacity=".35"/>
+
+<!-- 막대(연희자 손으로 모이는 부채꼴) -->
+<g stroke="#170905" stroke-width="1.5" opacity=".85">
+  <path d="M 24,762 L 195,990"/><path d="M 66,768 L 195,990"/><path d="M 108,772 L 195,990"/><path d="M 149,775 L 195,990"/><path d="M 195,779 L 195,990"/><path d="M 241,775 L 195,990"/><path d="M 282,772 L 195,990"/><path d="M 324,768 L 195,990"/><path d="M 366,762 L 195,990"/>
+</g>
+
+<g fill="#170905">
+  <!-- 1 카빈 -->
+  <g transform="translate(24 752) rotate(-9) scale(1.1)">
+    <use href="#ppPed"/>
+    <path d="M -.6,-47 L 1.6,-47 L 1.6,-22 L -.6,-22 Z"/>
+    <path d="M -1.6,-49.6 L 2.6,-49.6 L 2.6,-45.6 L -1.6,-45.6 Z"/>
+    <path d="M -2.2,-33 L 3.2,-33 L 3.6,-21 L -2.6,-21 Z"/>
+    <path d="M -3.2,-22 L 4.2,-22 L 4.6,-12 L -3.6,-12 Z"/>
+    <path d="M -3,-17 C -6,-15 -8.6,-12.4 -9.6,-9 L -7.2,-8.2 C -6.4,-10.6 -4.6,-12.6 -2.4,-13.6 Z"/>
+    <path d="M 2.8,-12 L 7.6,-4.4 L 9.6,-4.8 L 9.8,-1.6 L 5.4,-1.2 L .4,-11.2 Z"/>
+    <path d="M -1,-6 L -9,-1 L -6.8,-1 L .4,-4.4 L 7.4,-1 L 9.6,-1 L 1.6,-6 Z"/>
+    <g fill="#F6B35A"><rect x="-1.2" y="-31" width="3.6" height=".9"/><rect x="-1.2" y="-28" width="3.6" height=".9"/><rect x="-1.2" y="-25" width="3.6" height=".9"/><circle cx=".5" cy="-17" r="1.2"/></g>
+  </g>
+  <!-- 2 대포 (용머리 포: 바퀴 달린 포가 위에서 왼쪽 위를 겨눔) -->
+  <g transform="translate(66 758) rotate(-6) scale(1.1)">
+    <use href="#ppPed"/>
+    <path d="M -10,-2 L -7,-9 L 2,-17 L 6.4,-15 L 5,-9 L 11,-2 Z"/>
+    <g transform="rotate(-26 1 -15)">
+      <path d="M -4.8,-12 L -3.6,-40 L 3.6,-40 L 4.8,-12 Z"/>
+      <path d="M -4.4,-40 C -7,-44 -6,-49 -2.6,-50.4 L 0,-55.4 L 2.6,-50.4 C 6,-49 7,-44 4.4,-40 Z"/>
+      <path d="M -6.4,-34 L 6.4,-34 L 6.6,-31 L -6.6,-31 Z M -6.8,-20 L 6.8,-20 L 7,-17 L -7,-17 Z"/>
+      <circle cx="0" cy="-11" r="4.8"/>
+      <g fill="#F6B35A"><rect x="-3.6" y="-27" width="7.2" height=".9"/><rect x="-4" y="-24.4" width="8" height=".9"/><circle cx="-2" cy="-45.6" r="1"/><circle cx="2" cy="-45.6" r="1"/><path d="M -1.2,-37 L 0,-38.6 L 1.2,-37 L 0,-35.4 Z"/></g>
+    </g>
+    <circle cx="5" cy="-8" r="8" fill="none" stroke="#170905" stroke-width="2"/>
+    <g stroke="#170905" stroke-width="1.1"><path d="M -3,-8 H 13 M 5,-16 V 0 M -.6,-13.6 L 10.6,-2.4 M 10.6,-13.6 L -.6,-2.4"/></g>
+    <circle cx="5" cy="-8" r="2.4"/><circle cx="5" cy="-8" r=".8" fill="#F6B35A"/>
+    <g fill="#170905" opacity=".75" transform="translate(-20 -56)"><path d="M 0,0 C 2,-3 6,-3 7,1 C 5,-.6 2.6,.4 1.4,2.4 Z"/><path d="M -4,-6 C -2,-10 3,-11 5,-7 C 2,-8.4 -.4,-7 -2.4,-3.6 Z"/><path d="M 6,-9 C 7,-12 10,-12 11,-9.6 C 9.4,-10.4 8,-9.6 7,-7.6 Z"/></g>
+  </g>
+  <!-- 3 불여우 (동양 붓맛: 붉은 가죽 꼬리 아홉) -->
+  <g transform="translate(108 762) rotate(-3) scale(1.1)">
+    <use href="#ppPed"/>
+    <g stroke="#170905" stroke-width=".9" fill="#E0482A" fill-opacity=".9">
+      <path d="M 4,-8 C 8,-16 10,-26 6,-38 C 12,-30 14,-20 7,-6 Z"/>
+      <path d="M 5,-8 C 12,-14 18,-22 18,-34 C 21,-24 18,-14 7,-5 Z"/>
+      <path d="M 5,-6 C 13,-10 20,-14 23,-24 C 24,-14 18,-8 7,-3 Z"/>
+      <path d="M 3,-9 C 3,-18 1,-28 -4,-36 C 3,-30 7,-22 6,-8 Z"/>
+      <path d="M 5,-4 C 12,-5 18,-6 21,-13 C 21,-6 15,-2 6,-1 Z"/>
+    </g>
+    <g fill="#FFD08A" opacity=".85"><path d="M 7,-14 C 8,-22 8,-28 6.6,-33 C 9,-27 9.4,-21 7.8,-14 Z"/><path d="M 10,-12 C 14,-18 16,-23 17,-29 C 17.4,-22 15,-17 10.8,-11.4 Z"/><path d="M 10.6,-7.6 C 15,-10 18.6,-13 21,-18 C 20,-12.6 16.6,-9.4 11.2,-7 Z"/></g>
+    <path d="M 6,-2 C 8,-8 7,-16 3,-22 L 2,-28 L -1,-33 L -5,-35 L -3,-31.6 L -8.4,-33 L -10.4,-31 L -4,-28.6 C -3,-25 -3,-21 -4.8,-17 C -6.6,-12 -6,-6 -3.6,-2 Z"/>
+    <path d="M -1,-32.6 L .4,-39.6 L 2,-31.4 Z"/><path d="M 1.6,-30.6 L 4.6,-37 L 4.4,-29.4 Z"/>
+    <path d="M -3.6,-2 L -3,-12 L -1.6,-12 L -1.4,-2 Z"/>
+    <g fill="#F6B35A"><circle cx="-2.6" cy="-29.6" r=".7"/><path d="M -1,-16 C 0,-18 2,-18 2.4,-16 C 1.4,-17 0,-16.6 -1,-16 Z"/><circle cx="0" cy="-12" r=".8"/><circle cx="1.6" cy="-8" r=".7"/></g>
+    <g><circle cx="-10" cy="-42" r="2.6" fill="#FFF4D6"/><circle cx="-10" cy="-42" r="5.4" fill="#FF9A4A" opacity=".35"/><circle cx="-3" cy="-50" r="1.9" fill="#FFF4D6"/><circle cx="-14" cy="-52" r="1.5" fill="#FFF4D6"/></g>
+  </g>
+  <!-- 4 기사단 (서양 갑옷 · 문장: 납선 색유리 방패) -->
+  <g transform="translate(149 765) rotate(-1) scale(1.1)">
+    <use href="#ppPed"/>
+    <g opacity=".7"><path d="M -9.4,-62 L -8.6,-62 L -8.6,-8 L -9.4,-8 Z"/><path d="M -9.4,-68 L -9,-74 L -8.6,-68 Z"/><path d="M -8.6,-66 L -1.6,-63.6 L -4.6,-62 L -1.6,-60.4 L -8.6,-58.4 Z"/><path d="M -12.4,-26 L -12.4,-33 C -12.4,-36 -10.6,-37.4 -9,-37.4 C -7.4,-37.4 -5.6,-36 -5.6,-33 L -5.6,-26 Z"/></g>
+    <path d="M -4.4,-30 L -4.4,-38 C -4.4,-41 -2,-42.6 0,-42.6 C 2,-42.6 4.4,-41 4.4,-38 L 4.4,-30 Z"/>
+    <path d="M -1,-42.4 L -3.6,-47.6 L 0,-45.2 L 3.6,-47.6 L 1,-42.4 Z"/>
+    <path d="M -6.6,-29.6 L 6.6,-29.6 L 7.6,-14 L 5,-10 L -5,-10 L -7.6,-14 Z"/>
+    <path d="M -4.6,-10 L -5.6,-1 L -2,-1 L -1.6,-10 Z"/><path d="M 4.6,-10 L 5.6,-1 L 2,-1 L 1.6,-10 Z"/>
+    <path d="M 5.4,-64 L 6.8,-64 L 7,-4 L 5.2,-4 Z"/>
+    <path d="M 5.3,-64 L 6.1,-71 L 6.9,-64 Z"/>
+    <path d="M 4,-22 L 8.2,-22 L 7,-31 L 5.2,-31 Z"/>
+    <path d="M 6.8,-62 L 17,-59 L 12.6,-57 L 17,-55 L 6.8,-53 Z"/>
+    <rect x="-3.4" y="-37.2" width="6.8" height="1" fill="#F6B35A"/>
+    <path d="M -13,-27 L -1,-27 L -1,-15 C -1,-9.6 -4.4,-5.6 -7,-2.6 C -9.6,-5.6 -13,-9.6 -13,-15 Z"/>
+    <path d="M -11.8,-25.8 L -7.6,-25.8 L -7.6,-17.4 L -11.8,-17.4 Z" fill="#E0482A" fill-opacity=".92"/>
+    <path d="M -6.4,-25.8 L -2.2,-25.8 L -2.2,-17.4 L -6.4,-17.4 Z" fill="#FFC461"/>
+    <path d="M -11.8,-16.2 L -7.6,-16.2 L -7.6,-5.6 C -9.4,-7.8 -11.8,-10.6 -11.8,-15 Z" fill="#FFC461"/>
+    <path d="M -6.4,-16.2 L -2.2,-16.2 L -2.2,-15 C -2.2,-10.6 -4.6,-7.8 -6.4,-5.6 Z" fill="#E0482A" fill-opacity=".92"/>
+    <path d="M -9.7,-23.6 L -9.7,-19.6 M -11.6,-21.6 L -7.8,-21.6" stroke="#170905" stroke-width=".7"/>
+    <path d="M 10,-60 L 12,-58 L 10,-56" fill="none" stroke="#F6B35A" stroke-width=".7"/>
+  </g>
+  <!-- 5 군견 지뢰밭 (합친 무기: 지뢰밭 판에 군견을 한 핀으로 박음) -->
+  <g transform="translate(195 767) scale(1.34)">
+    <ellipse cx="0" cy="-4" rx="25" ry="7.6" fill="none" stroke="#E0482A" stroke-width="2.6" stroke-opacity=".95"/>
+    <use href="#ppPed"/>
+    <path d="M -22,-1 L -20,-5 C -14,-7 -8,-6 -3,-7 C 4,-8 12,-6 20,-5 L 22,-1 Z"/>
+    <g>
+      <path d="M -19,-5 A 5,5 0 0 1 -9,-5 Z"/><path d="M -5,-7 A 5,5 0 0 1 5,-7 Z"/><path d="M 9,-5 A 5,5 0 0 1 19,-5 Z"/>
+      <path d="M -14,-10 L -14,-12.6 M -17.4,-8.6 L -19,-10.4 M -10.6,-8.6 L -9,-10.4 M 0,-12 L 0,-14.6 M -3.4,-10.6 L -5,-12.4 M 3.4,-10.6 L 5,-12.4 M 14,-10 L 14,-12.6 M 10.6,-8.6 L 9,-10.4 M 17.4,-8.6 L 19,-10.4" stroke="#170905" stroke-width="1.2"/>
+      <g fill="#E0482A"><circle cx="-14" cy="-6.6" r="1.4"/><circle cx="0" cy="-8.6" r="1.4"/><circle cx="14" cy="-6.6" r="1.4"/></g>
+    </g>
+    <g transform="translate(-2 -6)">
+      <path d="M -13,-22 L -10,-25 L -9,-29 L -7.4,-25.4 L -5.4,-25 L -4.6,-28 L -3,-24 C 0,-22 2,-20 3.6,-17.6 C 7,-17 11,-17.6 14,-17 C 16.4,-16.6 17.6,-15 18,-13 C 20,-15 22,-19 22.6,-23 C 23.6,-19 22.6,-15 19.6,-11.6 L 18.6,-10 L 18.8,-2 L 19.8,-1 L 16.8,-1 L 16,-9.6 C 13,-8.6 9,-8.6 5.6,-9.4 L 4.4,-2 L 5.2,-1 L 2.4,-1 L 2.2,-9.6 C 0,-10.4 -1.6,-12 -2.6,-14 C -4,-15 -6.4,-16.4 -8,-17.6 L -11.6,-18.6 L -14.6,-19.8 Z"/>
+      <path d="M -14.4,-19.6 L -10.8,-18.8 L -12.4,-17.4 Z"/>
+      <path d="M 1.6,-20.4 L 4.6,-18 L 3,-16 L .2,-18.2 Z" fill="#46A386"/>
+      <path d="M 6,-16.6 L 13,-16.4 L 12.6,-11 L 6.4,-11.2 Z" fill="#46A386" fill-opacity=".9"/>
+      <circle cx="-8.6" cy="-22" r=".8" fill="#FFE7B0"/>
+      <g fill="#F6B35A"><circle cx="8.2" cy="-13.8" r=".7"/><circle cx="11.2" cy="-13.8" r=".7"/></g>
+    </g>
+    <ellipse cx="5" cy="-20" rx="15" ry="12.6" fill="none" stroke="#2F8C6F" stroke-width="2.3" stroke-opacity=".95" stroke-dasharray="40 6 60 4"/>
+    <circle cx="4" cy="-7" r="2.6" fill="#170905" stroke="#FFE2A0" stroke-width=".8"/>
+    <circle cx="4" cy="-7" r=".8" fill="#FFE2A0"/>
+  </g>
+  <!-- 6 전투 로봇 (SF: 곧은 판 · 기계로 뚫은 구멍) -->
+  <g transform="translate(241 765) rotate(1) scale(1.1)">
+    <use href="#ppPed"/>
+    <g mask="url(#ppRobM)">
+      <path d="M -3.6,-41 L 3.6,-41 L 4.8,-37 L 3.6,-33.6 L -3.6,-33.6 L -4.8,-37 Z"/>
+      <path d="M -8,-32.4 L 8,-32.4 L 9.8,-26.4 L 6.4,-17.4 L -6.4,-17.4 L -9.8,-26.4 Z"/>
+      <path d="M 8.8,-34 L 12.8,-34 L 12.8,-50 L 11.4,-52.4 L 10.2,-50 L 8.8,-50 Z"/>
+      <path d="M -9.8,-30.4 L -13,-28 L -13.2,-18.4 L -11,-17.4 L -10.8,-26 L -8.6,-27.4 Z"/>
+      <path d="M -12.6,-18 L -12.2,-6 L -11.4,-6 L -11.2,-18 Z"/>
+      <path d="M -6,-17.4 L 6,-17.4 L 5,-13.4 L -5,-13.4 Z"/>
+      <path d="M -5,-13.4 L -8.4,-7 L -5.6,-1 L -2.4,-1 L -4.6,-7 L -1.8,-13.4 Z"/>
+      <path d="M 5,-13.4 L 8.4,-7 L 5.6,-1 L 2.4,-1 L 4.6,-7 L 1.8,-13.4 Z"/>
+    </g>
+    <g fill="none" stroke="#FFCB7A" stroke-width=".55" opacity=".85"><circle cx="-8.6" cy="-29" r="1.1"/><circle cx="-6.6" cy="-7" r="1.1"/><circle cx="6.6" cy="-7" r="1.1"/></g>
+    <g fill="#FFF4D6"><rect x="10.4" y="-58" width="1.4" height="4" opacity=".9"/><rect x="10.6" y="-64" width="1" height="3" opacity=".6"/></g>
+  </g>
+  <!-- 7 레이저 소총 (빛 렌즈) -->
+  <g transform="translate(282 762) rotate(3) scale(1.1)">
+    <use href="#ppPed"/>
+    <g mask="url(#ppLasM)">
+      <path d="M -1.6,-50 L 1.6,-50 L 2,-24 L -2,-24 Z"/>
+      <path d="M -4,-43 L 4,-43 L 4,-41.4 L -4,-41.4 Z M -4.8,-39 L 4.8,-39 L 4.8,-37.4 L -4.8,-37.4 Z M -5.6,-35 L 5.6,-35 L 5.6,-33.4 L -5.6,-33.4 Z"/>
+      <path d="M -4.2,-24 L 4.2,-24 L 5,-12 L -5,-12 Z"/>
+      <path d="M -2,-12 L 2,-12 L 4,-5 L -4,-5 Z"/>
+      <path d="M -8,-1 A 8,8 0 0 1 8,-1 Z"/>
+    </g>
+    <circle cx="0" cy="-52.6" r="3.6" fill="#FFF4D6" stroke="#170905" stroke-width="1.3"/>
+    <path d="M 4.6,-20 C 9,-18 10,-12 8,-6" fill="none" stroke="#170905" stroke-width="1.1"/>
+  </g>
+  <!-- 8 모기 떼 (등롱 벌집) -->
+  <g transform="translate(324 758) rotate(6) scale(1.1)">
+    <use href="#ppPed"/>
+    <path d="M -6,-4 L -8.4,-14 L -5.4,-22 L 5.4,-22 L 8.4,-14 L 6,-4 Z"/>
+    <path d="M -4.4,-22 L 0,-27.4 L 4.4,-22 Z"/><path d="M -.5,-27 L .5,-27 L .5,-31 L -.5,-31 Z"/>
+    <g fill="#F6B35A"><path d="M -3.4,-18 L -1.2,-15 L -3.4,-12 L -5.4,-15 Z"/><path d="M 3.4,-18 L 5.4,-15 L 3.4,-12 L 1.2,-15 Z"/><path d="M 0,-14 L 1.8,-11 L 0,-8 L -1.8,-11 Z"/><circle cx="0" cy="-19" r=".9"/></g>
+    <use href="#ppMq" transform="translate(-8 -36) rotate(-20) scale(.9)"/>
+    <use href="#ppMq" transform="translate(5 -40) rotate(12) scale(.8)"/>
+    <use href="#ppMq" transform="translate(-2 -48) rotate(-6) scale(.75)"/>
+    <use href="#ppMq" transform="translate(11 -52) rotate(24) scale(.7)"/>
+    <use href="#ppMq" transform="translate(-11 -55) rotate(-30) scale(.65)"/>
+  </g>
+  <!-- 9 원반 (투각 고리 날) -->
+  <g transform="translate(366 752) rotate(9) scale(1.1)">
+    <use href="#ppPed"/>
+    <path d="M -1,-16 L -1,-1 L 1,-1 L 1,-16 Z"/>
+    <path d="M -6,-12 C -6,-16 -3,-17 -1,-16 L -1,-14.6 C -3,-15 -4.6,-14 -4.4,-12 Z M 6,-12 C 6,-16 3,-17 1,-16 L 1,-14.6 C 3,-15 4.6,-14 4.4,-12 Z"/>
+    <g mask="url(#ppDiscM)"><circle cx="0" cy="-27" r="11.4"/></g>
+    <use href="#ppTooth" transform="translate(0 -27) rotate(0)"/><use href="#ppTooth" transform="translate(0 -27) rotate(30)"/><use href="#ppTooth" transform="translate(0 -27) rotate(60)"/><use href="#ppTooth" transform="translate(0 -27) rotate(90)"/><use href="#ppTooth" transform="translate(0 -27) rotate(120)"/><use href="#ppTooth" transform="translate(0 -27) rotate(150)"/><use href="#ppTooth" transform="translate(0 -27) rotate(180)"/><use href="#ppTooth" transform="translate(0 -27) rotate(210)"/><use href="#ppTooth" transform="translate(0 -27) rotate(240)"/><use href="#ppTooth" transform="translate(0 -27) rotate(270)"/><use href="#ppTooth" transform="translate(0 -27) rotate(300)"/><use href="#ppTooth" transform="translate(0 -27) rotate(330)"/>
+    <path d="M -16,-36 A 18,18 0 0 1 -4,-45" fill="none" stroke="#170905" stroke-width="1.1" opacity=".7"/>
+  </g>
+</g>
+
+<!-- 바닥 난간 -->
+<path d="M 0,806 L 0,802 L 390,802 L 390,806 Z" fill="#B9551F" opacity=".6"/>
+<rect x="0" y="804" width="390" height="40" fill="#170905"/>
+<rect x="0" y="806" width="390" height="8" fill="url(#ppFloorCut)"/>
+</svg>
+
+<!-- ============ 위 HUD: 휘장 ============ -->
+<svg width="390" height="74" viewBox="0 0 390 74" aria-hidden="true" style="position: absolute; left: 0; top: 0; display: block">
+  <path d="M0,0 H390 V60 Q383.5,62 377,70 Q370.5,62 364,60 Q357.5,62 351,70 Q344.5,62 338,60 Q331.5,62 325,70 Q318.5,62 312,60 Q305.5,62 299,70 Q292.5,62 286,60 Q279.5,62 273,70 Q266.5,62 260,60 Q253.5,62 247,70 Q240.5,62 234,60 Q227.5,62 221,70 Q214.5,62 208,60 Q201.5,62 195,70 Q188.5,62 182,60 Q175.5,62 169,70 Q162.5,62 156,60 Q149.5,62 143,70 Q136.5,62 130,60 Q123.5,62 117,70 Q110.5,62 104,60 Q97.5,62 91,70 Q84.5,62 78,60 Q71.5,62 65,70 Q58.5,62 52,60 Q45.5,62 39,70 Q32.5,62 26,60 Q19.5,62 13,70 Q6.5,62 0,60 Z" fill="url(#ppVal)"/>
+  <g fill="#F2AE58"><circle cx="13" cy="64" r="1.1"/><circle cx="39" cy="64" r="1.1"/><circle cx="65" cy="64" r="1.1"/><circle cx="91" cy="64" r="1.1"/><circle cx="117" cy="64" r="1.1"/><circle cx="143" cy="64" r="1.1"/><circle cx="169" cy="64" r="1.1"/><circle cx="195" cy="64" r="1.1"/><circle cx="221" cy="64" r="1.1"/><circle cx="247" cy="64" r="1.1"/><circle cx="273" cy="64" r="1.1"/><circle cx="299" cy="64" r="1.1"/><circle cx="325" cy="64" r="1.1"/><circle cx="351" cy="64" r="1.1"/><circle cx="377" cy="64" r="1.1"/></g>
+  <!-- 경험치 틈 -->
+  <rect x="58" y="50" width="276" height="5" rx="1" fill="#2C0F07" stroke="#7A3216" stroke-width=".8"/>
+  <rect x="58.5" y="50.5" width="165" height="4" fill="url(#ppXp)"/>
+  <rect x="58" y="48" width="166" height="9" fill="#FFB24E" opacity=".25" filter="url(#ppGlow)"/>
+  <!-- 목숨: 투각 심장 -->
+  <g transform="translate(139 27)">
+    <g fill="#D8482A" stroke="#FFB86A" stroke-width=".7"><path id="ppHeart" d="M 0,8 C -6,2.4 -9,-1.4 -9,-5.2 C -9,-8.2 -6.6,-9.8 -4.4,-9.8 C -2.4,-9.8 -.8,-8.6 0,-6.8 C .8,-8.6 2.4,-9.8 4.4,-9.8 C 6.6,-9.8 9,-8.2 9,-5.2 C 9,-1.4 6,2.4 0,8 Z"/><use href="#ppHeart" x="28"/><use href="#ppHeart" x="56"/><use href="#ppHeart" x="84"/></g>
+    <g fill="#FFE7AE"><path d="M 0,-4 L 1.8,-1.4 L 0,1.4 L -1.8,-1.4 Z"/><path d="M 28,-4 L 29.8,-1.4 L 28,1.4 L 26.2,-1.4 Z"/><path d="M 56,-4 L 57.8,-1.4 L 56,1.4 L 54.2,-1.4 Z"/><path d="M 84,-4 L 85.8,-1.4 L 84,1.4 L 82.2,-1.4 Z"/></g>
+    <use href="#ppHeart" x="112" fill="#2A0E06" stroke="#8C4422" stroke-width=".9"/>
+  </g>
+</svg>
+
+<!-- HUD 글자 -->
+<div style="position: absolute; left: 14px; top: 5px; line-height: 1">
+  <div style="font-size: 9.5px; font-weight: 700; color: #EFB46C; letter-spacing: .12em">웨이브</div>
+  <div style="margin-top: 2px; white-space: nowrap"><span style="font-size: 12px; font-weight: 700; color: #F4C27E">제</span><span class="pp-cut" style="font-size: 27px; font-weight: 900; margin: 0 2px">12</span><span style="font-size: 12px; font-weight: 700; color: #F4C27E">막</span></div>
+</div>
+<div style="position: absolute; left: 0; width: 390px; top: 5px; text-align: center; font-size: 9.5px; font-weight: 700; color: #EFB46C; letter-spacing: .12em; line-height: 1">목숨 4/5</div>
+<div style="position: absolute; right: 14px; top: 5px; line-height: 1; text-align: right">
+  <div style="font-size: 9.5px; font-weight: 700; color: #EFB46C; letter-spacing: .12em">레벨</div>
+  <div style="margin-top: 2px; white-space: nowrap"><span style="font-size: 12px; font-weight: 700; color: #F4C27E">LV</span><span class="pp-cut" style="font-size: 27px; font-weight: 900; margin-left: 3px">9</span></div>
+</div>
+<div style="position: absolute; left: 14px; top: 47.5px; font-size: 9px; font-weight: 700; color: #EFB46C; line-height: 10px">경험치</div>
+<div style="position: absolute; left: 340px; top: 47.5px; font-size: 9px; font-weight: 800; color: #FFE2A6; line-height: 10px">60%</div>
+
+<!-- 연쇄 수: 빛 앞에 선 검은 오림 글자 -->
+<div style="position: absolute; left: 0; width: 390px; top: 206px; text-align: center; line-height: 1; white-space: nowrap">
+  <span class="pp-back" style="font-size: 23px; font-weight: 900; letter-spacing: .08em; vertical-align: 14px">연쇄</span><span class="pp-back" style="font-size: 96px; font-weight: 900; letter-spacing: -.03em; margin-left: 6px">23</span>
+</div>
+
+<!-- 피해 숫자 -->
+<div class="pp-back" style="position: absolute; left: 286px; top: 296px; font-size: 30px; font-weight: 900; line-height: 1; letter-spacing: -.02em">119</div>
+<div class="pp-back" style="position: absolute; left: 84px; top: 308px; font-size: 19px; font-weight: 800; line-height: 1">36</div>
+<div class="pp-back" style="position: absolute; left: 330px; top: 404px; font-size: 21px; font-weight: 800; line-height: 1">52</div>
+
+<!-- 반응 이름: 검은 오림 띠 위로 빛이 새는 글자 -->
+<svg width="342" height="62" viewBox="0 0 342 62" aria-hidden="true" style="position: absolute; left: 24px; top: 444px; display: block">
+  <path d="M 0,8 L 22,4 L 320,4 L 342,8 L 330,31 L 342,54 L 320,58 L 22,58 L 0,54 L 12,31 Z" fill="#170905"/>
+  <path d="M 26,9 H 316 M 26,53 H 316" stroke="#C0612A" stroke-width=".8" stroke-dasharray="2 3"/>
+  <circle cx="22" cy="31" r="5.6" fill="none" stroke="#E0482A" stroke-width="2"/>
+  <circle cx="28" cy="31" r="5.6" fill="none" stroke="#46A386" stroke-width="2"/>
+  <circle cx="314" cy="31" r="5.6" fill="none" stroke="#E0482A" stroke-width="2"/>
+  <circle cx="320" cy="31" r="5.6" fill="none" stroke="#46A386" stroke-width="2"/>
+  <path d="M 171,0 L 171,4 M 60,58 L 60,74 M 282,58 L 282,74" stroke="#170905" stroke-width="1.6"/>
+</svg>
+<div style="position: absolute; left: 0; width: 390px; top: 450px; text-align: center; line-height: 1">
+  <div style="font-size: 9.5px; font-weight: 700; color: #F0A860; letter-spacing: .18em">군견 지뢰밭 · 합성 반응</div>
+  <div class="pp-cut" style="margin-top: 4px; font-size: 27px; font-weight: 900; letter-spacing: -.01em; white-space: nowrap">전향 무리 · 강타!</div>
+</div>
+
+<!-- 방어선 위 칩 -->
+<div style="position: absolute; left: 292px; top: 638px; width: 86px; height: 20px; background: #170905; clip-path: polygon(5px 0,100% 0,calc(100% - 5px) 50%,100% 100%,5px 100%,0 50%); color: #FFE2A6; font-size: 10px; font-weight: 700; line-height: 20px; text-align: center; letter-spacing: -.01em">갈래 6/7 · 칸 1</div>
+
+<!-- 무기 이름 -->
+<div class="pp-lbl" style="left: 24px; top: 767px">카빈</div>
+<div class="pp-lbl" style="left: 66px; top: 773px">대포</div>
+<div class="pp-lbl" style="left: 108px; top: 777px">불여우</div>
+<div class="pp-lbl" style="left: 149px; top: 780px">기사단</div>
+<div style="position: absolute; left: 166px; top: 783px; width: 58px; height: 20px; background: linear-gradient(90deg,#E0482A 0 50%,#46A386 50% 100%) bottom/100% 2px no-repeat, #170905; clip-path: polygon(4px 0,calc(100% - 4px) 0,100% 50%,calc(100% - 4px) 100%,4px 100%,0 50%); color: #FFE7B4; font-size: 9.5px; font-weight: 800; line-height: 19px; text-align: center; letter-spacing: -.03em; white-space: nowrap">군견 지뢰밭</div>
+<div class="pp-lbl" style="left: 241px; top: 778px">전투<br>로봇</div>
+<div class="pp-lbl" style="left: 282px; top: 775px">레이저<br>소총</div>
+<div class="pp-lbl" style="left: 324px; top: 773px">모기 떼</div>
+<div class="pp-lbl" style="left: 366px; top: 767px">원반</div>
+
+<!-- 아래 버튼 -->
+<button class="pp-btn" style="left: 12px">실험</button>
+<button class="pp-btn" style="right: 12px">×1</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
