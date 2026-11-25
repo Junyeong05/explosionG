@@ -1,0 +1,15 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { OUT } from './common';
+import { levers } from './levers2';
+import { dist, f2, pct, sd } from './stats';
+const L = levers();
+const lev2: any[] = readdirSync(OUT).filter((f) => /^lev2-\d\.json$/.test(f)).flatMap((f) => JSON.parse(readFileSync(`${OUT}/${f}`, 'utf8'))).filter((r) => !r.rep);
+const l1 = new Map(L.lev1.map((p) => [L.key(p), p] as const));
+const R = (k: number, s: number) => (k + 2) / (s + 2);
+const show = (lab: string, xs: number[]) => { const d = dist(xs); console.log(`| ${lab} | ×${f2(d.med)} | ×${f2(d.p10)} | ×${f2(d.p90)} | ×${f2(d.spread)} | ${f2(d.cv)} | ${f2(sd(xs.map(Math.log)))} | ${pct(xs.filter((x) => x < 1.3).length / xs.length)} |`); };
+const now = lev2.map((r) => { const p = l1.get(L.key(r))!; return R(p.fh, p.sh); });
+const b15 = lev2.map((r) => R(r.h.b15, l1.get(L.key(r))!.sh));
+show('지금', now);
+show('지금 + 바닥 ×1 (계산)', now.map((x) => Math.max(1, x)));
+show('β15 + 바닥 ×1 (계산)', b15.map((x) => Math.max(1, x)));
+show('β15 + 바닥 ×1.3 · 천장 ×3.5 (계산)', b15.map((x) => Math.min(3.5, Math.max(1.3, x))));
