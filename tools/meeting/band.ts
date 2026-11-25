@@ -1,3 +1,4 @@
+/** 바닥·천장 띠를 결과에 씌우면 (계산만, 시뮬 아님): MEET_OUT=<폴더> npx tsx tools/meeting/band.ts */
 import { readFileSync, readdirSync } from 'node:fs';
 import { OUT } from './common';
 import { levers } from './levers2';

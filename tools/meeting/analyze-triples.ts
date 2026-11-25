@@ -1,8 +1,8 @@
 /** 겹친 합성 정리: MEET_OUT=<폴더> npx tsx tools/meeting/analyze-triples.ts */
 import { readFileSync, readdirSync } from 'node:fs';
-import { ARMS, CATEGORY_LABEL } from '../../src/data/chaos';
+import { CATEGORY_LABEL } from '../../src/data/chaos';
 import { OUT } from './common';
-import { dist, f2, med, pct } from './stats';
+import { dist, f2, pct } from './stats';
 
 const rows: any[] = readdirSync(OUT).filter((f) => /^triples-\d\.json$/.test(f)).flatMap((f) => JSON.parse(readFileSync(`${OUT}/${f}`, 'utf8')));
 const R = (k: number, s: number) => (k + 2) / (s + 2);
@@ -15,7 +15,6 @@ const bodyEff: number[] = [];
 const path: number[] = [];
 const midDiff: number[] = [];
 const addThird: number[] = [];
-const addThirdLow: number[] = [];
 const absF: number[] = [];
 const absS: number[] = [];
 const bestBody = new Map<string, number>();

@@ -1,3 +1,4 @@
+/** 같은 갈래 짝 안 편차 · 대표 짝 치우침 · 셋 한 몸 상한 확인: MEET_OUT=<폴더> npx tsx tools/meeting/within.ts */
 import { readFileSync, readdirSync } from 'node:fs';
 import { OUT } from './common';
 import { dist, f2, med, sd } from './stats';

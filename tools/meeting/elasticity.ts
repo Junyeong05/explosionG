@@ -1,3 +1,4 @@
+/** 지렛대 k 분포 · B 반응 세기 탄력 (배율 ×0.25→×4 에서 비율이 얼마나 움직이나): MEET_OUT=<폴더> npx tsx tools/meeting/elasticity.ts */
 import { levers } from './levers2';
 import { dist, f2 } from './stats';
 const L = levers();

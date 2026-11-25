@@ -6,7 +6,6 @@ import { OUT } from './common';
 import { dist, f1, f2, med, pct, r2one, r2two, corr } from './stats';
 
 const rows: any[] = readdirSync(OUT).filter((f) => /^pairs-235-\d\.json$/.test(f)).flatMap((f) => JSON.parse(readFileSync(`${OUT}/${f}`, 'utf8')));
-const base = new Map<string, any>(readdirSync(OUT).filter((f) => /^base-\d\.json$/.test(f)).flatMap((f) => JSON.parse(readFileSync(`${OUT}/${f}`, 'utf8'))).map((r: any) => [r.id, r]));
 const L_ = (c: string) => CATEGORY_LABEL[c as never];
 for (const r of rows) {
   // 처치 0 짝이 있어 두 판 합에 +2 씩 (ln 이 무한이 되지 않게)
