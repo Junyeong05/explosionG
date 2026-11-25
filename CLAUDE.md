@@ -54,5 +54,5 @@
 
 ## 디자인 캔버스 (정지 화면 시안, Design 타입)
 
-- 컨셉 시안 여섯 방향 (11-21, 세계·적·무기 재질까지) + 7줄 균열 크로스오버 (11-23): https://claude.ai/artifact/Frf9eGGrFij1ctYsvknrDe — 원본·정리 `docs/design/concept-art/`. 고치면 같은 주소로 (`root` = artboard 들이 `project/` 아래 있는 폴더). 유저가 캔버스에서 직접 고치기도 하니(Page 2 등) `canvas.json` 은 올리기 전에 꼭 게시본을 읽어 합친다
+- 컨셉 시안 여섯 방향 (11-21, 세계·적·무기 재질까지) + 7줄 균열 크로스오버 (11-23) + 쪽 "컨셉 12" (`c2/`) · "중립 무대" 여섯 (`c3/`) · "중립 무대 2" 가 보고 싶은 장소 열 (`c4/`, 11-25): https://claude.ai/artifact/Frf9eGGrFij1ctYsvknrDe — 원본·정리 `docs/design/concept-art/`. 고치면 같은 주소로 (`root` = artboard 들이 `project/` 아래 있는 폴더). 유저가 캔버스에서 직접 고치기도 하니(Page 2 등) `canvas.json` 은 올리기 전에 꼭 게시본을 읽어 합친다
 - UI 틀 시안 다섯 방향 (11-13): https://claude.ai/artifact/NBjkwbx61kbbLB2oGmtyLz

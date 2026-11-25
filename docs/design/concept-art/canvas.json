@@ -280,6 +280,86 @@
       "h": 844,
       "title": "6 · 중계 경기장",
       "page": "page-c3n"
+    },
+    "c4-museum.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · 박물관 대전시실",
+      "page": "page-c4n"
+    },
+    "c4-range.dc.html": {
+      "x": 450,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · 무기 시험장",
+      "page": "page-c4n"
+    },
+    "c4-sky.dc.html": {
+      "x": 900,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · 구름 위 전망대",
+      "page": "page-c4n"
+    },
+    "c4-lake.dc.html": {
+      "x": 1350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · 거울 호수 새벽",
+      "page": "page-c4n"
+    },
+    "c4-terminal.dc.html": {
+      "x": 1800,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · 환승역 대합실",
+      "page": "page-c4n"
+    },
+    "c4-dream.dc.html": {
+      "x": 0,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "6 · 몽환 공간",
+      "page": "page-c4n"
+    },
+    "c4-snow.dc.html": {
+      "x": 450,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "7 · 설원 고원",
+      "page": "page-c4n"
+    },
+    "c4-roof.dc.html": {
+      "x": 900,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "8 · 도시 옥상 낮",
+      "page": "page-c4n"
+    },
+    "c4-atrium.dc.html": {
+      "x": 1350,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "9 · 유리 온실",
+      "page": "page-c4n"
+    },
+    "c4-coast.dc.html": {
+      "x": 1800,
+      "y": 960,
+      "w": 390,
+      "h": 844,
+      "title": "10 · 해안 방파제 노을",
+      "page": "page-c4n"
     }
   },
   "createdOnFiles": {
@@ -394,7 +474,17 @@
     "c3-board.dc.html",
     "c3-adaptive.dc.html",
     "c3-abstract.dc.html",
-    "c3-arena.dc.html"
+    "c3-arena.dc.html",
+    "c4-museum.dc.html",
+    "c4-range.dc.html",
+    "c4-sky.dc.html",
+    "c4-lake.dc.html",
+    "c4-terminal.dc.html",
+    "c4-dream.dc.html",
+    "c4-snow.dc.html",
+    "c4-roof.dc.html",
+    "c4-atrium.dc.html",
+    "c4-coast.dc.html"
   ],
   "pages": [
     {
@@ -412,6 +502,10 @@
     {
       "id": "page-c3n",
       "name": "중립 무대 (11-25)"
+    },
+    {
+      "id": "page-c4n",
+      "name": "중립 무대 2 (11-25)"
     }
   ],
   "title": "연쇄 폭발 컨셉 시안"
