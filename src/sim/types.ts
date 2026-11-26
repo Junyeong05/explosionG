@@ -225,6 +225,13 @@ export interface RunConfig {
   fusionLab?: boolean;
   /** 합성 문 샘플 (도파민 모드, src/data/fuseRules.ts). 없으면 지금 규칙 */
   fuseRule?: FuseRule;
+  /**
+   * 실험 (11-26 유저: "무기 수 제한이 없으니 언제 합칠지 판단할 거리가 없다"): 받침 자리 = 공격 무기 몸 수 상한.
+   * 꽉 차면 새 무기 카드가 안 나오고 합성 카드가 확정, 합치면 자리 하나가 빈다. 합친 몸은 무기 넷까지. 규칙은 '지금 규칙' 위에
+   */
+  weaponSlots?: number;
+  /** 자리 실험: 보스(5웨이브)마다 늘어나는 자리 수 */
+  slotsPerBoss?: number;
   /** 반응 도감에서 이미 본 반응 이름 (처음 보는 반응 가중 · 셋째 자리 여는 수) */
   reactsSeen?: readonly string[];
 }

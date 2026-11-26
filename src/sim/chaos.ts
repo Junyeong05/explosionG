@@ -133,6 +133,9 @@ const MAX_SOULS = 40;
 /** 한 줄 10칸을 채우는 순서: 가운데부터 좌우로 */
 const CENTER_OUT = [5, 4, 6, 3, 7, 2, 8, 1, 9, 0];
 
+/** 자리 실험: 합친 몸 하나에 무기 몇까지 (자리를 계속 비울 수 있게 지금 규칙의 둘보다 크게) */
+const SLOT_BODY = 4;
+
 export class Chaos {
   readonly actors: Actor[] = [];
   /** 지금 화면에 있는 곱하기 게이트 (없으면 null) */
@@ -682,6 +685,8 @@ export class Chaos {
     }
     const weapons = this.owned().filter((id) => ARMS[id].cat !== 'passive');
     const passives = this.owned('passive');
+    // 자리 실험: 몸 수가 자리만큼이면 새 무기 대신 합성 카드 확정
+    const slotsFull = this.slotsFull();
     // 무기 종류가 100개가 넘어서 한 장씩 같은 무게로 섞으면 가진 무기 레벨 업이 거의 안 나왔다.
     // 그래서 갈래별 전체 무게를 정해 두고 나눠 준다: 레벨 업 1장당 1, 새 무기 전체 max(2, 0.25 × 가진 무기 수),
     // 새 강화 전체 0.8 (보스 보상은 새 마법을 더 자주).
@@ -697,7 +702,7 @@ export class Chaos {
       } else if (ARMS[d.id].fusion) continue;
       else if (ARMS[d.id].cat === 'passive') {
         if (passives.length < PASSIVE_SLOTS) newPassives.push(d.id);
-      } else if (weapons.length < WEAPON_SLOTS) newWeapons.push(d.id);
+      } else if (weapons.length < WEAPON_SLOTS && !slotsFull) newWeapons.push(d.id);
     }
     const cand: { id: string; wt: number }[] = [];
     // 융합 짝: 가진 무기의 짝은 새 무기로 훨씬 자주, 짝을 이미 가진 무기의 레벨 업도 더 자주
@@ -720,10 +725,10 @@ export class Chaos {
     // 합성 문 샘플 (fuseRules.ts): 칸·표·호흡이 열려 있으면 합성 카드 한 장 확정 (추첨·쉼 없음)
     const gatedCard = gated(this.fuseRule) ? this.gatedFuseCard() : null;
     if (gatedCard) out.push(gatedCard);
-    const resting = gated(this.fuseRule) || (kind !== 'start' && this.fuseRest > 0);
+    const resting = !slotsFull && (gated(this.fuseRule) || (kind !== 'start' && this.fuseRest > 0));
     if (resting && !gated(this.fuseRule)) this.fuseRest--;
     const pairs = resting ? [] : this.fuseCandidates();
-    if (pairs.length > 0 && (lab || rng.chance(OFFER5.chance))) {
+    if (pairs.length > 0 && (lab || slotsFull || rng.chance(OFFER5.chance))) {
       const wt = (p: [string, string]) =>
         ({ 반응: 3, 무리: 2, 모양: 2, 보통: 1 })[kind4(ARMS[p[0]].cat as never, ARMS[p[1]].cat as never)] * (this.fusion.kids.has(p[0]) ? OFFER5.growWt : OFFER5.freshWt);
       for (let i = 0; i < (lab ? 2 : 1) && pairs.length; i++) {
@@ -783,7 +788,7 @@ export class Chaos {
 
   /** 이 판의 합성 문. 합성 시험판은 늘 지금 규칙 (합성 카드 둘) */
   get fuseRule(): FuseRule {
-    return this.w.config.fusionLab ? 'now' : (this.w.config.fuseRule ?? 'now');
+    return this.w.config.fusionLab || this.w.config.weaponSlots ? 'now' : (this.w.config.fuseRule ?? 'now');
   }
   /** 공격 무기 (합친 무기 안에 든 것도) */
   attackOwned(): string[] {
@@ -797,10 +802,24 @@ export class Chaos {
   }
   /** 지금 한 몸에 무기 몇까지: 폭·무기 수·호흡은 둘 (반응 도감 12 를 보면 셋), 표와 그릇은 셋 */
   bodyMaxNow(): number {
+    if (this.w.config.weaponSlots) return SLOT_BODY;
     const r = this.fuseRule;
     if (r === 'now') return OFFER5.bodyMax;
     if (r === 'bowl') return GATE.bowlBody;
     return (this.w.config.reactsSeen?.length ?? 0) >= GATE.bodyCodex ? 3 : GATE.body;
+  }
+  /** 자리 실험: 지금 자리 수 (없으면 무한) */
+  slotCap(): number {
+    const c = this.w.config;
+    if (!c.weaponSlots) return Number.POSITIVE_INFINITY;
+    return c.weaponSlots + Math.floor(Math.max(0, this.w.wave - 1) / 5) * (c.slotsPerBoss ?? 0);
+  }
+  /** 자리 실험: 공격 무기 몸 수 (합친 무기는 하나) */
+  bodyCount(): number {
+    return this.owned().filter((id) => ARMS[id].cat !== 'passive' && !this.parent.has(id)).length;
+  }
+  slotsFull(): boolean {
+    return this.bodyCount() >= this.slotCap();
   }
   /** 몸 안 무기 (자기 포함) */
   bodyMembers(root: string): string[] {
