@@ -360,6 +360,46 @@
       "h": 844,
       "title": "10 · 해안 방파제 노을",
       "page": "page-c4n"
+    },
+    "c5-line.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · 방어선 포대",
+      "page": "page-c5u"
+    },
+    "c5-deploy.dc.html": {
+      "x": 450,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · 전진 진형",
+      "page": "page-c5u"
+    },
+    "c5-lane.dc.html": {
+      "x": 900,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · 레인 방어",
+      "page": "page-c5u"
+    },
+    "c5-arc.dc.html": {
+      "x": 1350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · 호 포대",
+      "page": "page-c5u"
+    },
+    "c5-rail.dc.html": {
+      "x": 1800,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · 레일 이동 포대",
+      "page": "page-c5u"
     }
   },
   "createdOnFiles": {
@@ -484,7 +524,12 @@
     "c4-snow.dc.html",
     "c4-roof.dc.html",
     "c4-atrium.dc.html",
-    "c4-coast.dc.html"
+    "c4-coast.dc.html",
+    "c5-line.dc.html",
+    "c5-deploy.dc.html",
+    "c5-lane.dc.html",
+    "c5-arc.dc.html",
+    "c5-rail.dc.html"
   ],
   "pages": [
     {
@@ -506,6 +551,10 @@
     {
       "id": "page-c4n",
       "name": "중립 무대 2 (11-25)"
+    },
+    {
+      "id": "page-c5u",
+      "name": "하단 UI · 배치해서 싸우기 (11-26)"
     }
   ],
   "title": "연쇄 폭발 컨셉 시안"
