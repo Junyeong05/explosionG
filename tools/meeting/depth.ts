@@ -49,8 +49,9 @@ function sim(arms: string[], L: number, fuse: [string, string][], seed: number, 
     }
     skip();
     w.step(FIXED_DT, []);
-    for (const ev of w.events) if (ev.type === 'react') reacts[(ev as { text: string }).text] = (reacts[(ev as { text: string }).text] ?? 0) + 1;
-    (w.events as unknown[]).length = 0;
+    const evs = (w as unknown as { events: { type: string; text?: string }[] }).events;
+    for (const ev of evs) if (ev.type === 'react' && ev.text) reacts[ev.text] = (reacts[ev.text] ?? 0) + 1;
+    evs.length = 0;
     skip();
     (w as unknown as { life: number }).life = w.stats.maxLife;
   }
