@@ -49,6 +49,13 @@ export class Renderer {
   private readonly shake = new Shake();
   private readonly expFx: ExpDraw;
   private readonly chaosFx: ChaosDraw;
+  /** 무기마다 고유 색 (src/render/weaponColors.ts). 끄면 갈래 색 */
+  get srcColors(): boolean {
+    return this.chaosFx.srcColors;
+  }
+  set srcColors(on: boolean) {
+    this.chaosFx.srcColors = on;
+  }
   private particleBudget = PARTICLE_BUDGET_PER_FRAME;
 
   private edge = 0;
@@ -137,7 +144,7 @@ export class Renderer {
           break;
         case 'hit':
           // 도파민 모드: 낸 무기 갈래 색 (흰색과 반쯤 섞어 읽히게). 합친 무기는 안에 든 무기의 피해가 그 갈래 색으로
-          this.numbers.add(e.x, e.y - 8, e.amount, e.crit, e.src && ARMS[e.src] ? tint(CATEGORY_COLOR[ARMS[e.src].cat]) : '');
+          this.numbers.add(e.x, e.y - 8, e.amount, e.crit, e.src && ARMS[e.src] ? tint(this.chaosFx.srcCol(e.src, CATEGORY_COLOR[ARMS[e.src].cat])) : '');
           break;
         case 'kill': {
           const def = getEnemyDef(e.kind);
@@ -226,7 +233,9 @@ export class Renderer {
       : s === 'lightning' ? '#9fe8ff'
       : s === 'shard' ? COLORS.gold
       : chainColor(e.chainKills);
-    this.rings.add(e.x, e.y, e.radius * 0.25, e.radius, color, big ? 0.6 : minor ? 0.22 : 0.32, big ? 4 : s === 'tap' ? 2.5 : 2);
+    // 고유 색: 무기가 낸 연쇄의 고리는 그 무기 색 (파편은 연쇄 색 그대로 = 연쇄 길이)
+    const ring = this.chaosFx.srcColors && e.src ? this.chaosFx.srcCol(e.src, color) : color;
+    this.rings.add(e.x, e.y, e.radius * 0.25, e.radius, ring, big ? 0.6 : minor ? 0.22 : ring !== color ? 0.42 : 0.32, big ? 4 : s === 'tap' ? 2.5 : ring !== color ? 2.5 : 2);
     this.burst(e.x, e.y, big ? 36 : s === 'tap' ? 10 : minor ? 2 : 5, color, 40, big ? 380 : 90 + e.radius * 2.4, big ? 0.7 : 0.4);
     if (e.crit) this.rings.add(e.x, e.y, e.radius, e.radius * 1.25, COLORS.gold, 0.3, 1.5);
     // 흔들림은 폭발 크기에 비례 (연쇄는 작게, 많이 쌓이면 커짐)

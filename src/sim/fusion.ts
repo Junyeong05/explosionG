@@ -1386,7 +1386,7 @@ export class Fusion {
     const tg = (i: number) => ts[i % Math.max(1, ts.length)] ?? null;
     // 극적 반응: 노리던 상태의 적을 만나면 B 갈래의 큰 한 방 (갈래마다 하나, 모든 짝에 같다)
     if (this.drama && t0 && (re(t0) > 1 || resOn)) {
-      if (this.every(`pop4:${A.id}>${B.id}`, V4D.popSec)) c.w.emit({ type: 'react', text: `${this.v5 ? reactName(B.id) : P.drama}!`, color: ST_COLOR[P.seeks], x: t0.x, y: t0.y });
+      if (this.every(`pop4:${A.id}>${B.id}`, V4D.popSec)) c.w.emit({ type: 'react', text: `${this.v5 ? reactName(B.id) : P.drama}!`, color: ST_COLOR[P.seeks], x: t0.x, y: t0.y, src: A.id });
       this.drama4(A, B, x, y, t0, shots, unit * V4D.react);
       if (this.v5) {
         this.trait5(B, x, y, t0, unit * V4D.react * Math.max(1, shots));
@@ -1651,7 +1651,7 @@ export class Fusion {
     this.resUntil.set(r, this.now() + V5.resSec);
     const m = this.mount(r);
     const kid = this.kids.get(r)?.[0] ?? B.id;
-    this.c.w.emit({ type: 'react', text: `${fuseName(r, kid)} 공명!`, color: CATEGORY_COLOR[ARMS[kid]?.cat ?? 'gun'], x: m.x, y: m.y - 60 });
+    this.c.w.emit({ type: 'react', text: `${fuseName(r, kid)} 공명!`, color: CATEGORY_COLOR[ARMS[kid]?.cat ?? 'gun'], x: m.x, y: m.y - 60, src: r });
     this.c.w.emit({ type: 'shake', power: 0.4 });
     this.ring(m.x, m.y, 40, CATEGORY_COLOR[ARMS[kid]?.cat ?? 'gun'], 0.6);
   }

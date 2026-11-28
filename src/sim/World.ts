@@ -904,7 +904,7 @@ export class World implements SimApi {
     if (chain && ex.source === 'chain') chain.links++;
     this.emit({
       type: 'explosion', x: ex.x, y: ex.y, radius: ex.radius, source: ex.source,
-      chainId: ex.chainId, chainKills: chain?.kills ?? 0, crit: ex.crit,
+      chainId: ex.chainId, chainKills: chain?.kills ?? 0, crit: ex.crit, src: this.chainSrc.get(ex.chainId),
     });
     if (ex.tag?.row) this.emit({ type: 'rowBlast', y: ex.y, half: ex.radius });
     const hits = ex.tag?.row ? this.exp.collectRow(ex, this.hitBuf) : this.collectEnemiesNear(ex.x, ex.y, ex.radius, this.hitBuf);

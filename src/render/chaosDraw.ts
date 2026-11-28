@@ -9,6 +9,7 @@ import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/World';
 import type { GlowCache } from './fx/effects';
 import { COLORS, rgba } from './palette';
+import { WeaponColors } from './weaponColors';
 
 const FW = BALANCE.field.width;
 const FH = BALANCE.field.height;
@@ -66,6 +67,22 @@ interface Pop {
  * sim 상태(w.chaos)를 읽기만 한다.
  */
 /** v5 테두리 빛을 안 그리는 것 (안 보이는 표시용) */
+/** 두 색을 t 만큼 섞는다 (#rrggbb) */
+const mixCache = new Map<string, string>();
+function mixHex(a: string, b: string, t: number): string {
+  if (a[0] !== '#' || a.length !== 7) return b;
+  const key = `${a}${b}${t}`;
+  let v = mixCache.get(key);
+  if (!v) {
+    const x = parseInt(a.slice(1), 16);
+    const y = parseInt(b.slice(1), 16);
+    const ch = (sh: number) => Math.round(((x >> sh) & 255) * (1 - t) + ((y >> sh) & 255) * t);
+    v = `#${((1 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).slice(1)}`;
+    if (mixCache.size > 2000) mixCache.clear();
+    mixCache.set(key, v);
+  }
+  return v;
+}
 const HALO_SKIP: ReadonlySet<string> = new Set(['open', 'post', 'czone', 'tether', 'mark', 'fzone', 'ring']);
 
 export class ChaosDraw {
@@ -82,12 +99,27 @@ export class ChaosDraw {
   private flashes: { x: number; y: number; a: number; t: number; big: boolean }[] = [];
   private casings: { x: number; y: number; vx: number; vy: number; r: number; t: number }[] = [];
 
+  /** 무기마다 고유 색 (켜면 그 무기 · 그 몸이 낸 것 모두 그 색 톤, weaponColors.ts). 끄면 예전처럼 갈래 색 */
+  readonly colors = new WeaponColors();
+  srcColors = false;
+
   constructor(
     private readonly ctx: CanvasRenderingContext2D,
     private readonly glow: GlowCache,
   ) {}
 
+  /** 이 무기가 낸 것의 색: 고유 색을 켰으면 그 몸의 색, 아니면 fallback (갈래 색) */
+  srcCol(id: string | undefined | null, fallback: string): string {
+    return (this.srcColors && this.colors.of(id)) || fallback;
+  }
+  /** 탄 · 빛줄기처럼 제 색이 있는 것: 고유 색을 켜면 제 색을 무기 색 쪽으로 70% 끌어온다 (그 톤을 띠게) */
+  tone(id: string | undefined | null, own: string): string {
+    const c = this.srcColors ? this.colors.of(id) : null;
+    return c ? mixHex(own, c, 0.7) : own;
+  }
+
   reset(): void {
+    this.colors.reset();
     this.banners = [];
     this.pops = [];
     this.flash = 0;
@@ -129,13 +161,13 @@ export class ChaosDraw {
         // 합성 v2: 처음 해낸 짝은 이름만 (규칙은 직접 보고 알아낸다)
         this.banner(`새 합성 · ${e.name}`, `${ARMS[e.a]?.name ?? ''} + ${ARMS[e.b]?.name ?? ''}`, '#7dff9a');
         // 처음 해낸 그 자리에 이름이 떠오른다 (두 갈래 색)
-        this.pop(e.x, e.y - 18, e.name, CATEGORY_COLOR[ARMS[e.b]?.cat ?? 'gun']);
+        this.pop(e.x, e.y - 18, e.name, this.srcCol(e.a, CATEGORY_COLOR[ARMS[e.b]?.cat ?? 'gun']));
         break;
       case 'resist':
         this.pop(e.x, e.y - 16, '저항', '#cfd8dc');
         break;
       case 'react':
-        this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: e.color, t: 0, big: true, huge: e.text.endsWith('공명!') });
+        this.pops.push({ x: e.x, y: e.y - 22, text: e.text, color: this.srcCol(e.src, e.color), t: 0, big: true, huge: e.text.endsWith('공명!') });
         if (this.pops.length > 16) this.pops.shift();
         break;
       case 'augment': {
@@ -210,6 +242,7 @@ export class ChaosDraw {
   drawUnder(w: World): void {
     const c = w.chaos;
     if (!c) return;
+    if (this.srcColors) this.colors.update(c);
     const ctx = this.ctx;
     // 무기 받침: 방어선 바로 뒤 한 줄 (넘친 줄은 방어선 위)
     const mounts = c.allMounts();
@@ -241,7 +274,17 @@ export class ChaosDraw {
         ctx.restore();
       }
       const L = w.augments.stacks(id);
-      const glowCol = spec.fusion ? '#ff3cc8' : CATEGORY_COLOR[spec.cat];
+      const glowCol = this.srcCol(root, spec.fusion ? '#ff3cc8' : CATEGORY_COLOR[spec.cat]);
+      // 고유 색: 자리 밑에 그 무기 색 받침 고리 (이 색 = 이 무기, 판 위에 같은 색이 보이면 이 무기가 낸 것)
+      if (this.srcColors && root === id) {
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 14.5, 0, TAU);
+        ctx.fillStyle = rgba(glowCol, 0.16);
+        ctx.fill();
+        ctx.strokeStyle = rgba(glowCol, 0.95);
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
       if (spec.fusion) {
         // 융합 무기: 무지개빛 고리
         ctx.beginPath();
@@ -278,9 +321,10 @@ export class ChaosDraw {
         // 합친 무기: 안에 든 갈래 색 고리를 겹쳐 그린다 (무엇을 합쳤는지 한눈에)
         (c.fusion.kids.get(id) ?? []).forEach((k, i) => {
           ctx.beginPath();
-          ctx.arc(m.x, m.y + bob, 12 + i * 3, 0, TAU);
-          ctx.strokeStyle = rgba(CATEGORY_COLOR[ARMS[k].cat], 0.9);
-          ctx.lineWidth = 2;
+          ctx.arc(m.x, m.y + bob, (this.srcColors ? 17.5 : 12) + i * 3, 0, TAU);
+          // 고유 색을 켜면 안에 든 무기는 몸 색 그대로 (메인 색만 유지), 겹친 고리 수 = 안에 든 무기 수
+          ctx.strokeStyle = this.srcColors ? rgba(glowCol, 0.55) : rgba(CATEGORY_COLOR[ARMS[k].cat], 0.9);
+          ctx.lineWidth = this.srcColors ? 1.5 : 2;
           ctx.stroke();
         });
         this.icon(spec.emoji, m.x, m.y + bob, 19);
@@ -288,7 +332,7 @@ export class ChaosDraw {
       // 합성 v5 공명: 반응이 쌓이는 게이지 (안에 든 무기 색), 공명 중엔 번쩍이며 남은 시간
       if (c.fusion.v5 && c.fusion.has(id) && !c.fusion.isKid(id)) {
         const kid = c.fusion.kids.get(id)?.[0];
-        const col = kid ? CATEGORY_COLOR[ARMS[kid].cat] : '#ffffff';
+        const col = this.srcCol(id, kid ? CATEGORY_COLOR[ARMS[kid].cat] : '#ffffff');
         const on = c.fusion.resonating(id);
         const lv = c.fusion.resLevel(id);
         if (on) {
@@ -444,7 +488,21 @@ export class ChaosDraw {
     if (!c) return;
     const ctx = this.ctx;
     // 합성 v5 한 몸: 합친 무기가 낸 것은 안에 든 무기의 갈래 색으로 빛난다 (공명 중엔 더 크게)
-    if (c.fusion.v5 && c.fusion.kids.size > 0) {
+    if (this.srcColors) {
+      // 고유 색: 무기가 낸 것은 모두 그 몸의 색으로 은은히 (공명 중엔 더 크게)
+      ctx.globalCompositeOperation = 'lighter';
+      for (const a of c.actors) {
+        if (a.t < 0 || HALO_SKIP.has(a.kind)) continue;
+        const col = this.colors.of(a.src);
+        if (!col) continue;
+        const res = c.fusion.v5 && c.fusion.resonating(c.rootOf(a.src));
+        const s = res ? 40 + 6 * Math.sin(this.time * 14 + a.id) : 30;
+        ctx.globalAlpha = res ? 0.65 : 0.5;
+        ctx.drawImage(this.glow.get(col), a.x - s / 2, a.y - s / 2, s, s);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    } else if (c.fusion.v5 && c.fusion.kids.size > 0) {
       const halo = new Map<string, { col: string; res: boolean }>();
       for (const [r, ks] of c.fusion.kids) {
         if (c.fusion.isKid(r) || ks.length === 0) continue;
@@ -474,7 +532,7 @@ export class ChaosDraw {
       for (const a of c.actors) {
         if (a.t < 0 || !team.has(a.src) || HALO_SKIP.has(a.kind)) continue;
         ctx.globalAlpha = 0.45;
-        ctx.drawImage(this.glow.get(CATEGORY_COLOR[ARMS[a.src]?.cat ?? 'gun']), a.x - 16, a.y - 16, 32, 32);
+        ctx.drawImage(this.glow.get(this.srcCol(a.src, CATEGORY_COLOR[ARMS[a.src]?.cat ?? 'gun'])), a.x - 16, a.y - 16, 32, 32);
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
@@ -892,7 +950,7 @@ export class ChaosDraw {
         const f = 1 - k;
         const wdt = a.r || 20;
         const top = a.ty > a.y ? a.ty : 0;
-        const col = a.emoji ?? '#ff3cc8';
+        const col = this.tone(a.src, a.emoji ?? '#ff3cc8');
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = rgba(col, 0.45 * f);
         ctx.fillRect(a.x - wdt, top, wdt * 2, LINE_Y - top);
@@ -906,7 +964,7 @@ export class ChaosDraw {
         break;
       case 'beam': {
         const f = 1 - k;
-        const col = a.emoji ?? '#ff3cc8';
+        const col = this.tone(a.src, a.emoji ?? '#ff3cc8');
         ctx.globalCompositeOperation = 'lighter';
         ctx.lineCap = 'round';
         ctx.strokeStyle = rgba(col, 0.5 * f);
@@ -981,7 +1039,7 @@ export class ChaosDraw {
       case 'tether': {
         // 합성: 두 점을 잇는 줄 (줄기·사슬·철조망)
         const fade = Math.min(1, (a.ttl - a.t) / 0.15) * Math.min(1, a.t / 0.05 + 0.3);
-        const col = a.emoji ?? '#9fe8ff';
+        const col = this.tone(a.src, a.emoji ?? '#9fe8ff');
         ctx.globalCompositeOperation = 'lighter';
         ctx.lineCap = 'round';
         ctx.strokeStyle = rgba(col, 0.55 * fade);
@@ -1135,7 +1193,7 @@ export class ChaosDraw {
       }
       case 'ray': {
         if (!a.target) break;
-        const col = a.emoji ?? '#ff3cc8';
+        const col = this.tone(a.src, a.emoji ?? '#ff3cc8');
         const ramp = Math.max(1, a.m);
         const fade = Math.min(1, 0.55 + 0.15 * ramp);
         ctx.globalCompositeOperation = 'lighter';
@@ -1279,7 +1337,7 @@ export class ChaosDraw {
 
   private bullet(a: Actor, ctx: CanvasRenderingContext2D): void {
     const p = a.p ?? {};
-    const col = p.color ?? '#ffe08a';
+    const col = this.tone(a.src, p.color ?? '#ffe08a');
     const sp = Math.hypot(a.vx, a.vy) || 1;
     const ux = a.vx / sp;
     const uy = a.vy / sp;
@@ -1470,7 +1528,13 @@ export class ChaosDraw {
       const L = w.augments.stacks(id);
       const cd = c.cooldowns.get(id) ?? 0;
       const ready = 1 - clamp(cd / Math.max(0.01, c.cooldownOf(id)), 0, 1);
-      const col = CATEGORY_COLOR[info.cat];
+      const col = this.srcCol(id, CATEGORY_COLOR[info.cat]);
+      if (this.srcColors) {
+        ctx.beginPath();
+        ctx.arc(ix, iy, 8.5, 0, TAU);
+        ctx.fillStyle = rgba(col, 0.22);
+        ctx.fill();
+      }
       ctx.beginPath();
       ctx.arc(ix, iy, 8.5, -Math.PI / 2, -Math.PI / 2 + TAU * ready);
       ctx.strokeStyle = rgba(col, 0.75);
@@ -1491,7 +1555,7 @@ export class ChaosDraw {
         inside.slice(0, 5).forEach((kid, j) => {
           ctx.beginPath();
           ctx.arc(ix - 8 + j * 4, iy + 11, 1.7, 0, TAU);
-          ctx.fillStyle = CATEGORY_COLOR[ARMS[kid].cat];
+          ctx.fillStyle = this.srcColors ? col : CATEGORY_COLOR[ARMS[kid].cat];
           ctx.fill();
         });
       }

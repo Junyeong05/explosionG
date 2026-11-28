@@ -9,7 +9,7 @@ export type SimEvent =
   /** power = 쏜 게이지 (1 = 100%) */
   | { type: 'tap'; x: number; y: number; free: boolean; power: number }
   | { type: 'dryTap'; x: number; y: number }
-  | { type: 'explosion'; x: number; y: number; radius: number; source: DamageSource; chainId: number; chainKills: number; crit: boolean }
+  | { type: 'explosion'; x: number; y: number; radius: number; source: DamageSource; chainId: number; chainKills: number; crit: boolean; /** 이 연쇄를 낸 무기 (도파민 모드) */ src?: string }
   | { type: 'hit'; x: number; y: number; amount: number; crit: boolean; /** 도파민 모드: 낸 무기 id */ src?: string }
   | { type: 'shieldBreak'; x: number; y: number }
   | { type: 'kill'; x: number; y: number; kind: string; chainKills: number; boss: boolean }
@@ -40,7 +40,7 @@ export type SimEvent =
   /** 합성 v2: 이 판에서 처음 해낸 짝 (이름만 보여 준다, 규칙 문장은 숨김) */
   | { type: 'fusion'; name: string; a: string; b: string; x: number; y: number }
   /** 합성 v4 극적 반응: 그 자리에 반응 이름이 뜬다 */
-  | { type: 'react'; text: string; color: string; x: number; y: number }
+  | { type: 'react'; text: string; color: string; x: number; y: number; /** 반응을 낸 몸 쪽 무기 (고유 색) */ src?: string }
   /** 제어 저항: 계속 묶이던 적이 잠깐 풀린다 */
   | { type: 'resist'; x: number; y: number }
   | { type: 'shake'; power: number }

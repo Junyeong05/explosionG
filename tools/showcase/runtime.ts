@@ -53,6 +53,8 @@ export interface Scene {
   select?: string;
   /** 손 입력을 이 모양으로 자동으로 누른다 (taps 대신) */
   input?: InputPattern;
+  /** 무기마다 고유 색 (src/render/weaponColors.ts): 그 무기 · 그 몸이 낸 것 모두 그 색 톤 */
+  colors?: boolean;
 }
 
 export interface Section {
@@ -145,6 +147,7 @@ class Stage {
     this.drv = this.scene.input ? new InputDriver(this.scene.input) : null;
     this.w = w;
     this.r.reset();
+    this.r.srcColors = !!this.scene.colors;
     this.t = 0;
     this.spawnT = 0;
     this.tapT = 1;
