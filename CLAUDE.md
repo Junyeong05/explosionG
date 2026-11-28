@@ -50,7 +50,7 @@
   - `pull` (끌어모으기 너프 + 적끼리 가운데 충돌: 중력 무기 여덟): https://claude.ai/artifact/Ce9etzt3wfK4pmCi7CA8d3
   - `clarity` (합성 카드 정리 + 공격 구분: 피해 숫자 색 · 무기 누르면 집중 보기, 표): https://claude.ai/artifact/Fhx8pqe88fsUc8CLAd5MU8
   - `fusions` (합성 무기 샘플 52: 1+1 · 2+1 몸에 더함 · 2+1 사슬 · 1+2 · 3+1 · 2+2 · 사슬 넷 · 3+2, 지금 규칙 그대로): https://claude.ai/artifact/BfVwDajbCmw6XhBVpkdPqH
-  - `colors` (무기 고유 색: 얻을 때 한 색 · 합치면 메인 색, 지금(갈래 색)과 나란히. 렌더 옵션 `Renderer.srcColors` · `src/render/weaponColors.ts`, 게임엔 아직 꺼짐): https://claude.ai/artifact/2jqYL1oguhoqu2FGfW65EB
+  - `colors` (무기 고유 색: 얻을 때 한 색 · 합치면 메인 색, 지금(갈래 색)과 나란히. 렌더 옵션 `Renderer.srcColors` · `src/render/weaponColors.ts`, 11-28 게임에 켬 `App.ts`): https://claude.ai/artifact/2jqYL1oguhoqu2FGfW65EB
   - `cross` (균열 크로스오버 연출: 세계 여섯 무기 셋씩 · 합성 9쌍 메인만 → 합친 뒤 · 섞어 보기 18개): https://claude.ai/artifact/DYPFqaXTbzRF9DahYrFLn2 — 이 페이지만 만드는 법이 다르다: `node tools/crossfx/build.mjs` (공통 틀 `tools/crossfx/runtime.js`, 세계마다 `tools/crossfx/worlds/<세계>.js`, 확인 `node tools/crossfx/check.cjs docs/showcase/cross.html <폴더>`), 올리는 파일은 `dist-showcase/cross.html`
   - `cross-run` (균열 크로스오버 실전 시뮬: 게임 한 판처럼 HUD · 웨이브 · 레벨 업 카드 · 합성 칸 · 목숨): https://claude.ai/artifact/MszdNXtVJhd1DkYz6TVh5L — `node tools/crossfx/build.mjs run` (`tools/crossfx/run.js`), 확인 `node tools/crossfx/check-run.cjs docs/showcase/cross-run.html <폴더> [빨리 돌릴 초]` (TUNE='{"hpA":..}' 로 난이도), 녹화본 `docs/design/concept-art/cross-run.mp4`. 11-24 틀을 테마로 분리: `tools/crossfx/themes/<테마>.js` (glass · city · anime · tactical · mono · orbit, 지금 틀 rift 는 runtime.js · run.js 안), 무기는 받침 위 총(`CX.drawGun`), 테마 비교 `node tools/crossfx/compare-themes.cjs docs/showcase/cross-run.html <폴더> [1=영상]` → `docs/design/concept-art/themes-*.webp` · `cross-run-themes.mp4`
 

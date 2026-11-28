@@ -54,6 +54,8 @@ export class App {
     if (!canvas || !ui) throw new Error('#game, #ui 가 필요합니다');
 
     this.renderer = new Renderer(canvas);
+    // 무기마다 고유 색 (11-28 유저 "실제 게임에서 테스트해 보게"): 얻을 때 한 색, 합치면 메인 색, 낸 것 모두 그 톤
+    this.renderer.srcColors = true;
     this.input = new PointerInput(canvas, (x, y) => this.renderer.toLogical(x, y));
     this.overlay = new Overlay(ui);
     this.speedBtn = h('button', { class: 'speed', ariaLabel: '게임 배속', onClick: () => this.cycleSpeed() });
